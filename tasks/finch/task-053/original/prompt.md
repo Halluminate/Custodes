@@ -1,0 +1,3 @@
+For each month from December 2000 through April 2012, compute the difference between the Total Monthly Nominal Volume (CNG + TCO) and the Total Monthly Discounted Volume (CNG + TCO) for the long-term natural gas contract. Then compare the Average Daily Nominal Volume for CNG with the Average Daily Nominal Volume for TCO.
+
+Your input files are on your Desktop (/home/model/Desktop): 53_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

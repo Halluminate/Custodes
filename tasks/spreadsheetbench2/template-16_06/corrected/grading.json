@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_16_06_golden.xlsx",
+        "reference_path": "reference/untouched_input_16_06_input.xlsx",
+        "answer_position": "'RentRoll'!B2:P7,'RentRoll'!B8:G8,'RentRoll'!I8:J8,'RentRoll'!L8:P8,'RentRoll'!B9:E9,'RentRoll'!G9:G9,'RentRoll'!I9:J9,'RentRoll'!L9:P9,'RentRoll'!B10:G10,'RentRoll'!I10:J10,'RentRoll'!L10:P10,'RentRoll'!B11:E11,'RentRoll'!G11:G11,'RentRoll'!I11:J11,'RentRoll'!L11:P11,'RentRoll'!B12:E12,'RentRoll'!G12:G12,'RentRoll'!I12:J12,'RentRoll'!L12:P12,'RentRoll'!B13:E13,'RentRoll'!G13:G13,'RentRoll'!I13:P13,'RentRoll'!B14:P18,'Valuation'!B2:E45,'Valuation'!B46:B46,'Valuation'!D46:E46,'Valuation'!B47:E50,'SharedData'!B2:C20",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

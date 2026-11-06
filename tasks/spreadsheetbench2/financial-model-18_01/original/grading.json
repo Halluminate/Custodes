@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_18_RoadAssets_golden.xlsx",
+        "reference_path": "reference/untouched_input_18_01_RoadAssets_input.xlsx",
+        "answer_position": "'Basic Details'!B2:C31,'COP'!B2:F13,'Milestones'!B2:I32,'Total Project Cost'!B2:E19,'Cash Budget'!B2:AB47,'P&L'!A2:Q35,'BS'!B2:T26,'Cash Flow'!B1:T32,'Depreciation'!B2:D22,'Tax Calculation'!A2:Q16,'Revenue'!A2:AF22,'DSCR'!B2:P60,'Ratio Analysis'!B2:T19,'IRR Analysis'!B2:T22",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'Normalization'!B2:I35 (except the 2025E assumption cells I23:I26, which may be filled or left blank), after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

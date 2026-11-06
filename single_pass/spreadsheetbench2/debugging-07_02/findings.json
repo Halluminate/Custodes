@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook leaves several clear planted errors unfixed, so an agent that audits 'thoroughly' as instructed and corrects them will fail the all-cells-must-match check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "incomplete-answer-key",
+    "evidence": "Equity Returns I57 '=I56*(1+$D$12)^$D$10-1' and H82/I82 '=H81*(1+$D$12)^$D$10-1' (should subtract principal, not 1; I57 = -660,464 vs correct ~-210,964); H63 '=I34/SUM($D$34:$D$36)' uses the wrong scenario range; I34 '=I3*H34' references an empty cell; H93=25 is hardcoded while C93=D17; DCF Model F22=501 is hardcoded, breaking the beginning inventory = prior ending (-E27=534) roll; Margin Analysis C22=5682000 is transposed vs DCF D10=5862; C25:E25 '*1000' is a units error (6,394,000,000). All are identical in the golden and the input.",
+    "confirmation": "gt keeps 'Equity Returns'!I57 and H82/I82 '...^$D$10-1' (D57 uses '-D56'), H93 hardcoded 25 vs C93 '=D17', Margin Analysis C22 5682000 vs DCF D10 5862 and C25 '*1000'. All three trials in run <id> made exactly these fixes and were failed on regression (0.9918-0.9937)."
+  }
+]

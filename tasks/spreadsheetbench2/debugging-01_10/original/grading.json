@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_01_golden.xlsx",
+        "reference_path": "reference/untouched_input_Unit Mismatch_input.xlsx",
+        "answer_position": "'Ex 1 - LBO'!B1:AK95,'Ex 2 - Valuation Bridge'!B2:C36,'Ex 3 - PF P&L'!B1:I30,'Ex 4 - Organic Operating Model'!B1:AF41,'Ex 5 - M&A'!B1:AB81,'Ex 6 - Amdocs Historical M&A'!B2:J19,'Ex 7 - SOFR'!B2:E79,'Ex 8 - Public Comps'!B2:F37,'Ex 9 - Transaction Comps'!B2:G24,'Ex 10 - Balance Sheet'!B2:F33,'Ex 11 - Income Statement'!B2:K28,'Ex 12 - Cash Flow Statement'!B2:G44",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

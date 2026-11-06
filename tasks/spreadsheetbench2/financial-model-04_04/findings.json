@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth fills six Valuation cells the instruction never asks for, and the all-or-nothing verifier grades them plus about 120 cells that depend on them",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Comparing the untouched input formulas with the GT formulas shows these Valuation cells added in the GT: D95 '=AVERAGE(D92:D94)' (Average price), G95 '=BB!D7' (Consensus TP), D97 '=E50' (Current price), G97 '=G95/D95-1', D99 '=D95/D97-1' and G99 '=G95/D97-1'. All six are blank in the input. The instruction only asks for: Financials Balance Sheet Check, Assumptions SBC, Assumptions D&A, Ratio Analysis Liabilities/Assets and Debt/Total Capital. It never mentions the Valuation blended-price block. Many cells read Valuation!D95 or D97: Ratio_Analysis F34:O34 (Target Price), K32:O32 (Market Price), K33:O33 (EV), K37:O41, Graphical_representation S68:W69 and BB D6, D25:D27. Running the verifier's own score_workbooks logic over input vs GT gives 190 modification cells (Financials 67, Ratio_Analysis 58, Final Output 30, Assumptions 15, Graphical 10, Valuation 6, BB 4). The verifier returns 1.0 only if every modification cell matches (mod_ratio == 1.0). The single check has weight 1. So an agent that does exactly the five listed tasks scores 0.",
+    "confirmation": "The golden adds six Valuation formulas (D95 =AVERAGE(D92:D94), G95 =BB!D7, D97 =E50, G97, D99, G99) absent from the input and from the instructions. Every trial's errors begin at Final Output!D8/D9, which depend on them, so doing exactly the listed tasks scores 0.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence to the instruction list: 'In the Valuation sheet, complete the Blended Price table (average price, current price, consensus TP, upside/(downside) and the two variances).' This asks for the six cells the key fills (Valuation!D95, G95, D97, G97, D99, G99) that drive Final Output!D8/D9 and ~120 downstream graded cells."
+  },
+  {
+    "id": "F2",
+    "title": "Prompt instructions mismatch the input/golden workbook diff: Valuation sheet Blended Price table is omitted from instructions while Ratio Analysis ratios are already pre-filled",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The task instruction in `problem.py` (lines 42-43) states: \"In the Financials sheet, add a Balance Sheet Check for all periods. In the Assumption sheet, calculate Stock-based Compensation Expense for forecast years, then calculate Depreciation and Amortization for the forecast period. In the Ratio Analysis sheet, calculate Liabilities/Assets for all periods, then calculate Debt/Total Capital for all periods.\" However, inspecting `untouched_input_04_04_Consumer_input.xlsx` vs. `gt_04_Consumer_golden.xlsx` reveals: (1) In `'Ratio_Analysis '`, `Liabilities / Assets` (`F23:O23`, formula `=+(Financials!F97+Financials!F92)/Financials!F87`) and `Debt / Total Cap` (`F26:O26`, formula `=+(Financials!F95+Financials!F90)/(Financials!F87+Financials!F95+Financials!F90)`) are ALREADY populated in the input workbook identically to the golden workbook, and `E23`/`E26` are `None` in both input and golden; (2) Conversely, in `Valuation`, the Blended Price summary table (`D95` `=AVERAGE(D92:D94)`, `D97` `=E50`, `D99` `=D95/D97-1`, `G95` `=BB!D7`, `G97` `=G95/D95-1`, `G99` `=G95/D97-1`) is blank (`None`) in the input workbook and populated in the golden workbook, driving 81 of the 190 modification cells across `Valuation` (6 cells), `'Ratio_Analysis '` (53 valuation-ratio cells), `'Final Output'` (18 cells), `'Graphical_representation'` (10 cells), and `'BB'` (4 cells). Meanwhile, the prompt explicitly warns: \"strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.\" A submission that completes every instructed item (even matching the golden's D&A formula) gets `score=0.0` (`modification 0.5737`, 81 cell errors) on `SpreadsheetBench 2 official cell check` (weight: 1).",
+    "confirmation": "Confirmed: 'Ratio_Analysis '!F23 and F26 (Liabilities/Assets, Debt/Total Cap) are already identical in input and golden, while the uninstructed Valuation D95:G99 block is blank in the input and filled in the golden. The instruction list does not match the diff the verifier grades.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence to the instruction list: 'In the Valuation sheet, complete the Blended Price table (average price, current price, consensus TP, upside/(downside) and the two variances).' This asks for the six cells the key fills (Valuation!D95, G95, D97, G97, D99, G99) that drive Final Output!D8/D9 and ~120 downstream graded cells."
+  },
+  {
+    "id": "F3",
+    "title": "Grader requires six valuation outputs absent from the task instructions",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The specific instructions request balance-sheet checks, forecast compensation and depreciation, and two leverage ratios. However, the golden workbook additionally fills Valuation!D95, G95, D97, G97, D99 and G99, which are blank in the supplied input. Expected values include D95=97.6827021092784 and D97=80.65. These six cells are classified as mandatory modifications. A controlled golden-workbook test leaving only these cells blank produced six modification errors. Because the sole verifier has weight 1 and requires every modification to match, these unrequested outputs can determine the entire score.",
+    "confirmation": "Same defect: the six Valuation cells are None in the input and required in the golden (D97 -> 80.65, D95 -> 97.68 per the grade messages), and nothing in the instruction asks for them, under an all-or-nothing modification check.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence to the instruction list: 'In the Valuation sheet, complete the Blended Price table (average price, current price, consensus TP, upside/(downside) and the two variances).' This asks for the six cells the key fills (Valuation!D95, G95, D97, G97, D99, G99) that drive Final Output!D8/D9 and ~120 downstream graded cells."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: Verifier fails all units (score=0.0) because 81 of 190 graded modification cells depend on uninstructed edits in the Valuation sheet",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 comparison units, `SpreadsheetBench 2 official cell check` (weight: 1) returned `score=0` (`regression 1.0000, modification 0.5211`, with 101 cell errors in unit 1 and 91 cell errors in units 2 and 3). Reconstructing each unit's work from its trajectory: in unit 1 (steps [29]-[38]), unit 2 (steps [29]-[30]), and unit 3 (steps [35]-[45]), every agent completed the instructed tasks in `Financials!E107:O107` (`=E87-E105` through `=O87-O105`) and `Assumptions!K161:O161` (`=K162*K15` through `=O162*O15`), which cascaded to fix all 5 forecast years of the Balance Sheet Check (`Financials!K107:O107` = 0.003 to 0.015) and matched 99 of the 190 modification cells. For `Assumptions!K131:O131`, all 3 units used the `Assumptions` sheet's own forecast assumption driver `=K133*AVERAGE(Financials!J82:K82)` (10 modification cells in `Assumptions!K131:O132`). However, the remaining 81 modification errors reported on every unit (starting with `Final Output!D8: answer=80.65, output=0; Final Output!D9: answer=97.6827021092784, output=0; Final Output!D10: answer=86.9499969482422, output=0; Final Output!D28: answer=20.9329613466668, output=0; Final Output!D29: answer=12.8595407957427, output=1.08337533266574`) all stem from `Valuation!D95, D97, D99, G95, G97, G99` being blank in the input workbook and populated in `gt_04_Consumer_golden.xlsx` despite never being mentioned in the prompt (which explicitly forbids altering uninstructed cells). Because `verify_spreadsheetbench2_cells` requires `mod_ratio == 1.0` to return `1.0` (otherwise returning `0.0`), no agent following the task instructions can ever pass.",
+    "confirmation": "Valuation!D95/D97/D99/G95/G97/G99 are blank in 04_04_Consumer_input.xlsx but filled in the golden (=AVERAGE(D92:D94), =E50, =BB!D7, ...), and the specific instructions never mention them. All 3 trials scored 0 at modification 0.5211, with errors led by Final Output!D8/D9 that flow from those cells.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence to the instruction list: 'In the Valuation sheet, complete the Blended Price table (average price, current price, consensus TP, upside/(downside) and the two variances).' This asks for the six cells the key fills (Valuation!D95, G95, D97, G97, D99, G99) that drive Final Output!D8/D9 and ~120 downstream graded cells."
+  }
+]

@@ -1,0 +1,56 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official chart checklist",
+      "function": "verify_spreadsheetbench2_chart_checklist",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "checklist": [
+          "For chart 'By Quarter': The chart is a line chart with markers",
+          "For chart 'By Quarter': The chart title reads 'By Quarter'",
+          "For chart 'Cumulative': The chart is a line chart with markers",
+          "For chart 'Cumulative': The chart title reads 'Cumulative'",
+          "For chart 'By Quarter': The X-axis labels read Qtr 1, Qtr 2, Qtr 3, Qtr 4 from left to right",
+          "For chart 'Cumulative': The X-axis labels read Qtr 1, Qtr 2, Qtr 3, Qtr 4 from left to right",
+          "For chart 'By Quarter': The legend contains the entries labeled 'Blue', 'Green', 'Blue & Green', 'Original'",
+          "For chart 'Cumulative': The legend contains the entries labeled 'Blue', 'Green', 'Blue & Green', 'Original'",
+          "For chart 'By Quarter': The Y-axis values are formatted in £ currency",
+          "For chart 'Cumulative': The Y-axis values are formatted in £ currency",
+          "The By Quarter chart is placed above the Cumulative chart",
+          "For chart 'By Quarter': The Blue series value at Qtr 1 is approximately £430,000",
+          "For chart 'By Quarter': The Blue series value at Qtr 2 is approximately £420,000",
+          "For chart 'By Quarter': The Blue series value at Qtr 3 is approximately £610,000",
+          "For chart 'By Quarter': The Blue series value at Qtr 4 is approximately £0",
+          "For chart 'By Quarter': The Green series value at Qtr 1 is approximately £0",
+          "For chart 'By Quarter': The Green series value at Qtr 3 is approximately £200,000",
+          "For chart 'By Quarter': The Blue & Green series value at Qtr 1 is approximately £430,000",
+          "For chart 'By Quarter': The Blue & Green series value at Qtr 3 is approximately £810,000",
+          "For chart 'By Quarter': The Original series value at Qtr 1 is approximately £1,370,000",
+          "For chart 'By Quarter': The Original series value at Qtr 2 is approximately £2,740,000",
+          "For chart 'By Quarter': The Original series value at Qtr 3 is approximately £4,110,000",
+          "For chart 'By Quarter': The Original series value at Qtr 4 is approximately £5,480,000",
+          "For chart 'Cumulative': The Blue series value at Qtr 1 is approximately £430,000",
+          "For chart 'Cumulative': The Blue series value at Qtr 2 is approximately £850,000",
+          "For chart 'Cumulative': The Blue series value at Qtr 3 is approximately £1,460,000",
+          "For chart 'Cumulative': The Blue series value at Qtr 4 is approximately £1,460,000",
+          "For chart 'Cumulative': The Green series value at Qtr 3 is approximately £200,000",
+          "For chart 'Cumulative': The Green series value at Qtr 4 is approximately £200,000",
+          "For chart 'Cumulative': The Blue & Green series value at Qtr 3 is approximately £1,660,000",
+          "For chart 'Cumulative': The Blue & Green series value at Qtr 4 is approximately £1,660,000",
+          "For chart 'Cumulative': The Original series value at Qtr 1 is approximately £1,370,000",
+          "For chart 'Cumulative': The Original series value at Qtr 2 is approximately £4,110,000",
+          "For chart 'Cumulative': The Original series value at Qtr 3 is approximately £8,230,000",
+          "For chart 'Cumulative': The Original series value at Qtr 4 is approximately £13,710,000"
+        ]
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

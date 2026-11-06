@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden values for the Berkshire-Hathaway dividend-rate/discount-rate sensitivity table are internally inconsistent: only row 10 (7.0%) is correct, rows 11–14 hold values for the wrong dividend rates, and the base-case row does not reproduce the model's own output.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key",
+    "evidence": "Golden 'Berk-Hath Investment Package' F12=0.08 (=C12) gives I12=10429.31 and G12=11152.88, but the model at dividend 8%, discount ~7.3% gives ~11432–11468 (see C44=11432.17 and term-table I20=11468.40). G14 (9%)=12241.37 is the 8% value (it equals G20). Rows 11 and 12 are identical (values for 6.5%), and row 13 duplicates row 10. Any correct recalculation (LibreOffice MULTIPLE.OPERATIONS) will mismatch these cells.",
+    "confirmation": "In gt 'Berk-Hath Investment Package' the dividend-rate table G10:K14 is hardcoded and impossible: row 11 (7.5%) equals row 12 (8.0%) exactly (G=11152.88), row 13 (8.5%) repeats row 10 (7.0%), and row 14 (9%) equals the 8%/10-year row 20 (12241.37), while I12 (8%, 7.3%) = 10429 vs the model's ~11432-"
+  }
+]

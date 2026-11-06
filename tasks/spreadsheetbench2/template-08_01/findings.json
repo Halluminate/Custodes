@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "The sign convention for interest and revolver lines is not stated, and the grader is all-or-nothing",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The instruction says only 'Complete the financial model … Ensure that all formulas, references, and calculations are correct.' The single footnote 'FN: Express deductions as negative numbers' does not settle whether TL_Interest in the B41 formula should be the signed (negative) value or the expense amount. The formula's own algebra needs the positive amount, but GT uses the negative cell. It also does not say whether 'Interest Income on Cash' is positive (GT: +17.64). An agent can follow B41 with interest expense as a positive amount, which is consistent with B26 'Revolver Interest = (Beg+End)/2 × Rate' showing no negative sign. That agent fails rows 7, 11 and 13 and gets 0 from the single binary verifier.",
+    "confirmation": "B41 says '+ TL_Interest' and B26-27 show no sign, while B52 says deductions are negative; the golden plugs the negative C12 into B41, so the sign reading decides whether rows 7, 11 and 13 match, and the single binary verifier fails the other reading.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence after the instruction saying TL_Interest in the revolver formula is the term loan interest paid as a positive amount, while the interest expense rows stay negative per the FN note."
+  },
+  {
+    "id": "F2",
+    "title": "The answer key adds term loan interest with the wrong sign in the revolver formula, so it counts interest paid as cash coming in",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The ground truth books term loan interest as a negative number (C12 = -($J$9+C8)/2*$J$4 = -195), following B52 'FN: Express deductions as negative numbers'. The revolver formula then adds that negative number straight in: C7 = ($J$8*(1+$J$3/2)-C20-C15+C12)/(1-$J$3/2). If you derive B41 from Rev_End = Rev_Beg - FCF - CashIncome + TL_Interest + RevInterest, TL_Interest has to be the positive amount of cash paid out, because paying interest raises the revolver draw. The ground truth instead lowers the revolver by 195. Checking it: 1850 - 355 - 17.64 + (-195) + 88.58 = 1370.94, the GT value in C7. On the same footing, revolver interest is added back as a cash use (+88.58), so the two interest lines get opposite cash treatment. A correct reading gives C7 = (1850×1.0275 - 355 - 17.64 + 195)/0.9725 ≈ 1771.97, against GT 1370.94. The error carries through D7:G7, C11:G11 and C13:G13. The only verifier, 'SpreadsheetBench 2 official cell check' (weight 1), is all-or-nothing on DebtSchedule!B2:N52 and returns 1.0 only when every cell matches. So an analyst who models the economics correctly scores 0.",
+    "confirmation": "Confirmed: golden C7 = (1850*1.0275-355-17.64+(-195))/0.9725 = 1370.94, treating interest paid as a cash inflow, while revolver interest is netted the other way, so the key's rows 7/11/13 are economically wrong and a correct model scores 0.",
+    "fixed": true,
+    "fix": "Same GT edit to DebtSchedule!C7:G7."
+  },
+  {
+    "id": "F3",
+    "title": "Internal contradiction in modeling notes and golden solution regarding the sign convention of interest expense and its use in the closed-form Revolver Balance formula",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The input spreadsheet (/home/model/Desktop/08_01_input.xlsx, sheet 'DebtSchedule') specifies in rows 26-27: 'Revolver Interest = (Beginning Balance + Ending Balance) / 2 × Revolver Rate' and 'Term Loan Interest = (Beginning Balance + Ending Balance) / 2 × Term Loan Rate', and in row 41: 'Rev_End = [Rev_Beg × (1 + Rate/2) - FCF - Cash_Income + TL_Interest] / (1 - Rate/2)'. Mathematically, adding '+ TL_Interest' in the numerator of the closed-form debt balance equation requires TL_Interest to be a positive number (so that paying interest increases revolver debt, whereas earning '+ FCF' and '+ Cash_Income' reduces revolver debt via '- FCF - Cash_Income'). However, row 52 adds 'FN: Express deductions as negative numbers', and the ground-truth workbook (gt_08_01_golden.xlsx) stores Revolver Interest Expense (C11:G11, e.g., C11 = -88.58 via '=-($J$8+C7)/2*$J$3'), Term Loan Interest Expense (C12:G12, e.g., C12 = -195 via '=-($J$9+C8)/2*$J$4'), and Total Interest Expense (C13:G13, e.g., C13 = -283.58) as negative numbers, while simultaneously using '+C12' in the Revolver Balance formula in C7:G7 ('=($J$8*(1+$J$3/2)-C20-C15+C12)/(1-$J$3/2)'). Because C12 is negative (-195), adding '+C12' in C7 actually subtracts Term Loan interest from the Revolver balance—treating Term Loan interest expense as a cash inflow that pays down the Revolver (producing C7 = 1370.94 instead of the financially sound 1771.96). Furthermore, because C7:G7 is driven below zero in Years 4 and 5 (F7 = -659.52, G7 = -1404.03), the golden solution flips the sign of Revolver Interest Expense to positive in F11 (17.76) and G11 (56.75). All 3 agent attempts followed the explicit algebraic formula in rows 26-27 and 41 with positive interest expenses (e.g., C12 = 195, C7 = 1771.96) so that Term Loan interest increased the revolver balance as financially required, and all 3 scored 0.0 on the sole verifier 'SpreadsheetBench 2 official cell check' (weight: 1, 20/40 modification cell errors across rows 7, 11, 12, and 13).",
+    "confirmation": "Golden C12 is '=-($J$9+C8)/2*$J$4' (-195) yet C7 adds '+C12' per B41, so term-loan interest paid lowers the revolver (C7=1370.94 vs ~1771.97); an agent using positive interest as B26-27/B41 imply fails rows 7, 11-13 on the all-or-nothing check.",
+    "fixed": true,
+    "fix": "gt_08_01_golden.xlsx: DebtSchedule!C7:G7 changed from ...-C20-C15+C12... to ...-C20-C15-C12... (C7 1370.94 -> 1771.96, G7 -1404.03 -> 594.83). Rows 11 and 13 recalculated in LibreOffice, so all interest expenses are now negative. No other cell changed."
+  },
+  {
+    "id": "F4",
+    "title": "Prescribed revolver formula does not reconcile the cash flows",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "DebtSchedule!B36 requires a constant excess cash balance of 980, but B41 prescribes 'Rev_End = [Rev_Beg × (1 + Rate/2) - FCF - Cash_Income + TL_Interest] / (1 - Rate/2)'. This formula omits term-loan issuance and repayment cash flows and adds term-loan interest even though interest expenses are negative deductions. The golden workbook implements this inconsistency. In Year 1, its FCF is 355, total interest is -283.575732647815, cash interest income is 17.64, term-loan repayment is -400, and revolver movement is 1370.93573264782 - 1850. These produce a net cash movement of -790 and ending cash of 190, not the required 980. The corresponding annual cash discrepancies are -790, +103.50, -1223.75, -505.50 and -900.25. Correcting the cash-balancing logic would disagree with graded revolver balances and downstream interest cells. The sole verifier has weight 1 and requires every modification cell to match, so financially reconciled results would lose the entire score.",
+    "confirmation": "Golden C7 formula excludes the term-loan repayment (J14=-400) and adds the negative C12, so with FCF 355 and the -479 revolver change, cash cannot stay at the 980 required by B36; the keyed revolver balances do not reconcile cash flows.",
+    "fixed": false,
+    "fix": null
+  }
+]

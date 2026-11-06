@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks only for a Cash forecast, but the golden workbook also fills many other rows, and the checker compares the whole B2:H32 range. An agent that does only what is asked (F15:G15) will fail.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "underspecified-scope",
+    "evidence": "Instruction: 'Forecast Cash as prior period Cash plus Changes in Working Capital.' Golden adds F9:H9, F11:H11, H12, F13:H13, F17:H17, F20:H20, H23, H25, F30:H30 and H15. answer_position is 'WC_Forecast'!B2:H32.",
+    "confirmation": "The prompt only asks to forecast Cash, but the golden also fills the FY 2025E column (H9, H11, H12 =H11/H9, H13, H17, H20, H23, H25, H30) as modification cells, and with 217 compared cells no regression slack exists, so a solver that forecasts cash (even with the needed F/G driver rows) but leaves t"
+  }
+]

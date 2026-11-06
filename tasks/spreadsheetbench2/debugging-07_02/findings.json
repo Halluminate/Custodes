@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Formula grading rejects identical formulas because of their storage representation",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Eight valid scalar INDEX/MATCH formulas in the input have identical formula text in the golden workbook but are stored there as ArrayFormula objects. These are Football Field!H6:I7, LBO & Lenders!W28:W29 and S34, and Equity Returns!D5. The comparator treats scalar-versus-array storage as a modification and rejects matching formula text. A diagnostic golden copy differing only by storing these eight formulas as ordinary formulas still failed after the verifier's LibreOffice recalculation: regression=1.0000, modification=0.5789, with eight errors displaying identical answer/output expressions. The sole verifier, weight 1, consequently awards zero despite all substantive repairs matching. It also rejects valid equivalent expressions: changing only LBO & Lenders!S30 from '=S29*S28' to '=S28*S29' produced modification=0.9474 and therefore zero credit.",
+    "confirmation": "Same verified defect: the storage-type mismatch (ArrayFormula vs str) for 8 identical INDEX/MATCH formulas makes the formula-mode comparator reject matching text. _normalize_formula also only strips '$' and case, so it rejects commutative equivalents like S28*S29.",
+    "fixed": true,
+    "fix": "Same GT edit fixes the storage-type mismatch (the finding's diagnostic copy probably kept the array attributes in the XML). Exact-text matching of commutative variants such as S28*S29 is how the official formula mode works and is left unchanged."
+  },
+  {
+    "id": "F2",
+    "title": "A complete, correct fix still scores 0: the grader requires 8 unchanged INDEX/MATCH cells to be saved as legacy array (CSE) formulas",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "In the ground truth, 8 cells keep the same formula text as the input but are stored as openpyxl ArrayFormula objects (ref = the single cell). In the input they are plain formula strings. The cells are Football Field!H6, I6, H7, I7; LBO & Lenders!W28, W29, S34; and Equity Returns!D5. In verify_spreadsheetbench2_cells (mode=formula), _formulas_match only compares text when both values have `.text` or both are strings. Comparing an ArrayFormula with a str falls through to _values_match, which returns False because the types differ. So the grader puts these 8 cells in the 'modification' bucket, and an output only matches if it also writes them as array formulas. I tested this. I took the input, applied every real fix from the ground truth (DCF G38/H38/G107, LBO S30/W30/S54, Recapitalization F31:I31, Equity Returns D32), recalculated through managed_recalculated_xlsx, and ran score_workbooks. The result was 'regression 1.0, modification 0.5789' with 8 errors, each like 'Modification error at Football Field!H6: answer==INDEX(...), output==INDEX(...)', where both sides show the same text. The verifier is all-or-nothing (weight 1, pass only when modification = 1.0), so this output scores 0. Nothing the agent can see says these working formulas must become CSE arrays; the change exists only because of how the ground-truth file was saved. The ground truth itself scores 1.0/1.0.",
+    "confirmation": "Confirmed by code and files: ArrayFormula in the GT vs str in the input/output for identical formulas such as Football Field!H6 fails _formulas_match. A correct fix that leaves these cells as ordinary formulas misses 8 modification cells and scores 0.",
+    "fixed": true,
+    "fix": "Same GT edit."
+  },
+  {
+    "id": "F3",
+    "title": "Spurious ArrayFormula wrappers on 8 unchanged INDEX/MATCH cells in gt_07_golden.xlsx combined with type-strict formula comparison make the task impossible to pass",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `gt_07_golden.xlsx`, 8 single-cell `INDEX(..., MATCH(...))` formulas are serialized with `<f aca=\"false\" t=\"array\" ref=\"...\">` (`openpyxl.worksheet.formula.ArrayFormula`), whereas in `untouched_input_Embedded Hardcodes_input.xlsx` they are normal `<f aca=\"false\">` formulas (`str`) with identical formula text: `'Football Field'!H6`, `'Football Field'!H7`, `'Football Field'!I6`, `'Football Field'!I7`, `'LBO & Lenders'!S34`, `'LBO & Lenders'!W28`, `'LBO & Lenders'!W29`, and `'Equity Returns'!D5`. Because `_formulas_match` in `verifiers/spreadsheetbench2.py:152-165` only unwraps `.text` when BOTH cells have a `.text` attribute (`if hasattr(f1, 'text') and hasattr(f2, 'text')`), comparing `ArrayFormula` in `gt_07_golden.xlsx` against a normal `str` formula in the input or output falls through to `_values_match` (`type(v1) is not type(v2)` -> `False`). As a result: (1) all 8 unchanged cells are misclassified into the 19 modification cells (requiring 100% modification match for the sole weight-1.0 verifier `SpreadsheetBench 2 official cell check`), and (2) when `verify_spreadsheetbench2_cells` runs `managed_recalculated_xlsx` (`libreoffice --headless --convert-to xlsx`) on the agent's submission, LibreOffice exports single-cell `INDEX/MATCH` formulas without `t=\"array\"`, so they always load back as `str` and fail against `gt_07_golden.xlsx` with misleading errors like `answer==INDEX(...), output==INDEX(...)`. All 3 units scored 0.0 and failed on these exact cells.",
+    "confirmation": "The 8 unchanged INDEX/MATCH cells are ArrayFormula in gt_07_golden.xlsx and plain str in the input with identical text. The type-strict comparison (_values_match returns False when type(v1) is not type(v2)) makes them mandatory modifications that a normally saved output cannot satisfy.",
+    "fixed": true,
+    "fix": "Same GT edit. The 8 cells are now regression cells."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails to unwrap openpyxl ArrayFormula objects in formula mode, causing a guaranteed false fail on 8 unchanged INDEX/MATCH cells",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "In `verifiers/spreadsheetbench2.py:152-165`, `_formulas_match(cell1, cell2)` checks `if hasattr(f1, 'text') and hasattr(f2, 'text'): return f1.text == f2.text`. When `mode='formula'`, openpyxl loads `<f t=\"array\">` cells as `ArrayFormula` objects (which have a `.text` attribute holding the formula string) and normal `<f>` cells as `str` (which do not have `.text`). In `<task dir>`, `gt_07_golden.xlsx` has `<f aca=\"false\" t=\"array\" ref=\"...\">` on 8 single-cell `INDEX(..., MATCH(...))` formulas (`Football Field!H6, H7, I6, I7`, `LBO & Lenders!S34, W28, W29`, `Equity Returns!D5`), while `untouched_input_Embedded Hardcodes_input.xlsx` has normal `<f aca=\"false\">` strings with the exact same formula text. Furthermore, `verify_spreadsheetbench2_cells` recalculates the agent's output via LibreOffice (`managed_recalculated_xlsx`), which saves single-cell `INDEX/MATCH` formulas as standard `<f>` strings. Thus, in `score_workbooks`, `ws_gt[n].value` is `ArrayFormula` while `ws_in[n].value` and `ws_out[n].value` are `str`. `_formulas_match` skips both the `hasattr(f1, 'text') and hasattr(f2, 'text')` branch and the `isinstance(f1, str) and isinstance(f2, str)` branch, falling through to `_values_match` where `type(v1) is not type(v2)` returns `False` without normalizing or comparing the formula strings. Across all 3 units (weight 1.0, score 0.0), the verifier reports impossible modification errors where `answer` and `output` display the exact same formula text (`Modification error at Football Field!H6: answer==INDEX('Trading & Comparable Txns'!$I$12:$I$13, MATCH(\"Median\", 'Trading & Comparable Txns'!$D$12:$D$13, 0)), output==INDEX('Trading & Comparable Txns'!$I$12:$I$13, MATCH(\"Median\", 'Trading & Comparable Txns'!$D$12:$D$13, 0))`). Because `verify_spreadsheetbench2_cells` requires `mod_ratio == 1.0` to return `1.0`, no submission can ever pass.",
+    "confirmation": "Verified: GT 'Football Field'!H6, 'LBO & Lenders'!W28, 'Equity Returns'!D5 (and 5 others) load as openpyxl ArrayFormula, while the input stores the same text as str. _formulas_match/_values_match in spreadsheetbench2.py only compare .text when both sides have it, then return False on the type mismat",
+    "fixed": true,
+    "fix": "gt_07_golden.xlsx: removed t=\"array\" and ref from the <f> of Football Field!H6, I6, H7, I7, LBO & Lenders!W28, W29, S34 and Equity Returns!D5 (same formula text and cached values). Tested: input + the 11 golden fixes scores regression 1.0 / modification 1.0 (was 0.5789 against the old key)."
+  }
+]

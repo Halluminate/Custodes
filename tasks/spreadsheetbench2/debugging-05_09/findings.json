@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Undisclosed hardcoded target growth rate assumption (Model!N14 = 0.08) required by ground truth",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In the input workbook (`/home/model/Desktop/Relative vs Absolute References_input.xlsx`), the 'State & Local Government' Growth % row (`Model` row 14) contains a dragged relative-reference formula across all Hold Period columns `J14:N14` (`J14` = `=I14+(N14-$I14)/5`, `K14` = `=J14+(O14-$I14)/5`, `L14` = `=K14+(P14-$I14)/5`, `M14` = `=L14+(Q14-$I14)/5`, `N14` = `=M14+(R14-$I14)/5`, all styled with black font `FF000000` indicating formulas). In `gt_05_golden.xlsx`, `J14:M14` are fixed to lock `$N14` (`=I14+($N14-$I14)/5`, etc.), AND `Model!N14` is replaced with a hardcoded blue input `0.08` (8.0%). However, neither the task prompt in `problem.py` nor any sheet, note, or comment in the workbook specifies what the 2030E terminal growth assumption for State & Local Government in `Model!N14` should be (other rows in `Model` have different hardcoded terminal assumptions in column N: `N17 = 0.08` for Utilities, `N20 = 0.10` for Commercial, `N25 = 0.47`, `N30 = 0.1425`, `N34 = 0.46`, `N39 = 0.035`, `N72 = 0.03`). Because `Model!N14` drives State & Local Government revenue (`J13:O13`), which cascades into Total Contract Revenue, Net Revenue, EBITDA, Free Cash Flow, Debt Paydown, and Transaction Overview multiples, failing to guess `N14 = 0.08` causes 263 of the 283 modification cells in `verify_spreadsheetbench2_cells` (weight: 1) to fail (modification ratio drops from 1.0000 to 0.0954, overall score = 0.0, as seen in unit 2 which scored 0.0 with modification 0.0283).",
+    "confirmation": "Input Model!N14 is the formula =M14+(R14-$I14)/5 (black font), but gt_05_golden.xlsx has a hardcoded blue 0.08. Nothing in the prompt or workbook states an 8% 2030 State & Local growth rate (sibling terminal rates vary: N17=0.08, N20=0.1), and N14 drives hundreds of graded cells.",
+    "fixed": true,
+    "fix": "Added one sentence to the prompt instruction line: 'The 2030E growth assumption for State & Local Government is 8.0%.' This supplies the Model!N14 value the answer key requires (0.08), which the input overwrote with a dragged formula and no file or note states."
+  },
+  {
+    "id": "F2",
+    "title": "The expected terminal growth assumption is not supplied",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input has Model!N14='=M14+(R14-$I14)/5', while the answer key replaces it with the hardcoded value 0.08. This is the 2030 growth assumption for State & Local Government revenue. Neither the task instructions nor the workbook's comments or other supplied context specify an 8% terminal growth rate for that segment. Utilities has its own 8% assumption at N17, but nothing requires the two segments to share a rate. Recognizing the damaged formula does not uniquely recover the economic assumption the verifier expects. N14 and its dependent forecasts fall within the sole, all-or-nothing check, so a defensible alternative assumption can lose the score.",
+    "confirmation": "Same verified issue: the key replaces input Model!N14 '=M14+(R14-$I14)/5' with 0.08, an assumption the prompt and workbook never supply, and it feeds the sole weight-1 cell check.",
+    "fixed": true,
+    "fix": "Added one sentence to the prompt instruction line: 'The 2030E growth assumption for State & Local Government is 8.0%.' This supplies the Model!N14 value the answer key requires (0.08), which the input overwrote with a dragged formula and no file or note states."
+  },
+  {
+    "id": "F3",
+    "title": "Graded fix requires a hardcoded 8% terminal growth assumption that was erased from the input and exists nowhere agent-visible (impossible_or_absent_data)",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "planted_trick",
+    "evidence": "In the input, Model!N14 is a black-font formula '=M14+(R14-$I14)/5', and its cached value is 3.36e-05. The ground truth replaces it with a blue-font hardcoded input 0.08, and J14:M14 become '=I14+($N14-$I14)/5'. Every sibling driver row keeps its blue hardcoded terminal value in N: N17=0.08 (Utilities), N20=0.1, N25=0.47, N30=0.1425, N34=0.46, N39=0.035, N72=0.03. These values differ from row to row, so N14 cannot be worked out from them. Searching the input's values, comments (only 'Average of midpoint'), charts and other sheets turned up no 8% State & Local growth figure. The agent can fix the anchoring ($N14) correctly, but it must still guess the terminal rate. Copying 0.08 from Utilities happens to match the key. Any other reasonable choice (e.g. holding I14 flat, using the historical CAGR, or keeping a formula) changes Model rows 13–126 and about 25 Transaction Overview cells. That is hundreds of modification cells. verify_spreadsheetbench2_cells (weight 1, the only verifier) needs 100% of modification cells to match, so a wrong guess scores 0.",
+    "confirmation": "Verified: the GT fix needs Model!N14=0.08, a value absent from the input (N14 holds a formula there). Copying Utilities' N17=0.08 is only one of several defensible choices, so the all-or-nothing cell check can fail a correct anchoring fix.",
+    "fixed": true,
+    "fix": "Added one sentence to the prompt instruction line: 'The 2030E growth assumption for State & Local Government is 8.0%.' This supplies the Model!N14 value the answer key requires (0.08), which the input overwrote with a dragged formula and no file or note states."
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks only to compute Sold Area, yet the answer key also fills the blank Total Salable Area and Balance Saleable Area cells, using a non-obvious mapping that the cell-by-cell check requires exactly.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "underspecified-enforced-cells",
+    "evidence": "Golden 'Executive Summary' sets D8 = Inputs!D10 (275000, labelled 'Construction Area'), D10 = Inputs!D11 (250000, 'Saleable Area') and D9 = D8-D10 (25000); all three cells are empty in the input. An agent mapping 'Total Salable Area' to Inputs!D11 'Saleable Area' (the natural reading) fails D8, D9 and D10.",
+    "confirmation": "Input 'Executive Summary' D8:D10 are blank. The golden sets D8 'Total Salable Area' = Inputs!D10 (labelled 'Construction Area', 275,000), D10 = Inputs!D11 ('Saleable Area', 250,000) and D9 = 25,000. Inputs has no other area that maps to Total or Balance Saleable, so the natural mapping of Total Sala"
+  }
+]

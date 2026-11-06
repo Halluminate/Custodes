@@ -1,0 +1,45 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official chart checklist",
+      "function": "verify_spreadsheetbench2_chart_checklist",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "checklist": [
+          "The chart is a waterfall (bridge) chart",
+          "The chart title reads 'EBITDA Waterfall ($M)'",
+          "The categories appear left to right in this order: FY22 EBITDA, FX Tailwind, Gross Profit, Employee Costs, Direct Marketing, Other Opex, FY23 EBITDA",
+          "The FY22 EBITDA bar is displayed in dark blue color",
+          "The FY23 EBITDA bar is displayed in dark blue color",
+          "The FX Tailwind bar is displayed in yellow color",
+          "The Gross Profit bar is displayed in yellow color",
+          "The Employee Costs bar is displayed in grey color",
+          "The Direct Marketing bar is displayed in grey color",
+          "The Other Opex bar is displayed in grey color",
+          "The FY22 EBITDA bar value is about 4 (4.3) and runs from 0 up to about 4 (approximate positions, read from the bar heights and data labels when no value axis is shown)",
+          "The data label on the FY22 EBITDA bar reads '$4m'",
+          "The FX Tailwind bar value is 2 and runs from about 4 up to about 6 (approximate positions, read from the bar heights and data labels when no value axis is shown)",
+          "The data label on the FX Tailwind bar reads '$2m'",
+          "The Gross Profit bar value is 13 and runs from about 6 up to about 19 (approximate positions, read from the bar heights and data labels when no value axis is shown)",
+          "The data label on the Gross Profit bar reads '$13m'",
+          "The Employee Costs bar value is about -5 (-5.1) and runs from about 19 down to about 14 (approximate positions, read from the bar heights and data labels when no value axis is shown)",
+          "The data label on the Employee Costs bar reads '$(5)m'",
+          "The Direct Marketing bar value is about -1 (-0.9) and runs from about 14 down to about 13 (approximate positions, read from the bar heights and data labels when no value axis is shown)",
+          "The data label on the Direct Marketing bar reads '$(1)m'",
+          "The Other Opex bar value is about -2 (-2.3) and runs from about 13 down to about 11 (approximate positions, read from the bar heights and data labels when no value axis is shown)",
+          "The data label on the Other Opex bar reads '$(2)m'",
+          "The FY23 EBITDA bar value is 11 and runs from 0 up to 11 (approximate positions, read from the bar heights and data labels when no value axis is shown)",
+          "The data label on the FY23 EBITDA bar reads '$11m'"
+        ]
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

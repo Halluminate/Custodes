@@ -1,0 +1,15 @@
+File_Date,Portfolio,Client_Security_ID,Security_Description,Security_Class,Currency,Evaluation_Price,Price_Type,Price_As_Of_ET,Evaluation_Status,Status_Detail
+2026-06-30,CV-EM-LP,CV-1001,United Mexican States 4.750% 2032,Sovereign Bond,USD,97.858,Evaluated,2026-06-30T16:22:00-04:00,CURRENT,
+2026-06-30,CV-EM-LP,CV-1011,Saudi Aramco 4.250% 2039,Corporate Bond,USD,97.845,Evaluated,2026-06-30T16:22:00-04:00,CURRENT,
+2026-06-30,CV-EM-LP,CV-1022,Federative Republic of Brazil 6.000% 2031,Sovereign Bond,USD,103.322,Evaluated,2026-06-30T16:22:00-04:00,CURRENT,
+2026-06-30,CV-EM-LP,CV-1031,Prosus 4.193% 2032,Corporate Bond,USD,,,,NO_EVALUATION,No current evaluation supplied
+2026-06-30,CV-EM-LP,CV-1042,State of Qatar 4.817% 2049,Sovereign Bond,USD,109.310,Evaluated,2026-06-30T16:22:00-04:00,CURRENT,
+2026-06-30,CV-EM-LP,CV-1050,DP World 5.625% 2048,Corporate Bond,USD,106.235,Evaluated,2026-06-30T16:22:00-04:00,CURRENT,
+2026-06-30,CV-EM-LP,CV-1058,Republic of Indonesia 3.850% 2030,Sovereign Bond,USD,96.688,Evaluated,2026-06-30T16:22:00-04:00,CURRENT,
+2026-06-30,CV-EM-LP,CV-1065,Ecopetrol 5.875% 2031,Corporate Bond,USD,101.445,Evaluated,2026-06-30T16:22:00-04:00,CURRENT,
+2026-06-30,CV-EM-LP,CV-1073,Kingdom of Saudi Arabia 4.500% 2046,Sovereign Bond,USD,101.240,Evaluated,2026-06-30T16:22:00-04:00,CURRENT,
+2026-06-30,CV-EM-LP,CV-1086,Vale Overseas 6.125% 2033,Corporate Bond,USD,104.780,Evaluated,2026-06-30T16:22:00-04:00,CURRENT,
+2026-06-30,CV-EM-LP,CV-1094,Republic of South Africa 5.650% 2047,Sovereign Bond,USD,88.519,Evaluated,2026-06-30T16:22:00-04:00,CURRENT,
+2026-06-30,CV-EM-LP,CV-1098,Petroleos Mexicanos 6.500% 2027,Corporate Bond,USD,98.675,Evaluated,2026-06-30T16:22:00-04:00,CURRENT,
+2026-06-30,CV-EM-LP,CV-1107,Emirates NBD 4.250% 2030,Corporate Bond,USD,,,,NO_EVALUATION,No current evaluation supplied
+2026-06-30,CV-EM-LP,CV-1116,QatarEnergy 3.125% 2041,Corporate Bond,USD,89.675,Evaluated,2026-06-30T16:22:00-04:00,CURRENT,

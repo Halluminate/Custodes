@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer key's terminal/reversion cash flow uses a $13,000,000 sale price and a year-13 exit, but neither value appears anywhere in the source workbook or prompt, so no agent can reproduce N26/O26, the NPVs or the IRR.",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "hidden-assumption",
+    "evidence": "Reference N26 =0.9*(13000000-C8) and O26 =0.1*(13000000-C8); the source sheet 'version1' contains no 13,000,000 value and no exit assumption.",
+    "confirmation": "gt_167_ref_0.xlsx N26 '=0.9*(13000000-C8)' and O26 use a $13,000,000 sale price that appears nowhere in 167_src_0.xlsx or prompt.md, and N28/O28/N30 NPV and IRR depend on it, so the reference values cannot be reproduced."
+  },
+  {
+    "id": "S2",
+    "title": "The 90%/10% split of cash after priority between 'PA & KH' and 'CIS' is hard-coded in the key but never stated in the prompt or the input file.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "hidden-assumption",
+    "evidence": "Reference L14:L25 =MAX(0,$J)*0.9 and M14:M25 =MAX(0,$J)*0.1; the source has only the column headers 'PA & KH' / 'CIS' and no split percentages.",
+    "confirmation": "Reference L14:L25 '=MAX(0,$J14)*0.9' and M14:M25 '*0.1' apply a 90/10 split, but the source sheet only has the 'PA & KH' / 'CIS' headers in L13:M13 and the prompt gives no split."
+  }
+]

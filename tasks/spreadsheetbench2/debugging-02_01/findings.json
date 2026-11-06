@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Berk-Hath sensitivity-table cells that must change cannot be produced: the input's TABLE() cache is flattened and LibreOffice cannot recompute it",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "In the seed 'Berk-Hath Investment Package'!G10:K14, every cell is '=TABLE($F$9,$C$12,$F10,$C$15,G$9)'. All 25 cached values are the same number, 11432.1670414077. The golden file has real data-table results there, for example G11=11152.88, H11=10782.64, K11=9769.95 and G14=12241.37. The verifier therefore puts these cells in the modification bucket, which must match 100%. None of the four real fixes (DCF!R32, WACC!D10, Merger Model!E29/E57) feeds this table. The values differ only because the GT was calculated in Excel, while the seed was re-saved and lost the dataTable type ('<f aca=\"true\">TABLE(...)</f>' instead of t=\"dataTable\"). I applied all four GT fixes in LibreOffice through UNO and saved. The verifier then scored regression 1.0 and modification 0.5217, with 22 errors such as 'Modification error at Berk-Hath Investment Package!G11: answer=11152.88, output=11432.17'. LibreOffice keeps TABLE() as an unknown function with its stale cache, so a correct audit gets 0 on this weight-1, all-or-nothing verifier. The only way to pass is to rebuild the preferred-stock valuation by hand and hardcode 25 values, which goes against the prompt's own warning about 'hardcoded values that should be formulas'.",
+    "confirmation": "Input G10:K14 are =TABLE($9,$C$12,...) with all cached values 11432.17 and GT has differing static numbers there, so LibreOffice recalculation cannot reproduce the modification-cell values and an otherwise correct audit fails.",
+    "fixed": true,
+    "fix": "answer_position: left out every =TABLE() data-table cell (DCF!V10:Z14 and 'Berk-Hath Investment Package'!G10:K14, G18:K22, G26:K30; 100 cells, nothing else depends on them). The golden Berk-Hath G10:K14 values are shifted/duplicated rows, and LibreOffice cannot recompute any TABLE grid, so these cells cannot be graded fairly; the rest of the ranges are unchanged."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth for Berk-Hath Investment Package sensitivity table (G10:K14) contains corrupted hardcoded values instead of valid Data Table results",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In 'Berk-Hath Investment Package', the first sensitivity table (G10:K14) analyzes Total Present Value ($F$9 = C44 = 11,432.17) across Dividend Rate ($F10:$F14 = 7.0%, 7.5%, 8.0%, 8.5%, 9.0%, varied in $C$12) and Discount Rate (G$9:K$9 = 6.3%, 6.8%, 7.3%, 7.8%, 8.3%, varied in $C$15). In the input workbook, G10:K14 have stale cached values of 11,432.1670414077 with formulas =TABLE($F$9,$C$12,$F10,$C$15,G$9). In gt_02_golden.xlsx, the formulas are stripped and replaced with hardcoded values that do not match the mathematical sensitivity table: Row 11 (7.5% dividend) and Row 12 (8.0% dividend) have identical hardcoded values in GT (11152.8830174067, 10782.6393558538, 10429.3142071995, 10092.0287320679, 9769.95426926579), which actually correspond to a 6.5% dividend rate, and Row 13 (8.5% dividend) repeats Row 10 (7.0% dividend: 11515.7128654235, 11137.0882047575, 10775.6745828438, 10430.5805517078, 10100.9654686303), while Row 14 (9.0% dividend) holds the values for an 8.0% dividend rate (12241.3725614571, 11845.985902565, 11468.3953341322, 11107.6841909874, 10762.9878673593). Furthermore, LibreOffice recalculation during verify_spreadsheetbench2_cells (weight 1.0) evaluates the input's =TABLE(...) formulas to 11,432.17 across all cells. As a result, 22 of the 46 modification cells in the sole verifier (weight 1.0) require matching corrupted ground-truth numbers that cannot be obtained by fixing or recalculating the sensitivity table.",
+    "confirmation": "Verified in GT: G11:K11 and G12:K12 are identical (6.5%-rate values), G13:K13 repeats G10:K10 and G14:K14 equals G20:K20, so the golden sensitivity table is internally inconsistent and unreachable.",
+    "fixed": true,
+    "fix": "answer_position: left out every =TABLE() data-table cell (DCF!V10:Z14 and 'Berk-Hath Investment Package'!G10:K14, G18:K22, G26:K30; 100 cells, nothing else depends on them). The golden Berk-Hath G10:K14 values are shifted/duplicated rows, and LibreOffice cannot recompute any TABLE grid, so these cells cannot be graded fairly; the rest of the ranges are unchanged."
+  },
+  {
+    "id": "F3",
+    "title": "Saving with openpyxl, the workflow the prompt recommends, wipes every TABLE() cached value and fails the regression threshold",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The problem statement says: 'Decide how to manipulate the data using `openpyxl`... Create a python script'. I applied exactly the four GT formula fixes with openpyxl and saved. openpyxl writes '<f>TABLE(...)</f><v></v>', and LibreOffice recalculation then gives None for DCF!V10:Z14 and the Berk-Hath tables. Result: 'regression 0.9878, modification 0.5217', with 78 regression errors such as 'Regression error at DCF!V10: answer=54647.44, output=None'. The pass threshold is 0.998. So even an agent that finds every intended error fails the only verifier (weight 1, binary) because of the tool the prompt tells it to use. The untouched input scores regression 1.0 only because the stale caches survive when nobody edits the file.",
+    "confirmation": "The input relies on TABLE() data-table formulas (Berk-Hath G10:K14 and DCF) whose values only survive as stale caches; saving via openpyxl as the prompt recommends drops them, and in any case the task cannot pass because of the corrupted GT table.",
+    "fixed": true,
+    "fix": "answer_position: left out every =TABLE() data-table cell (DCF!V10:Z14 and 'Berk-Hath Investment Package'!G10:K14, G18:K22, G26:K30; 100 cells, nothing else depends on them). The golden Berk-Hath G10:K14 values are shifted/duplicated rows, and LibreOffice cannot recompute any TABLE grid, so these cells cannot be graded fairly; the rest of the ranges are unchanged. This also removes the regression failures from TABLE caches that openpyxl drops on save."
+  },
+  {
+    "id": "F4",
+    "title": "Golden dividend sensitivity table contains 20 incorrect values",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "In 'Berk-Hath Investment Package', the golden dividend sensitivity table contradicts its inputs and another sensitivity table. I12 uses an 8% dividend rate, 7.3% discount rate and 10-year term, but expects 10429.3142071995. I20 represents the same assumptions and correctly contains 11468.3953341322. Recomputing the dividend table from the workbook's preferred-stock and warrant calculations identifies 20 incorrect entries in G11:K14. Eighteen are classified as modification cells. Correcting these values in an otherwise matching key produces a modification ratio of 0.6087 instead of the required 1.0, causing the sole verifier, weighted 100%, to award zero.",
+    "confirmation": "GT I12 (8% dividend, 7.3% discount, 10 yr) is 10429.31 while I20 for the same assumptions is 11468.40, confirming the golden dividend table rows are shifted/duplicated.",
+    "fixed": true,
+    "fix": "answer_position: left out every =TABLE() data-table cell (DCF!V10:Z14 and 'Berk-Hath Investment Package'!G10:K14, G18:K22, G26:K30; 100 cells, nothing else depends on them). The golden Berk-Hath G10:K14 values are shifted/duplicated rows, and LibreOffice cannot recompute any TABLE grid, so these cells cannot be graded fairly; the rest of the ranges are unchanged."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all units due to corrupted ground-truth values in Berk-Hath Investment Package!G10:K14",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, 'SpreadsheetBench 2 official cell check' (weight 1.0) scores 0.0 (unit 1: modification 0.1957, 64 errors; unit 2: modification 0.2174, 57 errors; unit 3: modification 0.0652, 43 errors). In unit 3 (steps [37]-[41]), the agent correctly identified and fixed DCF!R32 (15,122), R33 (36,001.87), and R35 (71.39), achieving 1.0000 regression accuracy and matching 3/46 modification cells; in units 1 (steps [39]-[44]) and 2 (steps [44]-[54]), the agents also fixed Merger Model!E29 and E57 (matching 9-10/46 modification cells). However, 22 of the 46 modification cells required for modification_ratio == 1.0 are in 'Berk-Hath Investment Package'!G10:K14, where gt_02_golden.xlsx has corrupted hardcoded numbers (Rows 11 and 12 duplicate the 6.5% dividend rate row instead of 7.5% and 8.0%, Row 13 duplicates the 7.0% row instead of 8.5%, and Row 14 has the 8.0% row instead of 9.0%). Because verify_spreadsheetbench2_cells requires 100% modification cell match (mod_ratio == 1.0) to return 1.0 (and otherwise returns 0.0), no agent can ever pass this verifier even if it fixes every actual error and computes the sensitivity table accurately.",
+    "confirmation": "gt_02_golden.xlsx 'Berk-Hath Investment Package'!G10:K14 holds hardcoded values where row 11 equals row 12, row 13 duplicates row 10 and row 14 equals the 8%/10-yr row 20, while the input has =TABLE(...) cached at 11432.17, so the 22 modification cells cannot be matched by a correct solution.",
+    "fixed": true,
+    "fix": "answer_position: left out every =TABLE() data-table cell (DCF!V10:Z14 and 'Berk-Hath Investment Package'!G10:K14, G18:K22, G26:K30; 100 cells, nothing else depends on them). The golden Berk-Hath G10:K14 values are shifted/duplicated rows, and LibreOffice cannot recompute any TABLE grid, so these cells cannot be graded fairly; the rest of the ranges are unchanged."
+  }
+]

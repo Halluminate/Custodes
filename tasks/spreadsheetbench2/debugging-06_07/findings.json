@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Correct alternative CAGR formulas are rejected because golden caches contain errors",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden contains '=rri(5,W41,AA41)' and '=rri(5,W43,AA43)' at Revenue Build!AC41 and AC43, but both cached answers are '#NAME?'. Although the spec selects mode 'values', the shared verifier's error fallback compares formula text whenever either cached cell contains an Excel error. Replacing these formulas with mathematically equivalent '=(AA41/W41)^(1/5)-1' and '=(AA43/W43)^(1/5)-1' correctly calculates 0.379729661461215 and 0.718771927587479, yet produces modification ratio 0.9444 and fails the sole weight-1 check. This imposes an unstated exact-formula requirement on a task that asks agents to fix calculation errors.",
+    "confirmation": "gt_06_golden.xlsx 'Revenue Build'!AC41/AC43 hold =rri(5,W41,AA41) with a cached #NAME?. In spreadsheetbench2.py, _match falls back to comparing formula text whenever either cell is an error, so a working fix such as =(AA41/W41)^(1/5)-1 or =_xlfn.RRI(...) fails the sole all-or-nothing check.",
+    "fixed": true,
+    "fix": "files/gt/gt_06_golden.xlsx 'Revenue Build'!AC41/AC43: formula '=rri(5,W41,AA41)' with cached #NAME? replaced by '=_xlfn.RRI(5,W41,AA41)' / '=_xlfn.RRI(5,W43,AA43)' with real cached values 0.3797297 / 0.7187719. With no error value in the GT the verifier compares values, so any working CAGR fix passes. Local check: patched GT, input+GT formulas, and input with '=(AA41/W41)^(1/5)-1' all PASS"
+  },
+  {
+    "id": "F2",
+    "title": "Answer key stores #NAME? for the RRI fix, so correct fixes that actually calculate are rejected",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Revenue Build AC41/AC43 have the formula '=_xludf.rri(5,W41,AA41)' in the input and '=rri(5,W41,AA41)' in gt_06_golden.xlsx. The golden file's saved value for both cells is '#NAME?', so the golden fix was never actually calculated. When the golden value is an error, the verifier compares formula text instead of values. Since this is the only verifier (weight 1) and it is all-or-nothing, a run passes only if the formula reads exactly =RRI(...). I ran the verifier on the input with the four planted fixes applied: (a) '=RRI(5,W41,AA41)' scored 1.0; (b) '=_xlfn.RRI(5,W41,AA41)', the form Excel itself uses to store RRI in the file, scored 0.0 ('Modification error at Revenue Build!AC41: answer=#NAME?, output=0.3797…'); (c) the equivalent CAGR formula '=(AA41/W41)^(1/5)-1' also scored 0.0. So an agent that makes the cell work properly fails the whole task.",
+    "confirmation": "gt_06_golden.xlsx 'Revenue Build'!AC41/AC43 hold =rri(5,W41,AA41) with a cached #NAME?. In spreadsheetbench2.py, _match falls back to comparing formula text whenever either cell is an error, so a working fix such as =(AA41/W41)^(1/5)-1 or =_xlfn.RRI(...) fails the sole all-or-nothing check.",
+    "fixed": true,
+    "fix": "files/gt/gt_06_golden.xlsx 'Revenue Build'!AC41/AC43: formula '=rri(5,W41,AA41)' with cached #NAME? replaced by '=_xlfn.RRI(5,W41,AA41)' / '=_xlfn.RRI(5,W43,AA43)' with real cached values 0.3797297 / 0.7187719. With no error value in the GT the verifier compares values, so any working CAGR fix passes. Local check: patched GT, input+GT formulas, and input with '=(AA41/W41)^(1/5)-1' all PASS"
+  }
+]

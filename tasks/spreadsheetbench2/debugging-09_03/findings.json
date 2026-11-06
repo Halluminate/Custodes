@@ -1,0 +1,90 @@
+[
+  {
+    "id": "F1",
+    "title": "Grader requires an undocumented rearrangement of valid worksheet sections",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions request a thorough audit while preserving the existing structure and layout, but the golden workbook requires unrelated populated sections to move down one row. For example, the input's valid 'Returns Analysis' heading is at LBO!B187 while the expected heading is at B188; 'IRR (%)' moves from B203 to B204, with B203 instead expected to contain 'Sale Proceeds to Sponsor'. The input already has empty rows 179 and 180 where a missing total-interest calculation could be restored without moving these sections. Nothing in the instructions specifies the golden row arrangement. Nevertheless, the verifier compares fixed coordinates across A2:X218 and requires all modification cells to match. An agent can repair the formulas and preserve the original layout yet fail because it did not reproduce this unstated row insertion.",
+    "confirmation": "GT moves 'Returns Analysis' from LBO!B187 to B188 and the Sponsor Equity block from row 181 to 182 by inserting a row, although input rows 179-180 are blank and the prompt says to preserve structure, so a layout-preserving repair fails the fixed-coordinate check.",
+    "fixed": true,
+    "fix": "Same prompt sentence."
+  },
+  {
+    "id": "F2",
+    "title": "The GT relabels the interest rows with exact strings an agent cannot infer, and the label cells are graded",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Input LBO!B175 'Cash Interest' (=G136+G137+G145+G152, the interest on the debt tranches) becomes GT 'Total Interest'. Input LBO!B178 'Interest Income' (=-G158, interest earned on cash) becomes GT 'Cash Interest'. In the input, row 178 is correctly labeled as interest income, and row 175 is the cash interest expense. Nothing in the prompt calls for renaming them. Both cells change between input and GT, so they are graded as modification cells by exact string match. Any agent that keeps the original, accurate labels fails these cells, and with pass/fail scoring that means a score of 0. The new GT label 'Cash Interest' on an interest-income line also conflicts with standard terminology.",
+    "confirmation": "GT renames LBO!B175 'Cash Interest' to 'Total Interest' and B178 'Interest Income' (=-G158) to 'Cash Interest'; nothing in the prompt asks for this, the input labels are accurate, and both cells are graded as exact-match modification cells.",
+    "fixed": true,
+    "fix": "gt_09_golden.xlsx LBO!B175 'Total Interest' -> 'Cash Interest' and B178 'Cash Interest' -> 'Interest Income' (the input's accurate labels), so both are regression cells again. No other cell, value or style changed."
+  },
+  {
+    "id": "F3",
+    "title": "Undisclosed structural row insertions and label renames on LBO and Financials sheets required for exact coordinate alignment",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The prompt instructs the agent: \"strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task\" and \"Please audit and fix this file thoroughly. Errors may include but are not limited to: formula logic errors or inconsistencies, hardcoded values that should be formulas, broken cell references...\" However, `verify_spreadsheetbench2_cells` (weight 1.0) compares cell coordinates directly against `gt_09_golden.xlsx` across `'LBO'!A2:X218,'Financials'!A2:Q29,'Operating Cases'!A2:Q47`. In `gt_09_golden.xlsx`, two new rows are inserted relative to `Errors_input.xlsx`: (1) Row 18 on `Financials` (`Adj. EBITDA`), shifting rows 18–28 down to rows 19–29, and (2) Row 179 on `LBO` (`Total Interest Expense`, with `=SUM(G175:G178)` across `G179:N179`), shifting the entire `Sponsor Equity`, `Returns Analysis`, and `Returns Sensitivities` blocks (rows 181–217) down by 1 row to rows 182–218, and renaming `LBO!B175` from `'Cash Interest'` to `'Total Interest'` and `LBO!B178` from `'Interest Income'` to `'Cash Interest'`. Because `LBO!G175:N175` already sums debt interest (`=+G136+G137+G145+G152`), a competent agent fixing `LBO!G67:N67` (`=+IF(circ=0,0,-#REF!)`) in place without inserting Row 179—or inserting Row 18 on `Financials` without also inserting Row 179 on `LBO`—suffers a 1-row coordinate shift across rows 181–218 of `LBO`. All 3 units failed with modification errors at `LBO!A187`, `LBO!A188`, `LBO!A207`, `LBO!A208` due to this undisclosed row insertion.",
+    "confirmation": "Input LBO rows 179-180 are blank and G67 is =+IF(circ=0,0,-#REF!), while the GT inserts a row 179 'Total Interest Expense' (=SUM(G175:G178)) and shifts Sponsor Equity/Returns blocks down one row (Returns Analysis B187 to B188), plus inserts Financials row 18; a layout-preserving fix in the empty row",
+    "fixed": true,
+    "fix": "prompt.md: added after the error list 'If a fix needs a row that is missing from the model, insert a new row directly below the rows it is built from instead of reusing an existing empty row.' This matches the GT's Financials row 18 (Adj. EBITDA below rows 15-17) and LBO row 179 (Total Interest Expense below 175-178). Label renames handled by the GT patch above."
+  },
+  {
+    "id": "F4",
+    "title": "The grader only accepts a fix that inserts a new row at the exact position the GT uses; any other valid repair fails every shifted cell",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The input breaks LBO!G67:N67 ('=+IF(circ=0,0,-#REF!)'). The GT repairs it by inserting a new row 179 ('Total Interest Expense', '=SUM(G175:G178)'). That pushes the Sponsor Equity, Returns Analysis and Returns Sensitivities blocks down one row (for example, input B203 'IRR (%)' moves to GT B204, and input H204 '=H202/$D39' becomes GT H205 '=H203/$D39'). Rows 179–180 in the input are already empty. A competent analyst could put the total in empty row 179 without inserting a row, or reference SUM(G175:G178) directly in row 67. Either repair is correct, but it leaves the sections below in their input positions, so every cell in LBO rows 181–218 is compared against GT content one row off. With pass/fail scoring, the whole task then scores 0. Financials works the same way: the deleted 'Adj. EBITDA' row has to be re-inserted at exactly row 18, moving rows 18–29 down by one.",
+    "confirmation": "Input LBO rows 179 and 180 are already empty, so placing SUM(G175:G178) there and pointing G67 at it is a valid repair, but the GT instead inserts a row and moves B181:B217 down one, so that repair fails all LBO rows 181-218 under fixed-coordinate pass/fail grading.",
+    "fixed": true,
+    "fix": "Same prompt sentence: the GT's row-insertion layout is now stated rather than hidden."
+  },
+  {
+    "id": "F5",
+    "title": "Golden workbook gt_09_golden.xlsx contains unconverged circular-reference cached values and fails its own verifier upon recalculation",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "`verify_spreadsheetbench2_cells` (weight 1.0) runs `managed_recalculated_xlsx(Path(output_path), force_recalculation=True, model_deliverable=True)` on the submitted workbook and compares the resulting values against the static cached values stored in `gt_09_golden.xlsx` (which is loaded without recalculation). Because the model has an iterative circular reference (`LBO!G67:N67` -> `Net Income` -> `FCF` -> `Revolver Ending Balance` `G135:N135` -> `Remaining Capacity` `G138:N138` -> next year's `Revolver Draw` `H133:N133` -> `Interest`), a single headless LibreOffice recalculation pass does not converge all years from scratch, AND `gt_09_golden.xlsx` itself was saved in an unconverged intermediate state (for example, in `gt_09_golden.xlsx`, `LBO!I135` is `794.3471` and `F138` is `1800`, yet `LBO!I138` with formula `=IF($F138-I135<0,0,$F138-I135)` holds the stale cached value `1034.9710` instead of `1800 - 794.3471 = 1005.6529`, a 2.8% discrepancy that exceeds the 1% tolerance). Consequently, passing `gt_09_golden.xlsx` itself as `output_path` to `verify_spreadsheetbench2_cells` scores `0.0` (`FAILED - regression 0.9968, modification 0.9688. 34 cell error(s)`), and a workbook with the exact golden formulas either converged or edited from `Errors_input.xlsx` also scores `0.0` (267 cell errors on 1 recalculation pass; 35 cell errors when fully converged).",
+    "confirmation": "Confirmed LBO!I138 cached 1034.9710 in the GT versus 1800-794.3471=1005.6529 from its own cached inputs, so the golden workbook is saved in an unconverged state that recalculation cannot reproduce.",
+    "fixed": true,
+    "fix": "Same answer_position carve-out of the non-settling circular loop cells as verifier-correctness-0; the key now passes its own check."
+  },
+  {
+    "id": "F6",
+    "title": "The ground-truth workbook fails its own verifier after LibreOffice recalculation, so no submission can pass",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The task has one verifier, verify_spreadsheetbench2_cells, with weight 1. It scores pass/fail: every modification cell must match and at least 99.8% of regression cells must match. It recalculates the output in LibreOffice before comparing it with the cached Excel values in gt_09_golden.xlsx. The LBO model has a circular-interest switch (named range circ = LBO!$H$8, workbook calcPr iterate=\"true\" iterateCount=\"100\" iterateDelta=\"0.0001\"). I copied gt_09_golden.xlsx and scored it as the output, using the verifier's own score_workbooks with managed_recalculated_xlsx. Result: regression 0.9968 (below the 0.998 threshold), modification 0.9688, 34 cell errors. Examples: 'Regression error at LBO!K138: answer=698.7468378427, output=606.17803040359'; 'LBO!L103: answer=1367.25, output=1383.38'; 'Modification error at LBO!H204: answer=0.004134, output=0.004061'; 'LBO!K199: answer=-135.74, output=-141.87'; 'LBO!D213: answer=6% / 1.4x, output=6% / 1.3x'. LibreOffice's iterative solve settles on different values for the circular revolver and interest block than Excel does, so even the answer key scores 0.",
+    "confirmation": "The GT's circular interest/revolver block (I138 cached 1034.97 vs 1005.65 implied) is not at a fixed point, so LibreOffice recalculation of the golden file itself diverges beyond 1% on graded cells.",
+    "fixed": true,
+    "fix": "Same answer_position carve-out of the non-settling circular loop cells as verifier-correctness-0; the key now passes its own check."
+  },
+  {
+    "id": "F7",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "The GT's cached circular-reference values are internally inconsistent (LBO!I138 1034.97 vs 1005.65 implied), so staging the GT under the forced-recalc all-or-nothing check cannot score 1.0.",
+    "fixed": true,
+    "fix": "Same answer_position carve-out of the non-settling circular loop cells as verifier-correctness-0; the key now passes its own check."
+  },
+  {
+    "id": "F8",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail because gt_09_golden.xlsx has unconverged iterative cached values that fail under LibreOffice recalculation",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "`verify_spreadsheetbench2_cells` (weight 1.0) scores 0.0 across all 3 units (unit 1: regression 0.9440, modification 0.0416; unit 2: regression 0.9813, modification 0.3742; unit 3: regression 0.9906, modification 0.0998) and cannot pass any valid solution. The verifier forces a single headless LibreOffice recalculation pass on `output_path` (`managed_recalculated_xlsx(Path(output_path), force_recalculation=True, model_deliverable=True)`) and compares the result against the static cached values in `gt_09_golden.xlsx`. Because the workbook has multi-year circular references (interest -> net income -> FCF -> revolver balance `G135:N135` -> remaining revolver capacity `G138:N138` -> next year's revolver draw `H133:N133`) and `gt_09_golden.xlsx` was saved after an unconverged intermediate pass (e.g., `LBO!I138` has formula `=IF($F138-I135<0,0,$F138-I135)` with `F138=1800` and `I135=794.3471`, but its cached value in `gt_09_golden.xlsx` is `1034.9710` instead of `1005.6529`), running `verify_spreadsheetbench2_cells` on `gt_09_golden.xlsx` itself fails with score `0.0` (`FAILED - regression 0.9968, modification 0.9688. 34 cell error(s)`), and applying the exact golden edits to `Errors_input.xlsx` also fails with score `0.0` (267 cell errors after 1 LibreOffice recalculation pass; 35 cell errors once fully converged).",
+    "confirmation": "gt_09_golden.xlsx LBO!I138 =IF($F138-I135<0,0,$F138-I135) caches 1034.97 while F138=1800 and I135=794.35 give 1005.65 (2.8% off), so the circular revolver block is unconverged and the golden file cannot match its own recalculated values within 1%.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position (mode stays 'values'): left out the 289 LBO cells of the circular revolver/interest loop that do not settle under one LibreOffice recalc (rows 67-205 G:N block and LBO!D213/L213; found by scoring the key itself, the key with Excel caches and the key with no caches against the key). graderGuidance range list updated to match. Real scorer: key vs itself PASS 1.0/1.0 (was mod 0.9687), key without caches PASS, previous key cache PASS (only the B175/B178 label fixes differ, within the regression allowance), untouched input FAIL (mod 0.0)."
+  }
+]

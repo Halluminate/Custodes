@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'FCF_Calculation'!B2:G48, after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

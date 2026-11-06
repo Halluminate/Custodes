@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_07_golden.xlsx",
+        "reference_path": "reference/untouched_input_Unit Mismatch_input.xlsx",
+        "answer_position": "'BS & CF'!B2:AC137,'Football Field'!B2:K9,'DCF Model'!C2:T129,'Trading & Comparable Txns'!B2:M28,'Frans Shares'!B2:N24,'LBO & Lenders'!B2:Z65,'Recapitalization'!B2:K38,'Equity Returns'!A2:I122,'Margin Analysis'!A2:F37",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

@@ -1,0 +1,90 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground-truth recolors contradict the font convention the prompt states",
+    "bucket": "Style",
+    "severity": "critical",
+    "category": "world_consistency",
+    "evidence": "The prompt says: 'black for formulas that include operators or functions, green for pure cell references (same-sheet or cross-sheet), and blue for hardcoded input values.' Of the 18 GT color changes, 10 break this rule. (a) Model!C52, D52, D56, E52, E56, F52, F56 ('=\\'FY2023A (IS)\\'!O17/Mil', '=-\\'FY2024A (IS)\\'!O21/Mil') go blue→GREEN (00B050), but they contain operators (/, unary -), so the rule makes them black. (b) Model!H150 '=G150' goes blue→PURPLE (7030A0), and I125 '=I131' and I130 '=I119' go green→PURPLE. These are pure same-sheet references, so the rule makes them green, and purple is not part of the stated convention at all. The GT Model sheet has 324 purple reference cells. An agent that follows the stated convention colors these modification cells black/green and fails the all-or-nothing modification check.",
+    "confirmation": "GT C52/D52/F52/D56/E56 change from blue to green 00B050 although they contain '/Mil' or unary '-', and H150/I125/I130 change to purple 7030A0. Both contradict the prompt's stated black/green/blue convention on graded modification cells.",
+    "fixed": true,
+    "fix": "Same prompt sentence change as F3."
+  },
+  {
+    "id": "F2",
+    "title": "Nonconverged golden calculation caches fail the verifier's own recalculation",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook contains materially inconsistent cached results in its circular debt/cash calculations. For example, Model!I195 caches -3.0727010080648 for =IF($H201=0,0,MIN(MAX((-I193+-I194),-(I146+I194+(I$182-$K$11))),0)); substituting its cached inputs produces approximately -0.848706578757467 instead. The verifier forcibly recalculates only the submitted workbook, then compares it with the unrecalculated golden caches. Passing the golden file itself through that recalculation and the configured score_workbooks check produced regression=1.0, modification=0.1814, and 167 modification errors. Model!I182, for example, changed from the expected -0.111997214653663 to 2.04921163134373. Thus even the golden deliverable fails the sole weight-1 verifier and receives zero.",
+    "confirmation": "Golden Model!I195 caches -3.0727 and I182 caches -0.112 while the input with the same formulas caches 0 and 2.874. These nonconverged caches cannot be matched after the verifier's forced LibreOffice recalc.",
+    "fixed": true,
+    "fix": "Same answer_position change. Locally (before: golden scored modification 0.1814, 251 errors), the golden, the golden re-saved without caches, and the golden recalculated once and twice all score regression 1.0, modification 1.0. The 84 remaining regression misses are 4-Wall Analysis line-break text cells, within the 0.2% regression allowance."
+  },
+  {
+    "id": "F3",
+    "title": "Undisclosed four-color font convention (purple for intra-sheet links vs green for cross-sheet links) and unflagged operator exceptions in ground truth",
+    "bucket": "Style",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The task instructions in `problem.py` state: 'This model uses a three-color font convention: black for formulas that include operators or functions, green for pure cell references (same-sheet or cross-sheet), and blue for hardcoded input values.' However, `gt_10_golden.xlsx` actually enforces a four-color convention on `Model` (4,789 black `000000`, 1,326 blue `0000FF`, 324 purple `7030A0` for same-sheet pure cell references, and 176 green `00B050` for cross-sheet links) and requires changing 3 modification cells (`Model!H150` from `0000FF` to `7030A0` for `=G150`, `Model!I125` from `00B050` to `7030A0` for `=I131`, and `Model!I130` from `00B050` to `7030A0` for `=I119`) to purple (`7030A0`), directly contradicting the prompt's instruction that green is used for same-sheet pure cell references. Furthermore, 7 of the 18 font-color modification cells in `gt_10_golden.xlsx` (`Model!C52:F52` with `='FY2023A (IS)'!O17/Mil` and `Model!D56:F56` with `=-'FY2024A (IS)'!O21/Mil`) contain arithmetic division (`/Mil`) and unary negation (`-`) operators yet are required to be green (`00B050`) rather than black (`000000`). Because `verify_spreadsheetbench2_cells` (weight 1.0) requires 100% modification cell accuracy (`mod_ratio == 1.0`) to return a non-zero score, any agent following the stated three-color rule scores 0.0 (as seen in units 1, 2, and 3, all of which failed on `Model!C52:F52`, `Model!D56:E56`, and `Model!H150`).",
+    "confirmation": "The GT recolors H150 '=G150', I125 '=I131' and I130 '=I119' to purple 7030A0, which is not in the prompt's three-color rule. It also makes C52/D52/F52 ('...O17/Mil') and D56/E56 ('=-...O21/Mil') green despite the operators, contradicting 'black for formulas that include operators'.",
+    "fixed": true,
+    "fix": "prompt.md: replaced the convention sentence 'This model uses a three-color font convention: black for formulas that include operators or functions, green for pure cell references (same-sheet or cross-sheet), and blue for hardcoded input values.' with 'This model uses a four-color font convention: blue for hardcoded input values, green for links to other sheets (including links that are only sign-flipped or divided by Mil), purple for links to cells on the same sheet (including sign-flipped ones), and black for all other formulas.' This is the convention the answer key and the rest of the workbook use: GT recolors C52:F52 and D56:F56 (='FY…'!O17/Mil, =-'FY…'!O21/Mil) to green 00B050 and H150 (=G150), I125 (=I131), I130 (=I119) to purple 7030A0, and the Model sheet holds 162 green /Mil cross-sheet links and 224 purple same-sheet links. All 18 GT color changes now follow the stated rule."
+  },
+  {
+    "id": "F4",
+    "title": "Ground truth workbook contains unconverged circular-reference cached values causing 186 spurious modification cells that fail LibreOffice recalculation",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "Between `untouched_input_Inconsistent Color Coding_input.xlsx` and `gt_10_golden.xlsx`, zero formulas or hardcoded input values change anywhere in `answer_position`, and only 18 cells change font color (`Model!C52:F52`, `D56:F56`, `H150`, `H197`, `H199`, `H200`, `H207`, `H208`, `I125`, `I130`, and `P&L Summary!C22:E22`). However, `score_workbooks` in `verify_spreadsheetbench2_cells` (weight 1.0) classifies 204 cells as modification cells because 186 unchanged black/purple/green formula cells in the circular debt/interest schedule (`Model!I121:M199`, `Model!R24:AW41`, `P&L Summary!G40:T8`, and `4-Wall Analysis!AR867:BE1155`) have different Excel-saved cached values in `gt_10_golden.xlsx` vs `untouched_input_Inconsistent Color Coding_input.xlsx` (in the input file, `Model!I195` `=IF($H201=0,0,MIN(MAX((-I193+-I194),-(I146+I194+(I$182-$K$11))),0))` was saved with cached value `0`, whereas `gt_10_golden.xlsx` was re-saved in Excel with cached value `-3.072701`). Because `verify_spreadsheetbench2_cells` force-recalculates the submitted workbook in LibreOffice (`managed_recalculated_xlsx(..., force_recalculation=True)`), and LibreOffice's iterative calculation (`iterateDelta=0.001`) evaluates `Model!I195` from the input's starting state to `-3.747917` (or from the golden file's own cached state to `-0.848706`), even submitting `gt_10_golden.xlsx` itself to `verify_spreadsheetbench2_cells` fails with `score=0.0` (`regression 1.0000, modification 0.1814, 167 cell error(s)`).",
+    "confirmation": "Verified that Model!I121, I146, I182 and I195 have identical formulas in input and GT but different cached values (I195 0 vs -3.0727). Unchanged cells therefore count as modifications that LibreOffice recalc cannot reproduce, as the run grades show (~122 errors each).",
+    "fixed": true,
+    "fix": "Same answer_position change: the circular-schedule cells whose cached values cannot be reproduced are no longer compared."
+  },
+  {
+    "id": "F5",
+    "title": "Golden font colors contradict the explicitly required three-color convention",
+    "bucket": "Style",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task specifies \"black for formulas that include operators or functions, green for pure cell references (same-sheet or cross-sheet), and blue for hardcoded input values.\" However, the golden workbook requires purple (FF7030A0) for Model!H150 (=G150), I125 (=I131), and I130 (=I119). It also requires green (FF00B050) for Model!C52 (='FY2023A (IS)'!O17/Mil), which contains division and should therefore be black. These are modification cells, so following the stated convention fails the requirement that every modification match. The sole verifier has weight 1, making this a full-score grading contradiction.",
+    "confirmation": "Duplicate of the color-convention contradiction: golden H150/I125/I130 are 7030A0 and C52 is 00B050 for an operator formula, so the stated rule fails the sole verifier.",
+    "fixed": true,
+    "fix": "Same prompt sentence change as F3."
+  },
+  {
+    "id": "F6",
+    "title": "Ground truth fails its own verifier: submitting the golden file scores 0",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "I copied gt_10_golden.xlsx to /home/model/Desktop/output.xlsx and ran verify_spreadsheetbench2_cells with the spec.yaml parameters. Result: 'FAILED - regression 1.0000, modification 0.1814. 167 cell error(s): Modification error at Model!I121: answer=-3.00406239978358, output=-3.08777611992694; Model!I122: answer=-6.02436451745355, output=-6.1080782375969; ...'. Of the 204 'modification' cells, 186 differ from the input only in cached value. Their formulas are identical in input and GT (e.g. Model!I121 '=-SUM(-I183,I197,I199:I200,I207)', I195 '=IF($H201=0,0,MIN(MAX(...)))', I146 1.8740 input vs 1.9607 GT with the same precedents). The workbook has iterative calculation on (iterate=True, 100 iterations) because of the revolver/interest circularity. The cached GT values come from a different iteration run than the verifier's forced LibreOffice recalculation, so they cannot be reproduced. The verifier is all-or-nothing: every modification cell must match. The only verifier (weight 1) therefore cannot pass for any submission, including the answer key itself.",
+    "confirmation": "Same cache defect: I121 caches -3.1197 in the input vs -3.0041 in the GT with identical formulas in a circular model. All-or-nothing grading after forced recalc fails even correct outputs, consistent with the 0.40 modification ratios in all trials.",
+    "fixed": true,
+    "fix": "Same answer_position change. Locally (before: golden scored modification 0.1814, 251 errors), the golden, the golden re-saved without caches, and the golden recalculated once and twice all score regression 1.0, modification 1.0. The 84 remaining regression misses are 4-Wall Analysis line-break text cells, within the 0.2% regression allowance."
+  },
+  {
+    "id": "F7",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "The golden file cannot pass. Its unconverged iterative-calc caches in the Model debt schedule (I121, I146, I182, I195 differ from the input with the same formulas) fail the forced-recalc all-or-nothing check. The finding's guess about the GT not reaching the grader is off, but the GT does score 0.",
+    "fixed": true,
+    "fix": "Same answer_position change. Locally (before: golden scored modification 0.1814, 251 errors), the golden, the golden re-saved without caches, and the golden recalculated once and twice all score regression 1.0, modification 1.0. The 84 remaining regression misses are 4-Wall Analysis line-break text cells, within the 0.2% regression allowance."
+  },
+  {
+    "id": "F8",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (even on gt_10_golden.xlsx) and reports uninformative error messages in font_color mode",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "`verify_spreadsheetbench2_cells` (weight 1.0) scores 0.0 across all 3 units (unit 1: `modification 0.4020, 123 cell error(s)`, unit 2: `modification 0.3873, 125 cell error(s)`, unit 3: `modification 0.4265, 122 cell error(s)`) and is impossible to pass (`score=0.0` even when grading `gt_10_golden.xlsx` against itself, which yields `regression 1.0000, modification 0.1814. 167 cell error(s)`). When `verify_spreadsheetbench2_cells` runs `managed_recalculated_xlsx(Path(output_path), force_recalculation=True)` on a workbook where only font styles were edited (as in units 1, 2, and 3), LibreOffice recalculates the circular revolver paydown loop (`Model!I181:M199`) starting from the input's cached values and lands on values that differ from `gt_10_golden.xlsx`'s Excel-cached values on 110 of the 186 spurious value-modification cells (leaving only 76/204 = 0.3725 baseline modification score before any color fixes). In addition, when a cell fails the font color check in `mode='font_color'`, `score_workbooks` formats the error message using only cell values (`Modification error at Model!C52: answer=88.5299004, output=88.5299004`), hiding the actual font color mismatch (`00B050` vs `0000FF`/`000000`).",
+    "confirmation": "Formulas are identical in input and GT, but the circular-schedule cached values differ (e.g. Model!I195 0 vs -3.0727, I182 2.874 vs -0.112). LibreOffice recalc cannot reproduce them, and every trial fails with 122-125 cell errors, including value-identical cells like C52 'answer=88.5299004, output=8",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: the 'Model' and 'P&L Summary' ranges are split into runs that skip 187 cells whose values depend on the iterative revolver/interest loop (Model I:M rows 121-124, 126-127, 141, 146-147, 180-183, 186-190, 193-199 (revolver/interest loop), Model R:T and AL:AN rows 24-25, 27-28, 30-31, Model AW20:AW23, AW37, AW39:AW41, Model X20 and X26 (TEXT multiples of the loop), and 'P&L Summary' G40:K41 and R7:T8). Model!I195 references ending cash I$182, which already contains I195, so LibreOffice's iteration oscillates and the result depends on the starting cache. The cell set is the union of cells that missed the golden's cached values in four starting states (golden recalculated once and twice, re-recalculated, and re-saved without caches). All other ranges are unchanged. grader_guidance.md range note updated. Locally (before: golden scored modification 0.1814, 251 errors), the golden, the golden re-saved without caches, and the golden recalculated once and twice all score regression 1.0, modification 1.0. The 84 remaining regression misses are 4-Wall Analysis line-break text cells, within the 0.2% regression allowance. The uninformative font_color error message is verifier code and is not changed."
+  }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Target county has conflicting spellings that produce different filtered results",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task requests “Andrew’s county only,” but the County column contains three variants: E18 = 'Andrew', E264 = 'Andrew ' (trailing space), and 'Andrews' in E19:E21, E93, E265, E294 and E295. These identify materially different selections: two Andrew/Andrew-space records versus seven Andrews records. The reference workbook filters for 'Andrew' and displays the two singular-spelling records, excluding the seven 'Andrews' records. No instruction clarifies whether to match the literal singular spelling or include all records for Andrews County. A competent agent interpreting the request geographically can therefore produce a different selection from the reference and risk failing the binary logical-equivalence grading.",
+    "confirmation": "The source County column has 'Andrew' (E18), 'Andrew ' and 7 'Andrews' cells, and the GT filters only 'Andrew'. The prompt's \"Andrew's county\" reasonably means Andrews County, and all 3 trials that included the 'Andrews' rows scored 0.",
+    "fixed": true,
+    "fix": "The new key's County filter keeps all three spellings of Andrews County (nine rows visible, not two). A grader-guidance note says this, and says the literal 'Andrew'-only reading (rows 18 and 264) and including the ditto row 296 are also accepted."
+  },
+  {
+    "id": "F2",
+    "title": "Reference filter keeps only the two misspelled 'Andrew' rows and hides the eight correctly spelled 'Andrews' County rows",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "GT autoFilter on $A$5:$AF$318, colId=4 (County), filter=['Andrew']. Of rows 6-318, 311 are hidden; only rows 15 ('Andrews', County='Andrew') and 214 ('Shafter Lake', County='Andrew ') stay visible. Eight GT rows with County='Andrews' are hidden: Andrews Sour, Andrews Station x2, Drinkard, Shafter Lake, W. Mabee, Wheeler Station x2. The real county is Andrews County, TX, and the prompt's 'Andrew’s county' obviously means it. 'Andrew' and 'Andrew ' are data-entry typos for the same county. In the source, a ditto row (row 296, County='\"' under 'Andrews') also belongs to Andrews County. A competent analyst would show all Andrews County facilities (about 10-11 rows) and be marked wrong against this answer key, which only accepts the typo-matching literal filter.",
+    "confirmation": "The GT autofilter on $A$5:$AF$318 colId 4 = ['Andrew'] leaves only rows 15 and 214 visible and hides the 8 'Andrews' rows (Andrews Sour, Andrews Station, Drinkard...). In run <id>, all 3 trials that showed the Andrews County rows were failed for not matching this literal filter.",
+    "fixed": true,
+    "fix": "The new key's County filter keeps all three spellings of Andrews County (nine rows visible, not two). A grader-guidance note says this, and says the literal 'Andrew'-only reading (rows 18 and 264) and including the ditto row 296 are also accepted."
+  },
+  {
+    "id": "F3",
+    "title": "Ground-truth 'EOTT TX-NM Facilities' sheet comes from a different version of the workbook than the source the agent gets",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The other two sheets match the source cell for cell ('Paperwork in file' 9/9, 'Stations from EOTT Map' 72/72). The graded sheet does not. Source header row 5 reads ['Acquisition','Facility',None,'Legal ','County','St','Team','Tank','Status','Product','Volume','Constructed',...]. GT rows 4-5 read ['Acquisition',...,'Tank','Volume','Tank dimensions',...] / [None,'Facility','Type','Legal','County','St','Number','BBL','Height','Dia.','RVP','NSPS',...]: columns are reordered and Team, Status and Product are gone. Source B2 'EOTT TANK LISTING- Last updated 5/15/2001' is None in GT. The source has 368 non-empty facility cells and the GT has 312. The GT includes facilities that are not in the source ('Garden City Station', 'Mesa', 'Upton**is this a duplicate'). It drops source sections such as 'ADDITIONS', 'DELETES', '5/15  update' and 'Jal--not EOTT'. The source's 202 ditto (\") county cells are replaced by real county names in GT (e.g. Crane 1→15, Eddy 6→16). Row values also differ: source W. Mabee has St='TX', GT has None. The grader is told to judge whether the output is 'logically equivalent to the reference answer.xlsx' and to check every modified value against it. An agent that correctly edits the source in place will therefore differ from the reference on almost every row and column.",
+    "confirmation": "Source row 5 is ['Acquisition','Facility',None,'Legal ','County','St','Team','Tank','Status','Product','Volume',...] but GT row 5 is [None,'Facility','Type','Legal','County','St','Number','BBL','Height','Dia.','RVP','NSPS',...]. The GT has 316 facility cells vs 369, adds 'Garden City Station' and dr",
+    "fixed": true,
+    "fix": "Rebuilt the answer key from the agent's own input file 126_src_0.xlsx. Every cell value on all three sheets is identical to the source. The only additions are an autoFilter on 'EOTT TX-NM Facilities'!A8:AH372 (the range the source's _FilterDatabase name already defines), filtered on County = 'Andrew', 'Andrew ', 'Andrews', with the other 355 data rows hidden. The old key came from a different version of the sheet (other header layout, missing B2, 316 vs 369 facility cells)."
+  }
+]

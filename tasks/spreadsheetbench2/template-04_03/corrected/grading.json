@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_04_03_golden.xlsx",
+        "reference_path": "reference/untouched_input_04_03_input.xlsx",
+        "answer_position": "'FCF_Calculation'!B2:G8,'FCF_Calculation'!B9:B10,'FCF_Calculation'!E9:G10,'FCF_Calculation'!B11:G19,'FCF_Calculation'!B20:B20,'FCF_Calculation'!E20:G20,'FCF_Calculation'!B21:G22,'FCF_Calculation'!B23:B23,'FCF_Calculation'!E23:G23,'FCF_Calculation'!B24:G25,'FCF_Calculation'!B26:B26,'FCF_Calculation'!E26:G26,'FCF_Calculation'!B27:G31,'FCF_Calculation'!B32:B39,'FCF_Calculation'!E32:G39,'FCF_Calculation'!B40:G48",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

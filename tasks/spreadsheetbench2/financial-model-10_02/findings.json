@@ -1,0 +1,13 @@
+[
+  {
+    "id": "F1",
+    "title": "The grader fails correct work saved with openpyxl, the tool the prompt recommends, because 25 Valuation data-table cells come back empty",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Valuation!H60:L64 is an Excel What-If sensitivity table. Its cells hold TABLE($G$59,$E$67,$G60,$E$23,H$59) formulas with cached values. Changing WACC (E67) changes all 25 cells, so they count as 'modification' cells, and every one must match for any credit (score is all or nothing, weight 1). I loaded the input with openpyxl, wrote the exact 51 ground-truth formulas (E67, Q/R CAGRs, Assumptions K106:O106 and K118:O118, Ratio K20:O20 and K33:O33, Graph D27:K28), saved, and ran the grader's own score_workbooks with managed_recalculated_xlsx. Result: 'regression 1.0, modification 0.9091', 25 errors such as 'Modification error at Valuation!H60: answer=248.184442912259, output=None' through L64. openpyxl writes these cells as <f>TABLE(...)</f><v></v> with no value, and the grader's recalculation leaves them empty. The same file passes (1.0/1.0) once it has been round-tripped through 'soffice --convert-to xlsx'. The grade therefore depends on which tool saved the file, not on whether the analysis is right. The prompt's workflow points the agent to openpyxl: 'Plan: Decide how to manipulate the data using openpyxl ...'. Nothing tells the agent that the sensitivity table must be recalculated.",
+    "confirmation": "Valuation!H60:L64 are TABLE() cells whose golden values (H60 = 248.18) differ from the input cache (279.04) because E67 WACC is a task cell. freeze_datatable_formulas (libreoffice.py:344) keeps only the cached values, so an openpyxl-saved output (blank or stale caches) fails these ",
+    "fixed": true,
+    "fix": "Verifier parameter answer_position: \"'Valuation'!C3:O95\" split into C3:O59, C60:G64, M60:O64 and C65:O95, dropping only the 25 TABLE() cells H60:L64 (the only data-table cells in the workbook). Same range change in grader_guidance.md. Ids, names, function, weight and mode unchanged."
+  }
+]

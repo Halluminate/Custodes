@@ -1,0 +1,5 @@
+Add the 2/11/2000 column on the Feb 00 tab by mirroring the 2/10 data, with the following adjustments: the Houston Pipe Line 'Huntv,Woodls,Conroe' line should be 6,000 (instead of 9,000), and for Huntsville and Woodlands use 1,000 and 5,000 respectively. All other items remain unchanged from 2/10.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 105_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

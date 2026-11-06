@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer key divides the EGM and EIM receivable, payable and shipped-not-billed figures by 1000, but the prompt never asks for rescaling, so a correct solution will disagree with the key on these rows, their subtotals and every TOTAL EWS figure built on them.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-unrequested-edits",
+    "evidence": "Source overview T30=1577866053, V30=-1479709941, X30=-7736220, T52=44367328. The reference has T33 =1577866053/1000, V33 =-1479709941/1000, T55 =44367328/1000, and Z32 changes from 118980144.379 to 767756.708. The reference T7 TOTAL EWS =1959406.305 depends on this rescaling.",
+    "confirmation": "The reference rewrites source overview T30/V30/X30 and T52/V52/X52 (e.g. 1577866053) as '=1577866053/1000' etc. (ref T33, T55), an edit the prompt (move the reclass data, add a TOTAL EWS line) never asks for. The reference TOTAL EWS T7 = 1,959,406 depends on it, while a prompt-following total is abo"
+  }
+]

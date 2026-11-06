@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook contains a label in P&L!A13 that is absent from the input and is not requested by the prompt. Because A13 falls inside the compared range P&L!A2:Q35 and every cell must match, a correct solution that leaves A13 empty fails.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-extra-cell",
+    "evidence": "Golden 'P&L' A13='Esc. %'; input and untouched_input 'P&L' have only B13='Expenses' (A13 empty); answer_position includes 'P&L'!A2:Q35.",
+    "confirmation": "Golden P&L!A13='Esc. %' while the input A13 is empty, and the prompt asks for nothing on the P&L sheet. A13 lies in the compared range 'P&L'!A2:Q35 and changed from input to golden, so it is a modification cell that must match. An output that leaves it blank fails."
+  }
+]

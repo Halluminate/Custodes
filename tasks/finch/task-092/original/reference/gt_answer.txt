@@ -1,0 +1,1 @@
+Strategy A: Buy the Cinergy Jan–Dec 2002 annual strip at the mid price (PA = 30.375 $/MWh ≈ 30.38 $/MWh). Strategy B: Use the seven seasonal strips to form the full-year exposure, giving a volume-weighted average price PB ≈ 30.44 $/MWh. Strategy A is cheaper by about 0.065 $/MWh (≈ 28,000 $/year for a 50 MW baseload). Without other considerations, I would recommend Strategy A.

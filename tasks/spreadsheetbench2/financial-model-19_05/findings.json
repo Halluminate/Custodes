@@ -1,0 +1,101 @@
+[
+  {
+    "id": "F1",
+    "title": "The erased revenue range includes historical years outside the requested range",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions request Total Revenue for 'FY25–FY30E', which corresponds to Revenue Drivers!H30:M30. However, the supplied blanks are F30:K30, covering FY23A–FY28E; FY29E and FY30E already contain formulas. The golden workbook requires the additional FY23A and FY24A totals F30=44.441341 and G30=47.220833. These unrequested historical completions also drive historical margins and forecast assumptions elsewhere. The verifier requires these cells and their downstream values to match for its entire weight-1.0 check to pass. Runs 1 and 2 explicitly express uncertainty about filling F30/G30 beyond the instruction.",
+    "confirmation": "Duplicate. The GT requires F30/G30 (FY23A/FY24A = 44.44/47.22), outside the instructed FY25-FY30E range, and those values feed downstream graded cells.",
+    "fixed": true,
+    "fix": "Prompt sentence now asks for FY23A–FY28E, which covers FY23A and FY24A (same sentence as F7)."
+  },
+  {
+    "id": "F2",
+    "title": "Instruction's period range for Total Revenue (FY25–FY30E) doesn't match the blank cells the GT fills (FY23A–FY28E)",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "In Revenue Drivers row 5, column F=FY23A, G=FY24A, H=FY25A, I..M=FY26E..FY30E. In the input, row 30 is blank for F30:K30 (FY23A–FY28E), while L30 and M30 (FY29E, FY30E) already hold formulas. The GT fills F30:K30. Following the instruction ('FY25–FY30E') means filling only H30:K30 and leaving F30 and G30 blank. Then IS!F6/G6 = 0 and every FY23–FY24 dependent cell (IS F/G rows 8-36, Ratio Analysis F/G, Working Capital F/G, Cost Drivers E7/F7/G9) fails. The all-or-nothing verifier then scores 0.",
+    "confirmation": "Row 5 shows F=FY23A, G=FY24A, H=FY25A. The input leaves F30:K30 blank with L30/M30 filled, and the GT fills F30=44.44 and G30=47.22, which the instruction's 'FY25-FY30E' range excludes.",
+    "fixed": true,
+    "fix": "Prompt sentence now asks for FY23A–FY28E, the blank cells F30:K30 the answer key fills (same sentence as F7)."
+  },
+  {
+    "id": "F3",
+    "title": "Instruction says to sum three revenue segments, but the GT sums four, including the largest (Solar & Wind)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "world_consistency",
+    "evidence": "The instruction says: 'calculate Total Revenue ... by summing Distribution, Power, and Other Special Duty Transformers segments.' The Revenue Drivers sheet has four segment blocks: 'Solar & Wind Tranformers' (row 10), 'Distribution Transformers' (row 16), 'Power Transformers' (row 22) and 'Other Special Duty Transformers' (row 28). The GT formula is '=F10+F16+F22+F28', so it includes Solar & Wind (FY25 H10 = 65.0 of 94.0 total). An agent that follows the instruction literally gets H30 = 29.0 instead of 94.0. That fails Revenue Drivers!F30:K30 and the whole downstream chain (IS revenue, margins, WC, DCF, comps), so the all-or-nothing verifier scores 0. The existing L30/M30 formulas use all four blocks, which hints at the intended answer, but the instruction directly contradicts it.",
+    "confirmation": "The instruction names Distribution, Power and Other Special Duty only, but GT H30 '=H10+H16+H22+H28' = 94.0012 includes Solar & Wind (row 10). The three named segments give about 29.0, which fails downstream graded cells.",
+    "fixed": true,
+    "fix": "Prompt sentence now includes the Solar & Wind segment (same sentence as F7)."
+  },
+  {
+    "id": "F4",
+    "title": "DCF sensitivity cells are permanently broken and require prohibited edits to pass",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The supplied workbook contains the literal formula '=#DIV/0!' in DCF!M8:P8 and L9:P12: 24 populated cells, not errors that will resolve when the requested blanks are filled. The golden workbook instead contains functioning TABLE formulas in these cells. The task explicitly says to 'strictly avoid altering any cells that already contain values unless explicitly instructed', and never instructs the agent to repair DCF sensitivity formulas. Leaving these cells unchanged fails the sole, weight-1.0 verifier, which requires every modification cell to match. Run 3 step 43 independently reports these same 24 DCF errors.",
+    "confirmation": "Duplicate of the DCF '=#DIV/0!' literal-formula defect. Leaving the cells as instructed fails 24 modification cells on the sole verifier, as shown in all three run grade.json files.",
+    "fixed": true,
+    "fix": "Same GT change as verifier-correctness-0 (DCF!M8:P8, L9:P12 match the input)."
+  },
+  {
+    "id": "F5",
+    "title": "Revenue instructions exclude a segment that the grader requires",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task requests Total Revenue 'by summing Distribution, Power, and Other Special Duty Transformers segments'. The golden formulas instead sum four segments, including Solar & Wind Transformers: for example, Revenue Drivers!H30 is '=H10+H16+H22+H28'. The three named segments total 29.0012 for FY25A, whereas the golden value is 94.0012 because it includes 65 from Solar & Wind. This discrepancy continues across the forecast years. A literal implementation of the stated segment list therefore fails the sole, weight-1.0 all-or-nothing verifier.",
+    "confirmation": "Duplicate. The golden Revenue Drivers!H30:K30 sum four segment totals (rows 10, 16, 22, 28) while the prompt lists three, so the stated method gives 29.0 vs the golden 94.0 for FY25A.",
+    "fixed": true,
+    "fix": "Prompt sentence now includes the Solar & Wind segment (same sentence as F7)."
+  },
+  {
+    "id": "F6",
+    "title": "A fully correct solution scores 0: the grader requires the DCF sensitivity table, which the task never mentions and cannot be rebuilt",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The verifier's modification cells are every cell whose cached value differs between the input and the GT. In the input, DCF!M8:P12 and L9:L12 hold the literal formula '=#DIV/0!' (only L8 keeps '=TABLE($K$7,$C$25,$K8,$C$26,L$7)'). The GT has Excel data-table formulas there with cached values (L9=338.04, P8=473.67, etc.). That makes 24 DCF cells graded modification cells. The instruction asks only for IS Gross Margin, Revenue Drivers Total Revenue, Ratio Analysis Debt/CE and Asset Turnover, and Trading Comps EV. I built an output with every requested formula written correctly (IS!C16:M16 =x15/x8, RD!F30:K30 =x10+x16+x22+x28, RA!C24:M24 and C28:M28 exactly as in the GT, TC!F44 =F46+F45) and ran the real score_workbooks after LibreOffice recalculation. Result: regression 1.0, modification 0.9308, 25 errors, all on DCF L8:P12 (output '#DIV/0!', answer 338.04, ...). Writing '=TABLE(...)' formulas into those cells with openpyxl also fails, because LibreOffice drops them and returns None. The single verifier (weight 1) is all-or-nothing (it needs every modification cell to match), so the task scores 0 for any agent that does exactly what was asked. The GT file itself passes only because its cached data-table values survive.",
+    "confirmation": "Requested cells all match in the runs, yet each trial scores 0 solely on the 24 DCF sensitivity cells, which are '=#DIV/0!' in the input and TABLE() values in the GT and are never mentioned in the task.",
+    "fixed": true,
+    "fix": "Same GT change as verifier-correctness-0 (DCF!M8:P8, L9:P12 match the input)."
+  },
+  {
+    "id": "F7",
+    "title": "Revenue Drivers Total Revenue instruction specifies incorrect year range (FY25–FY30E vs golden's FY23A–FY28E) and omits the Solar & Wind Transformers segment",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `problem.py`, the instruction states: 'In the Revenue Drivers sheet, calculate Total Revenue for FY25–FY30E by summing Distribution, Power, and Other Special Duty Transformers segments.' In the input workbook (`Revenue Drivers` row 30), `C30:E30` (FY20A–FY22A) and `L30:M30` (FY29E–FY30E) are already populated, while `F30:K30` (FY23A–FY28E) are blank. Furthermore, in `gt_19_Transformer_golden.xlsx` (and existing cells `L30:M30`), the formula in `F30:K30` is `=F10+F16+F22+F28`, which sums all four segments: Solar & Wind Transformers (row 10), Distribution Transformers (row 16), Power Transformers (row 22), and Other Special Duty Transformers (row 28). Following the literal text of the prompt (only filling FY25–FY30E or summing only the three named segments) would fail `verify_spreadsheetbench2_cells` (weight 1) on `Revenue Drivers!F30:K30` and all downstream model sheets.",
+    "confirmation": "The prompt says FY25-FY30E and three segments, but the input blanks are Revenue Drivers!F30:K30 (FY23A-FY28E, L30:M30 already filled), and the GT uses '=F10+F16+F22+F28', including Solar & Wind (row 10). A literal reading fails the all-or-nothing check.",
+    "fixed": true,
+    "fix": "Prompt: the Revenue Drivers sentence now reads 'In the Revenue Drivers sheet, calculate Total Revenue for FY23A–FY28E by summing the Solar & Wind, Distribution, Power, and Other Special Duty Transformers segments.' (was FY25–FY30E and three segments)."
+  },
+  {
+    "id": "F8",
+    "title": "Input workbook has corrupted #DIV/0! formulas in DCF sensitivity table (DCF!L9:P12 and DCF!M8:P8) that are never mentioned in instructions, making 24 modification cells impossible to pass",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `untouched_input_19_05_Transformer_input.xlsx` and `assets/19_05_Transformer_input.xlsx`, the DCF sensitivity table (`DCF!L8:P12`) only preserves the LibreOffice `TABLE(...)` formula in `DCF!L8` (`=TABLE($K$7,$C$25,$K8,$C$26,L$7)`), while the other 24 cells (`DCF!M8:P8` and `DCF!L9:P12`) have literal error formulas `<f aca=\"false\">#DIV/0!</f>`. In `gt_19_Transformer_golden.xlsx`, all 25 cells have valid `=TABLE($K$7,$C$25,$K{row},$C$26,{col}$7)` formulas and numeric values (e.g., `DCF!L9 = 338.041986877743`). However, the task instructions never ask the agent to repair `DCF!L8:P12` and explicitly instruct: 'When completing spreadsheet tasks, strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.' Because the single verifier (`verify_spreadsheetbench2_cells`, weight 1) requires `mod_ratio == 1.0`, these 24 corrupted cells cause every compliant submission to score 0.0 (`modification 0.9308, 24 cell error(s)` across all 3 runs).",
+    "confirmation": "Verified that input DCF!M8 and L9/P12 are '=#DIV/0!' (only L8 keeps TABLE), the GT has TABLE formulas there, and the prompt never asks for the sensitivity table and forbids altering filled cells. Every trial fails on exactly these 24 cells.",
+    "fixed": true,
+    "fix": "Same GT change as verifier-correctness-0 (DCF!M8:P8, L9:P12 match the input)."
+  },
+  {
+    "id": "F9",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all valid agent solutions (score 0.0) due to 24 uninstructed #DIV/0! formula cells in DCF!L9:P12 and DCF!M8:P8",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units (unit 1 step [45], unit 2 step [47], unit 3 step [42]), the agent accurately implemented all four requested calculations (`IS!C16:M16`, `Revenue Drivers!F30:K30`, `Ratio Analysis!C24:M24` and `C28:M28`, and `Trading Comps!F44`) and achieved 100% agreement on all 323 legitimate modification cells and 100% on regression cells. However, `verify_spreadsheetbench2_cells` (weight 1) scored 0.0 on all 3 units (`FAILED - regression 1.0000, modification 0.9308. 24 cell error(s): Modification error at DCF!L9: answer=338.041986877743, output=#DIV/0!...`) because `DCF!M8:P8` and `DCF!L9:P12` in the input file contain literal `=#DIV/0!` formulas instead of the `=TABLE(...)` formulas present in the golden file.",
+    "confirmation": "Input DCF!M8:P8 and L9:P12 hold literal '=#DIV/0!' while the GT has TABLE formulas with values (L9=338.04). All 3 trials in run <id> fail only these 24 cells ('modification 0.9308, 24 cell error(s)... DCF!L9 answer=338.04, output=#DIV/0!').",
+    "fixed": true,
+    "fix": "files/gt/gt_19_Transformer_golden.xlsx: DCF!M8:P8 and DCF!L9:P12 (24 cells) set to the input's formula =#DIV/0! with cached #DIV/0! (was TABLE() with values). These cells are no longer graded as modifications. Every other cell is unchanged (checked value and formula diff)."
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer key mixes data vintages. Jan 2022–Jan 2024 come from revised HM Land Registry data, while Feb–Nov 2024 come from early ONS bulletin first estimates that were later revised down sharply. An agent using one consistent current HPI download would differ by about 4–6% on many months, which is outside the grader's 1% tolerance.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-vintage-mismatch",
+    "evidence": "RawData B33 England 2024/08 = '310,000' and B36 2024/11 = '306,000', then B37 2024/12 = '291,000' (Sheet3 B36 = -4.90%). Similarly C32 Scotland 2024/07 = '199,000' and D37 Wales 2024/12 = '208,000' (-5.02%). Current revised UK HPI England values for mid/late 2024 are around £290k.",
+    "confirmation": "Reference RawData shows a series break at the vintage seam: England 306,000 (2024/11) to 291,000 (2024/12), with simultaneous drops in Scotland 195k to 189k, Wales 219k to 208k and NI 191k to 183k, so Feb-Nov 2024 are early rounded bulletin figures unlike the revised earlier months; the judge applie"
+  }
+]

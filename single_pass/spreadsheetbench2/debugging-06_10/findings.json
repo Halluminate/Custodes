@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden changes the first discount period from 0.75 to 0.75/2 = 0.375 but keeps +1 increments, so it is not a valid mid-year convention: the next midpoint should be 1.25, not 1.375. Nothing in the prompt or file signals the change, and every PV, DCF output and Cover!G10 depends on it.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "questionable-golden-fix",
+    "evidence": "Golden 'Operating Model'!J34 = 0.75/2 = 0.375 and K34 = J34+1 = 1.375; input J34 = 0.75. This drives J35:S35, DCF!E3/E7/E16/E22 and Cover!G10 (1.635 vs 14.52).",
+    "confirmation": "Golden 'Operating Model'!J34 is '=0.75/2' (0.375) where the input has 0.75, and K34:S34 keep +1 steps (1.375...), which is not a consistent mid-year convention. Nothing in the file mentions mid-year or stub discounting, yet J34 is a modification cell that drives all PVs and DCF!E7 via S34, so an aud"
+  }
+]

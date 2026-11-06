@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_16_10_golden.xlsx",
+        "reference_path": "reference/untouched_input_16_10_input.xlsx",
+        "answer_position": "'DCF'!B2:P41,'DCF'!B42:F42,'DCF'!H42:P42,'DCF'!B43:P46,'SharedData'!A1:Q2,'SharedData'!B3:Q4,'SharedData'!A5:Q12",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

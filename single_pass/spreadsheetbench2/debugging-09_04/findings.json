@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The verifier grades in font_color mode over the full compared ranges, but the prompt is a generic audit request that never mentions colour coding or states which convention or RGB values to apply. The agent can only guess the exact font colours the golden file expects.",
+    "bucket": "Style",
+    "severity": "critical",
+    "category": "underspecified-requirement",
+    "evidence": "Verifier parameter \"mode\": \"font_color\" with answer_position 'LBO'!A2:X218, 'Financials'!A2:Q29, 'Operating Cases'!A2:Q47. The prompt lists 'inconsistent formatting' only as one item among many. The intended defect is hinted only by the input filename 'Inconsistent Color Coding_input.xlsx'.",
+    "confirmation": "The golden's only formula/value-free edits are 38 font-colour changes (e.g. LBO!E50 blue to FF008000 green, LBO!D9 black to blue) graded in font_color mode, yet the prompt never mentions colour coding and the workbook has no colour legend; the golden itself still leaves black cross-sheet links (LBO!"
+  }
+]

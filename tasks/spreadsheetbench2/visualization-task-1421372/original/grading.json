@@ -1,0 +1,53 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official chart checklist",
+      "function": "verify_spreadsheetbench2_chart_checklist",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "checklist": [
+          "The chart is a multi-series line chart",
+          "The chart title reads 'Race Events by 5-Minute Time Intervals'",
+          "The X-axis displays 24 time block labels from '0 & 5 MINS' through '115 & 120 MINS'",
+          "The legend is positioned at the bottom of the chart",
+          "The legend contains an entry labeled 'YELLOW'",
+          "The legend contains an entry labeled 'PIT'",
+          "The legend contains an entry labeled 'DRIVER CHANGE'",
+          "The legend contains an entry labeled 'WORST POSITION'",
+          "The legend contains an entry labeled 'DIVE-IN'",
+          "The WORST POSITION series is displayed as a continuous line with connecting segments",
+          "The YELLOW series is displayed as markers only without connecting lines",
+          "The PIT series is displayed as markers only without connecting lines",
+          "The DRIVER CHANGE series is displayed as markers only without connecting lines",
+          "The DIVE-IN series is displayed as markers only without connecting lines",
+          "The marker-only series (YELLOW, PIT, DRIVER CHANGE, DIVE-IN) appear as distinct horizontal indicator rows below the zero line",
+          "The negative Y-axis values are hidden from view",
+          "The WORST POSITION line value at 0 & 5 MINS is approximately 11",
+          "The WORST POSITION line value at 25 & 30 MINS is approximately 5",
+          "The WORST POSITION line value at 30 & 35 MINS is approximately 5",
+          "The WORST POSITION line value at 55 & 60 MINS is approximately 18",
+          "The WORST POSITION line value at 60 & 65 MINS is approximately 14",
+          "The WORST POSITION line value at 70 & 75 MINS is approximately 1",
+          "The WORST POSITION line value at 115 & 120 MINS is approximately 1",
+          "The YELLOW series shows a marker at the 20 & 25 MINS time block",
+          "The YELLOW series shows a marker at the 30 & 35 MINS time block",
+          "The YELLOW series shows a marker at the 55 & 60 MINS time block",
+          "The PIT series shows a marker at the 55 & 60 MINS time block",
+          "The DRIVER CHANGE series shows a marker at the 55 & 60 MINS time block",
+          "The DIVE-IN series shows a marker at the 55 & 60 MINS time block",
+          "The Y-axis maximum value is 20",
+          "The WORST POSITION line shows a peak value of approximately 18 occurring at 55 & 60 MINS",
+          "The WORST POSITION line shows a sharp decline from approximately 18 at 55 & 60 MINS to approximately 1 at 70 & 75 MINS"
+        ]
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

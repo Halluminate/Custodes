@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth penalizes correcting a broken working-capital reference",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task requests a thorough audit, explicitly including 'broken cell references' and 'formula logic errors'. However, both the input and golden workbook retain Operating Model + DCF!R84 as '=R847-M83'. R847 is blank, so the reported change in working capital is -29.613 instead of R83-M83 = -84.2928522758825-29.613 = -113.9058522758824. Correcting only this reference in a copy of the golden workbook and recalculating produces a modification match ratio of 0.92: six of the 75 modification cells fail, including D95, D100 and C102. The sole verifier, weighted 1, requires every modification cell to match and consequently awards zero despite this valid repair. The unchanged golden workbook passes, confirming that the answer key preserves and rewards the error.",
+    "confirmation": "Golden R84 is '=R847-M83' (R847 blank) giving -29.61 instead of R83-M83 = -113.91, and D94 = R84 feeds graded UFCF cells, so correcting the broken reference fails the 100% modification match.",
+    "fixed": true,
+    "fix": "Same key change: R84 -> =R83-M83 with D94, D95, D100, C102 and the DCF blocks recalculated."
+  },
+  {
+    "id": "F2",
+    "title": "Golden workbook (gt_08_golden.xlsx) leaves broken cell references, formula logic errors, and sign errors unfixed that cascade into graded cells",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1) requires 100% match (`mod_ratio == 1.0`) on 75 modification cells and >=99.8% match (`reg_ratio >= 0.998`, at most 26 of 13,206 cells differing) on regression cells against `gt_08_golden.xlsx`. However, `gt_08_golden.xlsx` only fixes 4 unit-mismatch items (`Comps + WACC!C39` from `262671` to `262671000`, `Operating Model + DCF!D90:H90` from `30` to `0.3`, `Operating Model + DCF!C136` from `7.5` to `0.075`, and `Operating Model + DCF!I26:L26` removing `*4`) while leaving severe formula and reference bugs in the graded ranges that cascade directly into the modification and regression buckets:\n1. `Operating Model + DCF!R84` (2026 Change in NWC) has the typo formula `=R847-M83` referencing blank cell `R847` instead of `=R83-M83` (`-29.61` in GT vs. `-113.91` when fixed). This flows directly into `D94` (`=R84`) and modification cells `D95` (2026 UFCF: `58.13` in GT vs. `142.42` when fixed), `D100` (`48.34` vs. `118.43`), `C102` (`=SUM(C100:H100)`), and all three DCF valuation blocks (`C107:C118`, `C121:C132`, `C135:C145`).\n2. `Operating Model + DCF!C90` (2025 Tax Rate in Cash Flow Bridge) is left at `-0.3` (`-30%`) while `D90:H90` are `0.3` (`+30%`), causing 2025 NOPAT in `C91` (`=C89*(1-C90)`) to be `-169.51` (`-130.392 * 1.3`) instead of `-91.27` (`-130.392 * 0.7`), which also flows into `C95`, `C100`, `C102`, and the modification DCF outputs.\n3. `Operating Model + DCF!M27` (a modification cell) and `R27` (`Other expense (income) % of revenue`) have formulas `=M26/M7` and `=R26/R7` dividing by COGS (`Row 7`) instead of Revenue (`Row 4`). Fixing `M27` to `=M26/M4` (`-0.57%` vs. GT `-3.32%`) directly fails modification cell `M27`.\n4. `Operating Model + DCF!C36:H36` (`D&A`) references empty cells `='IS Annual'!C75:H75` (`0`) instead of `CFS!C4:H4`; `I62:L62` (`Capex`) references `='IS Quarters'!E69:H69` (`Depreciation Expense`) instead of Capex (`-'Key Stats'!C21:F21`); and `K9:L9`, `K12:L12`, `K15:L15` reference blank cells `K41:L41`, `K47:L47`, `K53:L53` (`0%`) instead of dividing by `K4:L4`.",
+    "confirmation": "Verified in gt_08_golden.xlsx: R84 '=R847-M83', C90 -0.3 (C91 = -169.51), M27 '=M26/M7' under '% of revenue', C36 ='IS Annual'!C75 = 0, I62 ='IS Quarters'!E69, K9 '=K41' = 0; these unfixed bugs flow into graded cells.",
+    "fixed": true,
+    "fix": "Same key change: R84, C90, M27, C36:H36, K9:L9/K12/K15 fixed in the key; I62:L62 out of answer_position."
+  },
+  {
+    "id": "F3",
+    "title": "Task prompt instructs a comprehensive workbook audit while the verifier enforces an undisclosed constraint to only fix four unit-mismatch items",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `problem.py:34`, the prompt gives a generic open-ended debugging instruction: `\"Please audit and fix this file thoroughly. Errors may include but are not limited to: formula logic errors or inconsistencies, hardcoded values that should be formulas, broken cell references, data validation issues, potential calculation errors, inconsistent formatting or naming conventions, best practice violations, and any other issues that could affect accuracy or maintainability.\"` Nothing in the prompt tells the agent that the task is restricted solely to unit-mismatch errors (the only hint is the input filename `Unit Mismatch_input.xlsx`). Because `verify_spreadsheetbench2_cells` (weight: 1) requires `reg_ratio >= 0.998` and `mod_ratio == 1.0` against `gt_08_golden.xlsx` (which only fixes 4 unit mismatches), following the explicit prompt instruction to fix broken cell references, hardcoded sensitivity tables (`G108:K112`, `G122:K126`), unlinked Cover cells (`Cover!D8:D9`), and formula logic errors guarantees a score of `0.0`.",
+    "confirmation": "prompt.md asks to fix all formula errors and broken references, but the golden only fixes the four unit mismatches and keeps bugs like R84 '=R847-M83', so following the prompt fails the all-or-nothing check.",
+    "fixed": true,
+    "fix": "Same key change (R84, C36:H36, K9:L9 fixed). The hardcoded sensitivity grids G108:K112, G122:K126 and the blank Cover!D8:D9 leave answer_position (no single defensible repair). The prompt keeps its original 'audit and fix thoroughly' text; the earlier scope sentence was removed."
+  },
+  {
+    "id": "F4",
+    "title": "Fixing a real error the answer key leaves in place fails the all-or-nothing verifier",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The prompt asks the agent to 'audit and fix this file thoroughly… any other issues that could affect accuracy'. The ground truth fixes only the planted unit errors (I26:L26 '*4', D90:H90 30→0.3, C136 7.5→0.075, Comps C39 262671→262671000). It keeps other real defects. 'Operating Model + DCF'!C90 tax rate is -0.3, so 2025 NOPAT = EBIT -130.4 × 1.3 = -169.5. C111 discounts terminal value at ^5 while the final cash flow H95 is discounted at year 6 (H97=6, H99=(1+WACC)^6). 'Comps + WACC'!C38 WACC '=C32' is cost of equity only. The verifier scores 1.0 only when the modification ratio is exactly 1.0, on a single weight-1 check. I tested both cases. Starting from the GT, setting C90 to 0.3 gives modification 0.9467, score 0. Changing C111 to ^6 gives modification 0.9333, score 0. Both changes flow into the graded cells C102/C112/C114/C116.",
+    "confirmation": "Golden C90 is -0.3 (C91 = -169.51), C111 discounts TV with ^5 while H97 = 6, and 'Comps + WACC'!C38 WACC = C32 (Cost of Equity); fixing these real errors, as the prompt asks, changes graded cells and fails the single binary verifier.",
+    "fixed": true,
+    "fix": "Same key change: C90 -> 0.3 and C111 discounted ^6; 'Comps + WACC'!C38 leaves answer_position (no single defensible WACC weighting)."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells scores 0.0 on all 3 units because agents fix genuine workbook bugs alongside the 4 unit mismatches",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (weight: 1) returned `score=0` (Unit 1: `regression 0.9962, modification 0.4667, 90 cell error(s)`; Unit 2: `regression 0.9933, modification 0.4667, 128 cell error(s)`; Unit 3: `regression 0.9953, modification 0.2667, 117 cell error(s)`). Reconstructing each unit's edits from its trajectory shows that all 3 units correctly found and fixed all 4 target unit-mismatch bugs (`Comps + WACC!C39 = 262671000`, `Operating Model + DCF!D90:H90 = 0.3`, `Operating Model + DCF!C136 = 0.075`, and removing `*4` in `Operating Model + DCF!I26:L26`), which matched the 35 non-DCF modification cells (`35/75 = 0.4667` in Units 1 and 2). However, as instructed by the prompt, all 3 units also fixed blatant errors in `Operating Model + DCF` that were left broken in `gt_08_golden.xlsx`: fixing `C90` from `-0.3` to `0.3` (flagged as `Regression error at Operating Model + DCF!C90: answer=-0.3, output=0.3; C91: answer=-169.509599999999, output=-91.2744000000005`), fixing the typo `R84` from `=R847-M83` to `=R83-M83` (which shifts `D94`, `D95`, `D100`, `C102`, and all 35 downstream DCF valuation cells in the modification bucket, yielding `Cover!D8 = 277.1733` in Unit 2 and `277.1457` in Unit 1 vs. `276.6348` in GT), and fixing `C36:H36` from empty `IS Annual!C75:H75` to `CFS` D&A (`Regression error at Operating Model + DCF!C36: answer=0, output=70.248`). Because `verify_spreadsheetbench2_cells` enforces an all-or-nothing check against the unfixed `gt_08_golden.xlsx`, all three thorough, high-quality solutions were penalized with a `0.0` score.",
+    "confirmation": "Golden 'Operating Model + DCF' keeps R84 '=R847-M83' (blank ref, -29.61 vs -113.91) and C90 = -0.3 while D90:H90 = 0.3, both feeding graded DCF cells; the prompt demands a thorough fix, so agents that repair these fail the 100% modification check.",
+    "fixed": true,
+    "fix": "gt_08_golden.xlsx now also fixes the errors QA named, on top of the four planted unit mismatches, with every other cell, formula and style unchanged and 37 dependent cached values rewritten from the verifier's own LibreOffice recalc: 'Operating Model + DCF'!R84 =R847-M83 -> =R83-M83 (2026 change in NWC -113.91); C90 -0.3 -> 0.3 like D90:H90; C36:H36 ='IS Annual'!C75:H75 (empty) -> =CFS!E4:J4 (FY2019-FY2024 D&A, matched by year); K9:L9, K12, K15 (links to empty rows 41/47/53, the cells the findings name) -> =K8/K4, =L8/L4, =K11/K4, =K14/K4 like I:J; M27 divides by revenue M4 instead of COGS M7; C111 terminal value discounted ^5 -> ^6 to match H97 = 6 and H99 (C125 and C138 are not named and stay unchanged). Left out of answer_position because there is no single defensible repair: quarterly capex I62:L62 (point at the depreciation row; the workbook has no quarterly capex), 'Comps + WACC'!C38 (WACC = cost of equity; a weighted WACC needs a choice of debt and equity weights; nothing references C38), the hardcoded sensitivity grids G108:K112 and G122:K126 (they are stale against the corrected DCF and can be rebuilt several ways) and the blank Cover!D8:D9 target price/upside (no method is specified). Checked with the real SB2 scorer: new key vs itself 1.0; untouched input plus all key fixes 1.0; untouched input 0.0 (mod 0.0); planted-only fixes (the old key) now fail (mod 0.6848), as expected."
+  }
+]

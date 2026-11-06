@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for PAT Margin to show \"NM\" only where Total Income is zero or negative, but the golden formula shows \"NM\" whenever PAT/Total Income is negative. Total Income is always positive here, so a solver following the prompt gets numeric margins in two cells where the key expects \"NM\".",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-contradicts-prompt",
+    "evidence": "Golden P&L J35 = 'NM' and Q35 = 'NM', both from =IF(J34/J12<0,\"NM\",J34/J12). P&L J12 = 84.94 and Q12 = 73.28 are positive, so the prompt's rule gives about -0.0090 and -0.0247.",
+    "confirmation": "Prompt says show \"NM\" where Total Income is zero or negative, but golden P&L J35/Q35 use =IF(J34/J12<0,\"NM\",...) and show NM although J12 = 84.94 and Q12 = 73.28 are positive; a prompt-following solver gets numeric margins and fails these modification cells."
+  },
+  {
+    "id": "S2",
+    "title": "The golden workbook adds a label in a cell that is empty in the input and is not mentioned in the task. Because P&L A2:Q35 is compared cell by cell, any solver who leaves the cell untouched fails.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "unrequested-golden-change",
+    "evidence": "Golden P&L A13 = 'Esc. %'. Input P&L A13 is empty (only B13 = 'Expenses'). The answer_position includes 'P&L'!A2:Q35.",
+    "confirmation": "Golden P&L!A13 = 'Esc. %' while input A13 is empty and nothing in the prompt asks for it; it is a modification cell inside 'P&L'!A2:Q35, so every solver who leaves it blank fails (all modification cells must match)."
+  }
+]

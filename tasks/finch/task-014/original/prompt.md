@@ -1,0 +1,5 @@
+Suppose we need to hold a 0.5-year AA(2) municipal investment bond. Using the model, compare the holding-period returns of the 2-year and 4-year tenors. It is known that over the next half year, the 1-year yield will rise by 2 bps, and the 5-year term spread relative to the 1-year will widen by 3 bps.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 14_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

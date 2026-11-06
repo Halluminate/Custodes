@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook has different values from the input in cells the task never asks the agent to touch, and these differences are far outside the 1% tolerance. The official check compares nearly every sheet in full, so a solution that follows the instructions exactly can still fail unless recalculation happens to reproduce the golden state (for example a circular or iterative Other Income calculation).",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-out-of-scope-changes",
+    "evidence": "'Work Sheet'!AB6 (=IS_BS_CF!AD34) is 2.25 in the input but 20.3344 in the golden; AF6 is 9 vs 81.34; AL6 is 2 vs 39.73. These carry through to 'Work Sheet'!AB5:AP5, AB10:AP12 and IS_BS_CF AD4:AR4, AD7, AD10, AD16, AD20, AD22. The answer_position covers 'Work Sheet'!A1:AP228 and 'IS_BS_CF'!A1:AR181.",
+    "confirmation": "The golden adds 218 formulas in IS_BS_CF rows 142-169 (debt and interest-income schedule) that the prompt never asks for, since it covers only Formats and Report Tables. This raises AH137 investable surplus from 200 to 1807.5 and Work Sheet AB6 from 2.25 to 20.33. A LibreOffice recalc of the untouch"
+  }
+]

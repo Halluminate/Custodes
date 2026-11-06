@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_08_golden.xlsx",
+        "reference_path": "reference/untouched_input_Embedded Hardcodes_input.xlsx",
+        "answer_position": "'Cover'!C5:D14,'Operating Model + DCF'!A2:X40,'Operating Model + DCF'!A41:M41,'Operating Model + DCF'!W41:X41,'Operating Model + DCF'!A42:X46,'Operating Model + DCF'!A47:M47,'Operating Model + DCF'!W47:X47,'Operating Model + DCF'!A48:X52,'Operating Model + DCF'!A53:M53,'Operating Model + DCF'!W53:X53,'Operating Model + DCF'!A54:X97,'Operating Model + DCF'!A98:B98,'Operating Model + DCF'!I98:X98,'Operating Model + DCF'!A99:X110,'Operating Model + DCF'!A111:B111,'Operating Model + DCF'!D111:X111,'Operating Model + DCF'!A112:X124,'Operating Model + DCF'!A125:B125,'Operating Model + DCF'!D125:X125,'Operating Model + DCF'!A126:X137,'Operating Model + DCF'!A138:B138,'Operating Model + DCF'!D138:X145,'Revenue Build'!A2:AA28,'Revenue Build'!A29:R29,'Revenue Build'!A30:AA34,'Revenue Build'!A35:R35,'Revenue Build'!A36:AA40,'Revenue Build'!A41:R41,'Revenue Build'!A42:AA44,'Comps + WACC'!B2:L41,'ADDTL -'!A1:L40,'IS Annual'!A1:R45,'IS Quarters'!A1:L70,'IS Quarters 2'!A2:G93,'Key Stats'!A1:L47,'BS'!A1:Y96,'CFS'!A1:L65,'Employees'!A2:L9,'Graphs'!B2:G266",
+        "mode": "formula"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

@@ -1,0 +1,3 @@
+Treat “California Power Exchange” and “Pacific Gas and Electric (California Power Exchange) (a)” as a single combined CPX customer group. Reconstruct CPX’s full-cycle cash flows and net position across all sheets from November 2000 through June 2001, and determine whether, as of the certification date, the ISO is net receivable from CPX or net payable to CPX, along with a breakdown of the underlying reasons.
+
+Your input files are on your Desktop (/home/model/Desktop): 41_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

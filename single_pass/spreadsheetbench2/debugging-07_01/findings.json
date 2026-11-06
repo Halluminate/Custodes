@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit, but the golden workbook fixes only the double-counting formulas and leaves several clear errors uncorrected; an agent that correctly fixes them would change values in the compared ranges and fail the all-cells match.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "incomplete-golden",
+    "evidence": "Errors left unfixed in the golden: 'Equity Returns' I57 =I56*(1+$D$12)^$D$10-1 and H82/I82 =H81*(1+$D$12)^$D$10-1 (should subtract principal, not 1); 'DCF Model' D85:F85 'Inventory' links to 'BS & CF'!E10:G10 (PP&E) instead of E9:G9; 'DCF Model' F22=501 hardcoded where =-E27 gives 534; 'Margin Analysis' C22=5682000 vs 'DCF Model' D10=5862 (transposed digits); 'Margin Analysis' C25:E25 multiplies by an extra *1000; 'Equity Returns' E32 hardcoded +508000.",
+    "confirmation": "The golden only removes the double-count terms, but clear errors remain in compared ranges, e.g. 'DCF Model'!D85:F85 'Inventory' = 'BS & CF'!E10:G10 (PP&E 120) instead of row 9 (480), F22 hardcoded 501 where the pattern =-E27 gives 534, and 'Equity Returns'!I57 '...^$D$10-1'; one run that fixed D85 "
+  },
+  {
+    "id": "S2",
+    "title": "The LBO debt schedule is circular, and the golden values differ materially from the input even though nothing upstream changed, so the expected values depend on iteration state and cannot be reproduced reliably after LibreOffice recalculation.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "circular-reference-nondeterminism",
+    "evidence": "The loop is S51=SUM(S49:S50), S50=S53-S52, S53=S54*AVERAGE(S49,S51). Changed golden values: T50 is -7.494 vs -9.090 in the input, X50 -16.83 vs -11.64, X46 -880.68 vs -887.06, T53 118.97 vs 117.37. Neither set is converged (0.1275*AVERAGE(T49,T51) ≈ 119.2). Fixing S44:X44 does not feed this loop, yet 'LBO & Lenders'!B2:Z65 is compared, including the downstream R62/R63.",
+    "confirmation": "'LBO & Lenders' rows 49-53 form a circular loop and golden T50=-7.494 (input -9.090) with unchanged formulas, neither converged (converged ~-7.24). Two runs scored modification 0.8922 with 17 errors purely on T50/U50/V50 (e.g. output -7.244 vs answer -7.494)."
+  }
+]

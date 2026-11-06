@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key penalizes formula repairs explicitly required by the audit",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task requests a thorough audit covering 'formula logic errors or inconsistencies' and 'potential calculation errors', but the golden workbook changes only 28 font colors and preserves material calculation defects. For example, Supporting Schedules labels row 61 as the 2026 capex vintage, with capex of 150 and a 30-year life. Its full-year depreciation should remain 150/30 = 5, yet L61 uses '=IF(YEAR(L$9)<$B61,0,IF(YEAR(L$9)=$B61,L$49/$E$57/2,K$49/$E$57))', switching to another vintage's capex and returning 1.33333333333333. This rolling-reference defect affects 36 vintage-schedule cells beyond the verifier's 1% tolerance and remains unchanged in gt_06_golden.xlsx. The verifier classifies these as regression cells: repairing those 36 cells alone produces a regression ratio of approximately 0.9973, below the required 0.998. Consequently, a mathematically correct repair requested by the instructions loses the sole verifier's entire weight of 1, even before downstream recalculation effects.",
+    "confirmation": "Supporting Schedules L61 (2026 vintage) uses rolling K$49 so its depreciation drops from 5 to 1.333 in golden values, an unfixed calculation defect; repairing such vintage rows changes dozens of regression cells beyond the 0.2% allowance.",
+    "fixed": true,
+    "fix": "Same answer-key correction as F3: the vintage depreciation rows (e.g. L61 = 150/30 = 5) are fixed in the key and all dependents recomputed."
+  },
+  {
+    "id": "F2",
+    "title": "Answer key colors changed cells against the Cover legend (e.g., WACC!C8 link set to black, Supporting Schedules!AD75 formula set to red)",
+    "bucket": "Style",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Same issue reported 2 times, differing only in the verifier/range/step cited:\n- The Cover legend sets the convention: 'Historicals – Red', 'Formulas – Black', 'References – Green', 'Assumptions – Blue'. The input has WACC!C8 = ='Comps + Beta'!C33 (a link to another sheet) in blue FF0000FF. The GT changes it to black FF000000. In the same GT, Operating Model!J4:S4 (='Revenue Build'!J33 etc., also links to other sheets) is changed from blue to green FF00B050, and J14:S14 (='Supporting Schedules'!J118) is changed from black to green. So one link to another sheet must be green and another must be black. The verifier (verify_spreadsheetbench2_cells, weight 1, the only check) i\n- Supporting Schedules!AD75 = =AVERAGE(F76:I76) is blue in the input and red FFFF0000 in the GT. The legend says formulas are black and red is for Historicals. A cell that averages other cells is a formula, so a legend-faithful agent would color it black and fail the all-or-nothing modification check. The red only makes sense if the agent copies the colors of nearby cells AD76:AD77, which no instruction asks for.",
+    "confirmation": "Cover legend says References=Green, Formulas=Black, Historicals=Red, yet golden sets cross-sheet link WACC!C8 (='Comps + Beta'!C33) to black while Operating Model J4:S4/J14:S14 links go green, and the formula Supporting Schedules!AD75 =AVERAGE(F76:I76) goes red, so a legend-following agent fails the",
+    "fixed": true,
+    "fix": "gt_06_golden.xlsx font colors only (new font+xf appended to styles.xml): WACC!C8 ='Comps + Beta'!C33 FF000000 -> FF00B050 (green, like the Operating Model J4:S4 / J14:S14 links); Supporting Schedules!AD75 =AVERAGE(F76:I76) FFFF0000 -> FF000000 (black, like DCF E9/E13/E16 formulas). Values unchanged; golden scores 1.0 locally."
+  },
+  {
+    "id": "F3",
+    "title": "Prompt asks for a full audit and fix, but grading checks only 28 font colors and penalizes most other legitimate fixes",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The instruction says: 'audit and fix this file thoroughly. Errors may include ... formula logic errors or inconsistencies, hardcoded values that should be formulas, broken cell references, data validation issues...'. The only verifier runs in mode: font_color across 13,434 cells. Every cell must match the golden file's value and font color. The 28 changed cells must match 100%, and at most about 26 other cells (0.2%) may differ from the golden. The GT leaves real errors unfixed, for example Operating Model!F20 ='IS Ann'!C28 (Amortization row) while G20:I20 point to row 29 (Other Operating Expense), and WACC!F10 =F7*(0.3) and F11 =F8*0.4 contain hardcoded constants. An agent that fixes these formula or value issues changes cached values, and the changes can flow downstream into regression failures. The only cue that grading is about color is the input filename 'Inconsistent Color Coding_input.xlsx'.",
+    "confirmation": "Golden differs from input only in font colors (28 cells) while leaving real defects such as Operating Model!F20 ='IS Ann'!C28 (Amortization) vs G20 ='IS Ann'!D29 (Other OpEx) and WACC!F10 =F7*(0.3); the broad audit prompt invites fixes that the regression tolerance penalizes.",
+    "fixed": true,
+    "fix": "gt_06_golden.xlsx: Operating Model!F20 ='IS Ann'!C28 (Amortization of Goodwill, already inside CFS D&A) -> ='IS Ann'!C29 (Other Operating Expense, as G20:I20), so F20 = '-' and F21 = -434.9; Supporting Schedules J61:S70 vintage depreciation now uses each vintage's own capex after its first year (row 61 =IF(YEAR(K$9)<$B61,0,IF(YEAR(K$9)=$B61,K$49/$E$57/2,$J$49/$E$57)), row 62 $K$49, ... row 70 $S$49), e.g. L61 1.333 -> 5. 101 formula cells changed, fonts untouched, all cached values (incl. the E61:E70 TRANSPOSE array) recomputed with the verifier's LibreOffice recalc. WACC!F10 =F7*(0.3) and F11 =F8*0.4 have no single defensible repair (the 30%/40% haircuts are the modeller's assumptions; moving them to input cells or dropping them are both defensible), so verifications[0].answer_position skips WACC!F10:F11 ('WACC'!B2:F25 -> B2:F9, B10:E11, B12:F25) and the grader guidance range text matches."
+  }
+]

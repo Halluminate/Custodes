@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Reference answer conflicts with the supplied fee formula and transaction data",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The grader guidance specifies the reference answer '-0.940000' and uses binary correctness scoring. Fee ID 384 has rate 14, and its 12 matching January 2023 Belles_cookbook_store transactions total EUR 729.31. Using the supplied formula, changing the rate to 1 produces a delta of (1 - 14) × 729.31 / 10000 = -0.948103. All 12 transactions have is_refused_by_adyen=False. The reference differs by EUR 0.008103, which is not a six-decimal rounding difference. No supplied instruction specifies intermediate rounding that explains the reference. This can fail the entire correctness score for a calculation following the provided inputs.",
+    "confirmation": "The 12 matching transactions sum to 729.31 EUR and none were refused, so the formula gives -0.948103, not the reference -0.940000. Binary grading failed the correct answer in run <id>.",
+    "fixed": true,
+    "fix": "Same fix: reference answer is now -0.948103 in gt_answer.txt and the grader guidance."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth answer (-0.940000) is truncated to 2 decimal places instead of rounded to 6 decimal places (-0.948103), and grader guidance lacks a numeric tolerance for this task",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The problem statement (`problem.py`) instructs the agent: \"In January 2023 what delta would Belles_cookbook_store pay if the relative fee of the fee with ID=384 changed to 1? Answer must be just a number expressed in EUR rounded to 6 decimals.\" In `18_src_1.json` (fees.json), fee rule ID=384 (`card_scheme='NexPay'`, `is_credit=True`, `aci=['C', 'B']`, `fixed_amount=0.05`, `rate=14`, all other fields null/empty) applies to 12 transactions of `Belles_cookbook_store` in January 2023 (`day_of_year` 1..31, `year` 2023) in `18_src_5.csv` (`psp_reference` 58759870436, 71830526841, 81689633100, 48195753613, 51188549143, 43121405401, 48700431031, 32171755090, 63729142750, 20525169185, 65368670903, 23078972196; none refused or fraudulent). Their total `eur_amount` is 729.31 EUR. Per `18_src_2.md` (`fee = fixed_amount + rate * transaction_value / 10000`), changing `rate` from 14 to 1 changes total fees from 1.621034 EUR to 0.672931 EUR, an exact delta of `(1 - 14) * 729.31 / 10000 = -0.948103` EUR (or `+0.948103` EUR if expressed as an absolute/savings delta). However, the reference answer in `problems-metadata.json` (`grader_guidance`: `Reference answer (text): -0.940000`) and `gt_answer.txt` is `-0.940000`, which is `-0.948103` truncated after 2 decimal places (`-0.94`) and zero-padded to 6 decimals (even rounding to 2 decimals would yield `-0.950000`). Furthermore, the tolerance clause in `grader_guidance` under `2. Data Accuracy and Logical Equivalence` explicitly restricts numeric tolerance to external/web tasks (`Note (applicable only to web-search or external-source tasks): ... Only in this setting, when comparing numeric values, apply a small tolerance band`). Consequently, a competent agent that follows the prompt and outputs the exact 6-decimal answer `-0.948103` (or `0.948103`) risks failing the single-score binary grader (weight 100%, score 0 vs 1).",
+    "confirmation": "Recomputed from data/18_src_1.json (fee 384: NexPay, credit, ACI C/B, rate 14) and 18_src_5.csv: 12 January 2023 Belles_cookbook_store transactions totalling 729.31 EUR give a delta of -0.948103, but gt_answer.txt says -0.940000. In run <id> the grader failed the correct -0.948103 because no tol",
+    "fixed": true,
+    "fix": "gt_answer.txt changed from -0.940000 to -0.948103, and the 'Reference answer (text)' line in the grader guidance changed to match."
+  },
+  {
+    "id": "F3",
+    "title": "The reference answer -0.940000 is wrong; the correct 6-decimal answer is -0.948103",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "I recomputed the answer from the seed data. Fee 384 in 18_src_1.json is {card_scheme: 'NexPay', is_credit: True, aci: ['C','B'], rate: 14, fixed_amount: 0.05}. Every other condition is null or empty: account_type, MCC, capture_delay, monthly_volume, monthly_fraud_level and intracountry. In 18_src_5.csv, Belles_cookbook_store has 12 matching transactions in January 2023 (day_of_year 1–31, year 2023, NexPay, credit, ACI C or B), totalling 729.31 EUR. Delta = 729.31 × (1 − 14) / 10000 = -0.948103. gt_answer.txt and the 'Reference answer (text)' in grader_guidance both say -0.940000. That is the true answer rounded to 2 decimals and then padded with zeros, so it is not a real 6-decimal figure. Other filter choices give values nowhere near it: no ACI filter gives -29.713346, no credit filter gives -2.464475, no filter at all gives -43.322305. In the grader guidance, the ±1% / ±0.5 tolerance is stated as 'applicable only to web-search or external-source tasks', and this is not one. So the strict 'logically equivalent' check compares the correct answer -0.948103 with -0.940000, and the agent can fail on the only graded value in a single-score (0/1) problem.",
+    "confirmation": "Independent recomputation gives 729.31 x (1-14)/10000 = -0.948103 against the reference -0.940000 (gt_answer.txt). The run <id> trial answering -0.948103 was scored 0 ('values do not match at the 6 decimals').",
+    "fixed": true,
+    "fix": "Same fix: reference answer is now -0.948103 in gt_answer.txt and the grader guidance."
+  }
+]

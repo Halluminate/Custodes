@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer key gives Seung Taek Oh's power book as 'NETCO-HRLY-ERCOT', a name that does not exist in the source; the actual short name is 'NETCO-HRLY-ERCT'. A correct lookup would therefore mismatch the key.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key-value",
+    "evidence": "gt_141_ref_0.xlsx Summary!C30='NETCO-HRLY-ERCOT' vs Master Power!A29='NETCO-HRLY-ERCT' with N29='Seung Taek Oh'",
+    "confirmation": "Reference Summary!C30 = 'NETCO-HRLY-ERCOT', but the source's only book for Seung Taek Oh is Master Power!A29 'NETCO-HRLY-ERCT' (N29='Seung Taek Oh'), and 'NETCO-HRLY-ERCOT' appears nowhere in the input. A correct lookup therefore disagrees with the key."
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit that explicitly covers formula logic errors, broken references and hardcodes, but the golden workbook keeps the same formulas and values as the input, including clear errors; an agent that correctly fixes them will diverge from the key.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden-retains-errors",
+    "evidence": "Golden 'Income Statement'!J26 still reads =-'PP&E, Debt, NWC'!E73, offset by one year, so 2021 shows the 2022 interest and N26=0 (no 2025 interest). 'Line Item Metrics'!H24 still uses AVERAGE('Balance Sheet'!H27:J27). 'Line Item Metrics'!M35 still references 'Balance Sheet'!O22, an empty column. 'Cash Flow Statement'!B7 is still 'E: (2019-2024)'. DCF sensitivity grids L17:P21 and L25:P29 remain hardcoded numbers.",
+    "confirmation": "The golden differs from the input only in 7 font colors and keeps the same values. Income Statement J26 =-'PP&E, Debt, NWC'!E73 really pulls period-2 interest (E73=E61+M61 = 108.2) into period 1, and N26 points at empty I73. Fixing this changes interest, net income and the downstream BS/CF/DCF/LBO c"
+  }
+]

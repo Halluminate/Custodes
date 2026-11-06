@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth's Coated Groundwood regression reuses the Coated No. 3 column, so its answer key is wrong",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In gt_85_ref_0.xlsx (Regressions sheet), block 6 is labelled 'Coated Grwd' / 'No 4 50#' / 'Ctd. Grwd No. 4, 50lb' (AE82:AE84). Its array formula at AD85 is '=LINEST(Q6:Q227,V6:V227,TRUE,TRUE)'. Column V is 'Ctd. No. 3, 60lb'. The Coated Groundwood change series is column W (W4 'Ctd. Grwd No. 4, 50lb', W6 '=I6-I5'). Block 5 (AD74) uses the same V6:V227 range, so blocks 5 and 6 have identical cached values: intercept 0.0999266988616762, r2 0.112146322414596, F 27.7885777286064, ssreg 16071.84. I re-ran the regression on column W with numpy and got slope ≈0.0101, intercept ≈0.210 and r2 ≈0.0007. The key says r2 0.112, which is wrong. The grader is a single pass/fail AI judge told to check 'every value' against the reference. An agent that regresses the correct column will not match the key on this series and may fail the whole task.",
+    "confirmation": "AD85 and AD74 in the GT both regress on V6:V227 ('Ctd. No. 3, 60lb'), so block 6 duplicates block 5's statistics instead of using W (W4 'Ctd. Grwd No. 4, 50lb', W6 =I6-I5). The answer key for Coated Groundwood is wrong.",
+    "fixed": true,
+    "fix": "gt_85_ref_0.xlsx, Regressions!AD85:AE89: array formula changed from =LINEST(Q6:Q227,V6:V227,TRUE,TRUE) to =LINEST(Q6:Q227,W6:W227,TRUE,TRUE) (W = 'Ctd. Grwd No. 4, 50lb', the block's label), and the 9 cached results replaced with the column-W regression (slope 0.010091, intercept 0.210019, se 0.026444/1.715266, r2 0.000661, sey 25.514396, F 0.145626, df 220, ssreg 94.80, ssresid 143216.57). Edited in the XML so charts and every other cell are untouched (checked cell by cell); the same numpy LINEST reproduces the Coated No. 3 block exactly."
+  },
+  {
+    "id": "F2",
+    "title": "Invalid golden solution: Ground-truth regression block #6 (Coated Grwd No. 4, 50lb) uses column V instead of column W",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `gt_85_ref_0.xlsx` on sheet `Regressions`, block #6 (`AC82:AE89`, labeled `Coated Grwd` / `No 4 50#` / `Ctd. Grwd No. 4, 50lb` in `AE82:AE84`) has the array formula `=LINEST(Q6:Q227,V6:V227,TRUE,TRUE)` in `AD85:AE89`, which is an unedited copy-paste of block #5 (`Coated No.3` / `60 lb. Rolls` / `Ctd. No. 3, 60lb`, `AD74:AE78`) referencing column `V` (`Ctd. No. 3, 60lb`) instead of column `W` (`Ctd. Grwd No. 4, 50lb`). Because of this typo, `AD85:AE89` in the reference workbook evaluates to slope `0.468804`, intercept `0.099927`, R2 `0.112146`, F `27.788578`, and SSreg `16071.84` (the Coated No. 3 values), whereas `=LINEST(Q6:Q227,W6:W227,TRUE,TRUE)` on column `W` yields slope `0.010091`, intercept `0.210019`, R2 `0.000661`, F `0.145626`, and SSreg `94.80` (or slope `0.318056`, R2 `0.073174`, df `124` if restricted to `W102:W227` where Coated Grwd price changes exist). Under the `grader_guidance` binary `correctness` check ('1 if all values, formulas, charts, and text are logically equivalent to the reference answer; 0 otherwise'), a correct agent submission that regresses `Q6:Q227` against `W6:W227` for Coated Grwd No. 4, 50lb mismatches the reference answer and risks scoring 0.",
+    "confirmation": "Confirmed: Regressions!AD85 in gt_85_ref_0.xlsx is =LINEST(Q6:Q227,V6:V227,TRUE,TRUE), identical to block 5 at AD74, while the block label AE84 'Ctd. Grwd No. 4, 50lb' matches column W (W4). The reference values for that series are wrong.",
+    "fixed": true,
+    "fix": "gt_85_ref_0.xlsx, Regressions!AD85:AE89: array formula changed from =LINEST(Q6:Q227,V6:V227,TRUE,TRUE) to =LINEST(Q6:Q227,W6:W227,TRUE,TRUE) (W = 'Ctd. Grwd No. 4, 50lb', the block's label), and the 9 cached results replaced with the column-W regression (slope 0.010091, intercept 0.210019, se 0.026444/1.715266, r2 0.000661, sey 25.514396, F 0.145626, df 220, ssreg 94.80, ssresid 143216.57). Edited in the XML so charts and every other cell are untouched (checked cell by cell); the same numpy LINEST reproduces the Coated No. 3 block exactly."
+  }
+]

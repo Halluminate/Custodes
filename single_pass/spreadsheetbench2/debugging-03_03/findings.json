@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden LBO sheet depends on a restored layout the prompt never describes: two rows inserted at the top with exact labels 'Master Control' (B4) and 'Units Converter' (B5, C5=1000000), which shifts every block down by 2 rows. Because the checker compares 'LBO'!B1:V70 cell by cell, any other valid placement of the converter shifts or misaligns every compared cell and fails.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "underspecified-layout",
+    "evidence": "Input LBO B5='BWW - Control', F17 '=+C17*C16/#REF!'. Golden LBO B4='Master Control', B5='Units Converter', C5=1000000, B7='BWW - Control', F19 '=+C20*C19/C5'. The prompt says only 'deleted rows causing #REF! errors'.",
+    "confirmation": "Golden LBO adds B4='Master Control', B5='Units Converter' and C5=1000000, which pushes every block down two rows (input B5 'BWW - Control' becomes golden B7, and F17 '/#REF!' becomes F19 '/C5'). The prompt names neither the label text nor the placement. Since LBO!B1:V70 is compared cell by cell and "
+  },
+  {
+    "id": "S2",
+    "title": "The golden file restores the Transaction Fees assumption by inserting cells in columns B:C only at row 13, not a full row. Columns B:C below shift by 3 while E:F and H:V shift by 2. A solver who inserts a full row, or puts the $110M input anywhere else, misaligns large parts of the compared range.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "underspecified-layout",
+    "evidence": "Golden LBO B13='Transaction Fees', C13=110, B14='Minimum Cash Balance (% of Revenue)' (input B11), B31='Max Revolver Draw' (input B28). Meanwhile E11='Expected Revolver Draw' (input E9) and H11='Revenue' (input H9). Valuation Bridge C4 '=-LBO!C13'.",
+    "confirmation": "Golden inserts B13='Transaction Fees' and C13=110 into columns B:C only (B shifts by 3 rows, E/H by 2, e.g. E11 'Expected Revolver Draw' versus input E9). The value 110 appears nowhere in the input workbook, so neither the partial-row layout nor the fee amount can be recovered."
+  }
+]

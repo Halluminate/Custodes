@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'EquityMethod'!C2:K60 (except the change-column totals E27, G27, E33, G33, which may be left blank or summed), after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

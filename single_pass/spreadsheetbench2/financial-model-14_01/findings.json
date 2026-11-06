@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for EBITDA Margin for Q4 2019-20 through 2026-27, but that row is already complete in the input, and the answer key instead adds PAT Margin in J38:R38. An agent following the prompt will leave row 38 blank and fail the comparison, including the dependent DCF row 45.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "prompt-answer-mismatch",
+    "evidence": "Input 'Profit & Loss'!J37:R37 already holds =K18/K6 … =R18/R6, and J38:R38 are empty. Golden 'Profit & Loss'!J38=0.01247 (=K30/K6) through R38=0.0889 (=R30/R6). Golden 'DCF_Income Approach'!D45:K45 are non-zero; in the input they are 0.",
+    "confirmation": "Input 'Profit & Loss'!J37:R37 (EBITDA Margin) already holds =K18/K6 ... =R18/R6 while J38:R38 (PAT Margin) are blank; the golden fills J38:R38 (=K30/K6 ...), which feeds 'DCF_Income Approach'!D45:K45, so a solver following the EBITDA-margin instruction leaves those modification cells wrong."
+  }
+]

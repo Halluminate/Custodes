@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_10_golden.xlsx",
+        "reference_path": "reference/untouched_input_Unit Mismatch_input.xlsx",
+        "answer_position": "'Model'!B2:AX19,'Model'!B42:AX120,'Model'!B20:Q41,'Model'!U20:W41,'Model'!Y20:AK41,'Model'!AO20:AV41,'Model'!AX20:AX41,'Model'!B200:AX335,'Model'!B121:H199,'Model'!N121:AX199,'P&L Summary'!B2:T6,'P&L Summary'!B9:T39,'P&L Summary'!B42:T47,'P&L Summary'!C48:D50,'P&L Summary'!F48:T50,'P&L Summary'!B51:T51,'P&L Summary'!B40:F41,'P&L Summary'!L40:T41,'P&L Summary'!B7:Q8,'4-Wall Analysis'!A2:DX4,'4-Wall Analysis'!A18:DX1443,'4-Wall Analysis'!A5:BR17,'4-Wall Analysis'!DE5:DX17,'Rollup'!A1:N80,'3-month Term SOFR'!B7:P130,'FY2023A (IS)'!A5:O72,'FY2023A (Earnings)'!A2:P61,'FY2023A (BS)'!A3:N84,'FY2023A (CF)'!A1:O59,'FY23SAIL15'!A3:O69,'FY23SAIL16'!A3:O69,'FY23SAIL17'!A3:O69,'FY23SAIL18'!A3:O69,'FY23SAIL21'!A3:O69,'FY23SAIL23'!A3:O69,'FY23SAIL24'!A3:O69,'FY23SAIL26'!A3:O69,'FY23SAIL27'!A3:O69,'FY23SAIL29'!A3:O69,'FY23SAIL30'!A3:O69,'FY23SAIL31'!A3:O69,'FY23Web'!A3:O69,'FY23Operations'!A3:O69,'FY2024A (IS)'!A3:O72,'FY2024A (Earnings)'!A2:P4,'FY2024A (Earnings)'!A5:B5,'FY2024A (Earnings)'!O5:P5,'FY2024A (Earnings)'!A6:P61,'FY2024A (BS)'!A3:N84,'FY2024A (CF)'!A11:O59,'FY24SAIL15'!A3:R69,'FY24SAIL16'!A3:R69,'FY24SAIL17'!A3:R69,'FY24SAIL18'!A3:R69,'FY24SAIL21'!A3:R69,'FY24SAIL23'!A3:R69,'FY24SAIL24'!A3:R69,'FY24SAIL26'!A3:R69,'FY24SAIL27'!A3:R69,'FY24SAIL29'!A3:R69,'FY24SAIL30'!A3:R69,'FY24SAIL31'!A3:R69,'FY24Web'!A3:R69,'FY24Operations'!A3:R69,'FY2025A (IS)'!A3:O72,'FY2025A (Earnings)'!A2:P61,'FY2025A (BS)'!A3:N84,'FY2025A (CF)'!A11:O59,'FY25SAIL15'!A3:R69,'FY25SAIL16'!A3:R69,'FY25SAIL17'!A3:R69,'FY25SAIL18'!A3:R69,'FY25SAIL21'!A3:R69,'FY25SAIL23'!A3:R69,'FY25SAIL24'!A3:R69,'FY25SAIL26'!A3:R69,'FY25SAIL27'!A3:R69,'FY25SAIL29'!A3:R69,'FY25SAIL30'!A3:R69,'FY25SAIL31'!A3:R69,'FY25Web'!A3:R69,'FY25Operations'!A3:R69,'FY2026A (YTD IS)'!A3:O72,'FY2026A (YTD Earnings)'!A2:P61,'FY2026A (YTD BS)'!A3:N84,'FY2026A (YTD CF)'!A11:O59,'FY2026B (IS)'!A3:Q32,'FY2026B (IS)'!A33:B33,'FY2026B (IS)'!D33:Q33,'FY2026B (IS)'!A34:Q72,'FY2026B (Earnings)'!A3:P62,'FY2026B (BS)'!A3:O76,'FY2026B (CF)'!A3:O51,'FY26SAIL15'!A3:O69,'FY26SAIL16'!A3:O69,'FY26SAIL17'!A3:O69,'FY26SAIL18'!A3:O69,'FY26SAIL21'!A3:O69,'FY26SAIL23'!A3:O69,'FY26SAIL24'!A3:O69,'FY26SAIL26'!A3:O69,'FY26SAIL27'!A3:O69,'FY26SAIL29'!A3:O69,'FY26SAIL30'!A3:O69,'FY26SAIL31'!A3:O69,'FY26Web'!A3:O69,'FY26Operations'!A3:O69,'FY2027P (IS)'!A3:O32,'FY2027P (IS)'!A33:J33,'FY2027P (IS)'!O33,'FY2027P (IS)'!A34:O74,'FY2027P (Earnings)'!B1:P1,'FY2027P (Earnings)'!A2:P64,'FY2027P (BS)'!A3:O78,'FY2027P (CF)'!A3:O53,'FY2028P (IS)'!B3:R4,'FY2028P (IS)'!A5:R8,'FY2028P (IS)'!A9:B9,'FY2028P (IS)'!D9:K9,'FY2028P (IS)'!M9:R9,'FY2028P (IS)'!A10:R32,'FY2028P (IS)'!A33:B33,'FY2028P (IS)'!O33:R33,'FY2028P (IS)'!A34:R74,'FY2028P (Earnings)'!A3:P64,'FY2028P (BS)'!A3:O78,'FY2028P (CF)'!A3:O53",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_16_Ramjet_golden.xlsx",
+        "reference_path": "reference/untouched_input_16_04_Ramjet_input.xlsx",
+        "answer_position": "'Financials'!B2:H81,'Valuation Summary and Football'!B2:S31,'Valuation Summary and Football'!B32:K37,'Valuation Summary and Football'!B38:S46,'Assumptions'!A2:K119,'Synergies and Intgn Exp'!B1:K52,'Income Statement'!B2:K54,'Balance Sheet'!B2:L47,'Cash Flow'!B2:K27,'BS_Sch'!B2:K34,'Ratios'!B2:K25,'Valuation Summary'!B2:AL44,'Graphs'!B3:M49,'Trading Comps'!B1:DN12,'Transaction Comps'!A2:Q16,'BS'!B1:K54,'CF'!B1:G28,'P&L'!B1:I84,'Revenue Analysis'!A1:H258,'Client Analysis'!A1:G131,'Headcount Analysis'!A2:J182,'Certification Analysis'!A2:D51",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

@@ -1,0 +1,27 @@
+# Changes: SpreadsheetBench 2 debugging-01_10
+
+Fix summary (from the fix record):
+
+Recalculated the golden and reference workbooks through the verifier's own pipeline so their cached values no longer carry LibreOffice data-table corruption. Dropped the 100 meaningless data-table cells from the graded range. The golden now grades 1.0 locally. The key now also fixes the Downside EBITDA cohort references QA named (Ex 5 Z58:AB58, AA59:AB59, AB60 use the Downside counts).
+
+Changed files (in this folder):
+
+- grader_guidance.md
+- grading.json (verifier parameters)
+- reference/gt_01_golden.xlsx
+- reference/untouched_input_Unit Mismatch_input.xlsx
+
+## Fixed
+
+- [F3](../findings.json) (Verification): Golden gate: the ground-truth deliverable does not score full reward
+  - Change: Replaced gt_01_golden.xlsx and the untouched reference with copies run through the verifier's own LibreOffice recalculation (data tables frozen first). The cached values left corrupted by LibreOffice's TABLE() evaluation (C11, C32, U41, U43 and 61 others) now equal their formulas, e.g. C11=14.2034 and C32=101.3452. The 100 'Ex 1 - LBO' what-if data-table cells (AG18:AK22, AG27:AK31, AG36:AK40, AG45:AK49) are cut out of answer_position (verifier parameter and guidance). Under LibreOffice they all hold one copied header string, and an openpyxl-saved file has none. Locally the new golden, the old golden and an openpyxl-saved golden all grade 1.0, and the unfixed input grades 0.
+- [F4](../findings.json) (Verification): SpreadsheetBench 2 official cell check: Verifier fails even on the ground-truth golden workbook due to data-table freezing mismatch between un-recalculated GT/input and recalculated output
+  - Change: Replaced gt_01_golden.xlsx and the untouched reference with copies run through the verifier's own LibreOffice recalculation (data tables frozen first). The cached values left corrupted by LibreOffice's TABLE() evaluation (C11, C32, U41, U43 and 61 others) now equal their formulas, e.g. C11=14.2034 and C32=101.3452. The 100 'Ex 1 - LBO' what-if data-table cells (AG18:AK22, AG27:AK31, AG36:AK40, AG45:AK49) are cut out of answer_position (verifier parameter and guidance). Under LibreOffice they all hold one copied header string, and an openpyxl-saved file has none. Locally the new golden, the old golden and an openpyxl-saved golden all grade 1.0, and the unfixed input grades 0.
+- [F1](../findings.json) (Verification): Ground-truth workbook fails its own verifier: its saved values are stale, so a correct fix cannot pass
+  - Change: Replaced gt_01_golden.xlsx and the untouched reference with copies run through the verifier's own LibreOffice recalculation (data tables frozen first). The cached values left corrupted by LibreOffice's TABLE() evaluation (C11, C32, U41, U43 and 61 others) now equal their formulas, e.g. C11=14.2034 and C32=101.3452. The 100 'Ex 1 - LBO' what-if data-table cells (AG18:AK22, AG27:AK31, AG36:AK40, AG45:AK49) are cut out of answer_position (verifier parameter and guidance). Under LibreOffice they all hold one copied header string, and an openpyxl-saved file has none. Locally the new golden, the old golden and an openpyxl-saved golden all grade 1.0, and the unfixed input grades 0.
+- [F2](../findings.json) (Verification): Inconsistent golden-workbook caches cause the answer key to fail its own verifier
+  - Change: Replaced gt_01_golden.xlsx and the untouched reference with copies run through the verifier's own LibreOffice recalculation (data tables frozen first). The cached values left corrupted by LibreOffice's TABLE() evaluation (C11, C32, U41, U43 and 61 others) now equal their formulas, e.g. C11=14.2034 and C32=101.3452. The 100 'Ex 1 - LBO' what-if data-table cells (AG18:AK22, AG27:AK31, AG36:AK40, AG45:AK49) are cut out of answer_position (verifier parameter and guidance). Under LibreOffice they all hold one copied header string, and an openpyxl-saved file has none. Locally the new golden, the old golden and an openpyxl-saved golden all grade 1.0, and the unfixed input grades 0.
+- other finding, major, not in findings.json: Vague generic debugging prompt conflicts with Golden Workbook that fixes only 3 specific errors while leaving other model bugs unfixed
+  - Change: files/gt/gt_01_golden.xlsx (built on the critical-pass key; XML edits, only these formulas changed): 'Ex 5 - M&A' Downside EBITDA cohorts Z58:AB58 $S33 -> $Z33, AA59:AB59 $T33 -> $AA33, AB60 $U33 -> $AB33, so they use the Downside acquisition counts like the Downside revenue, gross-profit and synergized-EBITDA cohorts. Only cells whose recalculated value changed got new caches (20 in Ex 5: E58:G60, E62:G62, Z58:AB60, Z62:AB62 now 0, AA63:AB63 'N/A'). Checked with the real SB2 scorer (values mode): new key 1.0; untouched input plus all key changes 1.0; untouched input 0.0; the critical-pass key (planted fixes only) now 0.0 on these 20 cells.
+- other finding, major, not in findings.json: The prompt asks for a broad audit, but the grader only accepts the GT's three fixes and fails any other change to graded values
+  - Change: Same key edit as another finding (not listed) for the Downside cohort references. The LBO U41/U43 stale values it names were already corrected by the critical-pass recalculation (gt-replay-0: U41 0.137 -> 0.092, U43 0.264 -> 0.2215). The 'prior-year revenue' cohort pattern (cohort year 1 uses the first-year profile column at 50% contribution) is the model's cohort-age convention, not an error, so it is unchanged.

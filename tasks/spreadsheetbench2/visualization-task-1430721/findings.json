@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Checklist specifies GBP (£) on the x-axis while task instructions and ground truth specify USD ($)",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In problem.py, the task instruction explicitly states: \"Make sure the y-axis begins at $0.00 and the x-axis at $5.00.\" The ground-truth file gt_Task 1430721_golden.xlsx (xl/charts/chart790.xml) also formats the x-axis in USD ($): <c:numFmt formatCode=\"[$$-409]#,##0.00\" sourceLinked=\"0\"/>, rendering tick labels $5.00 through $35.00. However, in spec.yaml, 7 of the 23 checklist items (items 6, 8, 11, 14, 17, 19, and 21) require GBP (£) on the x-axis (e.g., item 6: \"The x-axis begins at £5.00\", item 8: \"The Recs Processed bubble is positioned at approximately £15.00 on the x-axis and $500,000.00 on the y-axis\"). Because verify_spreadsheetbench2_chart_checklist (weight: 1) requires > 0.70 (at least 17/23 items passing), a strict vision judge that fails all 7 GBP-labeled items scores 16/23 (0.696) and returns 0.0, as happened in unit 1 and unit 3.",
+    "confirmation": "problem_config checklist says 'The x-axis begins at £5.00' and has £ bubble positions, contradicting the prompt's 'x-axis at $5.00'. Failing those 7 of 23 items puts a compliant chart at 0.696, below the >0.7 pass bar.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.checklist items 6, 8, 11, 14, 17, 19, 21: replaced '£' with '$' (e.g. 'The x-axis begins at $5.00'); id, name, function and weight unchanged"
+  },
+  {
+    "id": "F2",
+    "title": "Grader requires pounds where the task explicitly requires dollars",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions require the x-axis to begin at '$5.00', but checklist item 6 requires '£5.00', and all six bubble-position checks also use pounds. The golden workbook formats both axes as USD ('[$$-409]#,##0.00'), confirming that dollars are intended. The image-only verifier is instructed to judge strictly against this contradictory checklist. Seven of its 23 items contain this currency mismatch; failing those seven yields 16/23 (69.6%), below the required >70% threshold, potentially losing the entire weight-1 verification for an instruction-compliant chart.",
+    "confirmation": "Duplicate of the confirmed checklist currency mismatch (item 6 '£5.00' plus six £ bubble-position items) against the prompt's $5.00.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F3",
+    "title": "The grading checklist uses pound signs (£) for every x-axis value, but the prompt and the answer key use dollars ($)",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The prompt says: \"Make sure the y-axis begins at $0.00 and the x-axis at $5.00.\" The answer-key chart (gt_Task 1430721_golden.xlsx, chart790.xml) formats the x-axis as `<c:numFmt formatCode=\"[$$-409]#,##0.00\">`. When rendered, its ticks read $5.00, $10.00 … $30.00. The input data in column B uses General format with no currency. Yet 7 of the 23 checklist items in spec.yaml quote x-axis values in £: \"The x-axis begins at £5.00\", plus the 6 bubble-position items (\"approximately £15.00\", \"£20.00\", \"£10.00\", \"£15.00\", \"£25.00\", \"£30.00\"). The grader is a strict, image-only vision judge (\"You are a strict ChartQA Judge… based ONLY on visual evidence\"). It gives all-or-nothing credit, and only when more than 70% of items pass, so at least 17 of 23 must pass. An agent that follows the prompt and labels the axis in $ (as the answer key does) can have all 7 £ items failed by a literal judge. That leaves 16/23 = 0.696, which is below the threshold. A fully correct chart, including the answer-key chart itself, could then score 0 on the problem's only verifier (weight 1).",
+    "confirmation": "Same confirmed £/$ contradiction in the sole weight-1 checklist verifier. grade.json for two of three trials shows 'Failed items: [6, 8, 11, 14, 17, 19, 21]' at 16/23.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.checklist items 6, 8, 11, 14, 17, 19, 21: replaced '£' with '$' (e.g. 'The x-axis begins at $5.00'); id, name, function and weight unchanged"
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official chart checklist: Verifier produces false negatives and inconsistent verdicts across equivalent correct charts due to £ vs $ checklist mismatch",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, the agent constructed the requested bubble chart titled 'Proportional value of Transaction' in /home/model/Desktop/output.xlsx with x-axis 'Price per Transaction' starting at $5.00, y-axis 'Total Amount (USD $)' starting at $0.00, bubble sizes mapped to 'Proportional value' (E2:E7), and all 6 category data labels mapped from A2:A7, visually inspecting the rendered PDF/PNG in each run (unit 1 steps [51]-[54], unit 2 steps [53]-[56], unit 3 steps [50]-[55]). Despite all 3 units following the prompt's '$5.00' x-axis instruction, the sole verifier (weight: 1) failed unit 1 and unit 3 with '16/23 checklist items pass (0.70, needs > 0.7). Failed items: [6, 8, 11, 14, 17, 19, 21]' while passing unit 2 with '18/23 checklist items pass (0.78, needs > 0.7)'. The 7 failed items [6, 8, 11, 14, 17, 19, 21] in units 1 and 3 are the exact 7 checklist items that specify '£' instead of '$' on the x-axis, placing any compliant submission on the knife-edge of the 16/23 (0.696, FAIL) vs 17/23 (0.739, PASS) threshold.",
+    "confirmation": "Checklist items 6, 8, 11, 14, 17, 19 and 21 quote x-axis values in £, while the prompt and GT chart use $. In run <id>, two trials failed at exactly 16/23 on those seven items and one passed at 18/23, so correct charts get inconsistent zeros.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.checklist items 6, 8, 11, 14, 17, 19, 21: replaced '£' with '$' (e.g. 'The x-axis begins at $5.00'); id, name, function and weight unchanged"
+  }
+]

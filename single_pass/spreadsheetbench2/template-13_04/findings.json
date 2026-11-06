@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook drops the input value E36=0.35, so an agent that follows the prompt's rule not to alter existing cells keeps E36 and fails the all-cells-must-match check over B2:I36.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-deletes-input",
+    "evidence": "Input and untouched_input: B36 row has D36=0.35 | E36=0.35. gt_13_04_golden.xlsx row 36 has only D36=0.35 (E36 empty). E36 is inside the compared range 'Normalize_Adjustments'!B2:I36.",
+    "confirmation": "Input and untouched input have Normalize_Adjustments!E36=0.35, but the golden E36 is empty. E36 is inside answer_position B2:I36 and so a modification cell, and SB2 treats None vs 0.35 as a mismatch, so an agent that keeps the input fails."
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden's Net Income deducts the non-cash tax step-up amortization (about 258/yr), and the FCF section never adds it back. That turns FCF deeply negative every year and distorts every downstream debt, cash and returns cell, so an agent applying standard LBO logic will fail.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-financial-logic",
+    "evidence": "Golden LBO G69 =SUM(G66:G68) with G66 =G64+G75 (G75 = -N24 = -258.46). G69 = -216.76, G99 = -293.45, revolver N135 = 1710.57, IRR N204 = 7.1%. Rows 94-98 contain no add-back of G75.",
+    "confirmation": "Golden LBO G66 '=+G64+G75' deducts the non-cash tax step-up amortization (G75=-N24=-258.46) from net income, and the FCF build G94:G98 adds back only core D&A G62 and financing amortization G176:G177, so G99 = -293.45; an agent that adds back the non-cash step-up (standard LBO logic) changes every d"
+  }
+]

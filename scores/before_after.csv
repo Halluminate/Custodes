@@ -1,0 +1,426 @@
+benchmark,task,mean_score_before,attempts_before,mean_score_after,attempts_after,after_run_status
+DAYJOB,finance_01c19f73,0.66,3,0.6333333333333333,3,completed
+DAYJOB,finance_9148d239,0.5333333333333333,3,0.5833333333333334,3,completed
+DAYJOB,finance_cae6b678,0.45999999999999996,3,0.51,3,completed
+FINCH,task-000,0.6666666666666666,3,1,3,completed
+FINCH,task-001,0,3,1,3,completed
+FINCH,task-005,1,3,0.6666666666666666,3,completed
+FINCH,task-006,1,3,1,3,completed
+FINCH,task-007,1,3,1,3,completed
+FINCH,task-008,0,3,0,3,completed
+FINCH,task-009,0.3333333333333333,3,0,3,completed
+FINCH,task-010,0,3,0,3,completed
+FINCH,task-011,1,3,1,3,completed
+FINCH,task-012,0.3333333333333333,3,1,3,completed
+FINCH,task-013,1,3,1,3,completed
+FINCH,task-014,0.6666666666666666,3,1,3,completed
+FINCH,task-015,1,3,1,3,completed
+FINCH,task-016,1,3,0.6666666666666666,3,completed
+FINCH,task-017,1,3,1,3,completed
+FINCH,task-018,0,3,1,3,completed
+FINCH,task-019,0,3,0,3,completed
+FINCH,task-021,1,3,1,3,completed
+FINCH,task-022,1,3,0.6666666666666666,3,completed
+FINCH,task-023,1,3,0.6666666666666666,3,completed
+FINCH,task-024,0,3,0.3333333333333333,3,completed
+FINCH,task-026,0.6666666666666666,3,1,3,completed
+FINCH,task-027,0.3333333333333333,3,0,3,completed
+FINCH,task-028,0.6666666666666666,3,1,3,completed
+FINCH,task-029,0.6666666666666666,3,0.6666666666666666,3,completed
+FINCH,task-031,1,3,1,3,completed
+FINCH,task-032,0.3333333333333333,3,0.3333333333333333,3,completed
+FINCH,task-033,1,3,1,3,completed
+FINCH,task-035,0,3,0.3333333333333333,3,completed
+FINCH,task-036,0,3,1,3,completed
+FINCH,task-037,1,3,1,3,completed
+FINCH,task-038,0,3,0.3333333333333333,3,completed
+FINCH,task-039,1,3,0.6666666666666666,3,completed
+FINCH,task-040,1,3,1,3,completed
+FINCH,task-042,1,3,0.3333333333333333,3,completed
+FINCH,task-043,0,3,0.6666666666666666,3,completed
+FINCH,task-045,0.6666666666666666,3,1,3,completed
+FINCH,task-047,0,3,0,3,completed
+FINCH,task-048,0.6666666666666666,3,0.6666666666666666,3,completed
+FINCH,task-049,1,3,1,3,completed
+FINCH,task-051,1,3,1,3,completed
+FINCH,task-052,1,3,1,3,completed
+FINCH,task-053,0,3,1,3,completed
+FINCH,task-054,1,3,1,3,completed
+FINCH,task-055,1,3,0.6666666666666666,3,completed
+FINCH,task-056,1,3,1,3,completed
+FINCH,task-058,1,3,1,3,completed
+FINCH,task-059,0,3,0.6666666666666666,3,completed
+FINCH,task-060,1,3,1,3,completed
+FINCH,task-062,1,3,1,3,completed
+FINCH,task-066,0.6666666666666666,3,0.6666666666666666,3,completed
+FINCH,task-067,0.3333333333333333,3,1,3,completed
+FINCH,task-068,0,3,0,3,completed
+FINCH,task-069,1,3,1,3,completed
+FINCH,task-070,1,3,0.6666666666666666,3,completed
+FINCH,task-071,0.6666666666666666,3,0,3,completed
+FINCH,task-072,1,3,1,3,completed
+FINCH,task-073,0.6666666666666666,3,1,3,completed
+FINCH,task-075,0.6666666666666666,3,0.6666666666666666,3,completed
+FINCH,task-076,1,3,1,3,completed
+FINCH,task-077,0,3,1,3,completed
+FINCH,task-078,0.6666666666666666,3,0.3333333333333333,3,completed
+FINCH,task-080,0.6666666666666666,3,0.3333333333333333,3,completed
+FINCH,task-081,0.6666666666666666,3,0,3,completed
+FINCH,task-082,1,3,1,3,completed
+FINCH,task-083,0,3,0.6666666666666666,3,completed
+FINCH,task-084,0.3333333333333333,3,0,3,completed
+FINCH,task-085,1,3,1,3,completed
+FINCH,task-086,1,3,1,3,completed
+FINCH,task-087,0,3,0,3,completed
+FINCH,task-088,1,3,1,3,completed
+FINCH,task-089,0,3,0.3333333333333333,3,completed
+FINCH,task-090,0.3333333333333333,3,0,3,completed
+FINCH,task-091,1,3,1,3,completed
+FINCH,task-092,1,3,1,3,completed
+FINCH,task-093,0,3,1,3,completed
+FINCH,task-094,1,3,1,3,completed
+FINCH,task-096,0.3333333333333333,3,1,3,completed
+FINCH,task-098,0,3,0.6,3,completed
+FINCH,task-099,1,3,1,3,completed
+FINCH,task-100,0.3333333333333333,3,1,3,completed
+FINCH,task-101,1,3,1,3,completed
+FINCH,task-102,0.6666666666666666,3,0.6666666666666666,3,completed
+FINCH,task-103,1,3,1,3,completed
+FINCH,task-105,0.6666666666666666,3,0.6666666666666666,3,completed
+FINCH,task-107,0.3333333333333333,3,0.3333333333333333,3,completed
+FINCH,task-108,1,3,1,3,completed
+FINCH,task-110,1,3,1,3,completed
+FINCH,task-111,1,3,1,3,completed
+FINCH,task-112,1,3,1,3,completed
+FINCH,task-114,1,3,1,3,completed
+FINCH,task-115,0,3,0.3333333333333333,3,completed
+FINCH,task-116,0.6666666666666666,3,0.6666666666666666,3,completed
+FINCH,task-117,0,3,1,3,completed
+FINCH,task-121,1,3,0.6666666666666666,3,completed
+FINCH,task-122,0.3333333333333333,3,1,3,completed
+FINCH,task-123,1,3,1,3,completed
+FINCH,task-124,0,3,0.3333333333333333,3,completed
+FINCH,task-125,1,3,1,3,completed
+FINCH,task-126,0,3,0.3333333333333333,3,completed
+FINCH,task-127,0,3,0,3,completed
+FINCH,task-128,1,3,1,3,completed
+FINCH,task-129,0.6666666666666666,3,1,3,completed
+FINCH,task-130,1,3,1,3,completed
+FINCH,task-131,0.3333333333333333,3,1,3,completed
+FINCH,task-132,0.6666666666666666,3,0.6666666666666666,3,completed
+FINCH,task-133,0.6666666666666666,3,1,3,completed
+FINCH,task-134,0,3,0.3333333333333333,3,completed
+FINCH,task-135,0.3333333333333333,3,1,3,completed
+FINCH,task-136,0.3333333333333333,3,1,3,completed
+FINCH,task-137,1,3,0.6666666666666666,3,completed
+FINCH,task-138,1,3,0.6666666666666666,3,completed
+FINCH,task-139,0,3,0,3,completed
+FINCH,task-140,0,3,0,3,completed
+FINCH,task-141,0.6666666666666666,3,0.6666666666666666,3,completed
+FINCH,task-142,0.3333333333333333,3,0,3,completed
+FINCH,task-144,0,3,0.3333333333333333,3,completed
+FINCH,task-145,0.3333333333333333,3,0.3333333333333333,3,completed
+FINCH,task-146,0,3,0.3333333333333333,3,completed
+FINCH,task-147,0.6666666666666666,3,1,3,completed
+FINCH,task-148,0.6666666666666666,3,1,3,completed
+FINCH,task-149,1,3,0.6666666666666666,3,completed
+FINCH,task-151,0.3333333333333333,3,0.6666666666666666,3,completed
+FINCH,task-152,1,3,1,3,completed
+FINCH,task-154,1,3,1,3,completed
+FINCH,task-155,0.3333333333333333,3,1,3,completed
+FINCH,task-157,0.3333333333333333,3,1,3,completed
+FINCH,task-158,1,3,1,3,completed
+FINCH,task-159,0,3,0.3333333333333333,3,completed
+FINCH,task-160,0.6666666666666666,3,0.6666666666666666,3,completed
+FINCH,task-162,1,3,0.6666666666666666,3,completed
+FINCH,task-164,0.3333333333333333,3,0,3,completed
+FINCH,task-165,0.6666666666666666,3,0.3333333333333333,3,completed
+FINCH,task-166,0,3,0.3333333333333333,3,completed
+FINCH,task-167,0,3,0,3,completed
+FINCH,task-170,0,3,0,3,completed
+GDPval,0419f1c3-d669-45d0-81cd-f4d5923b06a5,1,3,1,3,completed
+GDPval,11593a50-734d-4449-b5b4-f8986a133fd8,0.3333333333333333,3,0,3,completed
+GDPval,1d4672c8-b0a7-488f-905f-9ab4e25a19f7,0,3,0.16666666666666666,3,completed
+GDPval,1e5a1d7f-12c1-48c6-afd9-82257b3f2409,0.9666666666666667,3,1,3,completed
+GDPval,2d06bc0a-89c6-4e89-9417-5ffe725c1bc6,0.8333333333333334,3,0.8333333333333334,3,completed
+GDPval,43dc9778-450b-4b46-b77e-b6d82b202035,0,3,0,3,completed
+GDPval,4520f882-715a-482d-8e87-1cb3cbdfe975,0.6666666666666666,3,0.3833333333333333,3,completed
+GDPval,46b34f78-6c06-4416-87e2-77b6d8b20ce9,1,3,1,3,completed
+GDPval,46bc7238-3501-4839-b989-e2bd47853676,1,3,1,3,completed
+GDPval,4c4dc603-c21c-4284-8fb1-1b827c1fddf4,1,3,1,3,completed
+GDPval,4de6a529-4f61-41a1-b2dc-64951ba03457,0.9066666666666666,3,0.9633333333333334,3,completed
+GDPval,55ddb773-23a4-454c-8704-d432fe1b99d9,0.9700000000000001,3,0.9766666666666666,3,completed
+GDPval,5ad0c554-a7a2-48cd-b41a-ebc1bff4a9de,0.6666666666666666,3,1,3,completed
+GDPval,5f6c57dd-feb6-4e70-b152-4969d92d1608,0.8566666666666668,3,0.8633333333333333,3,completed
+GDPval,6074bba3-7e3a-4b1c-b8c6-a15bb6695c3b,0,3,0,3,completed
+GDPval,7b08cd4d-df60-41ae-9102-8aaa49306ba2,0.5333333333333333,3,1,3,completed
+GDPval,7d7fc9a7-21a7-4b83-906f-416dea5ad04f,0.5833333333333334,3,1,3,completed
+GDPval,8079e27d-b6f3-4f75-a9b5-db27903c798d,0.6366666666666667,3,0.47000000000000003,3,completed
+GDPval,83d10b06-26d1-4636-a32c-23f92c57f30b,1,3,1,3,completed
+GDPval,90f37ff3-e4ed-4a0b-94bb-bed0f7def1ef,0.5,3,0.6666666666666666,3,completed
+GDPval,94925f49-36bc-42da-b45b-61078d329300,0,3,0,3,completed
+GDPval,9a0d8d36-6233-4c76-9107-0d1f783c7340,1,3,,3,failed
+GDPval,9e8607e7-a38a-491f-ace1-e5ea7dc477cb,0.9033333333333333,3,0.9400000000000001,3,completed
+GDPval,9efbcd35-186d-49b6-ac24-28ee2bc9a263,0.8533333333333334,3,0.8933333333333334,3,completed
+GDPval,a1963a68-1bea-4bb1-b7e0-145c92a57449,0.9499999999999998,3,0.94,3,completed
+GDPval,a99d85fc-eff8-48d2-a7d4-42a75d62f18d,1,3,0.8333333333333334,3,completed
+GDPval,b39a5aa7-cd1b-47ad-b249-90afd22f8f21,0.4666666666666666,3,1,3,completed
+GDPval,b78fd844-db76-448e-a783-5e9877cb74c2,0.16666666666666666,3,0.16666666666666666,3,completed
+GDPval,bb499d9c-0263-4684-9238-75e8e86077b1,1,3,1,3,completed
+GDPval,c657103b-b348-4496-a848-b2b7165d28b2,1,3,1,3,completed
+GDPval,e21cd746-404d-4602-b9d2-01d2812c5b87,0.6666666666666666,3,0.8333333333333334,3,completed
+GDPval,ed2bc14c-99ac-4a2a-8467-482a1a5d67f3,1,3,1,3,completed
+GDPval,ee09d943-5a11-430a-b7a2-971b4e9b01b5,0.6666666666666666,3,0.3333333333333333,3,completed
+GDPval,fd3ad420-6f7d-43b1-a990-c0c5c047d071,1,3,1,3,completed
+GDPval,feb5eefc-39f1-4451-9ef9-bffe011b71dd,0.9566666666666667,3,0.9499999999999998,3,completed
+SpreadsheetBench 2,debugging-01_01,0,3,0,3,completed
+SpreadsheetBench 2,debugging-01_02,0,3,0,3,completed
+SpreadsheetBench 2,debugging-01_03,0,3,0,3,completed
+SpreadsheetBench 2,debugging-01_04,0,3,0,3,completed
+SpreadsheetBench 2,debugging-01_05,0,3,0,3,completed
+SpreadsheetBench 2,debugging-01_06,0,3,0,3,completed
+SpreadsheetBench 2,debugging-01_07,0,3,1,3,completed
+SpreadsheetBench 2,debugging-01_08,0,3,0,3,completed
+SpreadsheetBench 2,debugging-01_09,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,debugging-01_10,0,3,0,3,completed
+SpreadsheetBench 2,debugging-02_01,0,3,0,3,completed
+SpreadsheetBench 2,debugging-02_02,0,3,0,3,completed
+SpreadsheetBench 2,debugging-02_03,0,3,0,3,completed
+SpreadsheetBench 2,debugging-02_04,0,3,0,3,completed
+SpreadsheetBench 2,debugging-02_05,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,debugging-02_06,0,3,0,3,completed
+SpreadsheetBench 2,debugging-02_07,0,3,0,3,completed
+SpreadsheetBench 2,debugging-02_08,0,3,0,3,completed
+SpreadsheetBench 2,debugging-02_09,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,debugging-02_10,0,3,0,3,completed
+SpreadsheetBench 2,debugging-03_01,0.6666666666666666,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,debugging-03_02,0,3,0,3,completed
+SpreadsheetBench 2,debugging-03_03,0,3,0,3,completed
+SpreadsheetBench 2,debugging-03_04,0,3,0,3,completed
+SpreadsheetBench 2,debugging-03_05,1,3,0,3,completed
+SpreadsheetBench 2,debugging-03_06,1,3,0,3,completed
+SpreadsheetBench 2,debugging-03_07,1,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,debugging-03_08,1,3,0,3,completed
+SpreadsheetBench 2,debugging-03_09,1,3,0,3,completed
+SpreadsheetBench 2,debugging-03_10,0.6666666666666666,3,0,3,completed
+SpreadsheetBench 2,debugging-04_01,0,3,0,3,completed
+SpreadsheetBench 2,debugging-04_02,0,3,0,3,completed
+SpreadsheetBench 2,debugging-04_03,0,3,0,3,completed
+SpreadsheetBench 2,debugging-04_04,0,3,0,3,completed
+SpreadsheetBench 2,debugging-04_05,0,3,0,3,completed
+SpreadsheetBench 2,debugging-04_06,0,3,0,3,completed
+SpreadsheetBench 2,debugging-04_07,0.6666666666666666,3,0,3,completed
+SpreadsheetBench 2,debugging-04_08,0,3,0,3,completed
+SpreadsheetBench 2,debugging-04_09,0,3,0,3,completed
+SpreadsheetBench 2,debugging-04_10,0,3,0,3,completed
+SpreadsheetBench 2,debugging-05_01,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,debugging-05_02,0,3,0,3,completed
+SpreadsheetBench 2,debugging-05_03,0,3,0,3,completed
+SpreadsheetBench 2,debugging-05_04,0.3333333333333333,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,debugging-05_05,0.6666666666666666,3,0,3,completed
+SpreadsheetBench 2,debugging-05_06,1,3,0,3,completed
+SpreadsheetBench 2,debugging-05_07,0,3,0,3,completed
+SpreadsheetBench 2,debugging-05_08,0.6666666666666666,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,debugging-05_09,0.3333333333333333,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,debugging-05_10,1,3,0,3,completed
+SpreadsheetBench 2,debugging-06_01,0,3,0,3,completed
+SpreadsheetBench 2,debugging-06_02,0,3,0,3,completed
+SpreadsheetBench 2,debugging-06_03,0,3,0,3,completed
+SpreadsheetBench 2,debugging-06_04,0,3,0,3,completed
+SpreadsheetBench 2,debugging-06_05,0,3,0,3,completed
+SpreadsheetBench 2,debugging-06_06,0,3,0,3,completed
+SpreadsheetBench 2,debugging-06_07,0,3,0,3,completed
+SpreadsheetBench 2,debugging-06_08,0,3,0,3,completed
+SpreadsheetBench 2,debugging-06_09,0,3,0,3,completed
+SpreadsheetBench 2,debugging-06_10,0,3,0,3,completed
+SpreadsheetBench 2,debugging-07_01,0,3,0,3,completed
+SpreadsheetBench 2,debugging-07_02,0,3,0,3,completed
+SpreadsheetBench 2,debugging-07_03,0,3,0,3,completed
+SpreadsheetBench 2,debugging-07_04,0,3,0,3,completed
+SpreadsheetBench 2,debugging-07_05,0,3,0,3,completed
+SpreadsheetBench 2,debugging-07_06,0,3,0,3,completed
+SpreadsheetBench 2,debugging-07_07,0,3,0,3,completed
+SpreadsheetBench 2,debugging-07_08,0,3,0,3,completed
+SpreadsheetBench 2,debugging-07_09,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,debugging-07_10,0,3,0,3,completed
+SpreadsheetBench 2,debugging-08_01,0,3,0,3,completed
+SpreadsheetBench 2,debugging-08_02,0,3,0,3,completed
+SpreadsheetBench 2,debugging-08_03,0,3,0,3,completed
+SpreadsheetBench 2,debugging-08_04,0,3,0,3,completed
+SpreadsheetBench 2,debugging-08_05,0,3,0,3,completed
+SpreadsheetBench 2,debugging-08_06,0,3,0,3,completed
+SpreadsheetBench 2,debugging-08_07,0,3,0,3,completed
+SpreadsheetBench 2,debugging-08_08,0,3,0,3,completed
+SpreadsheetBench 2,debugging-08_09,0,3,0,3,completed
+SpreadsheetBench 2,debugging-08_10,0,3,0,3,completed
+SpreadsheetBench 2,debugging-09_01,0,3,0,3,completed
+SpreadsheetBench 2,debugging-09_02,0.3333333333333333,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,debugging-09_03,0,3,0,3,completed
+SpreadsheetBench 2,debugging-09_04,0,3,0,3,completed
+SpreadsheetBench 2,debugging-09_06,0,3,1,3,completed
+SpreadsheetBench 2,debugging-09_07,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,debugging-09_08,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,debugging-09_09,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,debugging-10_01,0,3,0,3,completed
+SpreadsheetBench 2,debugging-10_02,0,3,0,3,completed
+SpreadsheetBench 2,debugging-10_03,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,debugging-10_04,0,3,0,3,completed
+SpreadsheetBench 2,debugging-10_06,0,3,0,3,completed
+SpreadsheetBench 2,debugging-10_07,0,3,0,3,completed
+SpreadsheetBench 2,debugging-10_08,0,3,0,3,completed
+SpreadsheetBench 2,debugging-10_09,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,debugging-10_10,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-01_01,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,financial-model-01_02,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-01_03,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-02_02,1,3,1,3,completed
+SpreadsheetBench 2,financial-model-02_03,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,financial-model-02_04,0.6666666666666666,3,1,3,completed
+SpreadsheetBench 2,financial-model-03_02,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-03_03,0.3333333333333333,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,financial-model-04_01,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-04_02,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-04_03,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,financial-model-04_04,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-05_02,0.3333333333333333,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,financial-model-05_05,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,financial-model-06_02,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-06_03,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-06_04,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-07_01,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-07_02,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-07_03,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-07_04,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-07_05,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-08_01,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-08_02,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,financial-model-08_03,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-08_05,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,financial-model-09_02,0.6666666666666666,3,1,3,completed
+SpreadsheetBench 2,financial-model-09_03,0.6666666666666666,3,1,3,completed
+SpreadsheetBench 2,financial-model-09_04,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-09_05,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-10_01,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-10_02,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-10_04,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-10_05,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-11_05,1,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,financial-model-12_02,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,financial-model-13_02,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-14_01,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-14_02,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-14_03,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-14_04,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-14_05,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-15_02,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-15_03,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-15_04,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-15_05,0,3,0,3,completed
+SpreadsheetBench 2,financial-model-16_03,1,3,1,3,completed
+SpreadsheetBench 2,financial-model-16_04,1,3,1,3,completed
+SpreadsheetBench 2,financial-model-16_05,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-17_01,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,financial-model-17_05,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,financial-model-18_01,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-18_02,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,financial-model-18_03,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-18_04,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-18_05,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-19_01,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,financial-model-19_03,1,3,1,3,completed
+SpreadsheetBench 2,financial-model-19_04,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,financial-model-19_05,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-20_02,1,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,financial-model-20_03,0,3,1,3,completed
+SpreadsheetBench 2,financial-model-20_04,0,3,1,3,completed
+SpreadsheetBench 2,template-01_04,0,3,0,3,completed
+SpreadsheetBench 2,template-01_05,0,3,0,3,completed
+SpreadsheetBench 2,template-01_07,0,3,0,3,completed
+SpreadsheetBench 2,template-01_08,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-01_09,0,3,0,3,completed
+SpreadsheetBench 2,template-02_02,0,3,1,3,completed
+SpreadsheetBench 2,template-02_03,0.6666666666666666,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-02_04,1,3,1,3,completed
+SpreadsheetBench 2,template-02_06,0.6666666666666666,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-03_01,0,3,0,3,completed
+SpreadsheetBench 2,template-03_02,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-03_03,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-04_03,0,3,1,3,completed
+SpreadsheetBench 2,template-04_04,0.3333333333333333,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-05_01,0.3333333333333333,3,1,3,completed
+SpreadsheetBench 2,template-06_03,1,3,1,3,completed
+SpreadsheetBench 2,template-06_06,0,3,1,3,completed
+SpreadsheetBench 2,template-06_07,0,3,0,3,completed
+SpreadsheetBench 2,template-06_08,0,3,1,3,completed
+SpreadsheetBench 2,template-06_11,0,3,1,3,completed
+SpreadsheetBench 2,template-06_14,0.6666666666666666,3,1,3,completed
+SpreadsheetBench 2,template-06_15,1,3,1,3,completed
+SpreadsheetBench 2,template-06_16,0,3,1,3,completed
+SpreadsheetBench 2,template-06_19,0,3,1,3,completed
+SpreadsheetBench 2,template-06_20,0,3,1,3,completed
+SpreadsheetBench 2,template-06_22,0.3333333333333333,3,1,3,completed
+SpreadsheetBench 2,template-06_24,1,3,1,3,completed
+SpreadsheetBench 2,template-06_25,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-07_01,0.6666666666666666,3,0,3,completed
+SpreadsheetBench 2,template-07_02,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-07_03,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,template-08_01,0,3,1,3,completed
+SpreadsheetBench 2,template-08_02,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-08_03,0.3333333333333333,3,1,3,completed
+SpreadsheetBench 2,template-09_01,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-09_02,0,3,0,3,completed
+SpreadsheetBench 2,template-09_03,0.6666666666666666,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-09_04,0,3,1,3,completed
+SpreadsheetBench 2,template-10_01,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,template-10_02,0,3,1,3,completed
+SpreadsheetBench 2,template-11_01,0,3,1,3,completed
+SpreadsheetBench 2,template-11_02,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-11_03,0,3,0,3,completed
+SpreadsheetBench 2,template-11_04,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,template-13_02,0,3,1,3,completed
+SpreadsheetBench 2,template-13_03,0,3,1,3,completed
+SpreadsheetBench 2,template-13_04,0,3,1,3,completed
+SpreadsheetBench 2,template-13_05,1,3,1,3,completed
+SpreadsheetBench 2,template-13_06,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,template-13_07,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-13_08,1,3,1,3,completed
+SpreadsheetBench 2,template-14_01,0,3,0,3,completed
+SpreadsheetBench 2,template-14_03,0,3,1,3,completed
+SpreadsheetBench 2,template-14_04,0.6666666666666666,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-14_05,0,3,1,3,completed
+SpreadsheetBench 2,template-14_07,0.3333333333333333,3,1,3,completed
+SpreadsheetBench 2,template-14_08,1,3,1,3,completed
+SpreadsheetBench 2,template-14_09,0.3333333333333333,3,1,3,completed
+SpreadsheetBench 2,template-15_02,0.6666666666666666,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-16_01,0,3,1,3,completed
+SpreadsheetBench 2,template-16_05,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-16_06,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-16_07,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,template-16_08,1,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,template-16_09,0,3,0,3,completed
+SpreadsheetBench 2,template-16_10,0,3,0,3,completed
+SpreadsheetBench 2,template-16_11,0.6666666666666666,3,1,3,completed
+SpreadsheetBench 2,template-16_12,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,visualization-task-126,1,3,1,3,completed
+SpreadsheetBench 2,visualization-task-127,0.3333333333333333,3,1,3,completed
+SpreadsheetBench 2,visualization-task-129,1,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,visualization-task-131,0.6666666666666666,3,1,3,completed
+SpreadsheetBench 2,visualization-task-132,1,3,1,3,completed
+SpreadsheetBench 2,visualization-task-133,1,3,1,3,completed
+SpreadsheetBench 2,visualization-task-134,0,3,0.3333333333333333,3,completed
+SpreadsheetBench 2,visualization-task-1411527,0.3333333333333333,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,visualization-task-1417365,1,3,1,3,completed
+SpreadsheetBench 2,visualization-task-1419935,0,3,0.6666666666666666,3,completed
+SpreadsheetBench 2,visualization-task-1420776,0.6666666666666666,3,1,3,completed
+SpreadsheetBench 2,visualization-task-1421372,1,3,1,3,completed
+SpreadsheetBench 2,visualization-task-1422635,1,3,1,3,completed
+SpreadsheetBench 2,visualization-task-1426290,1,3,1,3,completed
+SpreadsheetBench 2,visualization-task-1428419,1,3,1,3,completed
+SpreadsheetBench 2,visualization-task-1430721,0.3333333333333333,3,1,3,completed
+SpreadsheetBench 2,visualization-task-1431124,1,3,1,3,completed
+SpreadsheetBench 2,visualization-task-1433875,1,3,1,3,completed
+SpreadsheetBench 2,visualization-task-1434951,1,3,1,3,completed
+SpreadsheetBench 2,visualization-task-1437004,1,3,1,3,completed
+SpreadsheetBench 2,visualization-task-90,1,3,1,3,completed
+SpreadsheetBench 2,visualization-task-95,0.6666666666666666,3,0,3,completed
+SpreadsheetBench 2,visualization-task-96,1,3,1,3,completed

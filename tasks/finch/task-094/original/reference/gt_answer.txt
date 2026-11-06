@@ -1,0 +1,3 @@
+For September–December 2001, the average ratio of power price to gas price is approximately 9.44, with a standard deviation of about 1.52.
+For September–December 2002, the average ratio is approximately 8.43, with a standard deviation of about 0.59.
+Since the standard deviation in 2002 is smaller, ERCOT peak power prices were relatively more “stable” against NYMEX natural gas prices in Sep–Dec 2002 (based on the criterion of lower ratio volatility).

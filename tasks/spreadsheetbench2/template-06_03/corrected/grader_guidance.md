@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'iPhone_Revenue_Build'!B2:J48 except the 2023 YoY growth cells C46:F46 and the first QoQ cell C47 (no prior period; blank or 'n/a' both accepted), after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

@@ -1,0 +1,3 @@
+Assume the following changes occur in the Jul–Dec 2002 market: Flat curve prices increase uniformly by $2/MWh; Peak 6x16 curve prices increase uniformly by $5/MWh; monthly contract volumes (Flat and Peak Total MWh) remain unchanged. Based on the 2002 table, calculate: (1) the total added value (mark-to-market change) for the combined Flat + Peak portfolio; and (2) what percentage of this added value comes from the Peak 6x16 contracts rather than the Flat contracts.
+
+Your input files are on your Desktop (/home/model/Desktop): 34_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

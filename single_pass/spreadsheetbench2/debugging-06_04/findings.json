@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt is a generic 'audit and fix thoroughly' instruction, but the only verifier compares font color (mode 'font_color') cell by cell over thousands of cells in 17 sheets. The agent is never told that color coding is what gets graded, nor which cells should get which color.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "underspecified-requirement",
+    "evidence": "verifications[0].parameters.mode='font_color'; answer_position spans 'Cover'!C2:J10 through 'PTs'!A5:I20, including raw Capital IQ sheets (BS, BS Ann, IS Q, CFS Q, etc.). The prompt only mentions 'inconsistent formatting or naming conventions' among many error types.",
+    "confirmation": "The verifier is in font_color mode and golden differs from input only in font colors, while the prompt is the generic audit text. The scheme is not even consistent: Operating Model cross-sheet links J4:S4/J14:S14 become green, but WACC!C8 ='Comps + Beta'!C33 becomes black and Supporting Schedules AD"
+  }
+]

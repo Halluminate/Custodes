@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit and fix, but the golden only repairs four injected cross-sheet references and leaves other obvious errors in place. Any agent that also fixes those errors will change many compared values and fail the all-cells-must-match check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden-retains-errors",
+    "evidence": "Golden 'Income Statement'!J26:N26 still read -'PP&E, Debt, NWC'!E73:I73, which is shifted one column, so 2021 uses 2022 interest and N26=0. That leaves 'Line Item Metrics'!M29=#DIV/0!. A correct fix (J26=-D73=161.9) would change net income, cash, the balance sheet and the DCF downstream.",
+    "confirmation": "The golden changes only DCF row 15 / LBO row 5 references (plus 'Income Statement' sign rows) and keeps 'Income Statement'!J26 = -'PP&E, Debt, NWC'!E73 (2022 interest 108.24; the 2021 column D73 is 163.37) and N26 = -I73 = 0, so 'Line Item Metrics'!M29 is #DIV/0!. Fixing it, as the thorough-audit pr"
+  }
+]

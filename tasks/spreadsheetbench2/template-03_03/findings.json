@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key contradicts the workbook's required deduction signs",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input workbook states in B59, 'FN: Express deductions as negative numbers'. However, the golden workbook requires positive deductions, including C29 = 270, D29 = 75, F29 = 345, and E31/F31 = 43.75 for 'Less: NCI Portion'. These cells use ordinary number formats, not formats that reverse their displayed signs. A competent agent following the footnote would be penalized despite calculating the same net income and balanced financial statements. The sole verifier has weight 1 and awards zero unless every modification cell matches, so this contradiction can invalidate the entire score.",
+    "confirmation": "Input 03_03_input.xlsx B59 says 'FN: Express deductions as negative numbers', yet gt_03_03_golden.xlsx has 'Less: NCI Portion' E31 = D30*(1-C8) = +43.75 and F31 = +43.75 (and positive taxes C29/D29/F29), while F40 = -C34 follows the rule. An agent that follows the footnote fails E31/F31 under the al",
+    "fixed": true,
+    "fix": "Same GT fix: Consolidation!E31/F31 = -43.75, D54 =C54-E31+F41."
+  },
+  {
+    "id": "F2",
+    "title": "Contradictory sign convention on 'Less: NCI Portion' (E31, F31) between worksheet footnote B59 and ground truth",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "Cell B59 of 03_03_input.xlsx explicitly instructs: 'FN: Express deductions as negative numbers'. Consistent with this footnote, the deduction rows 'Less: Dividends to Common' (B40) and 'Less: Dividends to NCI' (B41) are negative in gt_03_03_golden.xlsx (F40 = -200, F41 = -10), as are negative acquisition adjustments (E13 = -150, E20 = -120). However, for row 31, labeled 'Less: NCI Portion' (B31, a deduction from Consolidated Net Income in F30 = 805 to arrive at Net Income to Common in F32 = 761.25), gt_03_03_golden.xlsx stores positive values in both E31 (=D30*(1-C8) -> +43.75) and F31 (=E31 -> +43.75). Because verify_spreadsheetbench2_cells (weight: 1.0) requires exact sign matching on every modification cell for a non-zero score, following the worksheet's own footnote B59 on row 31 ('Less: NCI Portion') by entering -43.75 causes the entire task to score 0.0.",
+    "confirmation": "Input 03_03_input.xlsx B59 says 'FN: Express deductions as negative numbers', yet gt_03_03_golden.xlsx has 'Less: NCI Portion' E31 = D30*(1-C8) = +43.75 and F31 = +43.75 (and positive taxes C29/D29/F29), while F40 = -C34 follows the rule. An agent that follows the footnote fails E31/F31 under the al",
+    "fixed": true,
+    "fix": "gt_03_03_golden.xlsx Consolidation!E31 changed from =D30*(1-C8) to =-D30*(1-C8) (cached -43.75). F31 =E31 now caches -43.75. D54 changed from =C54+E31+F41 to =C54-E31+F41 so NCI stays 83.75 and the check rows stay 0. No other cached value changed. Income tax lines stay positive, like the pre-filled positive Operating Expenses in the input. The patched GT, recalculated in LibreOffice, scores reg 1.0 / mod 1.0 locally."
+  },
+  {
+    "id": "F3",
+    "title": "Answer key enters 'Less: NCI Portion' as a positive number, which contradicts the sheet's own 'deductions as negative numbers' footnote",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Input footnote B59: 'FN: Express deductions as negative numbers'. The answer key follows that rule for the cash flow deductions (F40 '=-C34' gives -200; F41 is seeded at -10) but not for the NCI row: E31 '=D30*(1-C8)' gives +43.75, F31 '=E31' gives +43.75, and F32 Net Income to Common is 761.25 (805 - 43.75). A competent agent that follows the footnote and enters E31/F31 as -43.75 (with F32 = F30+F31 = 761.25) fails E31 and F31. verify_spreadsheetbench2_cells is the only verifier (weight 1) and is all-or-nothing: every modification cell must match, so that one sign choice drops the score from 1.0 to 0. Operating Expenses (F27 1370) and Income Tax (F29 345) are also positive in the key, so the footnote's scope is unclear for those rows too. No run outputs were available to see how agents handled this.",
+    "confirmation": "Input 03_03_input.xlsx B59 says 'FN: Express deductions as negative numbers', yet gt_03_03_golden.xlsx has 'Less: NCI Portion' E31 = D30*(1-C8) = +43.75 and F31 = +43.75 (and positive taxes C29/D29/F29), while F40 = -C34 follows the rule. An agent that follows the footnote fails E31/F31 under the al",
+    "fixed": true,
+    "fix": "Same GT fix: Consolidation!E31/F31 = -43.75, D54 =C54-E31+F41."
+  }
+]

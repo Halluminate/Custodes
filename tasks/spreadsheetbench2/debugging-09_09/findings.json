@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Golden workbook (gt_09_golden.xlsx) contains un-converged circular-reference cached values and fails its own verifier check",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1) force-recalculates the submitted workbook in LibreOffice (`managed_recalculated_xlsx(..., force_recalculation=True)`) and compares the recalculated values against the static cached values in `gt_09_golden.xlsx`. However, `gt_09_golden.xlsx` has an active circular reference (`LBO!H8` `circ=1`: Revolver Draw -> Ending Balance -> Interest -> Net Income -> FCF -> Cash Flow before Revolver -> Revolver Draw) and was saved after only a single un-converged calculation pass where `LBO!G124:N124` (`=+G133` .. `=+N133`) and `LBO!H132:N132` (`=G135` .. `=M135`) hold stale pre-iteration values (e.g., `gt_09_golden.xlsx` has `LBO!G124 = 302.33114` while `LBO!G133 = 302.54689` despite `G124`'s formula being `=+G133`, and `LBO!H132 = 302.33114` while `LBO!G135 = 302.54689` despite `H132`'s formula being `=G135`). Furthermore, 394 cells in `LBO` had `#DIV/0!` in the input workbook and identical formulas in the golden workbook, so `_match` classifies them as regression cells via the error-formula fallback (`_has_excel_error`), but scores the submission's recalculated numeric values against the un-converged cached numbers in `gt_09_golden.xlsx`. When `gt_09_golden.xlsx` itself is graded through `verify_spreadsheetbench2_cells`, it scores 0.0 (`FAILED - regression 0.9947, modification 1.0000. 34 cell error(s): Regression error at LBO!D213: answer=6% / 1.4x, output=6% / 1.3x; Regression error at LBO!H204: answer=0.00413401166586813, output=0.00406107965098057; Regression error at LBO!I138: answer=1034.97097384539, output=1005.65291449478...`), falling below the required `REGRESSION_PASS_RATIO = 0.998`.",
+    "confirmation": "Verified LBO!H8=1 (circ switch) and calcPr iterate=true, while G124 '=+G133' caches 302.331 vs G133 302.547 and H132 '=G135' caches 302.331 vs G135 302.547. The cached values are unconverged.",
+    "fixed": true,
+    "fix": "Same answer_position carve-out of the non-settling circular loop cells (see gt-replay-0); the key now passes its own check."
+  },
+  {
+    "id": "F2",
+    "title": "Ground-truth workbook fails its own verifier: its cached circular-model values never converged",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "I ran score_workbooks with the golden file as the output, recalculated in LibreOffice as the verifier does. Result: regression 0.9947, modification 1.0, with 34 cell errors. The pass needs regression ≥ 0.998 and modification = 1.0, so the single weight-1 binary verifier returns 0.0 for the answer key itself. The cause is the golden file's cached values. The LBO tab has a circular revolver/interest loop (calcPr iterate=true, iterateCount=100, iterateDelta=0.0001), and the cached results are not consistent with their own formulas. Every column breaks: LBO!J124 is '=+J133' but caches 205.7036 while J133 caches 208.6701. The same holds for G124/G133 (302.331 vs 302.547), K124/K133 (191.214 vs 195.545), L (177.763 vs 183.749), M (168.066 vs 174.478) and N (156.036 vs 162.849). In LibreOffice the loop converges to self-consistent values (J124=208.670), and the verifier compares those against the stale cached GT. Mismatches it reported: 'LBO!D213: answer=6% / 1.4x, output=6% / 1.3x', 'LBO!I138: answer=1034.97, output=1005.65', 'LBO!K138: answer=698.75, output=606.18', 'LBO!L103: answer=1367.25, output=1383.38', 'LBO!J199: answer=-244.21, output=-247.23'. These are all regression cells, so an agent that makes exactly the GT's formula fixes still gets 0.",
+    "confirmation": "Verified J124 '=+J133' caches 205.704 vs J133 208.670 (and G124/G133 likewise). These stale caches are compared against LibreOffice-converged output, producing the regression failures seen in all runs.",
+    "fixed": true,
+    "fix": "Same answer_position carve-out of the non-settling circular loop cells (see gt-replay-0); the key now passes its own check."
+  },
+  {
+    "id": "F3",
+    "title": "Inconsistent golden-workbook caches cause the answer key to fail its own verifier",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook contains internally contradictory cached results. For example, LBO!K138 is '=IF($F138-K135<0,0,$F138-K135)': F138 is 1800 and K135 is 1193.82196959641, so the result must be 606.17803040359, but its cached answer is 698.7468378427. The verifier recalculates the submitted workbook but reads the golden workbook's existing caches. Passing the golden workbook through that exact recalculation and comparison pipeline produced 34 errors, regression ratio 0.9947 and modification ratio 1.0000. Because the required regression ratio is 0.998, the golden answer itself receives zero on the sole verification, weighted 100%. Correctly recalculated formulas are therefore penalized against stale expected values.",
+    "confirmation": "Verified LBO!K138 =IF($F138-K135<0,0,$F138-K135) with F138=1800 and K135=1193.822 caches 698.747 instead of 606.178. The verifier scores recalculated outputs against these contradictory caches, so all 3 runs scored 0.",
+    "fixed": true,
+    "fix": "Same answer_position carve-out of the non-settling circular loop cells (see gt-replay-0); the key now passes its own check."
+  },
+  {
+    "id": "F4",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "gt_09_golden.xlsx caches values inconsistent with its own formulas (LBO!G124 '=+G133' caches 302.331 while G133 caches 302.547, and K138 caches 698.75 vs 1800-1193.82=606.18). A recalculated copy of the GT cannot match these caches, consistent with the 0.00 golden-gate score.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: left out the 289 LBO cells of the circular revolver/interest loop that do not settle under one LibreOffice recalc (G:N block of rows 67-205 and LBO!D213/L213; found by scoring the re-cached key, the original key and the key with no caches against the key). graderGuidance range list updated to match. Answer key unchanged. Real scorer: original key vs itself PASS 1.0/1.0 (was 0.0), key with no caches PASS, untouched input FAIL (mod 0.0)."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail (0.0) because LibreOffice recalculation diverges from un-converged cached values in gt_09_golden.xlsx",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (weight: 1) scored 0.0 (`unit 1: regression 0.9945, modification 0.8511, 42 cell errors`; `unit 2: regression 0.9947, modification 0.8511, 41 cell errors`; `unit 3: regression 0.9835, modification 0.7660, 117 cell errors`). In unit 2 (steps [59]-[82]), the agent identified and applied all 4 intended relative-vs-absolute reference fixes (`LBO!G107:N107` -> `=G106/$F$106`..`=N106/$F$106`, `LBO!G145:N145` -> `$D145`, `LBO!G163:N163` -> `$N$12`, `Financials!J15:N15` -> `J$13`..`N$13`, and `Operating Cases!Q27:Q31` -> `YEAR($L$7)-YEAR($G$7)`). Similarly, in unit 1 (steps [38]-[48]), the agent fixed `LBO` rows 145 and 163, `Financials` row 15, and `Operating Cases` `Q27:Q31` and converged the circular model via LibreOffice UNO. Yet even if an agent submits `gt_09_golden.xlsx` verbatim, `verify_spreadsheetbench2_cells` runs `managed_recalculated_xlsx(output_path, force_recalculation=True)` on the submission while loading `gt_09_golden.xlsx` without recalculation, producing 34 regression errors (regression ratio `0.9947 < 0.998` required threshold) and a score of `0.0` (`Regression error at LBO!D213: answer=6% / 1.4x, output=6% / 1.3x; Regression error at LBO!H204: answer=0.00413401166586813, output=0.00406107965098057; Regression error at LBO!I138: answer=1034.97097384539, output=1005.65291449478...`). Thus, no valid formula-based submission can ever pass the verifier once LibreOffice force-recalculates it.",
+    "confirmation": "All 3 trials in rollout <id> scored 0 with regression errors on circular-loop cells such as LBO!D213 '6% / 1.4x' vs '6% / 1.3x' and H204. The GT's unconverged caches make the recalculating verifier unpassable.",
+    "fixed": true,
+    "fix": "Same answer_position carve-out of the non-settling circular loop cells (see gt-replay-0); the key now passes its own check."
+  }
+]

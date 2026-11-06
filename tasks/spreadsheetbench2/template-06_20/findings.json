@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "The answer key uses a driver-based forecast instead of the instructed historical CAGR",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task explicitly says, \"Project each segment using its historical CAGR from Year 1 to Year 3.\" However, the supplied workbook and golden answer use store-area, same-store-growth, productivity and membership-fee assumptions. For example, historical retail sales calculated from the supplied inputs are 7,184,600.625 in FY22 and 9,325,792.527 in FY24, implying a two-year CAGR of 13.9309% and FY25 retail sales of 10,624,960.109. The golden answer instead requires RevenueBuild!F33 = 10,163,044.2949925. Likewise, historical membership revenue implies FY25 revenue of 238,065.514 under CAGR, while F39 requires 227,652.192207832. These differences exceed the verifier's 1% tolerance. The sole verifier has weight 1 and requires every modification cell to match, so following the stated forecast method produces a zero score.",
+    "confirmation": "GT F33=10,163,044 comes from the driver build (sq ft x sales/sq ft x SSS plus new stores), not a historical CAGR. A CAGR projection as instructed gives values more than 1% off (e.g. F33 ~10.62M), so the sole weight-1 verifier fails.",
+    "fixed": true,
+    "fix": "Same prompt sentence replacement: the instruction no longer asks for a historical CAGR, so it matches the driver-based GT."
+  },
+  {
+    "id": "F2",
+    "title": "Contradictory task instruction ('Project each segment using its historical CAGR from Year 1 to Year 3') vs. ground truth and undisclosed formula convention for Row 20 ('Prior Year Sales per Square Foot')",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The task instruction in `problem.py` states: \"Complete the revenue forecast model. Project each segment using its historical CAGR from Year 1 to Year 3. Fill in all empty cells.\" However, the workbook (`06_20_input.xlsx` / `gt_06_20_golden.xlsx`, sheet `RevenueBuild`) is a store-level retail revenue build that does not project any row using a Year 1 to Year 3 historical CAGR. Instead, forecast growth rates in Row 19 (`Same-Store Sales Growth %`: F19=4.5%, G19=4.2%), Row 29 (`New Store Productivity %`: F29=72%, G29=74%), and Row 38 (`Membership Fees as % of Retail Sales`: F38=2.24%, G38=2.27%) are already pre-filled in the input sheet. Furthermore, the single driver row that must be projected for FY25E and FY26E — Row 20 (`Prior Year Sales per Square Foot`, cells F20:G20) — has two inconsistent conventions in the historical columns: in FY22A–FY24A, `C20=142.5`, `D20=154.6`, and `E20=164.9` satisfy `D20 = round(C20 * (1 + C19), 1)` (`142.5 * 1.085 = 154.6125`) and `E20 = round(D20 * (1 + D19), 1)` (`154.6 * 1.067 = 164.9582`), i.e. compounding prior-year comp sales per sq ft by `Same-Store Sales Growth %`, whereas `Total Retail Sales / Total Square Feet` in FY22A and FY23A is `C33/C16 = 149.62` and `D33/D16 = 160.92` (neither matching D20=154.6 or E20=164.9). Yet in `gt_06_20_golden.xlsx`, F20 and G20 switch definitions to `E33/E16 = 170.334110082192` and `F33/F16 = 174.757876278781` (prior year Total Retail Sales divided by end-of-period Total Square Feet). Because all 10 downstream forecast rows in columns F and G (`F26:G26`, `F30:G30`, `F31:G31`, `F33:G33`, `F39:G39`, `F41:G41`, `F46:G46`, `F47:G47`, `F49:G49`, `F50:G50`) depend on `F20:G20`, every agent attempt (units 1, 2, and 3) that compounded `E20*(1+E19) = 173.8046` and `F20*(1+F19) = 181.625807` missed all 22 modification cells in columns F and G (modification ratio 0.6562 = 42/64) and scored 0.0 on the sole verifier (`SpreadsheetBench 2 official cell check`, weight 1).",
+    "confirmation": "The prompt says to project each segment with its Year 1-3 CAGR, but RevenueBuild has no segments and GT F20=170.334 is E33/E16 (prior retail sales / sq ft), not a CAGR (row-20 CAGR would give ~177.4, outside 1%). Historical D20/E20 (154.6/164.9) do not follow the E33/E16 convention either, so the gr",
+    "fixed": true,
+    "fix": "prompt.md: replaced 'Project each segment using its historical CAGR from Year 1 to Year 3.' with 'Project FY25E and FY26E from the driver assumptions already in the sheet, setting each forecast year's Prior Year Sales per Square Foot to the prior year's Total Retail Sales divided by that year's ending Total Square Feet.' (matches GT F20=E33/E16, G20=F33/F16)."
+  },
+  {
+    "id": "F3",
+    "title": "Instruction 'Fill in all empty cells' conflicts with ground truth leaving Period-End (C8:G8) and Year 1 YoY % Change (C47, C50) empty",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The prompt explicitly instructs the agent: \"Fill in all empty cells.\" However, in `gt_06_20_golden.xlsx`, Row 8 (`Period-End`, cells `C8:G8`) and the FY22A `YoY % Change` cells (`C47` and `C50`) are left `None`. Because `verify_spreadsheetbench2_cells` classifies any cell where input equals ground truth (`None == None`) as a regression cell and requires `REGRESSION_PASS_RATIO = 0.998` (at most 0 errors out of 230 regression cells since 229/230 = 0.9957 < 0.998), filling even a single one of these empty cells causes the entire verifier (weight 1) to fail with score 0.0. In unit 1, the agent computed FY22A YoY % Change in `C47` (0.0940, vs. prior year sales per sq ft `C20`) and `C50` (0.0941), which triggered 2 regression errors (`regression 0.9913`) and failed the regression check.",
+    "confirmation": "GT leaves C8:G8 (Period-End) and C47/C50 blank, so they are regression cells. With about 230 regression cells and a 0.998 threshold, zero changes are allowed. Run <id> trial graded 'Regression error at RevenueBuild!C47: answer=None, output=0.094' after the agent followed 'Fill in all empty cells",
+    "fixed": true,
+    "fix": "Verifier parameter answer_position changed from 'RevenueBuild'!B2:G50 to 'RevenueBuild'!B2:G7,'RevenueBuild'!B8,'RevenueBuild'!B9:G46,'RevenueBuild'!B47,'RevenueBuild'!D47:G47,'RevenueBuild'!B48:G49,'RevenueBuild'!B50,'RevenueBuild'!D50:G50, dropping C8:G8, C47 and C50 (blank in GT). grader_guidance notes the exclusion. Local grade: GT passes, GT plus March-31 dates in C8:G8 and N/A/NM in C47/C50 now passes (was reg 0.9696), untouched input still fails."
+  },
+  {
+    "id": "F4",
+    "title": "Unstated derivation conventions for the forecast and the KPIs; the historical row-20 values don't follow the convention the GT uses for forecast years",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "GT forecast F20 = E33/E16 (prior Total Retail Sales / prior ending sqft). That rule does not reproduce the given historicals: C33/C16 = 149.6 vs D20 = 154.6 provided, and D33/D16 = 160.9 vs E20 = 164.9 provided. So the agent cannot infer the GT convention from the data. Other choices the GT makes but never states: New Store Sales per sqft = prior-year sales/sqft × productivity, with no SSS uplift (C30 = 142.5 × 0.65); Total Sales per Average Square Foot uses the average of opening (row 25) and ending sqft; Total Sales per Average Store derives opening stores as prior + opened + closed, where Stores Closed is stored as a negative number (C49 = 7,184,600.6 / 369.5). Equally reasonable alternatives (E46 or E26/E25 for F20, ending rather than average denominators, SSS applied to new stores) fall outside the 1% tolerance, and grading is all-or-nothing.",
+    "confirmation": "GT F20=170.334=E33/E16, but that rule does not reproduce the given historicals (C33/C16=149.6 vs D20=154.6). The forecast convention for the all-or-nothing graded F20:G20 and everything downstream can't be inferred from the workbook.",
+    "fixed": true,
+    "fix": "Same prompt sentence now states the forecast row-20 convention (prior year Total Retail Sales / that year's ending Total Square Feet), the one convention the historicals do not reveal. The other derivations follow the row labels (average sqft = avg of rows 25 and 16, productivity x prior-year sales/sqft) and are left as is."
+  },
+  {
+    "id": "F5",
+    "title": "Instruction/spec/metadata use a mismatched 'segment CAGR' template, but the model has no segments and the answer key uses no CAGR",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Same issue reported 2 times, differing only in the verifier/range/step cited:\n- problem.py says: \"Project each segment using its historical CAGR from Year 1 to Year 3.\" The RevenueBuild sheet has no business segments. It is a store-based retail build: square footage × sales per square foot × (1 + same-store sales growth), plus new-store sales and membership fees. Every forecast driver (F12:G16, F19:G19, F29:G29, F38:G38) is already hard-coded in the input. The only forecast input left to project is Prior Year Sales per Square Foot (F20:G20). The GT does not use a CAGR for it. GT F20 = 170.334 = E33/E16 (9,325,792.5 / 54,750), and G20 = 174.758 = F33/F16. Applying the stat\n- spec.yaml description: \"Template 06_20: Complete the revenue forecast model. Project each segment...\". problems-metadata.json repeats the same text. This reads as a generic instruction template applied to a workbook it was not written for, a leftover from authoring.",
+    "confirmation": "The 'segment CAGR' instruction doesn't fit the workbook: there are no segments, all drivers (rows 12-16, 19, 29, 38) are prefilled, and GT F20/G20 equal E33/E16 and F33/F16, not a CAGR. Following the stated method misses the 1% tolerance.",
+    "fixed": true,
+    "fix": "Same prompt sentence replacement: the segment-CAGR template sentence is gone and the driver build is named."
+  },
+  {
+    "id": "F6",
+    "title": "\"Fill in all empty cells\" contradicts a GT that leaves row 8 and C47/C50 blank, and the strict regression check fails anyone who fills them",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The instruction says \"Fill in all empty cells\". Row 8 'Period-End' (C8:G8) is empty in both the input and the GT, and so are C47 and C50 (the first-year YoY % Change). The verifier treats any cell that is unchanged from input to GT as a regression cell. It needs a regression match of at least 99.8% over the 294 cells in B2:G50, which means zero mismatches are allowed. An agent that does what it is told and fills period-end dates (e.g. 3/31/2022…3/31/2026) creates 5 regression errors (1.7%) and fails the whole task. Writing 'N/A' or 'NM' in C47/C50 also fails, because the GT cell is None and _values_match returns False when None is compared with a string.",
+    "confirmation": "C8:G8 and C47/C50 are empty in both input and GT. Filling Period-End dates (FY ends March 31 per B3) creates regression errors, because _values_match(None, date-float) is False and 0.998 allows no misses. Writing 'N/A' fails too (type mismatch), so obeying 'Fill in all empty cells' fails the only ve",
+    "fixed": true,
+    "fix": "Same answer_position change (C8:G8, C47, C50 no longer graded)."
+  }
+]

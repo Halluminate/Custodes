@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for an open-ended 'thorough' audit (formula logic, hardcodes, best practices, etc.), but the verifier requires exact value matches across nearly every populated cell in all 17 sheets. The golden fixes only four items, so any additional legitimate fix that changes a value makes the task fail.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "overconstrained-open-ended-grading",
+    "evidence": "answer_position covers 'Operating Model'!A2:W46, 'DCF'!B2:AA50, 'Supporting Schedules'!A7:AF118, etc. Golden differs from input only at Operating Model G7, J7:S7, DCF E10 and Comps + Beta C30, plus their cascades.",
+    "confirmation": "The golden keeps doubtful items in compared cells: 'Operating Model'!F20 'Other Operating Expenses' pulls 'IS Ann'!C28 (Amort. of Goodwill), F29 D&A uses 'CFS Ann' row 19 while F7 strips the row-21 total, and J25:L25 drop the minus sign used in M25:N25. A run that fixed F20/F29 failed regression at "
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook keeps the broken reference in R84 (=R847-M83, which points at an empty cell). An agent that correctly repairs it to =R83-M83 changes R84 from -29.6 to about -113.9, which cascades through D94, the UFCF rows and every DCF output, so the task fails.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-unfixed-error",
+    "evidence": "'Operating Model + DCF'!R84 is =R847-M83 in both the input and gt_08_golden.xlsx; the dependent cells D94, D95, C102, C112, C116 and C143 are all compared.",
+    "confirmation": "gt_08_golden.xlsx 'Operating Model + DCF'!R84 is still '=R847-M83' (cached -29.613, pointing at an empty cell) while every other column uses current minus prior NWC, so the correct R83-M83 (about -113.9) fails the compared DCF cells."
+  },
+  {
+    "id": "S2",
+    "title": "The golden fix for the 'Other Liabilities % of COGS' forecast average drops G81 and averages only M81 and H81. This choice is undetectable from the file, and a natural fix that matches sibling rows (C:G range) gives about 0.225 instead of 0.294, failing far beyond the 1% tolerance.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "arbitrary-golden-fix",
+    "evidence": "Input R81 is =AVERAGE(M81,H81,G81); golden R81 is =AVERAGE(M81,H81)=0.29444. Sibling rows R75 and R78 both use AVERAGE(M,H,C:G).",
+    "confirmation": "Golden R81 is '=AVERAGE(M81,H81)' = 0.2944, while sibling rows use R75/R78 AVERAGE(M,H,C:G) and R72 AVERAGE(M,H,E:G). Nothing in the file points to a two-point average, and the C:G-consistent fix gives about 0.225, well outside 1%."
+  }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key hardcodes a new value in OCT 01!T38 (16 → 18) with nothing in the materials pointing to it",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "A cell-by-cell diff of assets/158_src_0.xlsx against gt_158_ref_0.xlsx shows only 3 changes. One is 'OCT 01'!T38 (HEMPHILL/CANADIAN, VOLUME ADJ.): source 16 → answer key 18.0. This is a hardcoded input, not a formula, and the task only says to 'correct the formula errors'. The source has no note, comment, email or chat that justifies 18. With T38=16 the corrected T39/T40 come to -12,037/132,734; the answer key gives -12,035/132,736. NOV 01!T5 is hardcoded at 137,821 and does not tie to either figure, so there is no roll-forward cue. The grader gives a binary 0/1 and requires values 'logically equivalent to the reference answer', so an agent that correctly repairs the formula but leaves the input alone gets a different T39, T40, V39 and V40 and can be failed.",
+    "confirmation": "Confirmed the reference changes the hardcoded input 'OCT 01'!T38 from 16 to 18.0 with no supporting cue (row 38 holds only 4, 5793, -9, 16), while the prompt only asks to correct formula errors.",
+    "fixed": true,
+    "fix": "gt_158_ref_0.xlsx, sheet 'OCT 01': restored the source input T38 = 16 (reference had an unexplained 18.0) and the source row-total formula V30 '=SUM(D30:T30)' (reference had blanked it). The only intended change, the T39 formula fix '=SUM(T6:T36)+T38', is kept. Cached values refreshed: T39 -12037, T40 132734, V38 5804, V39 131971, V40 161441, V30 0; no other cell changed."
+  },
+  {
+    "id": "F2",
+    "title": "Source workbook 158_src_0.xlsx has a corrupted static input in OCT 01!T38 (16 vs 18.0 in GT) and an extra formula in OCT 01!V30, so fixing the formula error in OCT 01!T39 still fails to match ground-truth values",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The task statement in problem.py instructs the agent: \"Audit the workbook and correct the formula errors in place so numbers calculate properly.\" On sheet 'OCT 01', cell T39 ('OC TOBER CUMULATIVE' for HEMPHILL/CANADIAN) contains the corrupted formula '=N38-9=SUM(T6:T36)+T38' (cached value False) in 158_src_0.xlsx, whereas gt_158_ref_0.xlsx has '=SUM(T6:T36)+T38'. However, 158_src_0.xlsx also differs from gt_158_ref_0.xlsx in two other cells on 'OCT 01': (1) cell 'OCT 01'!T38 ('VOLUME ADJ.' for HEMPHILL/CANADIAN) is a hardcoded numeric input equal to 16 in 158_src_0.xlsx, whereas in gt_158_ref_0.xlsx it is 18.0; and (2) cell 'OCT 01'!V30 has '=SUM(D30:T30)' in 158_src_0.xlsx (matching V5:V36), whereas in gt_158_ref_0.xlsx it is None (blank). Because T38 is a static input cell (not a formula) and the value 18 does not appear anywhere in the workbook or environment context, an agent following the prompt cannot know to change T38 from 16 to 18. As a result, after fixing T39 to '=SUM(T6:T36)+T38', the agent's workbook has T38=16 (GT: 18.0), V38=5804 (GT: 5806), T39=-12037 (GT: -12035), V39=131971 (GT: 131973), T40=132734 (GT: 132736), and V40=161441 (GT: 161443). The grader_guidance uses binary single-score grading ('score': 0 or 1, 'correctness': 1 if all values, formulas, charts, and text are logically equivalent to the reference answer; 0 otherwise) and restricts numeric tolerances solely to web-search tasks.",
+    "confirmation": "A full diff of 158_src_0.xlsx vs gt_158_ref_0.xlsx shows only OCT 01!T39 (formula fix), V30 (formula removed) and T38 hardcoded 16 -> 18.0; nothing in row 38 or the prompt supports 18, so a correct formula fix gives T39/T40 off by 2 from the reference.",
+    "fixed": true,
+    "fix": "gt_158_ref_0.xlsx, sheet 'OCT 01': restored the source input T38 = 16 (reference had an unexplained 18.0) and the source row-total formula V30 '=SUM(D30:T30)' (reference had blanked it). The only intended change, the T39 formula fix '=SUM(T6:T36)+T38', is kept. Cached values refreshed: T39 -12037, T40 132734, V38 5804, V39 131971, V40 161441, V30 0; no other cell changed."
+  },
+  {
+    "id": "F3",
+    "title": "Reference answer changes an input value without supporting data",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task asks to correct formula errors while preserving workbook contents. In the supplied workbook, 'OCT 01'!T38 is the numeric input 16, but gt_158_ref_0.xlsx changes it to 18. No instruction or supporting fixture supplies this adjustment. Independently summing T6:T36 gives -12053, so repairing T39's formula while retaining the supplied input produces -12037, not the reference's -12035. The discrepancy propagates to T40, V38, V39 and V40. The rubric requires logical equivalence to the reference and uses a binary overall score, so an otherwise correct formula repair can fail because it preserves the actual input.",
+    "confirmation": "Duplicate of the T38 16 -> 18.0 change in gt_158_ref_0.xlsx, which shifts T39, T40, V38-V40 by 2 relative to a correct repair that keeps the supplied input.",
+    "fixed": false,
+    "fix": null
+  }
+]

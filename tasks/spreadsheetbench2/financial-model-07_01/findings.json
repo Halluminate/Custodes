@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "The ground truth fails its own verifier: its cached values were computed by an engine that cannot evaluate XLOOKUP, but the agent's output is recalculated in LibreOffice",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The only verifier (verify_spreadsheetbench2_cells, weight 1, all-or-nothing) compares the agent's output after a forced LibreOffice 26.2 recalculation against the GT workbook's cached values, and the GT is never recalculated. In both the input and the GT, every Sales Schedule!D18:D102 cell ('=_xlfn.xlookup(C18,Inputs!$E$58:$E$68,...)') has the cached value '#NAME?'. That error zeroes out the whole revenue chain: GT Cashflow (Quaterly)!J63:AA63 = 0, Executive Summary!D26 = 0, and most of the Closing Balance row is 0 (F33 = 0.13, G33:R33 = 0). LibreOffice evaluates XLOOKUP correctly: Sales Schedule D19 = 'Structure 1', Q63 = 274.49, ES!D26 = 274.49, ES!J33 = 0.42, ES!M33 = 28.81. I ran the verifier's own score_workbooks on the GT workbook itself after the same managed_recalculated_xlsx step. It scored regression 0.9733 (threshold 0.998) and modification 0.6367 (1.0 required), with 1177 cell errors, e.g. 'Regression error at Executive Summary!D26: answer=0, output=274.49' and 'Modification error at Executive Summary!D27: answer=-224.88, output=49.61'. Any correct, faithfully recalculated solution scores 0. The only way to pass is to reproduce the broken #NAME? state.",
+    "confirmation": "The GT caches come from an engine that returned #NAME? for XLOOKUP (Sales Schedule D18:D102), zeroing revenue (ES D26 = 0). The forced LibreOffice recalc of any correct output yields 274.49, so every faithful solution fails, as all 3 runs did.",
+    "fixed": true,
+    "fix": "Replaced the answer key and the reference workbook with copies force-recalculated through the verifier's own LibreOffice path, so their cached values are live (formulas unchanged); the recalculated golden now scores 1.0 against itself (regression 1.0, modification 1.0)."
+  },
+  {
+    "id": "F2",
+    "title": "The golden workbook fails its own forced-recalculation grading",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The sole verifier, weighted 1.0, forcibly recalculates the submitted workbook but compares it with unrecalculated golden caches. Applying that same recalculation to the golden workbook produces regression 0.9733, modification 0.6367 and 1,177 cell errors, which scores 0. For example, Executive Summary!D26 is cached as 0 in the key but recalculates to 274.493518728221. Sales-stage lookup formulas have cached #NAME? errors that suppress collections in the key; recalculation restores collections and changes downstream cashflows. The supplied expected solution therefore does not pass its own grading process.",
+    "confirmation": "Same verified root cause: the GT's #NAME?-derived caches (ES D26 = 0) differ from recalculated values (274.49), and all 3 rollout trials scored 0 with about 1,200 cell errors led by D26/D27.",
+    "fixed": true,
+    "fix": "Replaced the answer key and the reference workbook with copies force-recalculated through the verifier's own LibreOffice path, so their cached values are live (formulas unchanged); the recalculated golden now scores 1.0 against itself (regression 1.0, modification 1.0)."
+  },
+  {
+    "id": "F3",
+    "title": "Golden workbook contains stale cached values from broken `_xlfn.xlookup` cells while verifier recalculates only the agent's output in LibreOffice",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `gt_07_RealEstate_golden.xlsx` (and `untouched_input_07_01_RealEstate_input.xlsx`), `'Sales Schedule'!D18:D102` contains lowercase `=_xlfn.xlookup(C18,Inputs!$E$58:$E$68,Inputs!$C$58:$C$68,,-1)` with cached value `#NAME?`. Consequently, all downstream sales collections (`'Sales Schedule'!E18:E102`, `N18:O102`), monthly sales revenue (`'Cashflow (Monthly)'!D60:CP64`), quarterly sales revenue (`'Cashflow (Quaterly)'!D60:AA64`), and `Executive Summary` revenue/financing rows (`D26`, `D27`, `D30`, `D32`, `D37`, etc.) have cached values of `0` (or no-revenue cashflows) in `gt_07_RealEstate_golden.xlsx`. However, `verify_spreadsheetbench2_cells` (weight: 1) runs `managed_recalculated_xlsx(Path(output_path), force_recalculation=True)` on the agent's output in LibreOffice—which evaluates `_xlfn.xlookup` as valid `XLOOKUP` (`'Approval'`, `'Structure 1'`, etc., yielding `Executive Summary!D26 = 274.4935`)—and compares those recalculated values against the un-recalculated cached values of `gt_07_RealEstate_golden.xlsx` (`Executive Summary!D26 = 0`). Submitting `gt_07_RealEstate_golden.xlsx` itself to `verify_spreadsheetbench2_cells` scores 0.0 (`FAILED - regression 0.9733, modification 0.6367. 1177 cell error(s)`).",
+    "confirmation": "Verified lowercase _xlfn.xlookup formulas in Sales Schedule D18:D102 with cached #NAME?, and downstream GT caches of ES D26 = 0 and J33 = 0. Run outputs recalculate these to nonzero values and fail.",
+    "fixed": true,
+    "fix": "Replaced the answer key and the reference workbook with copies force-recalculated through the verifier's own LibreOffice path, so their cached values are live (formulas unchanged); the recalculated golden now scores 1.0 against itself (regression 1.0, modification 1.0)."
+  },
+  {
+    "id": "F4",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "The GT's cached revenue chain is built on #NAME? xlookup results (Sales Schedule D18 #NAME?, ES D26 0), while the verifier recalculates output in LibreOffice, where XLOOKUP evaluates. The staged GT therefore cannot reproduce its own caches, consistent with the 0.00 golden-gate score.",
+    "fixed": true,
+    "fix": "Replaced the answer key and the reference workbook with copies force-recalculated through the verifier's own LibreOffice path, so their cached values are live (formulas unchanged); the recalculated golden now scores 1.0 against itself (regression 1.0, modification 1.0)."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: Verifier trivially fails all valid solutions (and the golden file itself) because it recalculates only output_path in LibreOffice while reading stale `#NAME?`-derived cached values from gt_path",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, the agents correctly identified and implemented the required formulas in `Cashflow (Quaterly)` (`F13:G18`, `J23:AA23`), `Cashflow (Monthly)` (`J44:CP44`, `J70:CP70`), and `Executive Summary` (`F17:R17`, `F33:R33`), and saved `/home/model/Desktop/output.xlsx` via LibreOffice. Yet all 3 units scored 0.0 with identical top errors (`Regression error at Executive Summary!D26: answer=0, output=274.493518728221; Modification error at Executive Summary!D27: answer=-224.879852019083, output=49.6136667091384; Modification error at Executive Summary!D30: answer=254.879852019083, output=22.7720755848716; Regression error at Executive Summary!D32: answer=0, output=-42.38574229401; Modification error at Executive Summary!D37: answer=-154.875892093128, output=20.9629022515383`). In `gt_07_RealEstate_golden.xlsx`, `'Sales Schedule'!D18:D102` has cached `#NAME?` values for `=_xlfn.xlookup(...)`, making all cached sales revenues `0`. When `verify_spreadsheetbench2_cells` (weight: 1) recalculates `output_path` in LibreOffice, LibreOffice evaluates `_xlfn.xlookup` properly, changing 1,177 cells across `Sales Schedule`, `Cashflow (Monthly)`, `Cashflow (Quaterly)`, and `Executive Summary`. Even passing `gt_07_RealEstate_golden.xlsx` as `output_path` fails with `regression 0.9733, modification 0.6367 (1177 cell errors)`, whereas recalculating `inp` and `gt` in LibreOffice first yields `regression 1.0, modification 1.0 (0 errors)`.",
+    "confirmation": "GT 'Sales Schedule'!D18:D102 '=_xlfn.xlookup(...)' cache #NAME?, so GT Executive Summary!D26 = 0. All 3 trials in rollout <id> fail with D26 answer=0 vs recalculated output=274.49 (1178-1261 cell errors), scoring 0.",
+    "fixed": true,
+    "fix": "Replaced the answer key and the reference workbook with copies force-recalculated through the verifier's own LibreOffice path, so their cached values are live (formulas unchanged); the recalculated golden now scores 1.0 against itself (regression 1.0, modification 1.0)."
+  }
+]

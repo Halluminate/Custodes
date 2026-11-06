@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'LoanSizing'!B2:M21,'LoanSizing'!B22:B22,'LoanSizing'!D22:M22,'LoanSizing'!B23:M30, after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

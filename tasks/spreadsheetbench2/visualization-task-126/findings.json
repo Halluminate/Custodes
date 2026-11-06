@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Image-only judge has to read ~47 exact data values off charts that have no data labels",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "spreadsheetbench2_charts.py renders the chart sheets with LibreOffice and sends only the images to an LLM judge. The task passes only if more than 70% of the 61 items pass, and the verifier carries the whole weight (1). About 47 items are exact values, e.g. 'The After Event value for Q3 2020 is 1.74', 'The Differential bar for Q3 2024 spans from 2.44 to 2.41 ... negative value of -0.03', 'The Q2 2024 column value is -0.7%', 'The Price value for Q4 2023 is 301.91 on the secondary Y-axis'. The instruction never asks for data labels, and the ground-truth charts have none (every dLbls block has showVal val=0). Rendered, the primary axis runs in 0.5 steps and the secondary in 50 steps, so values like 0.02 vs -0.03 or 301.91 cannot be read off the image. Whether a correct chart passes depends on how lenient the judge is, not on whether the chart is right.",
+    "confirmation": "Most of the 61 checklist items demand exact values (e.g. 'After Event value for Q3 2020 is 1.74', 'Price value ... 301.91'), but the image-only judge sees charts whose GT dLbls set showVal=0, with 0.5/50-step axes. Pass/fail of a correct chart therefore hinges on judge guessing, not chart correctnes",
+    "fixed": true,
+    "fix": "verifications[0].parameters.checklist: appended ' (approximately, as far as it can be read from the axis scale when no data label is shown)' to the 48 exact-value items (13-54, 56-61); structural items unchanged, 61 items and threshold kept. graderGuidance list updated to match."
+  },
+  {
+    "id": "F2",
+    "title": "Verifier silently excludes charts outside the seed's print area",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input workbook defines Surprise's print area as 'Surprise'!$B$3:$O$72. The verifier's _chart_only_copy() preserves this restriction, and _fit_to_one_page() changes scaling without expanding the printable range to include charts. A controlled test relocating the golden workbook's unchanged charts below row 99 caused both chart titles to disappear from the verifier-generated PDF; both titles were present before relocation. The task specifies no chart-placement restriction, so valid charts placed below the dataset can be invisible to the sole verifier, which carries weight 1 and awards zero unless more than 70% of checklist items pass.",
+    "confirmation": "Both input and GT define _xlnm.Print_Area Surprise!$B$3:$O$72, and the judge showed the verifier's PDF render drops charts anchored below that range. Valid charts placed elsewhere (nothing in the prompt forbids it) become invisible to the sole verifier.",
+    "fixed": true,
+    "fix": "Removed the Surprise print area (_xlnm.Print_Area Surprise!$B$3:$O$72) from the input workbook (Task 126_input.xlsx) and the golden, so the verifier's LibreOffice render covers the whole sheet and charts placed outside B3:O72 stay visible. Re-rendered the golden: both charts still on the page. No cells changed."
+  },
+  {
+    "id": "F3",
+    "title": "Ground-truth workbook, rendered by the grader's own pipeline, fails its own structural checklist items",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "I rendered gt_Task 126_golden.xlsx with the verifier's _render_chart_pages. (1) Chart 1's x-axis shows 1..21, not quarter labels: the first (bar) series refs P51:P71 / O51:O71 have no c:cat. That fails 'The X-axis displays 21 periods representing quarters from Q3 2020 to Q3 2025'. (2) Chart 2 has negative values in its cache (M51 = -0.0852, M65 = -0.197), but the rendered page shows every column rising above 0%, and the tallest one (Q1 2024) is cut off at the 15% axis top. That fails the 'diverging' item, the '21 columns ... negative values extending downward' item, and the 10 negative-value items (Q3 2020 -8.5%, Q4 2020 -6.3%, Q3 2021 -11.7%, Q3 2022 -8.3%, Q1 2023 -4.7%, Q1 2024 -19.7%, Q2 2024 -0.7%, Q4 2024 -4.0%, Q1 2025 -3.3%, Q2 2025 -4.9%). (3) Chart 2's title text overlaps the plot area. Together that is about 14 of 61 items failed outright, before any eyeballing failures. The 70% threshold allows only 18 failures, so the answer key itself is at real risk of failing.",
+    "confirmation": "In GT chart1.xml the first two bar series (P51:P71, O51:O71) have no <c:cat>, so the rendered x-axis shows 1..21, not quarters. The judge's render of chart2 shows all columns above 0% despite negative cached values (M51 = -0.085), so the key fails its own axis/diverging/negative-value items.",
+    "fixed": true,
+    "fix": "gt_Task 126_golden.xlsx: chart1 - added the quarter categories (Surprise!$B$51:$B$71, cache copied from the line series) to the two stacked bar series, so the rendered x-axis shows Q3 2020..Q3 2025 instead of 1..21; chart2 - replaced invertIfNegative=1 (LibreOffice draws those columns upward) with invertIfNegative=0 plus per-point orange fills (E46C0A) on the 11 negative quarters, keeping the Excel look, and moved the plot area down (y 0.0545->0.16, h 0.715->0.61) so the title no longer overlaps it. Re-rendered with the verifier's _render_chart_pages: quarter labels, diverging columns and a clear title now show. No cells changed."
+  }
+]

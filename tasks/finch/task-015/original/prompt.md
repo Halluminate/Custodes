@@ -1,0 +1,3 @@
+Translate all Chinese text in this Excel workbook (including sheet names, headers, cell contents, formulas, charts, etc) into English and save the translated version as a new workbook.
+
+Your input files are on your Desktop (/home/model/Desktop): 15_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground-truth reference gt_1_ref_0.xlsx contains contradictory and erroneous formulas in R132, R134, and V132 (and external workbook links in L132, L134, N132, P132)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `gt_1_ref_0.xlsx` (which `grader_guidance` under `Evaluation Criteria -> 2. Data Accuracy` uses as the ground-truth reference for binary `0 or 1` scoring), multiple target cells contradict the source workbook's tagged cells: (1) In Component 4 (`Occupancy Loss`, Columns R/S of `Income Statement`), `1_src_0.xlsx` (and `gt_1_ref_0.xlsx` itself) has `R124 = '=K125'` (evaluating to `1178`) tagged `S124 = 'B'`, and `R125 = '=K124'` (evaluating to `1224`) tagged `S125 = 'A'`. Thus, in Column R, the only cell tagged `'A'` has value `1224` and the only cell tagged `'B'` has value `1178`. However, `gt_1_ref_0.xlsx` sets `R132` (`SUM OF A:  (numerator)`) to `=+K125` (`1178`) and `R134` (`SUM OF B:  (denominator)`) to `=+K124` (`1224`), bypassing Column R and reversing the `'A'` and `'B'` values relative to the tags in `R124:S125` while leaving `R124:R125` unmodified (modifying `R124:R125` is penalized under `3. Reasonableness of Changes` / `over_edit_avoidance`). (2) In Component 6 (`Net Income (Loss)`, Columns V/W of `Income Statement`), cell `V10` (Line 706.1 `Capital Grants`) contains `=K10` (`53,752`) and is explicitly tagged `W10 = 'A'`. Yet `gt_1_ref_0.xlsx` sets `V132` to `=+V79-(V81+V82+V83+V85+A86+V88+V112+V113+V114+V115)` = `95,079`, which completely omits the non-zero tagged cell `V10` (`53,752`)—neither adding it nor deducting Capital Grants from Excess Operating Revenue `V79`—and contains a typo `A86` (an empty cell in Column A) instead of `V86`. (3) Four ground-truth formulas (`L132`, `L134`, `N132`, `P132`) reference an external workbook `'[1]Balance Sheet'!` (`file:///C:\\Users\\hadong\\Downloads\\fass_sampleAn__EUSES_financial_bad.xlsx` via `xl/externalLinks/externalLink1.xml`) instead of the local `'Balance Sheet'!` sheet.",
+    "confirmation": "GT R132 '=+K125' (1178) and R134 '=+K124' (1224) reverse source tags S124='B' (R124=1178) and S125='A' (R125=1224). GT V132 references empty A86 and omits A-tagged V10 (53,752), and L132/L134/N132/P132 point to external workbook [1].",
+    "fixed": true,
+    "fix": "Same file: R132 = R125 (1,224, tagged A) and R134 = R124 (1,178, tagged B); V132 no longer references A86 and includes V10; L132, N132, P132, L134 now reference the local 'Balance Sheet' sheet instead of '[1]Balance Sheet' (L132 and P132 values unchanged)."
+  },
+  {
+    "id": "F2",
+    "title": "Occupancy Loss: the GT swaps the A and B values relative to the workbook's own markers",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In the source Income Statement, R124 '=K125' (1178) is labelled S124 'B', and R125 '=K124' (1224) is labelled S125 'A'. Going by the markers, sum of A = 1224 and sum of B = 1178. The GT has the opposite: R132 (SUM OF A) '=+K125' = 1178 and R134 (SUM OF B) '=+K124' = 1224. An agent that reads the markers correctly gets both Occupancy Loss figures wrong under the binary grader.",
+    "confirmation": "Source R124=1178 tagged B and R125=1224 tagged A, but gt_1_ref_0.xlsx R132 (sum of A)=1178 and R134 (sum of B)=1224, the reverse of the markers.",
+    "fixed": true,
+    "fix": "R132 = R125 (1,224) and R134 = R124 (1,178), matching the S125 'A' and S124 'B' markers."
+  },
+  {
+    "id": "F3",
+    "title": "Reference answers contradict the requested A/B sums and seeded labels",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task requests “sum of A” and “sum of B,” but five of the twelve reference results do not sum the correspondingly labeled inputs. For example, Balance Sheet L83=357 and L86=62,377 are both labeled B, totaling 62,734; reference Income Statement L134 instead subtracts them and returns 62,020. The N-column A inputs total 208,360, but reference N132 returns 83,606 using undisclosed deductions. Income Statement R125=1,224 is labeled A and R124=1,178 is labeled B, but reference R132/R134 reverses these values. The V-column A inputs total 582,287, whereas reference V132 returns 95,079 by subtracting expenses and omitting the A-labeled capital grant. No supplied instructions explain these departures. The rubric requires equivalence to the reference and uses a binary overall score, so a correct literal summation can fail.",
+    "confirmation": "Same verified discrepancies: GT L134, N132, R132, R134 and V132 do not equal the sums of the correspondingly tagged cells in 1_src_0.xlsx, and nothing in the prompt explains the signed logic.",
+    "fixed": true,
+    "fix": "All five discrepant reference cells (L134, N132, R132, R134, V132) now equal the sums of the correspondingly tagged inputs."
+  },
+  {
+    "id": "F4",
+    "title": "Undisclosed subtraction conventions in ground truth for 'sum of A' and 'sum of B' (L134, N132, V132) despite positive values in source component columns",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The task statement in `problem.py:1` instructs the agent: \"Compute the “sum of A” and “sum of B” in the last rows of the Income sheet for each Financial Indicator Component, using data from all sheets in the workbook.\" No other instructions, emails, chat messages, or workbook notes exist in the environment. In `1_src_0.xlsx`, each of the 6 Financial Indicator Components has a value column (`L, N, P, R, T, V`) and an adjacent tag column (`M, O, Q, S, U, W`) marking component cells with `'A'` (for Row 132 `SUM OF A:  (numerator)`) or `'B'` (for Row 134 `SUM OF B:  (denominator)`). On `Balance Sheet` Column V (`Net Income (Loss)`), liability items that reduce the total are already negated in the component column (`V86 = '=-K86+K83' = -62020`, `V90 = '=+-K90' = 0`), so summing `'B'` cells yields the ground-truth value `83,606` in `V134`. However, in three other target cells, `1_src_0.xlsx` stores all tagged cells in the component column as positive values (`=K...`), yet `gt_1_ref_0.xlsx` subtracts specific tagged cells instead of summing them: (1) `Income Statement!L134` (`Current Ratio` SUM OF B): `Balance Sheet!L83` (`=K83 = +357`, `M83 = 'B'`) and `Balance Sheet!L86` (`=K86 = +62377`, `M86 = 'B'`) are both positive (sum = `62,734`), but `gt_1_ref_0.xlsx` uses `=+'[1]Balance Sheet'!L86-'[1]Balance Sheet'!L83` = `62,020`; (2) `Income Statement!N132` (`Number of Months Expendable Fund Balance` SUM OF A): all 11 cells tagged `'A'` in `Balance Sheet!N7:N90` (`O7:O90 = 'A'`) are positive (`N83 = '=K83' = +357`, `N86 = '=K86' = +62377`, sum = `208,360`), but `gt_1_ref_0.xlsx` uses `=+'[1]Balance Sheet'!N7+'[1]Balance Sheet'!N10+'[1]Balance Sheet'!N11+'[1]Balance Sheet'!N26+'[1]Balance Sheet'!N29+'[1]Balance Sheet'!N31+'[1]Balance Sheet'!N32-('[1]Balance Sheet'!N86-'[1]Balance Sheet'!N83-'[1]Balance Sheet'!N80)-'[1]Balance Sheet'!N90` = `83,606`; (3) `Income Statement!V132` (`Net Income (Loss)` SUM OF A): all 12 cells tagged `'A'` in `Income Statement!V10:V115` (`W10:W115 = 'A'`) are positive (`V10 = 53752`, `V79 = 311807`, `V81 = 37422`, `V83 = 179306`, sum = `582,287`), but `gt_1_ref_0.xlsx` subtracts `V81:V115` from `V79` to get `95,079`. Because `grader_guidance` (`Evaluation Criteria -> 2. Data Accuracy` and `Output Format`) enforces a binary pass/fail (`score: 0 or 1`) requiring all values/formulas to be logically equivalent to the reference answer, a competent agent that sums the `'A'` and `'B'` cells as instructed receives a score of 0.",
+    "confirmation": "Source Balance Sheet L83 (=K83, 357) and L86 (=K86, 62377) are both tagged B and positive, yet gt_1_ref_0.xlsx Income Statement L134 is L86-L83 = 62,020. N132 and V132 likewise subtract A-tagged cells, and the prompt gives no such sign rule.",
+    "fixed": true,
+    "fix": "gt_1_ref_0.xlsx Income Statement: L134 = 'Balance Sheet'!L83+L86 (62,734), N132 = sum of the 11 A-tagged Balance Sheet N cells (208,360), V132 = sum of the 12 A-tagged Income Statement V cells incl. V10 (582,287). V134 (was =N132) now sums its own B-tagged Balance Sheet V cells, value unchanged at 83,606."
+  },
+  {
+    "id": "F5",
+    "title": "The answer key does not use 'sum of A / sum of B' for several indicators: it applies the original PHAS sign logic, so an agent that literally sums the marked cells fails",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The task asks the agent to 'Compute the \"sum of A\" and \"sum of B\"' from the A/B marker cells in all sheets. In the GT (gt_1_ref_0.xlsx, Income Statement rows 132/134), several indicators are signed combinations that the markers do not describe:\n(1) Current Ratio, sum of B. The markers are Balance Sheet L83 (357, 'B') and L86 (62377, 'B'), which sum to 62,734. GT L134 is \"='[1]Balance Sheet'!L86-'[1]Balance Sheet'!L83\" = 62,020.\n(2) Months Expendable Fund Balance, sum of A. The A markers are BS N7, N10, N11, N26, N29, N31, N32 (145,626) plus N79 (0), N83 (357), N86 (62377) and N90 (0), for a literal sum of 208,360. GT N132 subtracts instead: 145626-(N86-N83-N80)-N90 = 83,606. It also references N80, which has no marker.\n(3) Net Income, sum of A. The A markers are IS V10 (53752), V79 (311807), V81 (37422), V83 (179306) plus zero rows, for a literal sum of 582,287. GT V132 is '=+V79-(V81+V82+V83+V85+A86+V88+V112+...)' = 95,079. It leaves out the A-marked V10 and subtracts the other A rows.\nThe grader is pass/fail (score 0 or 1, correctness = values 'logically equivalent to the reference'). An agent that follows the instruction literally misses 3 of 12 figures, and nothing it can see tells it that 'sum' means these signed formulas.",
+    "confirmation": "Verified GT L134=62,020 vs literal B sum 62,734, N132=83,606 (subtracts N86/N83/N90, uses untagged N80), and V132=95,079 excluding A-tagged V10. A literal sum of the marked cells fails these figures under the reference-equivalence judge.",
+    "fixed": true,
+    "fix": "Same L134, N132, V132 changes: answer key is now the literal sum of the marked cells."
+  }
+]

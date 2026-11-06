@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground-truth workbook fails its own grading: unconverged circular values make the official check unpassable",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "I copied gt_09_golden.xlsx to output.xlsx, ran the verifier's own LibreOffice recalculation (managed_recalculated_xlsx, force_recalculation=True) and scored it with score_workbooks against the GT. Result: regression 1.0, modification 0.9286, 34 modification errors. The verifier only passes when modification = 1.0, so the answer key itself scores 0/1. The cause is that the model is circular (calcPr iterate=true, iterateCount=100, circ=1 drives interest, revolver and cash sweep), and the GT's cached values never converged. Inside the GT file: LBO!G124 '=+G133' is cached as 302.331 while G133 is 302.547. H132 '=G135' is 302.331 while G135 is 302.547. J124 is 205.70 while J133 is 208.67. After LibreOffice recalculation, mismatches go past the 1% tolerance: L199 answer 22.27 vs 6.14; L201 21.15 vs 5.83; K138 698.7 vs 606.2; N124 156.0 vs 162.8; H204 IRR 0.413% vs 0.406%. The text label D213/L213 is 'GT 6% / 1.4x' vs recalculated '6% / 1.3x' (MOIC 1.3536 sits at the rounding edge). Any agent that makes exactly the three intended cross-sheet fixes will hit the same mismatches. The problem's single verifier (weight 1, all-or-nothing) cannot be passed.",
+    "confirmation": "Same confirmed result: the golden workbook scores modification 0.9286 with 34 errors against itself, so the key is unpassable.",
+    "fixed": true,
+    "fix": "Same as gt-replay-0."
+  },
+  {
+    "id": "F2",
+    "title": "Golden workbook fails its own verifier after mandatory recalculation",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The sole verifier (weight 1, covering 100% of the score) recalculates the submitted workbook but compares it against unrecalculated golden cached values. Submitting an untouched copy of gt_09_golden.xlsx to that verifier returns score=0.0: 'FAILED - regression 1.0000, modification 0.9286. 34 cell error(s)'. For example, LBO!I138 expects 1034.97097384539 but recalculates to 1005.65291449478, and LBO!D213 expects '6% / 1.4x' but recalculates to '6% / 1.3x'. The golden caches are internally inconsistent: I138 calculates remaining revolver capacity as MAX(F138-I135,0), but its cached inputs are 1800 and 794.347085505223, implying 1005.652914494777 rather than the stored 1034.97097384539. Similar stale dependencies occur in the seed workbook. Thus matching the intended golden formulas does not suffice to pass the grading pipeline.",
+    "confirmation": "Duplicate of the confirmed defect: replaying gt_09_golden.xlsx yields 'FAILED - regression 1.0000, modification 0.9286. 34 cell error(s)' including LBO!I138 and D213.",
+    "fixed": true,
+    "fix": "Same as gt-replay-0."
+  },
+  {
+    "id": "F3",
+    "title": "Unconverged circular-reference cached values in ground truth cause valid solutions (and the golden workbook itself) to fail value verification",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1.0) grades the workbook in `mode: values` by forcefully recalculating `output_path` in LibreOffice (`managed_recalculated_xlsx(..., force_recalculation=True)`) and comparing the recalculated values against the static cached `<v>` values stored inside `gt_09_golden.xlsx` (which is never recalculated by the verifier). However, the LBO workbook has iterative circular references enabled (`<calcPr iterateCount=\"100\" iterate=\"true\" iterateDelta=\"0.0001\"/>`) across Revolver Draw -> Ending Balance -> Interest -> Net Income -> Cash Flow before Revolver -> Revolver Draw. In `gt_09_golden.xlsx`, the cached values were saved after a single unconverged pass following the 4 cross-sheet formula edits: for example, `LBO!H132` (`=G135`) has cached value `302.33114` while `LBO!G135` (`=SUM(G132:G134)`) has cached value `302.54689`, and `LBO!G138:K138` (`=IF($F138-G135<0,0,$F138-G135)` with `$F138=1800`) have cached values (`1497.6689`, `1233.1049`, `1034.9710`, `856.3533`, `698.7468`) that do not equal `1800 - G135:K135` (`1497.4531`, `1224.3204`, `1005.6529`, `798.7564`, `606.1780`). When `gt_09_golden.xlsx` itself is passed into `verify_spreadsheetbench2_cells`, LibreOffice recalculates the circular loop closer to convergence and `gt_09_golden.xlsx` FAILS against itself with `score=0.0` (`regression 1.0000, modification 0.9286, 34 cell errors`, including `LBO!D213: answer=6% / 1.4x, output=6% / 1.3x`, `LBO!I138: answer=1034.97097384539, output=1005.65291449478`, `LBO!J138: answer=856.353312977964, output=798.75642521221`).",
+    "confirmation": "Confirmed by local replay: the GT's cached LBO values (I138, J124, H204...) do not match LibreOffice recalculation of its own formulas, and the sole all-or-nothing check fails the golden workbook.",
+    "fixed": true,
+    "fix": "Same as gt-replay-0."
+  },
+  {
+    "id": "F4",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "Reproduced locally: verify_spreadsheetbench2_cells on gt_09_golden.xlsx returns 0.0 (regression 1.0, modification 0.9286, 34 errors, e.g. LBO!I138 1034.97 vs 1005.65 and D213 '6% / 1.4x' vs '6% / 1.3x').",
+    "fixed": true,
+    "fix": "ground_truth/gt_09_golden.xlsx and untouched_input_Incorrect Cross Sheet References_input.xlsx: cached <v> of the 257 / 259 circular-loop cells on LBO replaced with their converged values (each workbook's own formulas run through the verifier's recalculation until no value moved, 10-12 passes); formulas, styles and every other cell unchanged (LBO!D8 =TODAY() left as is). verifications[0].parameters.answer_position: 'LBO'!A2:X218 replaced by 79 sub-ranges that skip the 294 LBO cells inside the iterative interest/revolver/cash-sweep loop (rows 67-205 cols G:N where they move between LibreOffice passes, plus D213/L213 labels); the four fixed reference rows (G51:N51, G63:N63, E87:F87) and all non-loop cells stay graded, Financials and Operating Cases unchanged. The verifier's single LibreOffice pass does not converge this loop, so these cells depended on how many times the agent had recalculated. Local replay: new and old golden PASS."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells gives false-negative 0.0 verdicts on exact formula fixes due to unconverged circular references in gt_09_golden.xlsx",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "The workbook contains 4 broken cross-sheet reference ranges totaling 28 cells (`LBO!G51:N51` referencing `'Operating Cases'!G17:N17` instead of `G9:N9`, `LBO!G63:N63` referencing `'Operating Cases'!G33:N33` instead of `G41:N41`, `LBO!E87:F87` referencing `Financials!E18:F18` instead of `E22:F22`, and `'Operating Cases'!E43:N43` referencing `Financials!E23:N23` instead of `E29:N29`). Both Unit 1 and Unit 3 identified and fixed all 4 cross-sheet reference issues without touching any regression cells (`regression 1.0000`). However, because the workbook has an iterative circular dependency loop (`<calcPr iterateCount=\"100\" iterate=\"true\" iterateDelta=\"0.0001\"/>`) and `gt_09_golden.xlsx` stores unconverged cached values from a single pass, recalculating a workbook with the exact golden formulas in LibreOffice never reproduces the cached values in `gt_09_golden.xlsx`: after 1 LibreOffice recalculation it has 222 modification errors (`mod=0.5399`); after 2 LibreOffice recalculations (Unit 3, which recalculated once via UNO before the verifier's own recalculation) it has 12 modification errors (`mod=0.9748`, `score=0`); after 4+ recalculations (Unit 1, which ran multiple UNO recalculations to converge the circular loop) it converges to 35 modification errors (`mod=0.9265`, `score=0`); and even `gt_09_golden.xlsx` itself fails the verifier with 34 modification errors (`mod=0.9286`, `score=0`). Thus the verifier (weight: 1.0) cannot pass any properly recalculated solution.",
+    "confirmation": "The GT stores unconverged caches from an iterative circular model, and the verifier recalculates only the output. The golden file itself fails with 34 modification errors, so exact formula fixes cannot pass.",
+    "fixed": true,
+    "fix": "Same GT/reference re-cache and answer_position change; the exact four reference fixes saved with openpyxl (no recalc) or after 1 or 2 LibreOffice recalcs now PASS (were mod 0.50 / 0.59 / 0.93 FAIL)."
+  }
+]

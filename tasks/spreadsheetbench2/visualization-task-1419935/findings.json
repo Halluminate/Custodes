@@ -1,0 +1,79 @@
+[
+  {
+    "id": "F1",
+    "title": "The checklist contradicts itself on the Player pie chart, so some items fail whatever the agent builds",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Several spec.yaml items assume the N/A player is left out of the pie (9 of 32 non-N/A rows = 28%): \"The 6 slice value is 28%\", \"11 … 16%\", \"13 … 16%\", \"16 … 9%\", \"20 … 13%\". Other items in the same checklist assume N/A is kept in (9 of 39 = 23%, with N/A as a 9th slice): \"The 6 slice is the largest slice … representing approximately 23% of the total\" and \"The pie chart contains 9 slices corresponding to players 6, 11, 13, 16, 18, 19, 20, O\". That second item lists only 8 players while saying 9 slices. The legend item says 8 entries. The seeded pivot in Pie Charts A20:B30 includes N/A (6 = 0.2308). The task text says 'percentages of the grand total', which means 23%, yet 5 items expect 28%. With N/A excluded at least 2 items fail, and with N/A included at least 6 fail. Together with the 2 slicer items that can never pass, a correct-by-instruction chart (N/A included) scores at most 18/26 = 0.69. That is below the >0.7 threshold, so the single verifier (weight 1) scores 0.",
+    "confirmation": "Confirmed in the verifier checklist: '6 slice value is 28%' and '6 slice ... approximately 23% of the total' cannot both hold, and '9 slices corresponding to players 6, 11, 13, 16, 18, 19, 20, O' lists only 8.",
+    "fixed": true,
+    "fix": "Same checklist rewrite as F5: no pair of Player-chart items can now contradict each other."
+  },
+  {
+    "id": "F2",
+    "title": "Slicer connectivity and selection are checked through an inadequate rendering-only verifier",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Checklist items 5 and 6 require actual Team slicers connected to the corresponding charts with specific selections. The verifier supplies only rendered images and instructs the judge to decide 'based ONLY on visual evidence'; it never inspects slicer caches, pivot connections, or selection metadata. Its own module documentation also states that LibreOffice cannot draw slicers and they 'render as missing'. Consequently, valid native slicers can lose these checks, while decorative slicer-like shapes cannot be distinguished from functioning controls. These checks contribute to the sole weight-1 verifier's greater-than-70% pass threshold.",
+    "confirmation": "Items 5 and 6 require connected slicers with specific selections, but the chart-checklist verifier only shows rendered images, where slicers appear as placeholder shapes. It cannot verify connection or selection.",
+    "fixed": true,
+    "fix": "Removed the two slicer items from the rendering-only checklist (see F3)."
+  },
+  {
+    "id": "F3",
+    "title": "Slicer items can never pass, and the allowed tools cannot build slicers or native pivot tables",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The verifier docstring says: 'LibreOffice renders … chart types LibreOffice cannot draw (sunburst, slicers) render as missing'. The judge only sees images, so the two items 'A Team slicer is present and connected … with 'Opp' selected' and '… both 'ETV' and 'Opp' selected' always fail. The task also limits the agent to openpyxl and xlsxwriter, and neither library can create pivot tables or slicers. That makes the core asks (pivot table at A1 of Game Progression, Team slicers, Opp default filter) impossible as specified. Those 2 dead items use up most of the failure budget the 0.7 threshold allows.",
+    "confirmation": "The slicer items are judged purely from LibreOffice-rendered images, and slicers render only as placeholder shapes (as in the GT's drawing1.xml), so items 5-6 cannot pass visually. The advertised openpyxl/xlsxwriter cannot author slicers either.",
+    "fixed": true,
+    "fix": "Removed the two slicer items (old 5 and 6) from the image-only checklist; the Opp-only filter on the Event chart is still checked through the Opp slice values (new items 9-15 and 23)."
+  },
+  {
+    "id": "F4",
+    "title": "Player-percentage answer key contradicts the fixture and itself",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The seeded player pivot includes all 39 activities, including seven labeled 'N/A'. Recalculation gives player 6 = 9/39 = 23.08%, players 11 and 13 = 5/39 = 12.82%, player 16 = 3/39 = 7.69%, and player 20 = 4/39 = 10.26%. Checklist items 19–23 instead require 28%, 16%, 16%, 9%, and 13%, which use a denominator of 32 after excluding N/A without instruction. Item 24 simultaneously requires player 6 to represent 'approximately 23% of the total'. Item 25 also demands '9 slices' while listing only eight players and omitting N/A. These incompatible requirements affect the sole verifier, weight 1, whose binary pass threshold is greater than 70%.",
+    "confirmation": "The checklist mixes denominators (28% for player 6 = 9/32 vs ~23% = 9/39) and claims 9 slices while naming 8 players, so no single chart satisfies all items.",
+    "fixed": true,
+    "fix": "Same checklist rewrite as F5 (both 9/32 and 9/39 shares accepted, 8 players + optional N/A)."
+  },
+  {
+    "id": "F5",
+    "title": "Self-contradictory checklist items and undisclosed 'N/A' filtering for 'Count of Player Activities' and 'Number of Game Events'",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The prompt (problem.py:63-65) instructs the agent: 'On the \"Pie Charts\" sheet, use the two pivot tables to create corresponding pie charts: one showing Event type distribution (A, AE, B, BE, DE, K, PE, SE) by count, and another showing Player involvement displayed as percentages of the grand total... Default the Team slicer for the Event pie chart to \"Opp\" only, and the Team slicer for the Player pie chart to both \"ETV\" and \"Opp\".' In both Task 1419935_input.xlsx and gt_Task 1419935_golden.xlsx, the pre-existing Player pivot table on 'Pie Charts' (A20:B30, built from 'Raw Data'!A8:E47 with all 39 points) has 9 rows including 'N/A' (7/39 = 17.95%) and numeric player 0 (1/39 = 2.56%, whereas 'Raw Data'!D4 has letter 'O'): player 6 = 23.08% (9/39), 11 = 12.82% (5/39), 13 = 12.82% (5/39), 16 = 7.69% (3/39), 18 = 2.56% (1/39), 19 = 10.26% (4/39), 20 = 10.26% (4/39), 0 = 2.56% (1/39), and N/A = 17.95% (7/39). Yet spec.yaml's checklist (weight: 1) enforces undisclosed and mutually contradictory criteria: (1) Items 19-23 require slice percentages computed excluding 'N/A' (denominator 32: player 6 = 28%, 11 = 16%, 13 = 16%, 16 = 9%, 20 = 13%), which is never requested in the prompt; (2) Item 24 ('The 6 slice is the largest slice in the pie chart, representing approximately 23% of the total') requires including 'N/A' (9/39 = 23%), directly contradicting Item 19 ('The 6 slice value is 28%'); (3) Item 25 ('The pie chart contains 9 slices corresponding to players 6, 11, 13, 16, 18, 19, 20, O') demands 9 slices while listing only 8 labels, and along with Item 8 requires letter 'O' even though 'Raw Data'!D11 and 'Pie Charts'!A28 store integer 0; (4) In gt_Task 1419935_golden.xlsx, chart776.xml plots unfiltered A4:B11 (counts 8, 6, 1, 4, 3, 7, 1, 5, omitting SE in row 12) and chart777.xml plots A21:B29 with 'N/A' included, so the golden file itself fails the checklist.",
+    "confirmation": "Checklist items 19-23 expect N/A-excluded shares (28/16/16/9/13%), while item 24 expects ~23% (N/A included) and item 25 says '9 slices' but lists 8 players. The prompt says 'percentages of the grand total' and never mentions excluding N/A.",
+    "fixed": true,
+    "fix": "Old checklist items 19-23 now read e.g. \"The 6 slice value is 28% (23% if an 'N/A' slice is kept in the pie)\"; item 24 now only requires player 6 to be the largest slice; item 25 lists the 8 players plus an optional N/A slice; item 8 accepts '0' for 'O'."
+  },
+  {
+    "id": "F6",
+    "title": "The ground-truth workbook fails its own checklist",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "GT chart776 ('Number of Game Events ', with a trailing space) plots Pie Charts!A4:B11 for both teams. Its values are A=8, AE=6, B=1, BE=4, DE=3, K=7, OE=1, PE=5. The range stops one row early, so SE is missing. The checklist expects Opp-only values: A=2, AE=5, BE=4, DE=3, K=4, PE=5, SE=2, with 7 slices and no B or OE. GT chart777 plots 0.2308 for player 6 with showPercent=0, and LibreOffice renders it with count labels (9, 5, 4…), while the checklist expects 28% and percentage labels. The GT has no slicer cache parts; the slicer is only a fallback shape reading 'This shape represents a slicer'. The 'Game Progression ' sheet has no conditional formatting. So the GT fails at least the A/AE/K/SE values, the legend, the slice count, the label type and the slicer items, which is far below the 0.7 threshold.",
+    "confirmation": "In the GT, chart777 has showPercent val=0 throughout although the checklist requires percentage labels. Its slicers are only fallback shapes in drawing1.xml ('This shape represents a slicer...'), so it fails several checklist items, including the slicer and percentage ones.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F7",
+    "title": "SpreadsheetBench 2 official chart checklist: verify_spreadsheetbench2_chart_checklist trivially fails (score 0.0) across all units due to LibreOffice rendering limitations on slicers/sheet tabs and contradictory checklist items",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "The sole verifier (weight: 1) requires > 0.7 (> 18.2/26, so at least 19/26 checklist items) to return score 1.0, and otherwise returns 0.0. Across all three units, it scored 0.0: unit 1 passed 16/26 (0.62, failing [5, 6, 8, 9, 19, 20, 21, 22, 23, 25]), unit 2 passed 10/26 (0.38), and unit 3 passed 17/26 (0.65, failing [6, 8, 9, 19, 20, 21, 22, 23, 25]). Independent inspection of the trajectories shows that units 1 and 3 correctly created the 'Pie Charts' sheet with both required pie charts ('Number of Game Events' filtered to 'Opp' with exact slice counts 2, 5, 4, 3, 4, 5, 2, and 'Count of Player Activities' displaying percentages of the grand total from the Player pivot table) as well as Team slicers. However, 10 of the 26 checklist items (38.5%) systematically fail on any faithful submission: (a) item 9 ('The charts are located on a sheet named \"Pie Charts\"') fails on every unit because _render_chart_pages renders the worksheet via LibreOffice PDF export without worksheet tab names or headers, and the VLM judge is instructed to 'Judge each checklist item as PASS or FAIL based ONLY on visual evidence'; (b) items 5 and 6 check that Team slicers are visually present with default selections, but LibreOffice does not render OOXML slicers (even in gt_Task 1419935_golden.xlsx, drawing1.xml contains only fallback rectangles reading 'This shape represents a slicer...'); and (c) items 8, 19, 20, 21, 22, 23, and 25 fail whenever the agent uses the provided Player pivot table on 'Pie Charts' (which includes 'N/A' and player '0', yielding 23%/13%/13%/8%/10% instead of the 'N/A'-excluded 28%/16%/16%/9%/13%, while item 24 simultaneously demands ~23%). Because 10/26 items fail by construction, the maximum achievable score on a faithful workbook is 16/26 (0.62) or 17/26 (0.65), well below the 0.7 threshold.",
+    "confirmation": "The checklist in problem_config.json contradicts itself ('6 slice value is 28%' vs '6 slice ... approximately 23%'; '9 slices' while listing 8 players), and slicer items are judged from LibreOffice renders where the GT's slicers exist only as fallback shapes ('This shape represents a slicer'). All 3",
+    "fixed": true,
+    "fix": "verifications[0].parameters.checklist: removed old items 5, 6 (slicers, not rendered by LibreOffice) and 9 (sheet tab name, not in the render); items 8, 19-25 for 'Count of Player Activities' rewritten to accept N/A-excluded or N/A-included shares, 'O' or '0', and no longer contradict each other. 26 items -> 23, threshold unchanged."
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_07_golden.xlsx",
+        "reference_path": "reference/untouched_input_Inconsistent Color Coding_input.xlsx",
+        "answer_position": "'BS & CF'!B2:AC137,'Football Field'!B2:K9,'DCF Model'!C2:T31,'DCF Model'!C32:N32,'DCF Model'!P32:T32,'DCF Model'!C33:T36,'DCF Model'!C37:C37,'DCF Model'!G37:T37,'DCF Model'!C38:T73,'DCF Model'!C74:N74,'DCF Model'!P74:T74,'DCF Model'!C75:T129,'Trading & Comparable Txns'!B2:M17,'Trading & Comparable Txns'!B18:F24,'Trading & Comparable Txns'!H18:M24,'Trading & Comparable Txns'!B25:M28,'Frans Shares'!B2:N24,'LBO & Lenders'!B2:Z45,'LBO & Lenders'!B46:W47,'LBO & Lenders'!Y46:Z47,'LBO & Lenders'!B48:Z48,'LBO & Lenders'!B49:T49,'LBO & Lenders'!Y49:Z49,'LBO & Lenders'!B50:S51,'LBO & Lenders'!Y50:Z51,'LBO & Lenders'!B52:Z52,'LBO & Lenders'!B53:S53,'LBO & Lenders'!Y53:Z53,'LBO & Lenders'!B54:Z56,'LBO & Lenders'!B57:S59,'LBO & Lenders'!Y57:Z59,'LBO & Lenders'!B60:Z61,'LBO & Lenders'!B62:Q63,'LBO & Lenders'!S62:Z63,'LBO & Lenders'!B64:Z65,'Recapitalization'!B2:K38,'Equity Returns'!A2:I122,'Margin Analysis'!A2:F37",
+        "mode": "font_color"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

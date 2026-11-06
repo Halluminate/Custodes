@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook has values in the Valuation summary block (current price, target price, consensus target) that are blank or zero in the input, and the instructions never ask for them; the checked ranges include these cells and everything that depends on them, so a solution doing only the requested edits will fail.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "out-of-scope-expected-values",
+    "evidence": "Input 'Final Output'!D8=0 (=Valuation!D97), D9=0 (=Valuation!D95), D10=0 (=Valuation!G95). Golden has D8=80.65, D9=97.68, D10=86.95. Dependent cells also differ: Ratio_Analysis K37:O38 (P/BV and P/E) go from 0 to non-zero, and K39 EV/EBITDA goes from 1.10 to 12.86. Valuation!B2:O99 is in the answer_position, but the prompt only asks for Financials row 107, Assumptions rows 161/131, and two Ratio Analysis rows.",
+    "confirmation": "Golden fills Valuation!D97 (=E50), D95 (=AVERAGE(D92:D94)) and G95 (=BB!D7), blank in the input and not requested (the prompt only asks for the BS check, SBC, D&A and two ratios), so 'Final Output'!D8:D10 go from 0 to 80.65/97.68/86.95 and dependent cells like D28:D30 and M38:Q39 change; a solver do"
+  }
+]

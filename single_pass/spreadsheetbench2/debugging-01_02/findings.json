@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for an open-ended audit ('errors may include but are not limited to'), but the verifier runs in formula mode and requires every cell in large ranges across all 12 sheets to match the golden workbook exactly. Any fix the golden did not make, or any equivalent formula written differently, fails the task.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "verifier-too-strict",
+    "evidence": "verification mode='formula'; answer_position spans 'Ex 1 - LBO'!B1:AK95 … 'Ex 12'!B2:G44; graderGuidance: 'the task passes only if every compared cell matches'. Golden itself uses mixed styles, e.g. X18 '=C18' vs Y18:AC18 '=$C$20', so '=$C$20' in X18 or '=C47' in Q78 would fail.",
+    "confirmation": "In formula mode the golden changes only 18 cells (X18 '=C18' but Y18:AC18 '=$C$20', Q41:U41, Q78:U78, Ex 2 C7) and keeps other embedded hardcodes such as C41 '.../1000' and C17 MATCH(2025,...). All three trials in run <id> failed on regression cells where they replaced those hardcodes with refer"
+  }
+]

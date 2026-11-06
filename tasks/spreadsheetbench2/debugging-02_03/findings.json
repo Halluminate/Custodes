@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "The answer key requires a data-table refresh that is outside the stated debugging scope",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The instruction lists the errors to fix as 'deleted rows or cells causing #REF! errors, broken cross-sheet references, formula logic errors, and cascading calculation failures'. The Berk-Hath data table has none of these: its formulas are identical in the input and the GT. Yet the GT expects new hardcoded values in that table, and the verifier's LibreOffice recalculation cannot refresh Excel TABLE() formulas. The output the grader requires is therefore wider than the task describes, and the agent cannot see that it needs this.",
+    "confirmation": "The TABLE() formulas in G10:K14 are identical in input and intent, yet the GT replaces them with different hardcoded values that the verifier's frozen-datatable LibreOffice recalc cannot produce, so the graded output goes beyond the listed #REF!/cross-sheet fixes and the agent cannot know to match i",
+    "fixed": true,
+    "fix": "Same GT edit: the data table is no longer a required modification."
+  },
+  {
+    "id": "F2",
+    "title": "Incorrect answer key for preferred-stock sensitivity analysis",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook contains 20 incorrect values in 'Berk-Hath Investment Package'!G11:K14. For example, G12 uses an 8% dividend rate, 6.3% discount rate, 10-year term, 10,000 face value, 10,500 redemption value and 736.333882 warrant value. These inputs produce 12,241.372561, but the key expects 11,152.883017. G11 and G12 even have identical expected values despite different dividend rates. All 20 discrepancies exceed the verifier's 1% tolerance. Correcting this table would yield a modification ratio of 0.9320 rather than the required 1.0000, causing the sole verifier, weighted 100%, to return zero.",
+    "confirmation": "Confirmed: at 8% dividend and 6.3% discount the model inputs give 12,241.37 but GT G12 is 11,152.88, and G11 equals G12 despite a different dividend rate. Most of G11:K14 differ from the correct values by more than the 1% tolerance, so a correct fix fails the all-or-nothing check.",
+    "fixed": true,
+    "fix": "Same GT edit: the incorrect hardcoded sensitivity values are removed from the key."
+  },
+  {
+    "id": "F3",
+    "title": "GT Berk-Hath preferred-stock sensitivity table is wrong and cannot be reproduced, so no correct fix can pass the all-or-nothing check",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The verifier passes only when every modification cell matches (mod ratio must be 1.0), and this is the problem's only check (weight 1). 22 of the 294 modification cells are Berk-Hath Investment Package!G10:K14. Their input formulas are unchanged Excel data tables ('=TABLE($F$9,$C$12,$F10,$C$15,G$9)', cached 11432.17 everywhere), and nothing in the task marks them as an error. The GT hardcodes values that are wrong as finance. I recomputed the model (C22 = PV(r,10,-d*10000)+PV(r,10,0,-10500), plus warrant 736.33). At a 6.3% discount rate the correct values for dividend rates 7/7.5/8/8.5/9% are 11515.71 / 11878.54 / 12241.37 / 12604.20 / 12967.03. The GT column G has 11515.71 / 11152.88 / 11152.88 / 11515.71 / 12241.37. That is not monotonic in the dividend rate, and the 9% row equals the correct 8% row. The GT base cell I12 (8% div, 7.3% disc) is 10429.31, but the model's own base value C44 at 7.35% is 11432.17. The cause is the table's own axis: F12 '=C12', and F11/F13 are built off F12, so the axis depends on the input cell it substitutes. I recalculated in LibreOffice the same way the verifier does, and TABLE() returns 11432.17 in every cell. So an agent that leaves the table fails G11, G12, G14, H10–K14. An agent that rebuilds the sensitivity correctly also fails (e.g. H12 correct 11845.99 vs GT 10782.64). Only copying the GT's flawed numbers by hand passes.",
+    "confirmation": "GT 'Berk-Hath Investment Package'!G10:K14 are hardcoded and wrong: recomputing PV(div)+PV(10,500)+736.33 gives 11878.54/12241.37 for G11/G12 at 7.5%/8% and 6.3%, but GT has 11152.88 for both and row 14 (9%) equals the true 8% row. The input keeps TABLE() formulas cached at 11432.17, so neither leavi",
+    "fixed": true,
+    "fix": "gt_02_golden.xlsx: 'Berk-Hath Investment Package'!G10:K14 restored to the input's TABLE($F$9,$C$12,$Fn,$C$15,x$9) formulas with the input's cached value 11432.1670414077, keeping the golden's cell styles. They are now regression cells. No other cell changed. Golden scores 1.0, the unedited input still scores 0 (modification 0.0)."
+  }
+]

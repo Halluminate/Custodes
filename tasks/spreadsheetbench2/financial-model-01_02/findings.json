@@ -1,0 +1,13 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth expects an unrequested edit to Working Capital Schedule!M3, so an agent that does exactly what was asked scores 0",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "I compared the untouched input with the golden file across the full answer_position. The changed cells are: DCF Valuation C27 and I20; WACC E9 and E16; Debt Schedule H12:L12 and H20:L20; and Working Capital Schedule!M3, which goes from empty to '=EOMONTH(L3,12)' (2031-03-31). The instruction never mentions the Working Capital Schedule or a date header. The task context also says to 'strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.' The only verifier (weight 1, all-or-nothing) needs 100% of modification cells to match. I simulated an agent that fills exactly the requested cells with the golden formulas and ran it through the real scorer after LibreOffice recalculation. Result: regression 1.0, modification 0.9956, 1 error: 'Modification error at Working Capital Schedule!M3: answer=2031-03-31 00:00:00, output=None', so the score is 0.0. Adding M3 raises it to 1.0. A fully correct solution fails because of one header-date cell no source asks for.",
+    "confirmation": "Diffing input vs gt_01_Education_golden.xlsx shows 'Working Capital Schedule'!M3 goes from empty to =EOMONTH(L3,12), a header cell the instruction never mentions; the all-cells-must-match comparison covers that range, so an agent doing only the requested edits fails.",
+    "fixed": true,
+    "fix": "files/gt/gt_01_Education_golden.xlsx: cleared 'Working Capital Schedule'!M3 (was '=EOMONTH(L3,12)'; style kept, column M otherwise empty and unreferenced), matching the input. Local check: patched GT and input+requested GT edits both PASS"
+  }
+]

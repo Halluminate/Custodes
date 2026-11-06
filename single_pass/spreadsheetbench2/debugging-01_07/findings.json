@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook's cached values contradict its own formulas, so a correctly recalculated output cannot match them.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "stale-answer-key",
+    "evidence": "gt 'Ex 1 - LBO'!AC17 (=U23) is stored as 1375.958, but U23 is stored as 1707.4955. U41 (=+M17) is 0.137 while M17 is 0.092, and U43 (=+M27) is 0.264 while M27 is 0.2215. U17 = T17*(1+0.137) = 6467.79; a LibreOffice recalc gives 6211.81, a difference of more than 1%. Y24:AC24 (=$F$21) are 8101.82 while X24 (=$F$21) is 8987.82. Several of these cells are inside the compared range B1:AK95.",
+    "confirmation": "gt_01_golden.xlsx 'Ex 1 - LBO' caches contradict its formulas (C11 '=+C20' = 18.2034 while C20 = 14.2034; U41 '=+M17' = 0.137 while M17 = 0.092; AC17 '=U23' = 1375.96 while U23 = 1707.50). All three trials in run <id> fail with 'Regression error at Ex 1 - LBO!C11: answer=18.2034, output=14.2034'"
+  },
+  {
+    "id": "S2",
+    "title": "The sensitivity-table cells hold one identical uncomputed string in the golden, but after LibreOffice recalculation (or openpyxl round-trip) they will either vary per cell or become errors, so they cannot match.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "data-table-uncomputable",
+    "evidence": "gt 'Ex 1 - LBO'!AG18:AK22, AG27:AK31, AG36:AK40 and AG45:AK49 all hold '2.4x/19%' with formulas =TABLE(...). These cells are inside the graded range 'Ex 1 - LBO'!B1:AK95.",
+    "confirmation": "Golden AG18:AK22 etc. all hold the base-case string '2.4x/19%' (= AF17), which a real data table would not give, and they are modification cells (input caches '-0.6x/-189%'). A trial in run <id> produced a varying table (AG18 '2.3x/19%', AG27 '2.0x/15%') that cannot match."
+  }
+]

@@ -1,0 +1,5 @@
+Verify the accuracy of the department headcount summary by cross-checking each department’s total number of employees against its corresponding detailed roster sheet. Identify and correct any discrepancies—such as miscounts, missing entries, or remove any departments that no longer exist—and update the summary to reflect the accurate total headcount.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 28_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

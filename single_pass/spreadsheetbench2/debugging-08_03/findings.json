@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden file restores the deleted UFCF row by inserting a new row, which shifts every row from 95 down by one. The input already has an empty row 95, so placing UFCF there (the natural fix) fails the fixed-range cell comparison for rows 96–145.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "layout-mismatch",
+    "evidence": "Input 'Operating Model + DCF': B94 change in WC, row 95 empty, B96='Year', B99='Discounted UFCF'. Golden: B95='Unlevered free cash flow', row 96 empty, B97='Year', B100='Discounted UFCF', B145 last row.",
+    "confirmation": "Input 'Operating Model + DCF' row 95 is empty with B96='Year' and C99='=#REF!/C98'; the golden inserts UFCF at row 95 and shifts Year to row 97, so an agent that fills the empty row 95 (respecting the prompt's 'don't alter cells with values') mismatches every positional cell from row 96 down."
+  },
+  {
+    "id": "S2",
+    "title": "The golden file inserts a 'Total revenue' row at Revenue Build row 17, shifting all rows below by one. Input rows 16 and 18 are blank and could hold the total without inserting a row, so any non-identical structural repair fails the comparison of rows 17–44.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "layout-mismatch",
+    "evidence": "Input Revenue Build B17='% growth', B19='% of Total Revenue', B28='Case Selection'. Golden B17='Total revenue', B18='% growth', B20='% of Total Revenue', B29='Case Selection'.",
+    "confirmation": "Input Revenue Build row 16 is blank and B17='% growth' with #REF formulas; the golden inserts 'Total revenue' at row 17 and pushes every row below down one, so a repair placing the total in the existing blank row fails the fixed-range comparison of Revenue Build rows 17-44."
+  }
+]

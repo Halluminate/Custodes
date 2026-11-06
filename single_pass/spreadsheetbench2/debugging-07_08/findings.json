@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit of all error types, but the golden workbook fixes only a handful of sign-convention errors and leaves other clear errors in place. An agent that correctly fixes those errors will change many compared cells and fail the all-cells exact match.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "prompt-golden-scope-mismatch",
+    "evidence": "Golden keeps several errors untouched: 'DCF Model'!D85:F85 ('Inventory') links to 'BS & CF'!E10:G10, which is PP&E, not row 9 Inventory. 'DCF Model'!F22=501 is hardcoded, while prior ending inventory is 534 (-E27). 'Margin Analysis'!C22=5682000 conflicts with DCF D10=5862, and C25:E25 multiplies by 1000 again. 'Equity Returns'!E32 is =D32+508000, a hardcode. Fixing any of these shifts DCF Q98/R98, Football Field E5/G5, or Margin Analysis values, all of which are in answer_position.",
+    "confirmation": "Golden 'DCF Model'!D85:F85 ('Inventory') still point at 'BS & CF'!E10:G10 (PP&E, 120/120/152) instead of row 9 inventory, and F22=501 is still hardcoded while E22 uses =-D27 (prior ending inventory is 534). Applying just these two fixes to the golden and recalculating drops the score to regression 0"
+  }
+]

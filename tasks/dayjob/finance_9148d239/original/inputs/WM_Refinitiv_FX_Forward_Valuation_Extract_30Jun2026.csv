@@ -1,0 +1,4 @@
+ExtractID,ValuationDate,InvestmentID,Instrument,CurrencyPair,Direction,USDNotional,ContractRate,ValuationForward,ContractMaturity,Source,SnapshotTimeET,PriceStatus
+WMR-20260630-001,2026-06-30,CV-1007,USD/BRL 1M NDF,USD/BRL,Sell USD / Buy BRL,12000000,5.480000,5.523000,2026-07-31,WM/Refinitiv,2026-06-30 11:00,Final composite
+WMR-20260630-002,2026-06-30,CV-1082,USD/CNH 1M Forward,USD/CNH,Sell USD / Buy CNH,20000000,7.285000,7.313000,2026-07-31,WM/Refinitiv,2026-06-30 11:00,Final composite
+WMR-20260630-003,2026-06-30,CV-1112,USD/MXN 1M Forward,USD/MXN,Sell USD / Buy MXN,15000000,18.520000,18.438000,2026-07-31,WM/Refinitiv,2026-06-30 11:00,Final composite

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook keeps cached values in Ex 1 that contradict their own formulas, apparently left over from data-table substitution, so a properly recalculated output cannot match them within 1%.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "stale-golden-values",
+    "evidence": "Golden 'Ex 1 - LBO'!U41=0.137 but its formula =+M17 gives 0.092. U43=0.264 but =+M27 gives 0.2215. U17=6467.79 where a recalc gives 6211.8, and U23=1707.5 where a recalc gives 1375.96. Y24:AC24=8101.82 but =$F$21 gives 8987.82. C11=18.2034 but =+C20 gives 14.2034. U60=1022.13 matches the recalculated U38 (about 1079), not the cached U38=1358.86, which shows the caches are mixed.",
+    "confirmation": "Golden caches contradict their own formulas: 'Ex 1 - LBO'!U41 '=+M17' is 0.137 while M17 is 0.092, C11 '=+C20' is 18.2034 while C20 is 14.2034, Y24:AC24 '=$F$21' are 8101.82 while F21 is 8987.82. The verifier reads golden caches without recalculating, and all three run attempts failed regression (0."
+  },
+  {
+    "id": "S2",
+    "title": "The stale Ex 1 C11 value carries into the Ex 5 M&A consideration block, so the golden figures differ from what a LibreOffice recalc produces.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "stale-golden-values",
+    "evidence": "Golden 'Ex 5 - M&A'!J75=Q75=18.2034 and X75=17.81209, all from =+'Ex 1 - LBO'!$C$11, which would recalc to 14.2034. K79=136.5255 (=18.2034*7.5) would recalc to about 106.5, and the same applies to rows 80-81.",
+    "confirmation": "Golden 'Ex 5 - M&A'!J75 and X75 '=+'Ex 1 - LBO'!$C$11' cache 18.2034 and 17.81209 although C11 recalculates to 14.2034 (C20 cache), and K79 '=+$J$75*K33*$J$19' caches 136.5255 from that stale value, so recalculated outputs cannot match these compared cells."
+  }
+]

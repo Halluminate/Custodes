@@ -1,0 +1,42 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official chart checklist",
+      "function": "verify_spreadsheetbench2_chart_checklist",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "checklist": [
+          "The chart is a Pareto chart (bars with a cumulative percentage line)",
+          "The chart title reads 'Defect Analysis'",
+          "The bars are arranged in descending order by count from left to right: F, A, D, E, C, B, G",
+          "The defect counts are displayed as bars on the primary axis",
+          "The cumulative percentage is displayed as a line on the secondary axis",
+          "The legend contains an entry labeled 'Defect Counts'",
+          "The legend contains an entry labeled 'Cumulative %'",
+          "The F bar value is 60",
+          "The A bar value is 50",
+          "The D bar value is 45",
+          "The E bar value is 45",
+          "The C bar value is 40",
+          "The B bar value is 20",
+          "The G bar value is 15",
+          "The cumulative percentage at F is 22%",
+          "The cumulative percentage at A is 40%",
+          "The cumulative percentage at D is 56%",
+          "The cumulative percentage at E is 73%",
+          "The cumulative percentage at C is 87%",
+          "The cumulative percentage at B is 95%",
+          "The cumulative percentage at G is 100%"
+        ]
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

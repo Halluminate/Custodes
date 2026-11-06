@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_12_Infra_golden.xlsx",
+        "reference_path": "reference/untouched_input_12_05_Infra_input.xlsx",
+        "answer_position": "'Valuation'!B2:O29,'WACC'!B2:D21,'P&L'!B1:X37,'BS'!B1:M42,'CF'!B1:G34,'Assets Sch.'!B1:M12,'Assumption'!B1:M40,'Working Capital'!B1:N32,'Debt Schedule'!B1:M20,'Ratio Analysis'!B1:M36,'Comps'!B2:FM28",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

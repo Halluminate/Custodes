@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden Berk-Hath dividend-rate sensitivity table G10:K14 holds hardcoded values that are mathematically wrong, so no correct recalculated output can match them.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key",
+    "evidence": "Golden 'Berk-Hath Investment Package'!G10:K14 is not monotonic in dividend rate: row10 (7.0%)=11515.7, row11 (7.5%)=11152.9, row12 (8.0%)=11152.9, row13 (8.5%)=11515.7, row14 (9.0%)=12241.4. Row 14 duplicates the Term table row G20:K20. The base case I12 (8% dividend, 7.3% discount) should be ≈11468, the same as I20, but the golden gives 10429.3.",
+    "confirmation": "Golden 'Berk-Hath Investment Package'!G10:K14 are hardcoded values that are not monotonic in dividend rate (rows 10/13 = 11515.7, rows 11/12 = 11152.9). Row 14 copies the term-table row G20:K20, and the base case I12 (8%, 7.3%) shows 10429.3 vs the model's 11468 (I20). These are modification cells, "
+  }
+]

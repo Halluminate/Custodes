@@ -1,0 +1,44 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official chart checklist",
+      "function": "verify_spreadsheetbench2_chart_checklist",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "checklist": [
+          "The chart is a bubble chart",
+          "The chart title reads 'Proportional value of Transaction'",
+          "The x-axis is labeled 'Price per Transaction'",
+          "The y-axis is labeled 'Total Amount (USD $)'",
+          "The y-axis begins at $0.00",
+          "The x-axis begins at $5.00",
+          "Bubble sizes vary based on the proportional value of each transaction category",
+          "The Recs Processed bubble is positioned at approximately $16.00 on the x-axis and $500,000.00 on the y-axis",
+          "The data label on the Recs Processed bubble reads 'Recs Processed'",
+          "The Recs Processed bubble is the largest bubble in the chart",
+          "The Journals Posted bubble is positioned at approximately $20.00 on the x-axis and $300,000.00 on the y-axis",
+          "The data label on the Journals Posted bubble reads 'Journals Posted'",
+          "The Journals Posted bubble is the second largest bubble in the chart",
+          "The OIM Open Items Cleared bubble is positioned at approximately $10.00 on the x-axis and $100,000.00 on the y-axis",
+          "The data label on the OIM Open Items Cleared bubble reads 'OIM Open Items Cleared'",
+          "The OIM Open Items Cleared bubble is the third largest bubble in the chart",
+          "The Month Ends Closed bubble is positioned at approximately $16.00 on the x-axis and $12,000.00 on the y-axis",
+          "The data label on the Month Ends Closed bubble reads 'Month Ends Closed'",
+          "The PCs Cleared bubble is positioned at approximately $24.00 on the x-axis and $15,000.00 on the y-axis",
+          "The data label on the PCs Cleared bubble reads 'PCs Cleared'",
+          "The Forecasts Completed bubble is positioned at approximately $30.00 on the x-axis and $30,000.00 on the y-axis",
+          "The data label on the Forecasts Completed bubble reads 'Forecasts Completed'",
+          "The chart contains exactly 6 bubbles"
+        ]
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

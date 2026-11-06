@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden Berk-Hath dividend-rate sensitivity block G10:K14 holds hardcoded values that cannot be correct. Package value should rise with the dividend rate, yet several rows are duplicated or copied from the term table, so a correctly recalculated data table cannot match.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key",
+    "evidence": "Golden G11:K11 equals G12:K12 (11152.88…) even though F11=0.075 and F12=0.08. G10:K10 equals G13:K13 (11515.71…) for 0.07 and 0.085. G14:K14 equals the term-table row G20:K20 (12241.37…). The base case I12=10429.31 conflicts with I20=11468.40 and F9=C44=11432.17 for the same 8%/7.3% inputs.",
+    "confirmation": "Golden 'Berk-Hath Investment Package'!G10:K14 replaces the TABLE() formulas with hardcodes that are internally impossible: row 11 (7.5%) equals row 12 (8.0%), row 10 (7.0%) equals row 13 (8.5%), and row 14 equals term-table row 20 (12241.37). The base case I12=10429.31 conflicts with I20=11468.40 fo"
+  }
+]

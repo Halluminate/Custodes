@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Grading fails a correct model if the Year 2 share rows (D39/D40) are filled in",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The answer key fills C39 (=C15/C7) and C40 (=C8+C39) but leaves D39 and D40 blank. Its Year 2 EPS formula, D42 '=D37/C40', points back to the Year 1 share count. The verifier checks every cell in 'EPS_Accretion'!B2:D52. Any cell that is blank in both the input and the answer key counts as a 'regression' cell. The workbook has about 124 regression cells and the pass bar is 99.8% (REGRESSION_PASS_RATIO = 0.998), so a single mismatch drops the regression ratio below the bar and the score is 0.0. The Pro Forma section has a 'Year 2' column header (D30), and a normal analyst fills D39 = 88.8 and D40 = 288.8 to complete that column. Doing so is financially correct, but D39 and D40 then fail as regression errors and the whole task scores 0. The only verifier carries weight 1 and is all-or-nothing, so this one choice decides the entire grade.",
+    "confirmation": "Confirmed in the golden: D39/D40 blank while D30 is 'Year 2' and D42 '=D37/C40'; in values mode a number versus None fails _values_match, so filling the Year 2 share rows fails the all-or-nothing regression check.",
+    "fixed": true,
+    "fix": "Same prompt sentence."
+  },
+  {
+    "id": "F2",
+    "title": "Undisclosed empty-column constraint for Year 2 Pro Forma share counts (D39:D40) causes a two-column Pro Forma table to fail regression checks",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `10_01_input.xlsx` (`EPS_Accretion`), the `Pro Forma Analysis` table has a two-column header (`C30 = 'Year 1'`, `D30 = 'Year 2'`) and blank cells in both columns C and D for every line item down to `Pro Forma EPS` (`C42:D42`). In `gt_10_01_golden.xlsx`, all Pro Forma income items (`Rows 32:37`) and `Pro Forma EPS` (`Row 42`) are populated in both Column C (`Year 1`) and Column D (`Year 2`), where `D42` has formula `=D37/C40`. However, `New Shares Issued` (Row 39) and `Total Pro Forma Shares` (Row 40) are populated ONLY in Column C (`C39 = 88.8157894736842`, `C40 = 288.815789473684`) while `D39` and `D40` are left `None` (even though `gt_10_01_golden.xlsx` applies thin cell borders to both `C39:C40` and `D39:D40`, whereas `10_01_input.xlsx` has no borders or styling distinction between C39:C40 and D39:D40). Nothing in `problem.py` or `10_01_input.xlsx` indicates that `D39:D40` must remain blank rather than carrying the Year 2 share counts (`88.82` and `288.82`). Because `verify_spreadsheetbench2_cells` (weight: 1.0) treats every cell in `'EPS_Accretion'!B2:D52` that is `None` in both input and golden as a regression cell and requires `REGRESSION_PASS_RATIO = 0.998` (at most 0 regression errors out of 128 regression cells), populating `D39` and `D40` yields `regression 0.9844, modification 1.0000` and a total score of `0.0` across all 3 runs.",
+    "confirmation": "gt_10_01_golden.xlsx fills C39/C40 but leaves D39/D40 blank under the 'Year 2' header (D42 uses C40), so they are regression cells; with ~128 regression cells one mismatch drops the ratio below 0.998 and a natural complete Year 2 column scores 0.",
+    "fixed": true,
+    "fix": "prompt.md: appended one sentence to the Instruction line: 'New Shares Issued and Total Pro Forma Shares are calculated once in the Year 1 column and used for both years, so leave the Year 2 cells of those two rows blank.' This states the GT's layout (C39/C40 filled, D39/D40 blank, D42 =D37/C40), which the all-or-nothing regression check enforces."
+  }
+]

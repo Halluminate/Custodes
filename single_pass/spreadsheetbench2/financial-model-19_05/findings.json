@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for Total Revenue only for FY25–FY30E, but the input also leaves FY23A and FY24A blank, and the golden file fills them. An agent that follows the prompt literally leaves IS!F6:G6 at 0, and every downstream FY23A/FY24A cell fails the check.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "prompt-answer-key-mismatch",
+    "evidence": "Input 'Revenue Drivers' row 30 has only C30, D30, E30, L30 and M30 populated; F30:K30 are empty. Golden has F30=44.441341 (=F10+F16+F22+F28) and G30=47.220833, which feed IS!F6/G6, IS!F8/G8, IS!F16/G16, Ratio Analysis F/G columns and Cost Drivers E7/F7.",
+    "confirmation": "Prompt asks for Total Revenue for FY25-FY30E, but input 'Revenue Drivers' F30:G30 (FY23A, FY24A) are also blank and the golden fills them (=F10+F16+F22+F28 = 44.44), which drives IS!F6/G6 and many downstream modification cells; a literal solver fails those."
+  },
+  {
+    "id": "S2",
+    "title": "The DCF sensitivity body in the input holds literal error formulas rather than data-table formulas, so it stays #DIV/0! after recalculation no matter what the agent does. The golden has numeric TABLE results, and DCF!B1:P31 is inside the checked range.",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "broken-input-cells",
+    "evidence": "Input DCF!M8:P8 and L9:P12 are all '=#DIV/0!'; only L8 is =TABLE(...). Golden DCF!M8=391.22 (=TABLE($K$7,$C$25,$K8,$C$26,M$7)), N9=374.16, etc. TABLE() support under LibreOffice recalculation is also doubtful.",
+    "confirmation": "Input DCF sheet XML stores M8:P8 and L9:P12 as literal <f>#DIV/0!</f> formulas (only L8 is TABLE), the prompt never mentions the sensitivity table, yet golden expects numeric =TABLE(...) results there (e.g. M8 = 391.22) as modification cells inside DCF!B1:P31."
+  }
+]

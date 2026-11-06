@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for depreciation at 5%, but the golden workbook depreciates at the historical rate in row 12 (≈4.815%). An agent that follows the prompt gets values about 3.8% off, which fails the 1% tolerance and cascades through P&L, BS, CF, Valuation and Ratio sheets.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "prompt-answer-key-contradiction",
+    "evidence": "Prompt: 'calculate Depreciation of Consolidated PP&E for Mar-26 to Mar-30 at 5%'. Golden 'Assets Sch.'!I9 = (I7+I8)*I12 = 1.5127, where I12 = H12 = 0.0481540939898999. At 5%, I9 would be (24.6626+6.7513)*0.05 = 1.5707.",
+    "confirmation": "Prompt says depreciate Consolidated PP&E for Mar-26 to Mar-30 at 5%, but golden 'Assets Sch.'!I9 = (I7+I8)*I12 with I12 = H12 = 4.815% (historical), giving 1.5127 vs 1.5707 at 5%, a 3.8% gap that cascades into P&L, BS and ratios."
+  }
+]

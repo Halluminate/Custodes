@@ -1,0 +1,13 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key uses a broken discount-period convention: the stub period is halved but later periods still step by +1",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Input Operating Model!J34 = 0.75. Cover!G6 puts the end of historicals at 2025-09-29, so 0.75 of FY2026E is left, and K34:S34 = prior+1 gives 0.75, 1.75 … 9.75 (end-of-period). The GT changes J34 to '=0.75/2' (0.375) but keeps K34 '=J34+1', so it produces 0.375, 1.375 … 9.375. That is neither end-of-period (0.75, 1.75…) nor a correct mid-period convention (0.375, 1.25, 2.25…): every period after the stub is off by 0.125. The GT also discounts the exit-multiple terminal value at S34 = 9.375 (DCF!E7 '=E6/(1+E4)^'Operating Model'!S34') when it should be the end of year (9.75). Every row-35 PV, DCF!E3/E7/E9/E13/E16/E22, J3/J7/J9/J13/J16/J22, Cover!G10, DCF M12/M30 and PTA R22 are modification cells that depend on this. The single verifier (weight 1, all-or-nothing) needs every modification cell within 1%, so an agent that leaves the correct 0.75 schedule, or applies a proper mid-year convention, scores 0. Nothing in the materials asks for a mid-year convention.",
+    "confirmation": "Diffing the untouched input against gt_06_golden.xlsx shows Operating Model!J34 changed from 0.75 to '=0.75/2' while K34:S34 stay '=prior+1', which gives cached 0.375, 1.375 ... 9.375 (off by 0.125 from any consistent convention). The terminal value in DCF!E7 is still discounted at S34. Nothing in t",
+    "fixed": true,
+    "fix": "files/gt/gt_06_golden.xlsx: 'Operating Model'!J34 '=0.75/2' -> 0.75 (same as the input), so K34:S34 become 1.75 ... 9.75. Cached values recomputed in LibreOffice for Operating Model J34:S35, DCF E3, E7, E9, E13, E16, E22, E23, J3, J7, J9, J13, J16, J22, J23, M12, M30, Cover!G10 and PTA R22, R28, R32, R35, R38, R39. No other cell changed."
+  }
+]

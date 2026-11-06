@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "In the golden sensitivity table, every cell equals the base-case equity value. A correctly working data table, or any explicit equity-value-by-WACC/growth grid, would vary across rows and columns, so a correct solution fails the cell-by-cell check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "degenerate-sensitivity-key",
+    "evidence": "gt 'DCF_Income Approach'!K27:O31 all = 28810.1725164556 even though K26:O26 = 0.1175..0.1375 WACC and J27:J31 = 1%..3% growth; J26 = D29 = 28810.17.",
+    "confirmation": "Golden 'DCF_Income Approach'!K27:O31 are TABLE cells driven by C18 (terminal growth) and C21 (WACC), which feed the terminal value D25. All 25 cached values are 28810.17 (= D29), so any working sensitivity grid with varying values mismatches these compared cells."
+  }
+]

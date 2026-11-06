@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Input workbook already contains the consolidated solution and requested chart",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The staged input already contains Sheet3 with the complete Feb 8–Mar 8 consolidation and a four-series line chart labeled Systolic, Diastolic, Pulse, and Sugar. Its category reference is Sheet3!$A$2:$C$31, with three cached levels containing time, weekday, and formatted dates. Comparing this seeded chart with the golden workbook shows only axis identifiers, an 8-point versus 9-point category font, and drawing dimensions differ; the series, values, categories, and blank-handling configuration are identical. This exposes the substantially completed visualization rather than just its source data, allowing the agent to reuse the expected solution without performing the requested consolidation and chart construction. The chart checklist is the sole verifier, with weight 1.",
+    "confirmation": "Duplicate of the answer leak: the staged input already has the four-series line chart on Sheet3!$A$2:$C$31 matching the golden chart, and the chart checklist is the only verifier.",
+    "fixed": true,
+    "fix": "Data input Task 1420776_input.xlsx: emptied Sheet3, removing the pre-built consolidated Feb 8-Mar 8 table (A1:O31 formulas) and its drawing/chart779 four-series line chart. Feb24 and Mar24 cell contents are unchanged. Sheet3 stays as a blank tab, Feb24 is the active tab, and the content-type and rels entries for the removed parts are gone. The golden is unchanged."
+  },
+  {
+    "id": "F2",
+    "title": "Checklist and golden workbook contradict the prompt and each other on X-axis date/time formatting vs raw Excel serial numbers",
+    "bucket": "Style",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The prompt (problem.py:58-63) requires: 'The x axis should display date, day of week and time as a Multi-level axis. The dates text should have enough space to not overlap and be readable.' In gt_Task 1420776_golden.xlsx (xl/charts/chart778.xml, line 1802), <c:catAx> has <c:numFmt formatCode=\"General\" sourceLinked=\"0\"/>, which causes LibreOffice to render the X-axis time level as 15-digit raw floats ('0.451388888888889', '0.479861111111111', etc.) and the date level as 5-digit Excel serial integers ('45330' through '45359') instead of formatted times ('10:50 AM') and dates ('2/8/2024' to '3/8/2024'). The 22-item checklist in spec.yaml (weight: 1) embeds both incompatible representations: items 7, 8, 11, and 14 require readable dates and times ('showing date, day of week, and time information', 'The date range spans from Feb 8, 2024 to Mar 8, 2024', 'from 8 Feb 2024 until 17 Feb 2024', 'on Mar 4'), while items 15 and 19 require the unformatted Excel serial numbers ('around the Sat 45339 and Sun 45354 date points' and 'around the Sun 45340 date point'). A chart that properly formats dates/times fails items 15 and 19, while a chart that leaves raw serial numbers fails items 7, 8, 9, 11, and 14.",
+    "confirmation": "Golden chart778.xml uses catAx numFmt 'General' sourceLinked=0, and checklist items 15/19 reference raw serials ('Sat 45339', 'Sun 45340') while items 8/11/14 use readable dates, so the checklist mixes incompatible label formats.",
+    "fixed": true,
+    "fix": "Checklist items 15 and 19 (verifier 'checklist' parameter and grader guidance) now name readable dates instead of raw serials: 'Sat 45339'/'Sun 45354' became 'Sat Feb 17, 2024'/'Sun Mar 3, 2024', and 'Sun 45340' became 'Sun Feb 18, 2024', the same dates the serials encode."
+  },
+  {
+    "id": "F3",
+    "title": "Input workbook Task 1420776_input.xlsx already contains the complete consolidated data sheet and multi-series line chart (answer leak)",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The task statement in problem.py (lines 58-63) instructs the agent to: 'Consolidate the data from February 2024 and March 2024 to create a multi series line chart to show the measurement values over time for the date range Feb 8 through Mar 8, 2024 (including). The chart should plot the four series Systolic, Diastolic, Pulse, and Sugar. The x axis should display date, day of week and time as a Multi-level axis.' However, the staged input file assets/Task 1420776_input.xlsx (copied to /home/model/Desktop/Task 1420776_input.xlsx) already contains the solved Sheet3 (xl/worksheets/sheet3.xml) with the consolidated Feb 8-Mar 8, 2024 table in A1:J31 (including the exact VLOOKUP/INDIRECT consolidation formulas and IFERROR(1/(1/VLOOKUP(...)),NA()) gap-handling formulas) as well as the completed multi-series line chart (xl/charts/chart779.xml and xl/drawings/drawing1.xml) plotting Systolic, Diastolic, Pulse, and Sugar over the 3-level category range Sheet3!$A$2:$C$31. Inspecting docProps/core.xml shows gt_Task 1420776_golden.xlsx was modified at 2026-10-13T17:35:11Z and Task 1420776_input.xlsx was modified 1 second later at 2026-10-13T17:35:12Z (with identical Sheet3!A1:J31 data/formulas and identical chart XML except catAx font size sz='800' vs sz='900' and drawing width cx='20177280' vs cx='16069680'). Because the sole verifier (SpreadsheetBench 2 official chart checklist, weight: 1) only grades /home/model/Desktop/output.xlsx, an agent can copy the input file directly or make trivial edits without consolidating any data or building the chart.",
+    "confirmation": "Task 1420776_input.xlsx contains Sheet3 plus chart779.xml with the same Systolic/Diastolic/Pulse/Sugar series and Sheet3!$A$2:$C$31 categories as the golden chart778.xml, i.e. the answer is leaked in the input.",
+    "fixed": true,
+    "fix": "Data input Task 1420776_input.xlsx: emptied Sheet3, removing the pre-built consolidated Feb 8-Mar 8 table (A1:O31 formulas) and its drawing/chart779 four-series line chart. Feb24 and Mar24 cell contents are unchanged. Sheet3 stays as a blank tab, Feb24 is the active tab, and the content-type and rels entries for the removed parts are gone. The golden is unchanged."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official chart checklist: verify_spreadsheetbench2_chart_checklist produces a false negative on unit 3 due to extreme portrait-page downscaling and raw-serial-number checklist items",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across the three units, unit 1 scored 1.0 (17/22 = 0.77), unit 2 scored 1.0 (18/22 = 0.82), and unit 3 scored 0.0 (14/22 = 0.64, failing items [6, 7, 8, 11, 14, 15, 18, 19]) on the sole verifier (weight: 1). From unit 3's trajectory (steps [36]-[73]), unit 3 preserved the consolidated Feb 8-Mar 8, 2024 data in Sheet3!A1:G31 with all four series (Systolic, Diastolic, Pulse, Sugar), the #N/A gap on Feb 18, and the 3-level multi-level X-axis, while formatting the category axis labels as human-readable dates/times and resizing the drawing anchor. Unit 3 failed for two verifier-side reasons: (1) in verifiers/spreadsheetbench2_charts.py (lines 34, 70-90, 132-143), _fit_to_one_page forces the entire ~30-inch-wide Sheet3 (columns A-J data table plus columns K-AH wide chart) onto a single portrait PDF page (fitToWidth='1', fitToHeight='1') rendered at RENDER_DPI=110; after _autocrop, the entire sheet image is only ~728x176 px (golden is 723x198 px) with axis and legend glyphs only 3-4 pixels tall (2.0-2.7 PDF points), causing the VLM judge to misread the 'Sugar' legend entry (item 6), multi-level axis text (item 7), and date labels (items 8, 11, 14, 18); and (2) checklist items 15 and 19 require raw unformatted Excel serial numbers ('Sat 45339', 'Sun 45354', 'Sun 45340') which are absent when dates are properly formatted as human-readable dates.",
+    "confirmation": "Checklist items 15 and 19 in grader_guidance.md require raw serial labels ('Sat 45339', 'Sun 45340'), so a chart with properly formatted dates loses them; unit 3 at 14/22 would clear the 0.7 threshold (16/22) with those two items, so the fail is a checklist defect.",
+    "fixed": true,
+    "fix": "Checklist items 15 and 19 (verifier 'checklist' parameter and grader guidance) now name readable dates instead of raw serials: 'Sat 45339'/'Sun 45354' became 'Sat Feb 17, 2024'/'Sun Mar 3, 2024', and 'Sun 45340' became 'Sun Feb 18, 2024', the same dates the serials encode. That alone lifts unit 3 from 14/22 to 16/22, above the 0.7 bar. The small-render part (whole sheet fit to one portrait page) is verifier rendering and stays as is."
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "The verifier only accepts the golden file's exact INDEX/MATCH formula text, so correct links to the same cells score 0",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The verifier runs in mode: formula. _formulas_match strips '$' and upper-cases both formulas, then requires the strings to be identical. The only spec verifier has weight 1 and is all-or-nothing: every one of the 15 modification cells must match. I copied the golden file, changed only C108 to ='Comps + WACC'!H12 and C113 to ='Comps + WACC'!C40, and ran the verifier. Both formulas point at exactly the cells the golden INDEX/MATCH resolves to and give identical values (30.8275 and -1697.81). Result: 'FAILED - regression 1.0000, modification 0.8667 … answer==INDEX('Comps + WACC'!H4:H12,MATCH(\"Median\",…)), output=='Comps + WACC'!H12' → score 0.0. The same applies to any equivalent way of writing C92:H92, C99:H99 or Revenue Build S6:V6, e.g. =(1+C98)^(C97), =POWER(1+C98,C97), or ='Revenue Build'!S29 written with the sheet prefix.",
+    "confirmation": "Confirmed in the golden: C108/C113 are INDEX/MATCH text, and the formula-mode string compare rejects equivalent direct references to 'Comps + WACC'!H12 and C40 that yield the same values, failing an all-or-nothing verifier.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F2",
+    "title": "Golden workbook (gt_08_golden.xlsx) leaves numerous genuine formula errors and hardcoded values unfixed, penalizing thorough audits",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "While the task prompt asks the agent to 'audit and fix this file thoroughly' for 'formula logic errors or inconsistencies, hardcoded values that should be formulas, broken cell references... and any other issues', `gt_08_golden.xlsx` only changes 15 cells (`Operating Model + DCF!C92, D92, C99:H99, C108, C113, C117` and `Revenue Build!S6:V6`) and leaves dozens of actual bugs in the remaining 9,683 graded cells untouched: (1) `Operating Model + DCF!R84` contains a broken formula typo `=R847-M83` (instead of `=R83-M83`); (2) `Operating Model + DCF!C98:H98` (WACC) is left as the hardcoded float `0.0965997` instead of referencing `'Comps + WACC'!$C$38`; (3) `Operating Model + DCF!N41:V41`, `N47:V47`, `N53:V53` and `Revenue Build!S29:AA29`, `S37:AA37`, `S43:AA43` contain circular self-referencing `OFFSET` formulas (e.g., `N41` has `=OFFSET(N41,$D$41,0)`), and `Revenue Build!X9:AA9` and `X15:AA15` reference the wrong rows (`=X35` and `=X41` instead of `=X37` and `=X43`); (4) `Operating Model + DCF!C28:V28` computes EBT as `=C20-C26` (omitting row 23 Interest expense); (5) `Operating Model + DCF!C111`, `C125`, `C138` discount 6-year terminal value by `^5` instead of `H97` (`6`). Because `verify_spreadsheetbench2_cells` (weight: 1) treats all untouched cells in `gt_08_golden.xlsx` as regression cells with a strict `0.998` pass threshold, any agent that fixes these real errors fails the regression check and scores `0.0`.",
+    "confirmation": "gt_08_golden.xlsx still has 'Operating Model + DCF'!R84 '=R847-M83', EBT C28:V28 '=C20-C26' omitting nonzero interest (F23=39.182) and C36:H36 pointing at empty 'IS Annual'!C75:H75, all treated as regression cells; fixing a couple of dozen of them exceeds the 0.2% regression allowance under a 'fix t",
+    "fixed": true,
+    "fix": "gt_08_golden.xlsx now also fixes the errors QA named, on top of the 15 planted hardcode fixes (formula mode, so the key's formula text is what is graded; cached values were also refreshed from the verifier's LibreOffice recalc, 113 cells): 'Operating Model + DCF'!R84 =R847-M83 -> =R83-M83; EBT row 28 C28:V28 =X20-X26 -> =X20-X23-X26 (interest subtracted; F28 now equals 'IS Annual'!F24 pretax income); C36:H36 ='IS Annual'!C75:H75 (empty) -> =CFS!E4:J4 (D&A matched by fiscal year); K9:L9, K12:L12, K15:L15 =K41/K47/K53 (empty) -> =K8/K4, =K11/K4, =K14/K4 like I:J; 'Revenue Build'!S9:V9 =S37 (Base row) -> =S35 and S15:V15 =S43 -> =S41 (the Case Selection rows that X:AA and the planted S6 use). Left out of answer_position because the repair has no single defensible formula text: the self-referencing case-selection OFFSET rows ('Operating Model + DCF'!N41:V41, N47:V47, N53:V53; 'Revenue Build'!S29:AA29, S35:AA35, S41:AA41; the finding's 'S37/S43' are the Base rows, the OFFSET formulas sit in rows 35 and 41), the hardcoded WACC C98:H98 (link every cell to 'Comps + WACC'!C38 or chain =C98), and the ^5 terminal-value discounting in C111, C125, C138 (^6, ^H97 or /H99 are equally natural). Checked with the real SB2 scorer: new key vs itself 1.0; untouched input plus all key fixes 1.0; untouched input 0.0; planted-only fixes (the old key) now fail (mod 0.2679), as expected."
+  },
+  {
+    "id": "F3",
+    "title": "Formula grading rejects mathematically equivalent repairs without specifying required syntax",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task asks for an accurate, maintainable spreadsheet and does not prescribe formula syntax. However, mode 'formula' compares formula strings, normalizing only capitalization, dollar signs and a leading '+'. For example, golden C99 contains '=(1+C98)^C97'; the equally valid '=POWER(1+C98,C97)' is rejected by _formulas_match. Both eliminate the embedded WACC hardcode and retain the same dependencies and calculation. C99 is one of the 15 modification cells, all of which must match; this valid alternative therefore fails the sole weight-1 verification rather than receiving credit for the requested repair.",
+    "confirmation": "Golden C99 is '=(1+C98)^C97' and the verifier's _normalize_formula only removes '$', case and a leading '+', so '=POWER(1+C98,C97)' or similar equivalent repairs fail a modification cell and score 0.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F4",
+    "title": "Verifier uses exact formula-string matching (mode: formula) and all-or-nothing binary grading against unstated formula syntax conventions",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The prompt instructs the agent broadly: 'Please audit and fix this file thoroughly. Errors may include but are not limited to: formula logic errors or inconsistencies, hardcoded values that should be formulas, broken cell references, data validation issues, potential calculation errors, inconsistent formatting or naming conventions, best practice violations, and any other issues that could affect accuracy or maintainability.' However, the sole verifier `SpreadsheetBench 2 official cell check` (weight: 1) runs `verify_spreadsheetbench2_cells` with `mode: formula`, which compares normalized formula strings (`f1.replace('$', '').upper() == f2.replace('$', '').upper()`) rather than evaluated values, and returns `1.0` only if `mod_ratio == 1.0` (100% exact string match on all 15 modification cells) and `reg_ratio >= 0.998` (at most ~19 changed cells out of 9,683 regression cells), otherwise `0.0`. For example, in `Operating Model + DCF!C108` (Exit EBITDA Multiple, hardcoded as `30.8275` in the input) and `C113` (Net debt, hardcoded as `-1697.81` in the input), the ground truth requires the exact strings `=INDEX('Comps + WACC'!H4:H12,MATCH(\"Median\",'Comps + WACC'!B4:B12,0))` and `=INDEX('Comps + WACC'!C39:C41,MATCH(\"Net Debt\",'Comps + WACC'!B39:B41,0))`, even though `Operating Model + DCF!C127` in the very same sheet links to Net Debt via `='Comps + WACC'!$C$40` and `C129` links to Shares Outstanding via `='Comps + WACC'!$C$39`. All 3 attempts linked `C108` and `C113` via `='Comps + WACC'!$H$12` and `='Comps + WACC'!$C$40` (yielding identical values) and were penalized with modification errors (`modification 0.5333`, overall score `0.0`).",
+    "confirmation": "problem_config sets mode 'formula' and _formulas_match only strips '$' and case, so ='Comps + WACC'! fails against golden C108 '=INDEX(...MATCH(\"Median\"...))' although both give 30.8275 and the prompt never asks for INDEX/MATCH.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F5",
+    "title": "Golden workbook preserves errors that the requested thorough audit must fix",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions require fixing formula logic errors, broken references and calculation errors, but the golden workbook preserves at least 30 defective cells as required regression content. In 'Operating Model + DCF', F28:V28 omit the nonzero interest expense in row 23; for example, FY2025 EBT is -100.640 instead of -182.414 after deducting 81.774 of interest. C36:H36 reference empty 'IS Annual'!C75:H75, producing zero D&A despite corresponding CFS values of 70.248, 97.398, 92.848, 51.739, 60.923 and 78.738. K9:L9, K12:L12 and K15:L15 reference blank scenario cells and report zero historical margins. R84 contains '=R847-M83', referencing an empty cell: the reported change is -29.613 rather than -113.906. All 30 cells are unchanged between reference and golden. Correcting these defects produces a regression ratio of 0.9977, below the verifier's 0.998 threshold, even if all 15 designated modifications match. The sole verifier has weight 1 and returns zero on failure, so a thorough, financially correct audit can lose the entire score.",
+    "confirmation": "Golden is unchanged from input for R84 '=R847-M83', row 28 EBT without interest and row 36 D&A refs to empty 'IS Annual' row 75, so a thorough audit that fixes these is counted as regression errors against a 0.998 threshold.",
+    "fixed": true,
+    "fix": "Same key change: F28:V28 (with C28:E28), C36:H36, K9:L9/K12:L12/K15:L15 and R84 are all fixed in the key."
+  },
+  {
+    "id": "F6",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check falsely fails valid formula fixes across all 3 units due to rigid formula-string matching and unfixed bugs in GT",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units (weight: 1, all scoring `0.0` with `modification 0.5333` and `regression` between `0.9851` and `0.9942`), the trajectories show the agents accurately identifying and fixing the embedded hardcodes required by the task (`Operating Model + DCF!C92, D92, C99:H99, C108, C113, C117` and `Revenue Build!S6:V6`), but being failed by `verify_spreadsheetbench2_cells` for two reasons: (1) On modification cells `Operating Model + DCF!C108` and `C113`, all 3 units wrote valid, direct cell-reference formulas (`='Comps + WACC'!$H$12` and `='Comps + WACC'!$C$40`) that evaluate to the exact same values as GT, but `mode: formula` rejected them because GT used `=INDEX('Comps + WACC'!H4:H12,MATCH(\"Median\",'Comps + WACC'!B4:B12,0))` and `=INDEX('Comps + WACC'!C39:C41,MATCH(\"Net Debt\",'Comps + WACC'!B39:B41,0))` (and similarly in `C99:H99` where units used `$C$98` or linked `C98:H98` to `'Comps + WACC'!$C$38`). (2) On regression cells, the agents fixed genuine errors in the input workbook that were left broken in `gt_08_golden.xlsx`—such as linking the hardcoded WACC row `Operating Model + DCF!C98:H98` (`0.0965997`) to `'Comps + WACC'!$C$38` (unit 1 step [75]), fixing EBT `C28:V28` to subtract interest expense `=C20-C23-C26` (unit 2 step [43], unit 3 step [58]), and fixing the broken `#NAME?` reference `=R847-M83` in `R84` to `=R83-M83`—which the verifier counted as regression errors against the agent.",
+    "confirmation": "Golden C108/C113 are INDEX/MATCH formulas while 'Comps + WACC'!H12 (Median) and C40 (Net Debt) are the same cells, and formula mode compares normalized strings only, so direct links fail; the golden also keeps real defects (R84 '=R847-M83', EBT row 28 '=C20-C26' ignoring nonzero interest in row 23) ",
+    "fixed": true,
+    "fix": "Partial. gt_08_golden.xlsx now also fixes the errors QA named, on top of the 15 planted hardcode fixes (formula mode, so the key's formula text is what is graded; cached values were also refreshed from the verifier's LibreOffice recalc, 113 cells): 'Operating Model + DCF'!R84 =R847-M83 -> =R83-M83; EBT row 28 C28:V28 =X20-X26 -> =X20-X23-X26 (interest subtracted; F28 now equals 'IS Annual'!F24 pretax income); C36:H36 ='IS Annual'!C75:H75 (empty) -> =CFS!E4:J4 (D&A matched by fiscal year); K9:L9, K12:L12, K15:L15 =K41/K47/K53 (empty) -> =K8/K4, =K11/K4, =K14/K4 like I:J; 'Revenue Build'!S9:V9 =S37 (Base row) -> =S35 and S15:V15 =S43 -> =S41 (the Case Selection rows that X:AA and the planted S6 use). Left out of answer_position because the repair has no single defensible formula text: the self-referencing case-selection OFFSET rows ('Operating Model + DCF'!N41:V41, N47:V47, N53:V53; 'Revenue Build'!S29:AA29, S35:AA35, S41:AA41; the finding's 'S37/S43' are the Base rows, the OFFSET formulas sit in rows 35 and 41), the hardcoded WACC C98:H98 (link every cell to 'Comps + WACC'!C38 or chain =C98), and the ^5 terminal-value discounting in C111, C125, C138 (^6, ^H97 or /H99 are equally natural). Checked with the real SB2 scorer: new key vs itself 1.0; untouched input plus all key fixes 1.0; untouched input 0.0; planted-only fixes (the old key) now fail (mod 0.2679), as expected. The rejection of equivalent direct links for C108/C113 is a verifier-code limitation (formula mode compares normalised text only) and is not changed."
+  }
+]

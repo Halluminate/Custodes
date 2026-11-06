@@ -1,0 +1,48 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official chart checklist",
+      "function": "verify_spreadsheetbench2_chart_checklist",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "checklist": [
+          "The chart is a sunburst chart",
+          "The chart title reads 'Expense Breakdown'",
+          "The chart displays a 3-level hierarchy with departments in the inner ring, categories in the middle ring, and subcategories in the outer ring",
+          "The IT department segments are colored orange",
+          "The HR department segments are colored blue",
+          "The Sales department segments are colored grey",
+          "All visible labels are fully contained within their respective segments",
+          "The inner ring contains a segment labeled 'HR'",
+          "The inner ring contains a segment labeled 'IT'",
+          "The inner ring contains a segment labeled 'Sales'",
+          "The HR department contains a category segment labeled 'Salary' in the middle ring",
+          "The HR department contains a category segment labeled 'Training' in the middle ring",
+          "The IT department contains a category segment labeled 'Software' in the middle ring",
+          "The IT department contains a category segment labeled 'Hardware' in the middle ring",
+          "The Sales department contains a category segment labeled 'Travel' in the middle ring",
+          "The Salary category contains a subcategory segment labeled 'Managers' in the outer ring",
+          "The Salary category contains a subcategory segment labeled 'Recruiters' in the outer ring",
+          "The Training category contains a subcategory segment labeled 'Workshops' in the outer ring",
+          "The Software category contains a subcategory segment labeled 'Licenses' in the outer ring",
+          "The Hardware category contains a subcategory segment labeled 'Laptops' in the outer ring",
+          "The Travel category contains a subcategory segment labeled 'Flights' in the outer ring",
+          "The Travel category contains a subcategory segment labeled 'Hotels' in the outer ring",
+          "The HR segment is the largest department segment, occupying approximately 50% of the inner ring",
+          "The IT segment is the second largest department segment, occupying approximately 30% of the inner ring",
+          "The Sales segment is the smallest department segment, occupying approximately 20% of the inner ring",
+          "The Salary category is larger than the Training category within the HR department",
+          "The Software category is smaller than the Hardware category within the IT department"
+        ]
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "Input workbook is missing 218 unmentioned historical schedule formulas in IS_BS_CF!B142:X169, causing 1,078 of 1,460 modification cells across 6 sheets to fail",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "problem.py instructs the agent only to edit the 'Formats' and 'Report Tables' sheets and explicitly warns: 'When completing spreadsheet tasks, strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.' However, comparing untouched_input_15_05_KIMS_input.xlsx (and assets/15_05_KIMS_input.xlsx) against gt_15_KIMS_golden.xlsx shows that 218 cells in IS_BS_CF!B142:X169 (historical FY19-FY23 rows for Long-term Debt Opening, Repayment/(Taken), Closing Debt, Total debt, % of interest, Interest expense, % of long-term debt, % of short-term debt, Interest Income, Interest income %, cash+investments sum, Depreciation, Avg Depreciation %, and working capital days/turns) are blank in the input workbook but populated with formulas in gt_15_KIMS_golden.xlsx. Because forecast columns AC..AR in IS_BS_CF reference X145, X151, X152, and X161, leaving IS_BS_CF!B142:X169 blank causes 1,078 of the 1,460 modification cells in spec.yaml's answer_position (IS_BS_CF: 594, Work Sheet: 19, Consol_annual: 169, Consol_quarterly: 134, Formats: 144, Report Tables: 18) to evaluate to different values than gt_15_KIMS_golden.xlsx (e.g., Work Sheet!AB6:AE6 evaluates to 2.25 instead of 20.3344221029979, and Work Sheet!AF6 evaluates to 9 instead of 81.3376884119918). Copying the exact ground-truth formulas for Formats and Report Tables from gt_15_KIMS_golden.xlsx into 15_05_KIMS_input.xlsx still fails verify_spreadsheetbench2_cells (weight: 1) with score=0.0 (regression 1.0000, modification 0.2616, 1081 cell errors).",
+    "confirmation": "IS_BS_CF!B142:X169 are blank labels-only rows in the input but formulas in the golden (e.g. X145 '=X147', X148 '=+X149/X147'), and these 218 cells feed the forecast and the linked Formats/Report Tables values, so the graded outcome hinges on unstated work.",
+    "fixed": true,
+    "fix": "Same: IS_BS_CF!B142:X169 formulas restored in both input copies, so the forecast cascade no longer depends on unstated work."
+  },
+  {
+    "id": "F2",
+    "title": "The ratio work is graded in IS_BS_CF's Assumptions block, but the prompt points the agent to the Formats balance sheet",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "problem.py tells the agent: \"in the balance sheet of the Consolidated Financials table, calculate the efficiency ratios and leverage ratios for all years\". In Formats, the only balance sheet in the Consolidated Financials area is Z3:AT27 ('Balance Sheet (USD Mn)'). Its ratio rows are already complete in the input (Z22 'Cash Conv Cycle', Z23 'WC Turnover', Z24 'FA Turnover', Z25 'Net D/E', Z26 'Revenue/Capital Employed', Z27 'Capital Employed/Equity'). Diffing the input against gt_15_KIMS_golden.xlsx shows the ground truth (GT) adds no ratio cells in Formats. Instead it fills 218 blank cells in a different sheet, IS_BS_CF rows 142-169, under the header 'Assumptions' / 'Capex'. These cover a debt roll-forward (Long-term Debt Opening, Repayment/(Taken), Closing Debt, Total debt), '% of interest', '% of long-term debt', 'Interest Income %', 'Avg Depreciation %', Inventory/Payables/Receivables Days, 'Working Capital Cycle' and 'Other current assets/liabilities turns'. The single verifier (verify_spreadsheetbench2_cells, answer_position includes 'IS_BS_CF'!A1:AR181) counts these 218 cells as modification cells. That is about 35% of the 614 changed cells (IS_BS_CF 218, Formats 214, Report Tables 182). An agent that follows the instruction will look at the Formats balance sheet, find it already filled, and will not build a debt schedule or interest/depreciation assumptions in IS_BS_CF. Most of those rows are not efficiency or leverage ratios.",
+    "confirmation": "Formats ratio rows Z22:AI27 (Cash Conv Cycle, WC Turnover, Net D/E etc.) are already filled in the input and unchanged in the golden, while the golden's ratio work sits in IS_BS_CF rows 142-169, many of which (debt roll-forward, interest expense, depreciation) are not efficiency or leverage ratios; ",
+    "fixed": true,
+    "fix": "The IS_BS_CF Assumptions block is now part of the input, so no graded change sits outside the Formats/Report Tables areas the prompt names."
+  },
+  {
+    "id": "F3",
+    "title": "Four undisclosed CAGR scratch formulas in unlabelled column Formats!N4, N5, N7, N9 are graded as modification cells",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In Formats, the first Consolidated Financials table spans D3:M25 (with column headers FY19A in E3 through FY27E in M3). Column N has no column header (N3 is None) and is never referenced anywhere in the workbook. However, gt_15_KIMS_golden.xlsx contains four unlabelled CAGR formulas in column N that are blank in 15_05_KIMS_input.xlsx: Formats!N4 '=(L4/I4)^(1/3)-1' (0.1471617), Formats!N5 '=(L5/I5)^(1/3)-1' (0.1325214), Formats!N7 '=(I4/E4)^(1/4)-1' (0.2438834, a 4-year FY19A-FY23A Sales CAGR placed on the Interest Expense row), and Formats!N9 '=(L9/I9)^(1/3)-1' (0.0673027). Nothing in problem.py mentions calculating CAGRs in column N. Because verify_spreadsheetbench2_cells (weight: 1) requires modification ratio == 1.0, missing these 4 undocumented cells causes any submission to score 0.0.",
+    "confirmation": "Golden Formats!N4, N5, N7, N9 hold CAGR formulas (N7 '=(I4/E4)^(1/4)-1' on the Interest Expense row) in an unheaded column that is blank in the input, and the prompt never asks for CAGRs, yet they are graded modification cells requiring 100% match.",
+    "fixed": true,
+    "fix": "gt_15_KIMS_golden.xlsx Formats!N4, N5, N7, N9 (unlabeled CAGR formulas) blanked, so they are unchanged (regression) cells."
+  },
+  {
+    "id": "F4",
+    "title": "The GT adds CAGR cells that the prompt never asks for",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The GT fills Formats!N4 '=(L4/I4)^(1/3)-1', N5 '=(L5/I5)^(1/3)-1', N7 '=(I4/E4)^(1/4)-1' and N9 '=(L9/I9)^(1/3)-1'. These cells are blank in the input. The instruction mentions linking the table and net margin, never a CAGR column. N7 also sits on the 'Interest Expense' row but computes the FY19-FY23 sales CAGR. All four cells are graded as modifications, so a correct agent loses them.",
+    "confirmation": "Confirmed golden Formats!N4 '=(L4/I4)^(1/3)-1', N5, N7 '=(I4/E4)^(1/4)-1' (on 'Interest Expense'), N9 are new cells with no instruction asking for CAGR, and each is a graded modification cell.",
+    "fixed": true,
+    "fix": "Formats!N4, N5, N7, N9 blanked in the golden."
+  },
+  {
+    "id": "F5",
+    "title": "Deleted source formulas and unlabeled calculations exceed the stated task scope",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The detailed instructions identify work in Formats and Report Tables, but the input also lacks 218 historical formulas in IS_BS_CF rows 142–169 that the golden workbook restores. These missing source formulas materially change the inputs for the requested links: Consol_annual!Y30 is 369.19 in the input, while the golden Formats!J7 expects 502.494 from that same source cell. The golden also adds unexplained CAGR calculations in Formats!N4, N5, N7 and N9. Meanwhile, the explicitly requested balance-sheet ratios in Formats!AA22:AI27 are already populated. The sole weight-1 verifier requires every modification cell to match, so following the named work areas alone cannot satisfy grading.",
+    "confirmation": "The golden restores 218 IS_BS_CF formulas outside the named work areas and adds CAGR cells Formats!N4/N5/N7/N9, while the named Formats balance-sheet ratios are already populated in the input, so following the stated scope cannot satisfy the all-modifications-must-match verifier.",
+    "fixed": true,
+    "fix": "Both parts fixed: the 218 formulas are restored in the inputs and the CAGR cells are removed from the golden."
+  },
+  {
+    "id": "F6",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check always fails (score 0.0) because untouched_input_15_05_KIMS_input.xlsx and assets/15_05_KIMS_input.xlsx are missing 218 unmentioned formulas in IS_BS_CF!B142:X169",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, 'SpreadsheetBench 2 official cell check' (weight: 1) returned score=0.0: Unit 1 got modification=0.2349 (1,120 errors), Unit 2 got modification=0.2589 (1,085 errors), and Unit 3 got modification=0.2568 (1,106 errors), all failing on 'Modification error at Work Sheet!AB6: answer=20.3344221029979, output=2.25; ... AF6: answer=81.3376884119918, output=9'. Independent trajectory verification shows that Unit 2 and Unit 3 accurately constructed the required formulas in Formats and Report Tables (with Unit 2 matching all 378 table modification cells that do not depend on IS_BS_CF!B142:X169, differing from the literal ground-truth Formats and Report Tables sheets only on the 4 undocumented cells Formats!N4, N5, N7, N9). Even when the exact ground-truth Formats and Report Tables sheets from gt_15_KIMS_golden.xlsx are copied into 15_05_KIMS_input.xlsx, the verifier still scores 0.0 (modification=0.2616, 1,081 errors) because 218 blank cells in IS_BS_CF!B142:X169 cascade into 1,078 modification cell mismatches across IS_BS_CF (594), Work Sheet (19), Consol_annual (169), Consol_quarterly (134), Formats (144), and Report Tables (18). Because verify_spreadsheetbench2_cells requires mod_ratio == 1.0 to pass, no valid solution to the prompt can ever score above 0.0.",
+    "confirmation": "Diffing untouched input vs gt_15_KIMS_golden.xlsx shows 218 changed cells in IS_BS_CF rows 142-169 (debt roll-forward, interest %, depreciation %, days/turns) that the prompt never clearly assigns, and forecast cells depend on them, so solutions that do only the named Formats/Report Tables work cann",
+    "fixed": true,
+    "fix": "Agent input 15_05_KIMS_input.xlsx and reference untouched_input_15_05_KIMS_input.xlsx are now the golden workbook with all 396 Formats/Report Tables task cells blanked, so they contain the 218 IS_BS_CF!B142:X169 formulas and nothing else new. Both were recalculated with the verifier's LibreOffice pipeline. gt_15_KIMS_golden.xlsx: Formats!N4, N5, N7, N9 blanked, then recalculated. Checked locally: the golden scores 1.0 with cached values and after an openpyxl save (no caches), and the untouched input scores 0 (447 modification cells, all in Formats/Report Tables and their links)."
+  }
+]

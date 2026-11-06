@@ -1,0 +1,43 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official chart checklist",
+      "function": "verify_spreadsheetbench2_chart_checklist",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "checklist": [
+          "The chart is a line chart",
+          "The chart displays two data series as lines",
+          "The primary X-axis is positioned at the bottom",
+          "The secondary X-axis is positioned at the top",
+          "A trendline is displayed for the 1stSale series",
+          "A trendline is displayed for the 2ndSale series",
+          "The legend contains an entry labeled '1stSale'",
+          "The legend contains an entry labeled '2ndSale'",
+          "The 1stSale series value at 2010 is approximately 15,000",
+          "The 1stSale series value at 2011 is approximately 17,000",
+          "The 1stSale series value at 2012 is approximately 19,000",
+          "The 1stSale series value at 2017 is approximately 27,000",
+          "The 1stSale series shows an overall upward trend from approximately 15,000 in 2010 to approximately 27,000 in 2017",
+          "The 2ndSale series value at 2010 is approximately 10,000",
+          "The 2ndSale series value at 2011 is approximately 14,000",
+          "The 2ndSale series value at 2012 is approximately 9,000",
+          "The 2ndSale series value at 2017 is approximately 8,000",
+          "The 2ndSale series shows an overall downward trend from approximately 10,000 in 2010 to approximately 8,000 in 2017",
+          "The primary X-axis displays years from 2010 to 2017",
+          "The secondary X-axis displays values from January (Jan) to August (Aug)",
+          "The Linear (1stSale) trendline slopes upward from left to right",
+          "The Linear (2ndSale) trendline slopes downward from left to right"
+        ]
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

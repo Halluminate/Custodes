@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Required starting salary assumptions are missing",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "data_presence",
+    "evidence": "The task requires calculating monthly salaries 'based on the provided assumptions', but Workings Cost Sheet!N68:N73 contains no starting salaries. No accompanying assumptions document, email, or chat is staged. The golden workbook requires N68:N71 to contain '=200000/10^5', '=150000/10^5', '=100000/10^5', and '=50000/10^5', respectively, with N72:N73 equal to zero. These amounts cannot be derived from the supplied salary schedule. They determine hundreds of salary and downstream financial-statement values checked by the sole, weight-1 verifier, which requires every modification cell to match.",
+    "confirmation": "Duplicate of the confirmed missing starting-salary assumptions: input Workings Cost Sheet N68:N73 empty, golden requires specific values, no other source provides them.",
+    "fixed": true,
+    "fix": "prompt.md: after 'calculate salary per month with annual increases for all designations.' added: 'Start the monthly salaries in column N at 200,000, 150,000, 100,000 and 50,000 for Designated Partners, Head of Operations, Analyst and Associate, scaled to the sheet's units as =200000/10^5 and so on, and at 0 for General Support and Senior Associate.' This matches golden N68:N73 (2.0, 1.5, 1.0, 0.5, 0, 0)."
+  },
+  {
+    "id": "F2",
+    "title": "Undisclosed base monthly salary assumptions required in 'Workings Cost Sheet'!N68:N73 make 65.65% of modification cells impossible to derive",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The task instruction states: \"In the Workings Cost sheet, derive the year from dates for Apr-25 to Jun-33, then calculate salary per month with annual increases for all designations.\" In `gt_05_AIF_golden.xlsx`, `'Workings Cost Sheet'!O68:DI73` computes monthly salaries as `=N68*(1+O$229)` through `=DH73*(1+DI$229)`, which depends on base monthly salary assumptions in `'Workings Cost Sheet'!N68:N73`: `N68 = '=200000/10^5'` (2.0 for Designated Partners), `N69 = '=150000/10^5'` (1.5 for Head of Operations), `N70 = '=100000/10^5'` (1.0 for Analyst), `N71 = '=50000/10^5'` (0.5 for Associate), `N72 = 0` (General Support), and `N73 = 0` (Senior Associate). However, in the input workbook (`05_05_AIF_input.xlsx`), `N68:N73` are completely blank (`None`), and those base salary figures (200,000; 150,000; 100,000; 50,000; 0; 0) do not appear anywhere in `problem.py`, the input workbook, or any other environment source. Because `verify_spreadsheetbench2_cells` (weight 1.0) requires `mod_ratio == 1.0` to return score 1.0, a submission that completes every other requirement and writes the exact formula `=N68*(1+O$229)` across `O68:DI73` without knowing `N68:N73` fails 3,281 of 4,998 modification cells (`modification 0.3435`, score 0.0, as seen identically in Unit 2 and verified by a probe on `gt_05_AIF_golden.xlsx` with `N68:N73` cleared).",
+    "confirmation": "Input 'Workings Cost Sheet'!N68:N73 is blank while golden has =200000/10^5, =150000/10^5, =100000/10^5, =50000/10^5, 0, 0 feeding O68:DI73; no per-designation salary appears in the input or prompt (only 200000/10^5 hit is the unrelated Compliance Officer row R143).",
+    "fixed": true,
+    "fix": "prompt.md: after 'calculate salary per month with annual increases for all designations.' added: 'Start the monthly salaries in column N at 200,000, 150,000, 100,000 and 50,000 for Designated Partners, Head of Operations, Analyst and Associate, scaled to the sheet's units as =200000/10^5 and so on, and at 0 for General Support and Senior Associate.' This matches golden N68:N73 (2.0, 1.5, 1.0, 0.5, 0, 0)."
+  },
+  {
+    "id": "F3",
+    "title": "Starting monthly salaries in the answer key appear nowhere in the input or the prompt, so the task cannot be passed",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The ground truth hardcodes base salaries in 'Workings Cost Sheet' N68:N73: N68 '=200000/10^5', N69 '=150000/10^5', N70 '=100000/10^5', N71 '=50000/10^5', N72 0, N73 0. Rows O:DI then grow them with '=N68*(1+O$229)'. In the input, all of rows 68-73 from N onward are blank. A full scan of the input workbook (formulas and cached values, every sheet, comments included) found no 200000/150000/100000 salary figures and no per-designation salary assumption. Row 229 holds only the YoY increase. The only salary data in the workbook is on an unrelated 'Staff Costs' tab (Senior Executive Officer 5000, Head of Global Markets 4500), which uses different designations. The prompt only says 'calculate salary per month with annual increases for all designations' and gives no starting amounts, and there are no emails or other sources (initialize.py only copies the xlsx). These salaries feed Workings rows 77-83 and 85-111, then IS 'Salaries', net income, BS cash and retained earnings, and CF. That is a large share of the ~5,000 modification cells (Workings 1263, IS 937, BS 1140, CF 686). The single verifier (weight 1) passes only if 100% of modification cells match within 1%, so no agent can reach a score above 0 without guessing 2.0/1.5/1.0/0.5/0/0.",
+    "confirmation": "Same confirmed gap: starting salaries in golden N68:N71 (2.0/1.5/1.0/0.5) are absent from the input workbook (N68:N73 None) and the prompt, so the all-cells verifier cannot be passed without guessing.",
+    "fixed": true,
+    "fix": "prompt.md: after 'calculate salary per month with annual increases for all designations.' added: 'Start the monthly salaries in column N at 200,000, 150,000, 100,000 and 50,000 for Designated Partners, Head of Operations, Analyst and Associate, scaled to the sheet's units as =200000/10^5 and so on, and at 0 for General Support and Senior Associate.' This matches golden N68:N73 (2.0, 1.5, 1.0, 0.5, 0, 0)."
+  }
+]

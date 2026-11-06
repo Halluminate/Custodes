@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Dividend sensitivity answer key contains incorrect graded values",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook's dividend sensitivity grid does not reconcile with its own valuation inputs. At 'Berk-Hath Investment Package'!G11, the dividend rate is 7.5%, discount rate 6.3%, term 10 years, face value 10,000, redemption value 10,500, and warrant value 736.33388245058. These produce 11,878.5427134403, but the answer key requires 11,152.8830174067. Twenty cells in G11:K14 are inconsistent with their row assumptions; increasing dividends even decreases the keyed valuation between rows 10 and 11. Replacing only G11 with the independently calculated value produces modification ratio 0.9833 rather than 1.0. Because the sole verifier has weight 1 and requires every modification cell to match, this mathematically correct repair receives zero overall credit.",
+    "confirmation": "Golden G11 (7.5% div) is 11152.88, lower than G10 (7.0%) at 11515.71, which cannot hold for a PV increasing in dividend; the keyed G11:K14 values are wrong and the single verifier requires every cell to match.",
+    "fixed": true,
+    "fix": "Same G11:K14 recomputation in gt_02_golden.xlsx."
+  },
+  {
+    "id": "F2",
+    "title": "Corrupted ground-truth values in 'Berk-Hath Investment Package'!G10:K14 and un-recalculable TABLE() formulas in input make the sole verifier impossible to pass",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (weight: 1.0) compares `/home/model/Desktop/output.xlsx` against `gt_02_golden.xlsx` across `answer_position` in `values` mode, requiring 100% modification match (`mod_ratio == 1.0`). In the input workbook (`untouched_input_Incorrect Index Match_input.xlsx`), `'Berk-Hath Investment Package'!G10:K14` is a 5x5 sensitivity table for Total Present Value (`C44`) across Dividend Rate (`F10:F14` = 0.07, 0.075, 0.08, 0.085, 0.09, where `F10`=`=F11-$F$7`, `F11`=`=F12-$F$7`, `F12`=`=C12`=0.08, `F13`=`=F12+$F$7`, `F14`=`=F13+$F$7`) and Discount Rate (`G9:K9` = 0.063, 0.068, 0.073, 0.078, 0.083). Every cell in `G10:K14` of the input workbook contains a LibreOffice-corrupted formula `<f aca=\"true\">TABLE($F$9,$C$12,$F10,$C$15,G$9)</f>` with the stale constant cached value `11432.1670414077` (which LibreOffice does not recalculate when saving to `.xlsx`), whereas `gt_02_golden.xlsx` strips the formulas and hardcodes static values in `G10:K14`. However, the static values in `gt_02_golden.xlsx` for rows 11 through 14 are mathematically wrong and non-monotonic in Dividend Rate: row 10 (`F10`=0.07) has `G10:K10` = `[11515.7129, 11137.0882, 10775.6746, 10430.5806, 10100.9655]` (which corresponds to a 7.0% dividend rate), both row 11 (`F11`=0.075) and row 12 (`F12`=0.08) have `G11:K11` = `G12:K12` = `[11152.8830, 10782.6394, 10429.3142, 10092.0287, 9769.9543]` (which actually corresponds to a 6.5% dividend rate, lower than row 10), row 13 (`F13`=0.085) duplicates row 10 (`[11515.7129, 11137.0882, 10775.6746, 10430.5806, 10100.9655]`, i.e. 7.0% dividend rate), and row 14 (`F14`=0.09) has `[12241.3726, 11845.9859, 11468.3953, 11107.6842, 10762.9879]` (which corresponds to an 8.0% dividend rate). Whether an agent leaves the `TABLE(...)` formulas intact (Units 1 and 2, failing all 22 modification cells in `G10:K14`, `mod_ratio = 0.6333`) or explicitly computes the mathematically correct sensitivity table for `F10:F14` = 7.0%..9.0% (Unit 3, where `G11=11878.5427`, `G12=12241.3726`, `G13=12604.2024`, `G14=12967.0323`, failing 18 of the 22 modification cells in `G10:K14`, `mod_ratio = 0.7000`), it receives a score of 0.0.",
+    "confirmation": "Confirmed golden G10:K14 rows are non-monotonic and duplicated (row11=row12, row13=row10, row14 = the 8% values), so neither leaving the TABLE() cells nor computing correct values can reach 100% modification match.",
+    "fixed": true,
+    "fix": "Same G11:K14 recomputation in gt_02_golden.xlsx."
+  },
+  {
+    "id": "F3",
+    "title": "The ground truth's dividend-rate sensitivity grid (Berk-Hath G11:K14) is wrong, so a correct fix scores 0",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Recomputed from the sheet's own inputs: Total PV = PV(disc,10,-div*10000) + 10500/(1+disc)^10 + 736.33 (warrant, C42). The correct value at div 8.0%, disc 6.3% (G12) is 12241.37, and that matches the golden's own term table at G20 (term 10, same inputs). The golden has G12 = 11152.88. Row 11 (7.5%) and row 12 (8.0%) in the golden are identical (11152.88 / 10782.64 / 10429.31 / 10092.03 / 9769.95). Row 13 (8.5%) repeats row 10 (7.0%: 11515.71 ...). Row 14 (9.0%) shows the 8.0% values (12241.37 / 11845.99 / 11468.40 / 11107.68 / 10762.99). PV should rise with the dividend rate, but these rows do not. The cause: the Excel data table TABLE($F$9,$C$12,$F10,...) uses axis values F10:F14 that are themselves formulas built from the input cell (F12 '=C12', F11 '=F12-$F$7' ...). When Excel substitutes values into C12, the axis moves too, and the table returns garbage. The golden captured that garbage. I built a fully correct output: WACC C7 pointed at Exhibit 6 column D, C19 MATCH fixed, and every sensitivity table rebuilt with explicit formulas. The verifier returned regression 1.0, modification 0.70 and 20 errors, all at Berk-Hath G11:K14. verify_spreadsheetbench2_cells (weight 1, the only verifier) passes only when every modification cell matches, so a correct answer gets 0.",
+    "confirmation": "Golden G12 (8.0% div, 6.3% disc) is 11152.88 while golden G20 (same inputs, term 10) is 12241.37, and closed-form PV gives ~12241, so the answer key grid G11:K14 is wrong.",
+    "fixed": true,
+    "fix": "gt_02_golden.xlsx 'Berk-Hath Investment Package'!G11:K14 (20 hardcoded cells) recomputed as PV(disc,C14,-div*C11)+PV(disc,C14,0,-C17)+C42 for dividend rates F11:F14 (7.5%-9.0%) and discount rates G9:K9; e.g. G11 11,152.88 -> 11,878.54, G12 -> 12,241.37 (equals the golden's own term-table G20). Row 10 already matched this formula exactly. Golden scores 1.0 locally."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: Verifier fails valid sensitivity table fixes and all attempts due to corrupted ground-truth values in 'Berk-Hath Investment Package'!G10:K14",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (weight: 1.0) scores 0.0 (`unit 1`: `regression 1.0000, modification 0.6333, 29 cell error(s)`; `unit 2`: `regression 1.0000, modification 0.6333, 25 cell error(s)`; `unit 3`: `regression 1.0000, modification 0.7000, 27 cell error(s)`). In Unit 2, the agent fixed the broken `INDEX/MATCH` formulas (`WACC!C7`, `WACC!C19`, `DCF!G9`) and the `#DIV/0!` DCF sensitivity table (`DCF!V10:Z14`) with zero regression errors (`regression 1.0000`), leaving the non-erroring `TABLE(...)` formulas in `'Berk-Hath Investment Package'!G10:K14` untouched (which LibreOffice does not recalculate on `.xlsx` save, keeping cached value `11432.1670414077` and failing 22 modification cells in `G10:K14`). In Unit 3 (steps [50]-[53], [67]), the agent went further and replaced `'Berk-Hath Investment Package'!G10:K14` with the exact closed-form present value formula `PV(G$9,$C$14,-$F10*$C$11)+PV(G$9,$C$14,0,-$C$17)+$C$42` for the row header dividend rates `F10:F14` (7.0%, 7.5%, 8.0%, 8.5%, 9.0%) and column header discount rates `G9:K9` (6.3%..8.3%). However, the verifier rejected Unit 3's mathematically correct values (e.g. `Modification error at Berk-Hath Investment Package!G11: answer=11152.8830174067, output=11878.5427134403`) because `gt_02_golden.xlsx` has corrupted hardcoded values in `G11:K14` computed from wrong dividend rates (6.5%, 6.5%, 7.0%, 8.0% instead of 7.5%, 8.0%, 8.5%, 9.0%).",
+    "confirmation": "gt_02_golden.xlsx Berk-Hath G11:K11 equals G12:K12 (11152.88...) and G13:K13 repeats G10:K10, although dividend rate rises 7.0%..9.0% in F10:F14; at 8%/6.3% the correct PV is 12241.37 (matches golden's own term table G20), so a correct rebuild fails the all-match check.",
+    "fixed": true,
+    "fix": "Same G11:K14 recomputation in gt_02_golden.xlsx."
+  }
+]

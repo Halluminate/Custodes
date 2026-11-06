@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer key's Spending Efficiency column does not follow the prompt's Budget / Spending × 100 formula; it appears to compute Spending / (Budget + Deficit) × 100, giving about 100 every year.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key-formula",
+    "evidence": "Sheet3_Fiscal_Indicators E2=100 for FY2015, but RawData B2/C2 = 3.25/3.69×100 = 88.08. E7=100 for FY2020 vs 3.42/6.55×100 = 52.21. E3=99.74 equals 3.85/(3.27+0.59)×100.",
+    "confirmation": "gt_88_ref_0.xlsx Sheet3_Fiscal_Indicators E2=100 and E7=100, but the prompt's Budget/Spending*100 on RawData gives 3.25/3.69*100=88.08 and 3.42/6.55*100=52.21. E3=99.74 matches 3.85/(3.27+0.59)*100, so the key uses a different formula."
+  },
+  {
+    "id": "S2",
+    "title": "The answer key's Debt Service Burden column uses Interest / Budget instead of the prompt's Interest / Debt × 100, so every value is roughly 5–7× too large.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key-formula",
+    "evidence": "Sheet3_Fiscal_Indicators F2=6.7692 = 0.22/3.25×100, but the prompt formula gives 0.22/18.15×100 = 1.2121. F11=17.8862 = 0.88/4.92×100 vs 0.88/35.47×100 = 2.4810.",
+    "confirmation": "Key F2=6.7692 is 0.22/3.25*100 (Interest/Budget) and F11=17.8862 is 0.88/4.92*100. The prompt defines Debt Service Burden as Interest/Debt*100, which gives 1.2121 and 2.4810."
+  }
+]

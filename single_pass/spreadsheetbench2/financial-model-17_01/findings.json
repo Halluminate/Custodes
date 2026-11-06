@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt requires calculating Tax Provision for 2014F–2018F from the Effective Tax Rate, but the golden workbook leaves Financials!K38:O38 blank, so its forecast tax is zero and every downstream value assumes no tax.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-missing-step",
+    "evidence": "Golden Financials K38:O38 are absent. Golden K41=11588.046835332 equals K35 (=K35+K38), and Valuation!K12:O12=0, K13:O13=0, E61=0. A correct K38 = -K39*K35 ≈ -2123 (K39=0.1832) would move K41, K44, K47, EPS, the balance sheet, cash flow, DCF value per share and ratios by far more than 1%.",
+    "confirmation": "Golden Financials K38:O38 (Tax provision 2014F-2018F) are empty although the prompt asks for them, so golden K41 cached 11588.05 equals K35 11588.05 with K39=0.1832 unused. Every downstream PAT/EPS/valuation value assumes zero tax."
+  },
+  {
+    "id": "S2",
+    "title": "Because the cell check covers the whole workbook (Financials!B1:AH128, Valuation, Ratio_Analysis, etc.) with all cells required to match, any agent that correctly fills the tax provision fails, while one that skips this instructed step can pass.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "verifier-penalizes-correct-solution",
+    "evidence": "Verifier answer_position includes 'Financials'!B1:AH128 and 'Valuation'!B2:O97, with pass only if every compared cell matches within 1%. Golden K38:O38 are empty although the instruction says to 'calculate Tax Provision for 2014F–2018F using the Effective Tax Rate'.",
+    "confirmation": "Financials K41:O41 change between the input and the golden, so they are modification cells that must match exactly. An agent that books K38=-K39*K35 gets K41 about 9465 against the golden's 11588 and fails the verifier."
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt says the comparable sales and the active/pending listings are attached, but the only input file is the blank CMA template, so the agent has no comp data and must rely on live web browsing that may not be available or reproducible.",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "missing-input-files",
+    "evidence": "Prompt: '5–10 comparable sales ... (attached)' and '3–5 active or pending listings ... (attached)'; the only input file is 'NEW CMA template.docx', which has placeholder rows only.",
+    "confirmation": "The prompt marks the comparable sales and active listings as '(attached)' but data/ holds only the blank 'NEW CMA template.docx'; in run <id> the agent's requests to zillow/redfin/google failed (proxy 403, could not resolve host), so it had no source for comps and fabricated them."
+  }
+]

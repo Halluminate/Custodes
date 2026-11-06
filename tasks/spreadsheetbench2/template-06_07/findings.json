@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key divides monthly revenue/COGS by 365, so forecast balances fall 4-10x below the actuals",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The GT forecasts each balance as monthly flow × days / 365, e.g. G7 '=G23*G28/365' and G10 '=G24*G30/365'. Revenue and COGS in rows 23-24 are monthly figures (Jan-24 to Dec-24 columns, Jan revenue 9,540). Days-based ratios on monthly flows need about 30 days (or days in the month) as the denominator, or annualized flows. The cached GT values make this obvious: AR goes from 6,580 (Mar actual) to 1,707.16 (G7, Apr); AP from 13,720 to 1,435.40 (G10); inventory from 2,310 to 242.47 (G8); prepaids from 2,980 to 286 (G9). That produces a fake April working-capital swing: G15 +4,872.8, G18 -12,284.6, G19 -2,650.2, and FY S19 -2,769.5, which is almost all this artifact. Back-solving the actuals gives an implied DSO of about 20 days on a /30 basis (or about 240 on /365), not the 60 stated. So no single day-count convention fits both the history and the drivers. An analyst who uses /30, days-in-month or annualized revenue gets the economically correct answer and fails. The only verifier (weight 1, all-or-nothing on modified cells, 1% tolerance) requires the /365 values in every forecast cell of rows 7-10 and 15-19.",
+    "confirmation": "gt_06_07_golden.xlsx forecasts monthly columns as single-month flow x days / 365 (G7 = G23*G28/365 = 1707.16 against Mar actual E7 = 6580, and G10 = 1435.40 against E10 = 13720). This creates a fake 74-90% April working-capital cliff (G15 = +4872.8, G18 = -12284.6), and an analyst using a monthly da",
+    "fixed": true,
+    "fix": "Same prompt sentence: the /365 on single-month flows is now the stated convention, so a model following the prompt matches the key (the GT itself scores 1.0/1.0 after LibreOffice recalc locally)."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth uses unannualized 365-day denominator on monthly Revenue/COGS and unlabeled row 31 for Prepaid Expenses, contradicting Q1 historical actuals",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `gt_06_07_golden.xlsx` (graded by `SpreadsheetBench 2 official cell check`, weight: 1.0), Apr–Dec Balance Sheet items are computed by dividing single-month Revenue or COGS by 365 without annualizing or using a monthly day count: Accounts Receivable `G7:Q7` uses `=G23*G28/365` (giving `G7 = 1707.16` vs. Mar-24 `E7 = 6580`), Inventories `G8:Q8` uses `=G24*G29/365` (`G8 = 242.47` vs. `E8 = 2310`), Accounts Payable `G10:Q10` uses `=G24*G30/365` (`G10 = 1435.40` vs. `E10 = 13720`), and Prepaid Expenses `G9:Q9` uses `=ROUND(G24*G31/365,0)` (`G9 = 286` vs. `E9 = 2980`). This causes an implausible 74%–90% cliff drop between March actuals and April forecasts and consequently distorts all Apr–Dec and Q2/FY2024 Cash Flow working capital changes (`G15:S19`). Furthermore, cell `B3` only states '1. Forecast Balance Sheet working capital items for Apr-Dec using DSO/DIO/DPO assumptions'; it never mentions Prepaid Expenses, never labels Row 31 (`B31` is None while `C31:Q31` contains `59`), and never specifies wrapping only Row 9 in `ROUND(..., 0)`. All 3 agent attempts failed on these cells (e.g., `Modification error at WC_Forecast!G7: answer=1707.16438356164, output=6828.65753424658`).",
+    "confirmation": "gt_06_07_golden.xlsx forecasts monthly columns as single-month flow x days / 365 (G7 = G23*G28/365 = 1707.16 against Mar actual E7 = 6580, and G10 = 1435.40 against E10 = 13720). This creates a fake 74-90% April working-capital cliff (G15 = +4872.8, G18 = -12284.6), and an analyst using a monthly da",
+    "fixed": true,
+    "fix": "Same prompt sentence; it also names row 31 as the prepaid days and the whole-number rounding of prepaids."
+  },
+  {
+    "id": "F3",
+    "title": "Answer key applies an annual denominator to monthly operating flows",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The columns are explicitly monthly ('Apr-24', 'May-24', etc.), and the key sums monthly revenue and COGS into quarterly totals. Nevertheless, its April receivables formula is '=G23*G28/365', producing 1,707.16 from monthly revenue of 10,215 and DSO of 61. Converting the April flow to a daily rate using April's 30 days instead produces 20,770.50. The same period mismatch affects forecast inventories, prepayments and payables, then propagates into cash-flow changes and summaries. The sole verifier has weight 1 and requires every modification cell to match, so a financially correct monthly calculation receives zero credit.",
+    "confirmation": "gt_06_07_golden.xlsx forecasts monthly columns as single-month flow x days / 365 (G7 = G23*G28/365 = 1707.16 against Mar actual E7 = 6580, and G10 = 1435.40 against E10 = 13720). This creates a fake 74-90% April working-capital cliff (G15 = +4872.8, G18 = -12284.6), and an analyst using a monthly da",
+    "fixed": true,
+    "fix": "Same prompt sentence."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: Verifier scores 0.0 across all runs due to all-or-nothing modification pass criteria against inconsistent ground truth",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units (unit 1, unit 2, unit 3), `SpreadsheetBench 2 official cell check` (weight: 1.0) returned `score=0 - FAILED - regression 1.0000, modification 0.2484. 121 cell error(s)`. In each trajectory (unit 1 steps [38]-[75], unit 2 steps [36]-[63], unit 3 steps [26]-[51]), the agent noticed that the given Jan–Mar Balance Sheet actuals (`C7:E10`) are ~4x–10x larger than `Monthly Revenue/COGS * Days / 365`, reconciled the model to avoid an artificial 74%–90% working capital collapse in April, and used standard ending-period balances for quarterly Balance Sheet columns (`F7:F10`, etc.). Because `verify_spreadsheetbench2_cells` requires `mod_ratio == 1.0` (161/161 modification cells matching `gt_06_07_golden.xlsx`) to award a non-zero score, every reasonable financial model scores 0.0.",
+    "confirmation": "gt_06_07_golden.xlsx forecasts monthly columns as single-month flow x days / 365 (G7 = G23*G28/365 = 1707.16 against Mar actual E7 = 6580, and G10 = 1435.40 against E10 = 13720). This creates a fake 74-90% April working-capital cliff (G15 = +4872.8, G18 = -12284.6), and an analyst using a monthly da",
+    "fixed": true,
+    "fix": "prompt.md: added one sentence after 'Ensure that all formulas, references, and calculations are correct.' stating the GT convention (month flow x days / 365, prepaids from row 31 rounded to whole numbers, quarterly and FY balances averaged)."
+  }
+]

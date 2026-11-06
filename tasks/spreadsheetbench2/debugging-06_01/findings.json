@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Golden workbook leaves #NAME? error in Revenue Build!AC41 and AC43 by writing '=rri(...)' without the OOXML '_xlfn.' prefix required by Excel and LibreOffice",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The task prompt states: 'Please audit and fix this file thoroughly. Errors may include but are not limited to: formula logic errors or inconsistencies, hardcoded values that should be formulas, broken cell references, data validation issues, potential calculation errors, inconsistent formatting or naming conventions, best practice violations, and any other issues that could affect accuracy or maintainability.' In the input workbook (`untouched_input_Double Counting_input.xlsx`), `Revenue Build!AC41` and `AC43` contain `=_xludf.rri(5,W41,AA41)` and `=_xludf.rri(5,W43,AA43)`, which evaluate to `#NAME?` because `_xludf.` marks a user-defined function rather than the Excel 2013+ built-in `RRI` function. However, the ground truth (`gt_06_golden.xlsx`) changes these formulas to `=rri(5,W41,AA41)` and `=rri(5,W43,AA43)` without the required OOXML `_xlfn.` prefix, leaving their cached values in `gt_06_golden.xlsx` as `#NAME?` (`<c r=\"AC41\" s=\"54\" t=\"e\"><f aca=\"false\">rri(5,W41,AA41)</f><v>#NAME?</v></c>`). Because `verify_spreadsheetbench2_cells` (weight 1.0, the sole verifier) recalculates the agent's output via LibreOffice (`managed_recalculated_xlsx`), any valid fix that computes the actual CAGR (`0.379729661461215` and `0.718771927587479`, whether via `=_xlfn.RRI(5,W41,AA41)` in LibreOffice UNO or `=(AA41/W41)^(1/5)-1`) fails against the golden's `#NAME?` value, and because `verify_spreadsheetbench2_cells` requires `mod_ratio == 1.0` to return score 1.0, any agent that genuinely fixes the `#NAME?` error is guaranteed to score 0.0.",
+    "confirmation": "Confirmed golden AC41/AC43 are '<f>rri(5,W41,AA41)</f><v>#NAME?</v>' with no _xlfn prefix, so the key keeps the error and any real CAGR (0.3797/0.7188) fails the 100% modification match.",
+    "fixed": true,
+    "fix": "Same AC41/AC43 change in gt_06_golden.xlsx."
+  },
+  {
+    "id": "F2",
+    "title": "CAGR checks require broken formulas and reject correct numeric repairs",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook contains '=rri(5,W41,AA41)' and '=rri(5,W43,AA43)' in Revenue Build!AC41 and AC43. Both remain '#NAME?' after the verifier's LibreOffice recalculation. Because _match falls back to formula equality whenever the golden value is an Excel error, correct equivalent formulas are rejected even though spec.yaml selects mode 'values'. Replacing only these formulas with '(AA41/W41)^(1/5)-1' and '(AA43/W43)^(1/5)-1' produces valid CAGR values of 0.379729661461215 and 0.718771927587479, but the official scorer reports two modification errors and ratios of regression 1.0 / modification 0.9789. Consequently, repairing the errors fails the sole, weight-1.0 check, while retaining '#NAME?' passes.",
+    "confirmation": "Golden AC41/AC43 stay #NAME? ('rri(...)'), and the verifier logs show correct numeric repairs (0.3797, 0.7188) rejected as modification errors, failing the sole weight-1 check.",
+    "fixed": true,
+    "fix": "Same AC41/AC43 change; equivalent fixes such as (AA41/W41)^(1/5)-1 now match on value."
+  },
+  {
+    "id": "F3",
+    "title": "The ground truth keeps a #NAME? error in Revenue Build AC41/AC43, so the verifier fails both a correct fix and an untouched cell",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Input Revenue Build!AC41 is '=_xludf.rri(5,W41,AA41)' and AC43 is '=_xludf.rri(5,W43,AA43)'. Both have the cached value #NAME?. The golden changes them only to '=rri(5,W41,AA41)' / '=rri(5,W43,AA43)', which still evaluate to #NAME? after the LibreOffice recalculation (I confirmed this by recalculating gt_06_golden.xlsx). Input and golden formula text differ, so the verifier's error fallback (_match compares formulas whenever either cell holds an Excel error) classes these cells as MODIFICATION cells. The verifier passes only if every modification cell matches. I ran score_workbooks on three versions of the golden: (a) AC41/AC43 properly fixed as '=_xlfn.RRI(...)' gives real CAGR values (0.3797, 0.7188) and the verifier reports 'Modification error at Revenue Build!AC41: answer=#NAME?, output=0.3797…', so the result is FAIL. (b) AC41/AC43 left as the input '_xludf.rri' gives modification 0.9688, also FAIL. (c) Only writing '=RRI(...)' through openpyxl with no _xlfn prefix, which LibreOffice saves as lowercase 'rri' and leaves as #NAME?, passes. The task tells the agent to fix 'broken cell references… potential calculation errors', and repairing a #NAME? CAGR is exactly that. Yet the only passing output keeps the error, and the agent can reach it only by accident. The problem is a single verifier with weight 1 and binary pass/fail, so a perfect fix of every real error (Operating Model rows 21/32, Comps C30) still scores 0.",
+    "confirmation": "Input has '_xludf.rri(...)' and golden 'rri(...)', both cached #NAME?; verifier logs in run <id> fail both the fixed values and the untouched input formula at AC41/AC43, so only an accidental match passes.",
+    "fixed": true,
+    "fix": "Same AC41/AC43 change in gt_06_golden.xlsx."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells falsely rejects valid fixes to Revenue Build!AC41 and AC43 because gt_06_golden.xlsx expects #NAME? with unprefixed '=rri(...)'",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `verify_spreadsheetbench2_cells` (weight 1.0) reports modification errors on `Revenue Build!AC41` and `AC43`: in Unit 1 (where the agent left `=_xludf.rri(...)` untouched), the verifier reports `Modification error at Revenue Build!AC41: answer=#NAME?, output=#NAME?` because when a cell has an Excel error value, `_match` falls back to `_formulas_match` comparing `=_xludf.rri(5,W41,AA41)` against the golden's `=rri(5,W41,AA41)`. In Unit 2 (step [44]) and Unit 3 (step [33]), the agents fixed `AC41` and `AC43` in LibreOffice UNO so that `RRI(5,W41,AA41)` and `RRI(5,W43,AA43)` properly serialized as `_xlfn.RRI(...)` and evaluated to the true CAGRs `0.379729661461215` and `0.718771927587479`. Yet the verifier flagged both as failures: `Modification error at Revenue Build!AC41: answer=#NAME?, output=0.379729661461215; Modification error at Revenue Build!AC43: answer=#NAME?, output=0.718771927587479`. Because `verify_spreadsheetbench2_cells` requires 100% of modification cells (`mod_ratio == 1.0`) to pass, fixing `AC41` and `AC43` to their mathematically and syntactically valid Excel/LibreOffice formulas causes the verifier to fail.",
+    "confirmation": "Golden sheet2.xml stores AC41/AC43 as 'rri(5,W41,AA41)' with cached #NAME?; run <id> verifier logs show 'answer=#NAME?, output=0.379729661461215' (and output=#NAME? for the untouched _xludf version), so both correct fixes and untouched cells fail.",
+    "fixed": true,
+    "fix": "gt_06_golden.xlsx Revenue Build!AC41 = _xlfn.RRI(5,W41,AA41) (cached 0.379730) and AC43 = _xlfn.RRI(5,W43,AA43) (cached 0.718772), replacing '=rri(...)' cached #NAME?. Golden scores 1.0 locally; a #NAME? output now fails these two cells."
+  }
+]

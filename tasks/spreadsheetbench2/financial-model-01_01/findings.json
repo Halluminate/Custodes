@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Task instruction for forecasted Other Revenue % of Operating Revenue directly contradicts the ground-truth workbook",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In problem.py:34, the task instructions explicitly state: \"In the Revenue Drivers sheet, reference actual Other Revenue from another tab, and then hardcode the % of Operating Revenue for the forecasted years as the same value as the last actual year’s value. From that, calculate forecasted Other Revenue.\" In 'Revenue Drivers'!H138 (2025A, the last actual year), the % of Operating Revenue is =H137/'Consolidated P&L'!G5 = 4.8948374 / 3184.843377 = 0.00153691620609951 (~0.15%). However, in the ground-truth workbook (gt_01_Education_golden.xlsx), 'Revenue Drivers'!I138:M138 is NOT hardcoded to the last actual year's value (0.00153691620609951); instead, I138 contains the formula ='Key Assumptions'!D9 (which is 0.02, i.e., 2.0% 'Other Income as % of Revenue') and J138:M138 chain =I138, =J138, =K138, =L138 (all evaluating to 0.02). Because 'Revenue Drivers'!I137:M137 (=I138*I135 ... =M138*M135) feeds 'Consolidated P&L'!H6:L6 (Other Revenue), this contradiction cascades into 399 of the 680 modification cells across 8 sheets ('DCF Valuation': 83 cells, 'Consolidated P&L': 97 cells, 'Ratio Analysis': 92 cells, 'Consolidated BS': 40 cells, 'Working Capital Schedule': 38 cells, 'Consolidated CF': 34 cells, 'Revenue Drivers': 10 cells, 'Forecast': 5 cells). Following the explicit prompt instruction yields modification = 0.4132 (281/680) and a score of 0.0 on the sole verifier 'SpreadsheetBench 2 official cell check' (weight: 1).",
+    "confirmation": "Confirmed: GT I138:M138 evaluate to 0.02 from 'Key Assumptions'!D9 while H138 (2025A) = 4.8948/3184.84 = 0.00153692, and I137:M137 feed Consolidated P&L row 6 and onward. So the explicit instruction contradicts the key across hundreds of modification cells.",
+    "fixed": true,
+    "fix": "gt_01_Education_golden.xlsx: 'Revenue Drivers'!I138 changed from ='Key Assumptions'!D9 (2%) to the hardcoded last-actual-year value 0.00153691620609951 (= H138, 4.8948374/3184.843377). J138:M138 keep their =I138 chain. Cached values were recomputed in LibreOffice: 424 dependent cells changed (Revenue Drivers 137/138, Consolidated P&L, BS, CF, Ratio Analysis, Working Capital, Forecast, DCF), no formulas or formats changed. DCF Valuation!C22 is now 2238.42836435011, matching the three runs that followed the prompt."
+  },
+  {
+    "id": "F2",
+    "title": "The instruction says to carry forward the last actual year's Other Revenue %, but the answer key uses the 2% Key Assumption",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "problem.py tells the agent to \"hardcode the % of Operating Revenue for the forecasted years as the same value as the last actual year's value\". In the ground truth, Revenue Drivers!H138 (FY2025, the last actual year) = H137/'Consolidated P&L'!G5 = 0.15369%. The forecast cells do not use that value. GT I138 is ='Key Assumptions'!D9 (\"Other Income as % of Revenue\" = 0.02) and J138:M138 = prior cell, so every forecast year is 2.00%. An agent that follows the instruction gets I137 = 0.0015369*3617.19 ≈ 5.56. The GT has I137 = 72.34 (and J:M 85.93/116.93/157.95/210.90). The difference flows into Consolidated P&L row 6, Total Revenue (row 9), the CAGR in M9, the Working Capital, CF and Ratio sheets, and the DCF. All of these are 'modification' cells. verify_spreadsheetbench2_cells (weight 1, the only verifier) is all-or-nothing: every modification cell must match. So a correct reading of the instruction scores 0. Also, the GT uses a formula link rather than a 'hardcode'.",
+    "confirmation": "GT I137 = 72.34 (2% x 3617.19) versus about 5.56 under the instructed carry-forward of 0.1537%. GT also uses a formula link rather than a hardcode, so following the instruction fails the all-or-nothing verifier.",
+    "fixed": true,
+    "fix": "gt_01_Education_golden.xlsx: 'Revenue Drivers'!I138 changed from ='Key Assumptions'!D9 (2%) to the hardcoded last-actual-year value 0.00153691620609951 (= H138, 4.8948374/3184.843377). J138:M138 keep their =I138 chain. Cached values were recomputed in LibreOffice: 424 dependent cells changed (Revenue Drivers 137/138, Consolidated P&L, BS, CF, Ratio Analysis, Working Capital, Forecast, DCF), no formulas or formats changed. DCF Valuation!C22 is now 2238.42836435011, matching the three runs that followed the prompt."
+  },
+  {
+    "id": "F3",
+    "title": "Ground truth contradicts the required Other Revenue forecast assumption",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instruction says to hardcode forecast Other Revenue percentages to the last actual year's value. The supplied FY2025 actuals are Other Revenue of 4.8948374 and Operating Revenue of 3184.843377, giving 0.1536916206%. However, golden Revenue Drivers!I138 references 'Key Assumptions'!D9, which is 2%, and J138:M138 carry that forward. Consequently, golden I137 expects 72.343845 rather than 5.5593213896. These differences exceed the verifier's 1% tolerance. Following the explicit instruction therefore fails the sole, weight-1, all-or-nothing verifier.",
+    "confirmation": "Duplicate of the same contradiction: golden I138 references the 2% Key Assumption instead of the last actual 0.1537%, giving I137 72.34 against 5.56, far beyond 1% tolerance.",
+    "fixed": true,
+    "fix": "gt_01_Education_golden.xlsx: 'Revenue Drivers'!I138 changed from ='Key Assumptions'!D9 (2%) to the hardcoded last-actual-year value 0.00153691620609951 (= H138, 4.8948374/3184.843377). J138:M138 keep their =I138 chain. Cached values were recomputed in LibreOffice: 424 dependent cells changed (Revenue Drivers 137/138, Consolidated P&L, BS, CF, Ratio Analysis, Working Capital, Forecast, DCF), no formulas or formats changed. DCF Valuation!C22 is now 2238.42836435011, matching the three runs that followed the prompt."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: Verifier fails all three valid agent submissions (false negative) due to contradictory ground-truth assumption in Revenue Drivers!I138:M138",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, the agent correctly implemented every instruction in problem.py: (1) 'Consolidated P&L'!M9 revenue CAGR from 2025 to 2030, (2) 'Revenue Drivers'!D137:H137 linked to 'Consolidated P&L'!C6:G6, D138:H138 calculated as Other Revenue / Operating Revenue, I138:M138 hardcoded to the last actual year's value H138 = 4.8948374 / 3184.843377 = 0.00153691620609951 (see unit 1 steps [28]/[34], unit 2 step [39], unit 3 step [49]), and I137:M137 computed as I138*I135 ... M138*M135, (3) 'Cost Drivers'!I16:M23 Foundation Course Mature operational costs and sum, (4) 'Working Capital Schedule'!H22:M22 changes in working capital (=G21-H21 ... =L21-M21), (5) 'Fixed Assets Schedule'!H7:L7 depreciation (=-$C$10*(H5+H6) ... =-$C$10*(L5+L6)), and (6) 'Consolidated BS'!C50:L50 balance sheet check (=C22-C48 ... =L22-L48). Substituting only 'Revenue Drivers'!I138:M138 = 4.8948374 / 3184.843377 into gt_01_Education_golden.xlsx and recalculating in LibreOffice reproduces the exact cell values produced by all 3 units (DCF Valuation!C22 = 2238.42836435011, C23 = 2088.43267691466, C24 = 4326.86104126477, C27 = 3690.90595426477, C33 = 1.35649409149981) and the exact modification ratio 0.4132 (281/680 matched, 399 downstream modification errors). Because 'SpreadsheetBench 2 official cell check' (weight: 1) grades against gt_01_Education_golden.xlsx where I138:M138 is set to 'Key Assumptions'!D9 (0.02) contrary to the prompt, all 3 units received score=0.",
+    "confirmation": "GT 'Revenue Drivers'!I138 is ='Key Assumptions'!D9 (2%), with J138:M138 chained, whereas the prompt says to hardcode the last actual year's value H138 = 0.1537%. All three trials of run <id> followed the prompt and scored 0 with an identical modification 0.4132, failing on the cascaded cells (e.",
+    "fixed": true,
+    "fix": "gt_01_Education_golden.xlsx: 'Revenue Drivers'!I138 changed from ='Key Assumptions'!D9 (2%) to the hardcoded last-actual-year value 0.00153691620609951 (= H138, 4.8948374/3184.843377). J138:M138 keep their =I138 chain. Cached values were recomputed in LibreOffice: 424 dependent cells changed (Revenue Drivers 137/138, Consolidated P&L, BS, CF, Ratio Analysis, Working Capital, Forecast, DCF), no formulas or formats changed. DCF Valuation!C22 is now 2238.42836435011, matching the three runs that followed the prompt."
+  }
+]

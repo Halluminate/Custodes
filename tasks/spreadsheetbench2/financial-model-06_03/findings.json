@@ -1,0 +1,13 @@
+[
+  {
+    "id": "F1",
+    "title": "The answer key grades month-over-month growth instead of the requested YoY growth",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task explicitly requests \"YoY Revenue Growth returning \\\"NM\\\" where unavailable\", but the golden workbook's monthly growth formulas compare consecutive months. For May-2025, Ratio Analysis!M7 is ='Income Statement'!N19/'Income Statement'!M19-1 and expects 0.0117689844393263, although May-2024 monthly revenue is unavailable. For April-2026, X7 expects 0.153640118577652 from April/March; April-2026 divided by April-2025 minus one is 0.31742359464853576 using the supplied fixture. This affects 59 monthly answer cells. The sole verifier has weight 1 and requires every modification cell to match, so correctly implementing YoY growth fails the entire check.",
+    "confirmation": "In gt_06_DigiMark_golden.xlsx, Ratio Analysis row 7 monthly cells compare consecutive months (M7 is 'NM', N7 is ='Income Statement'!N19/'Income Statement'!M19-1, cached about 0.0118). The prompt asks for YoY growth with NM where unavailable, so a correct YoY answer, which would be NM for the first 1",
+    "fixed": true,
+    "fix": "gt_06_DigiMark_golden.xlsx 'Ratio Analysis' row 7 monthly cells: M7:W7 (May-25 to Mar-26, no prior-year month) set to 'NM' like L7; X7:BS7 now compare with the same month a year earlier, e.g. X7 ='Income Statement'!Y19/'Income Statement'!M19-1 (0.3174, was 0.1536 MoM). Annual cells F7:J7 untouched; caches recalculated, no other cell changed, GT scores 1.0 on its verifier."
+  }
+]

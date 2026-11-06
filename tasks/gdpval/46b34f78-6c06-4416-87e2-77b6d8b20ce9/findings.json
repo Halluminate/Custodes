@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "The only input file, Research Material.docx, is corrupt: LibreOffice and python-docx both fail to open it",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "word/_rels/document.xml.rels in the seeded file is malformed XML. The hyperlink Relationship elements had their targets rewritten to a placeholder and lost their closing '/>', for example: <Relationship Id=\"rId8\" ... Target=\"https://example.invalid/_external\" TargetMode=\"External\"<Relationship Id=\"rId13\" .... Running `soffice --headless --convert-to pdf` on the file returns 'Error: source file could not be loaded'. python-docx fails with 'lxml.etree.XMLSyntaxError: attributes construct error, line 2, column 258'. The source list is only readable by unzipping the file and parsing word/document.xml by hand. Several graded rubric items depend on this file: 'At least one oil-market citation is drawn from a source listed in the Reference File \"Research Material.docx\"' (+2) and the matching natural-gas item (+2). The statement also says the reference data is 'attached in the reference file'. The ._rels/.rels part was also re-serialized with ns0: prefixes, which suggests a URL-scrubbing step damaged the package.",
+    "confirmation": "Reproduced the python-docx XMLSyntaxError on the sole input file. The source list (EIA, Bloomberg, S&P, ...) is readable only by unzipping word/document.xml, yet the rubric awards points for citing sources from that file.",
+    "fixed": true,
+    "fix": "data/Research Material.docx repaired: word/_rels/document.xml.rels had nine hyperlink <Relationship> elements missing their closing '/>' and pointing at https://example.invalid/_external; each is now closed and points at the URL its link text shows (eia.gov, bloomberg.com/markets/commodities, ... esgtoday.com). [Content_Types].xml and _rels/.rels were also rewritten from 'ns0:'-prefixed XML to the standard default namespace, which LibreOffice needs to open the package. document.xml, styles and fonts are byte-identical. The file now opens in python-docx and converts in LibreOffice."
+  },
+  {
+    "id": "F2",
+    "title": "Corrupted XML in staged reference file 'Research Material.docx' causes LibreOffice and python-docx to crash, and replaces all hyperlink targets with 'https://example.invalid/_external'",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The staged input file `assets/Research Material.docx` (copied to `/home/model/Desktop/Research Material.docx` by `initialize.py:21`) has malformed XML inside `word/_rels/document.xml.rels`: every external hyperlink `<Relationship>` tag is missing its closing `/>` delimiter and has its `Target` attribute replaced with `https://example.invalid/_external` (e.g., `<Relationship Id=\"rId8\" Type=\".../hyperlink\" Target=\"https://example.invalid/_external\" TargetMode=\"External\"<Relationship Id=\"rId13\" ...`). As a result, opening the file with `python-docx` raises `lxml.etree.XMLSyntaxError: attributes construct error, line 2, column 258`, and opening/converting it with LibreOffice fails with `Error: source file could not be loaded`. Furthermore, the grader guidance has four rubric items totaling 8 points (`[+2] Oil market overview includes at least one quantitative datapoint ... with a working citation URL`, `[+2] Natural gas market overview includes at least one quantitative datapoint ... with a working citation URL`, `[+2] At least one oil-market citation is drawn from a source listed in the Reference File \"Research Material.docx\" and includes a working URL`, `[+2] At least one natural-gas-market citation is drawn from a source listed in the Reference File \"Research Material.docx\" and includes a working URL`), so an agent or grader inspecting hyperlink relationships sees broken `https://example.invalid/_external` targets.",
+    "confirmation": "Verified that data/Research Material.docx word/_rels/document.xml.rels has unclosed '<Relationship ... Target=\"https://example.invalid/_external\" TargetMode=\"External\"<Relationship' entries. python-docx fails with 'attributes construct error, line 2, column 258', so the task's only reference file is",
+    "fixed": true,
+    "fix": "data/Research Material.docx repaired: word/_rels/document.xml.rels had nine hyperlink <Relationship> elements missing their closing '/>' and pointing at https://example.invalid/_external; each is now closed and points at the URL its link text shows (eia.gov, bloomberg.com/markets/commodities, ... esgtoday.com). [Content_Types].xml and _rels/.rels were also rewritten from 'ns0:'-prefixed XML to the standard default namespace, which LibreOffice needs to open the package. document.xml, styles and fonts are byte-identical. The file now opens in python-docx and converts in LibreOffice."
+  }
+]

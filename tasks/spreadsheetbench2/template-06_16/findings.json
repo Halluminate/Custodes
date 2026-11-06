@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "The labelled 'YoY Growth %' row is left blank in the ground truth, and filling it fails the whole task",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Row 10 is labelled '  YoY Growth %' (B10) in both the input and the GT, but C10:J10 are empty in both. The instruction says 'Complete the financial model … Ensure that all formulas, references, and calculations are correct.' A competent analyst would likely fill H10:J10 for Q1–Q3 2007, since Q1–Q3 2006 comparables exist (e.g. H10 = H8/C8-1 = 21.1%). Because H10:J10 are the same in input and GT (both blank), the verifier treats them as regression cells. It compares None to 0.211, finds a type mismatch, and records a regression error. The range B2:J35 holds 306 cells, so one error gives a regression ratio of 305/306 = 0.9967. That is below REGRESSION_PASS_RATIO = 0.998, and the only (weight-1, binary) verifier returns 0. So a correct and arguably more complete model scores zero.",
+    "confirmation": "Duplicate of the confirmed H10:J10 trap: B10 'YoY Growth %' with blank C10:J10 in both input and golden, so filling H10:J10 counts as regression and zeroes the sole verifier.",
+    "fixed": true,
+    "fix": "Same answer-key fix as verifier-correctness-0 (GT QuarterlyPL_Forecast!H10:J10 filled with YoY formulas)."
+  },
+  {
+    "id": "F2",
+    "title": "Completing the labeled YoY growth row causes the entire task to fail grading",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task says, \"Complete the financial model\" and \"Ensure that all formulas, references, and calculations are correct.\" The input labels B10 \"YoY Growth %\" and supplies the historical and forecast assumptions needed to calculate H10:J10. However, the golden workbook leaves these three forecast cells blank, and the verifier treats them as regression cells that must remain blank. A controlled check using all golden values plus the calculated YoY growth values (21.142857%, 16.107383%, and 11.492063%) returned regression 0.9884 and modification 1.0000, with three errors stating \"answer=None\". Because the sole verifier requires regression of at least 0.998 and has weight 1, completing this legitimate model row changes the entire task score from 1 to 0. Run 3 also explicitly describes filling the YoY growth row.",
+    "confirmation": "Duplicate of the confirmed YoY row trap: golden H10:J10 None while the prompt asks to complete the model, so computing the labelled YoY row fails the all-or-nothing check.",
+    "fixed": true,
+    "fix": "Same answer-key fix as verifier-correctness-0 (GT QuarterlyPL_Forecast!H10:J10 filled with YoY formulas)."
+  },
+  {
+    "id": "F3",
+    "title": "Golden workbook leaves Q1-Q3 2007 YoY Growth % (H10:J10) blank, penalizing complete solutions as regression errors",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `/home/model/Desktop/06_16_input.xlsx` (`QuarterlyPL_Forecast`), the P&L table includes Row 10 labeled `B10 = '  YoY Growth %'` right below `B8 = 'Revenues'` and `B9 = '  QoQ Growth %'`. In the historical 2006 columns (`C10:G10`), Row 10 is blank because 2005 revenues are not in the table. For the forecast columns `Q1 2007` (`H`), `Q2 2007` (`I`), and `Q3 2007` (`J`), prior-year quarterly revenues `Q1 2006` (`C8 = 280`), `Q2 2006` (`D8 = 298`), and `Q3 2006` (`E8 = 315`) are present in the table, and the prompt instructs: \"Complete the financial model based on the provided assumptions. Ensure that all formulas, references, and calculations are correct.\" However, `gt_06_16_golden.xlsx` leaves `H10:J10` as `None` (without any instruction in `problem.py` or the workbook telling the agent to leave Row 10 blank in 2007). Because the sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, `weight: 1`) checks `'QuarterlyPL_Forecast'!B2:J35` and treats any cell where `input == gt` (`None == None`) as a regression cell with `REGRESSION_PASS_RATIO = 0.998` (258 regression cells total, where even 1 mismatch yields `257/258 = 0.9961 < 0.998`), any agent that computes `YoY Growth %` in `H10:J10` fails with `score = 0.0` despite getting `modification 1.0000` (all 48 other forecast cells correct).",
+    "confirmation": "Confirmed golden leaves H10:J10 blank under a 'YoY Growth %' label while H9:J9 (QoQ) are filled, and nothing tells the agent to skip YoY, so a natural complete solution is scored as regression errors.",
+    "fixed": true,
+    "fix": "Same answer-key fix as verifier-correctness-0 (GT QuarterlyPL_Forecast!H10:J10 filled with YoY formulas)."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check returns false negative (score 0.0) on all 3 units due to H10:J10 YoY Growth %",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units (`unit 1`, `unit 2`, `unit 3`), `SpreadsheetBench 2 official cell check` (`weight: 1`) returned `score=0 - FAILED - regression 0.9884, modification 1.0000. 3 cell error(s): Regression error at QuarterlyPL_Forecast!H10: answer=None, output=0.211453571428571; Regression error at QuarterlyPL_Forecast!I10: answer=None, output=0.161044093959732; Regression error at QuarterlyPL_Forecast!J10: answer=None, output=0.11486034`. Trajectory inspection confirms that all 3 attempts (`unit 1` steps [20]-[31], `unit 2` steps [13]-[21], `unit 3` steps [20]-[36]) accurately populated all 48 modification cells in `H8:J9` and `H12:J28` (`modification 1.0000`) and also filled in the `YoY Growth %` row for Q1-Q3 2007 (`H10 = (H8/C8)-1`, `I10 = (I8/D8)-1`, `J10 = (J8/E8)-1`). Because `gt_06_16_golden.xlsx` has `None` in `H10:J10` (matching the blank input `06_16_input.xlsx`), `score_workbooks` classifies `H10:J10` as regression cells; filling those 3 cells lowers the regression score to `255/258 = 0.9884 < 0.998`, zeroing out the entire task score.",
+    "confirmation": "QuarterlyPL_Forecast row 10 is labelled 'YoY Growth %' and Q1-Q3 2006 comparables (C8:E8) exist, yet golden H10:J10 are None like the input, so the cell check treats them as regression cells and fails any agent that completes the row under 'Complete the financial model'.",
+    "fixed": true,
+    "fix": "gt_06_16_golden.xlsx, QuarterlyPL_Forecast: added H10 =(H8/C8)-1, I10 =(I8/D8)-1, J10 =(J8/E8)-1 (21.14%, 16.11%, 11.49%) with the QoQ row's 0.00% style. H10:J10 are now modification cells, so completing the labelled row no longer fails the regression ratio. No other cell changed. The patched GT scores 1.0 on the local SB2 cell check."
+  }
+]

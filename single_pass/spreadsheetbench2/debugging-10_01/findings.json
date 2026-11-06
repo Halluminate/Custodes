@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit of all errors, yet the golden leaves other visible inconsistencies uncorrected. Grading is exact-match over almost the entire workbook, so an agent that also fixes these real errors changes downstream values and fails.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "overbroad-exact-match",
+    "evidence": "Model!H43=0.1 (hardcoded) whereas base-case P43 =SUM($F43,O43)=0.197; G43 is hardcoded instead of CHOOSE. K57=0.112, L57, M57 are hardcoded although I57:J57 use CHOOSE and the base case S57=0.113, so the active case diverges. D2 =CHOOSE(C2,B4,B5,B6,#REF!). The golden keeps all of these, and fixing H43 or K57 would shift H48, K106, K112, M112 and the returns.",
+    "confirmation": "Golden Model!H43=0.1 and G43 are hardcoded while the base-case column P43 uses =SUM($F43,O43), and K57:M57 are hardcoded where I57:J57 use CHOOSE. Recalculating the golden with these fixed in LibreOffice and scoring with the live SB2 logic adds 4 new modification-cell failures (Model J137:J138, P&L "
+  }
+]

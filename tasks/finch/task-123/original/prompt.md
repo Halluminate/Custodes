@@ -1,0 +1,3 @@
+Assume that in January 2002 you enter a “portfolio” by going long ERCOT peak power and short an equal-scale amount of NYMEX natural gas. Over the full year 2002, does this portfolio make or lose money, and what is its nominal return?
+
+Your input files are on your Desktop (/home/model/Desktop): 123_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

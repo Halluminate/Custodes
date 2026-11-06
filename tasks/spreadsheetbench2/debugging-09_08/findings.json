@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Golden workbook contains inconsistent cached values and fails its own verifier",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The verifier recalculates the submitted workbook but compares it with unrecalculated golden caches. Those caches do not reconcile: in gt_09_golden.xlsx, LBO!J124 is '=+J133' but caches 205.703600930112, while J133 caches 208.670134280738. Passing the golden workbook itself through the verifier's managed_recalculated_xlsx(force_recalculation=True) and score_workbooks produces regression 1.0000, modification 0.9258, and 34 cell errors. Examples include LBO!L204 changing from 0.0624242913250008 to 0.0617130952570759 and D213 changing from '6% / 1.4x' to '6% / 1.3x'. The sole check has weight 1 and requires every modification cell to match, so even the supplied golden answer receives zero after the required recalculation.",
+    "confirmation": "Verified: LBO!J124 '=+J133' caches 205.7036 while J133 caches 208.6701 in gt_09_golden.xlsx. The verifier compares recalculated output against these stale caches, so even the golden scores 0.",
+    "fixed": true,
+    "fix": "Same GT re-cache as gt-replay-0 (converged circular-loop values on LBO)."
+  },
+  {
+    "id": "F2",
+    "title": "Golden workbook's cached values are stale and do not satisfy its own formulas, so after LibreOffice recalculation the golden fails its own verifier and no output can pass",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Same issue reported 2 times, differing only in the verifier/range/step cited:\n- I copied gt_09_golden.xlsx to the output path and ran the shipped grading path: managed_recalculated_xlsx(force_recalculation=True) followed by score_workbooks with the spec's answer_position. Result: regression 1.0, modification 0.9258, with 34 modification-cell errors. Examples: 'LBO!L199: answer=22.2666, output=6.1416'; 'LBO!K138: answer=698.75, output=606.18'; 'LBO!N82: answer=1323.05, output=1337.36'; 'LBO!D213: answer=6% / 1.4x, output=6% / 1.3x'; 'LBO!J124: answer=205.70, output=208.67'. The verifier is all-or-nothing: it needs modification == 1.0, and it is the only check (weight 1). S\n- Recomputing from the golden's own cached values (data_only=True):\n- LBO!I138 '=IF($F138-I135<0,0,$F138-I135)' is cached as 1034.97, but F138-I135 = 1005.65. J138 is 856.35 vs 798.76; K138 is 698.75 vs 606.18.\n- LBO!J124 '=+J133' is cached as 205.70, but J133 = 208.67. N124 is 156.04 vs 162.85.\n- LBO!M82 '=-M67+L83' is cached as 1156.39, but the recomputed value is 1162.80. N82 is 1323.05 vs 1329.86.\nThe returns block downstream (L199 22.27, L204 IRR, the D213 '6% / 1.4x' sensitivity) inherits these stale figures. The answer key's graded cells are internally inconsistent, which is the root caus",
+    "confirmation": "The golden's cached values do not satisfy its own formulas (I138, J124 and others), so no LibreOffice-recalculated workbook can reproduce them under the all-cells-match rule.",
+    "fixed": true,
+    "fix": "Same GT re-cache as gt-replay-0 (converged circular-loop values on LBO)."
+  },
+  {
+    "id": "F3",
+    "title": "Golden workbook (gt_09_golden.xlsx) contains un-converged cached values in its circular LBO debt/interest loop, causing a 100% correct model to fail verification",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The workbook has an enabled iterative calculation loop (`<calcPr iterateCount=\"100\" iterate=\"true\" iterateDelta=\"0.0001\"/>`) linking Interest (`LBO!G67:N67`), Net Income (`G69:N69`), FCF (`G99:N99`), Cash Flow before Revolver (`G123:N123`), Revolver Draw (`G133:N133`), Revolver Ending Balance (`G135:N135`), and Total Interest Expense (`G179:N179`). In `gt_09_golden.xlsx`, the cached values were saved after a single incomplete recalculation pass without iterating to convergence: for instance, `LBO!G124` (`=+G133`) has cached value `302.331140639508` while `G133` itself has cached value `302.546887790176`; `LBO!G138` (`=IF($F138-G135<0,0,$F138-G135)` with `F138=1800`) has cached value `1497.66885936049` (`1800 - 302.33114`) instead of `1800 - G135 = 1497.45311220982`; and `LBO!L103` (`=+L135`) has cached value `1367.25404570845` while `L135` has cached value `1373.2405637618`. Because `verify_spreadsheetbench2_cells` (weight: 1) force-recalculates the agent's `output.xlsx` in LibreOffice (`managed_recalculated_xlsx(..., force_recalculation=True)`) but loads `gt_09_golden.xlsx` raw without recalculating it, even passing `gt_09_golden.xlsx` itself into `verify_spreadsheetbench2_cells` fails with `score=0.0` (`regression 1.0000, modification 0.9258. 34 cell error(s)`, including `LBO!D213: answer=6% / 1.4x, output=6% / 1.3x`, `LBO!I138`, `LBO!J124`, `LBO!J138`, etc.).",
+    "confirmation": "Confirmed un-converged caches in the circular LBO loop: G138 caches 1497.67 although F138-G135 = 1800-302.547 = 1497.45, and spreadsheetbench2.py recalculates only the output (force_recalculation=True), never the golden.",
+    "fixed": true,
+    "fix": "Same GT re-cache as gt-replay-0 (converged circular-loop values on LBO)."
+  },
+  {
+    "id": "F4",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "gt_09_golden.xlsx caches are internally inconsistent (LBO!G124 '=+G133' caches 302.331 while G133 caches 302.547). The verifier recalculates the output but compares it with the raw golden caches, so the golden itself fails (modification 0.9258).",
+    "fixed": true,
+    "fix": "files/gt/gt_09_golden.xlsx: cached values of 258 cells on the LBO sheet (the circular debt, interest and returns block, e.g. G124, J124, I138, K138, L199:L201, H204, D213) replaced with the converged LibreOffice values (LibreOffice recalculated it 12 times until nothing moved). No formula changed and no other sheet changed."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails exact golden-formula solutions (units 2 and 3) with score=0 due to un-converged cached values in gt_09_golden.xlsx",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "In units 2 and 3, the agent identified and applied the exact 34 formula sign fixes that distinguish `gt_09_golden.xlsx` from `Incorrect Sign Conventions_input.xlsx` (`Financials!E25:N25` changed from `=+E18+E22` to `=+E18-E22`, `LBO!G74:N74` from `=+MIN(...)` to `=-MIN(...)`, `LBO!G97:N97` from `=+G87` to `=-G87`, and `LBO!G142:N142` from `=+($D142*G141)` to `=-($D142*G141)`). However, `SpreadsheetBench 2 official cell check` (weight: 1) scored both unit 2 and unit 3 `0.0` (`FAILED - regression 1.0000, modification 0.9236. 35 cell error(s): Modification error at LBO!D213: answer=6% / 1.4x, output=6% / 1.3x; Modification error at LBO!H204: answer=0.00413401166586813, output=0.00405897791165111; Modification error at LBO!I138: answer=1034.97097384539, output=1004.45756004728...`). Because the verifier force-recalculates `output.xlsx` in LibreOffice while comparing against the stale, un-converged cached values stored in `gt_09_golden.xlsx`, any submission with the exact golden formulas converges to `6% / 1.3x` at `D213`/`L213` and `1004.46` at `I138` upon verifier recalculation and is falsely rejected.",
+    "confirmation": "In the golden, LBO!J124 '=+J133' caches 205.70 vs J133 208.67 and I138 caches 1034.97 vs 1800-I135=1005.65, with iterate=true in calcPr. Any recalculated output carrying the exact golden formulas cannot match these stale cached values.",
+    "fixed": true,
+    "fix": "Same GT re-cache as gt-replay-0 (converged circular-loop values on LBO)."
+  }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Reference headcount summary disagrees with the detailed rosters",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The reference workbook's Master sheet counts the opening Canada block as 11 employees (L24), but Canada!A2:A11 contains exactly 10 names. It also assigns 33 to 'Canada Support (including Legal but not HR)' (L69), although the 33 roster rows include Canada Support!A17:C17 = 'Vacancy', 'HR', 'Sr. Spec.'; excluding HR leaves 32 employees. Finally, the reference entirely omits 'Market Risk & Researcch', whose roster contains 11 named employees in rows 3:8 and 12:16. Its total of 855 therefore does not reflect all detailed rosters. Correcting these three discrepancies while retaining the other reference counts produces 864. The authoritative grading guidance requires logical equivalence to the reference and uses a binary overall score, so accurate roster-based corrections risk failing the entire task.",
+    "confirmation": "At least the Canada miscount is real (GT L24 = 11 vs 10 names in Canada!A2:A11), and GT L69 = 33 counts the 'Vacancy','HR' row 17 under a heading that says 'not HR', so the reference disagrees with the rosters the prompt says to check (the Market Risk omission is more debatable since the input Maste",
+    "fixed": true,
+    "fix": "Same GT edit for Canada; graderGuidance: appended one sentence to the opening paragraph: 'Two roster counts are open to judgment, so accept either reading and the grand total that follows from it: Canada Support may be 33 or 32 (the 'Vacancy', 'HR' row 17 left out), and a 'Market Risk & Research' line of 11 may be added or left out.'"
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth (gt_28_ref_0.xlsx) overcounts the 'Canada' roster sheet by including the header cell A1='CANADA' and restructures Canada sub-departments without specification, making the reference grand total wrong",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In problems-metadata.json, the grader operates in binary single_score mode ('score': 0 or 1) and checks 'whether the model-generated output.xlsx is logically equivalent to the reference answer.xlsx' ('correctness': 1 if all values, formulas, charts, and text are logically equivalent to the reference answer; 0 otherwise). On the 'Canada' sheet of 28_src_0.xlsx, row 1 is the sheet header/status row (A1='CANADA', B1='ok', matching the header pattern of 'Gas Trading'!A1:B1, 'Gas Orig'!A1:B1, 'Admins'!A1:B1, etc.), and rows A2:A11 contain 10 employee names (MacPhee through Cooke). Because the employee list starts in row 2 instead of row 3, gt_28_ref_0.xlsx erroneously counts A1:A11 (including the header A1='CANADA') and records Master!D24='Canada', Master!L24=11 instead of 10. Furthermore, while 28_src_0.xlsx lists three sub-rows under Canada (C17='Trading' [11], C18='Origination' [15], C19='Admins' [5]) and the 'Canada' sheet contains five sections (untitled top block [10], 'Power Orig' A14:A18 [5], 'Gas Orig' A23:A28 [6], 'Trading' A32:A42 [11], and 'Toronto' A47:A50 [4], totaling 36 employees), gt_28_ref_0.xlsx restructures Master!D24:L27 into 'Canada' (11), 'Trading' (11), 'Origination' (11, merging Power Orig and Gas Orig), and 'Toronto' (4), totaling 37 and inflating the grand total in Master!L73 ('=SUM(L7:L71)') to 855 instead of 854.",
+    "confirmation": "Canada sheet row 1 is the header ('CANADA','ok') and A2:A11 hold 10 names (MacPhee..Cooke), yet gt_28_ref_0.xlsx Master!L24 'Canada' = 11 and L73 totals 855, so a correct 10/854 answer would mismatch the reference the binary judge compares against.",
+    "fixed": true,
+    "fix": "Same GT edit: Canada block now 10 (A2:A11) and total 854. The reference's split of Canada into Canada/Trading/Origination/Toronto matches the sheet's sections (Origination 11 = Power Orig 5 + Gas Orig 6) and was kept."
+  },
+  {
+    "id": "F3",
+    "title": "Answer key gives 11 for the Canada 'Canada' sub-department, but its roster block lists 10 names",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "GT Master!D24 'Canada' = 11 (L24). On the 'Canada' sheet, the unlabeled top block (A2:A11) holds exactly 10 names: MacPhee, Kitagawa, Wilson, Di Stephano, Sangermano, Dunsmore, Laporte, Torres, Messenger, Cooke. Row 12 is blank, and 'Power Orig' starts at row 13. The other GT Canada lines do tie to the sheet: Origination 11 = Power Orig 5 + Gas Orig 6; Trading 11 = Brodeur through Zufferli; Toronto 4. So the Canada section is 1 too high, and the GT total of 855 (L73 =SUM(L7:L71)) should be 854. The grader is binary 0/1 and needs output that is 'logically equivalent to the reference'. A correct count of 10 and a total of 854 would therefore show as a mismatch with the key, and the run could fail the whole problem.",
+    "confirmation": "Confirmed: the unlabeled top block Canada!A2:A11 has exactly 10 names (row 12 blank, 'Power Orig' at row 13), but GT Master!D24/L24 says 11, making the GT total 855 one too high.",
+    "fixed": true,
+    "fix": "ground_truth/gt_28_ref_0.xlsx: Master!L24 (Canada / Canada) 11 -> 10 and cached Master!L73 (=SUM(L7:L71)) 855 -> 854; XML-only edit, no other cell changed."
+  }
+]

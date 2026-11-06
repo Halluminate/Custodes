@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "For Occupancy Loss, the reference puts the B-flagged value (1178) in SUM OF A and the A-flagged value (1224) in SUM OF B, the reverse of the workbook's own flags.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-contradicts-markers",
+    "evidence": "Income Statement R124=1178 S124='B', R125=1224 S125='A'; reference R132=1178 (=+K125) and R134=1224 (=+K124).",
+    "confirmation": "In the reference 'Income Statement', R124 (=K125, 1178) is flagged S124='B' and R125 (=K124, 1224) is flagged S125='A', yet SUM OF A R132 = +K125 (1178) and SUM OF B R134 = +K124 (1224), the reverse of the markers; a solver summing by the A/B flags gets swapped values and the judge compares to this "
+  }
+]

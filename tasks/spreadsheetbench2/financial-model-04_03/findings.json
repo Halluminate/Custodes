@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Debt/Equity answer key divides debt by assets instead of equity",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task requests “Debt/Equity,” but the golden workbook's Ratio_Analysis !K25 contains '=+(Financials!K95+Financials!K90)/Financials!K87'. Financials!K87 is Total Assets, not Total Equity. Debt is 31,542.997 and equity is 73,737.1074405548, so Debt/Equity is 0.427776435703411; the key instead requires 0.217598737967923. The same wrong denominator appears throughout F25:O25. A verifier probe changing only K25 to use equity produced modification ratio 0.9846 and errors at K25 and Final Output!M37. Because the sole weight-1 verifier requires every modification cell to match, this financially correct calculation receives zero overall credit.",
+    "confirmation": "In gt_04_Consumer_golden.xlsx, Ratio_Analysis!F25 (labelled 'Debt / Equity') = (Financials!F95+F90)/Financials!F87, and Financials row 87 is 'Total Assets' while row 103 is 'Total Equity'. The key is really debt/assets (about half of true D/E), so a correct Debt/Equity fails the all-or-nothing cell ",
+    "fixed": true,
+    "fix": "Same GT fix: 'Ratio_Analysis '!F25:O25 denominator now Financials row 103 (Total Equity), and Final Output L37:Q37 caches updated."
+  },
+  {
+    "id": "F2",
+    "title": "The answer key computes Debt/Equity as debt divided by Total Assets, not by Equity",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "GT Ratio_Analysis F25:O25 = '=+(Financials!F95+Financials!F90)/Financials!F87'. Financials row 87 is 'Total Assets'; row 103 is 'Total Equity'. The row just above, 'Equity / Assets' (row 24), uses F103/F87, so the model has an equity line available. GT values: F25=0.274, J25=0.226, K25=0.218, O25=0.192. Correct Debt/Equity (borrowings/Total Equity) is 0.583, 0.459, 0.428 … 0.350. That is about 2x the key, far outside the 1% tolerance. The error also flows into Final Output L37:Q37 (=Ratio_Analysis J25:O25). The only verifier (verify_spreadsheetbench2_cells, weight 1) is all-or-nothing: every modification cell must match. So an agent that computes Debt/Equity correctly scores 0 on the whole problem.",
+    "confirmation": "In gt_04_Consumer_golden.xlsx, Ratio_Analysis!F25 (labelled 'Debt / Equity') = (Financials!F95+F90)/Financials!F87, and Financials row 87 is 'Total Assets' while row 103 is 'Total Equity'. The key is really debt/assets (about half of true D/E), so a correct Debt/Equity fails the all-or-nothing cell ",
+    "fixed": true,
+    "fix": "Same GT fix: 'Ratio_Analysis '!F25:O25 denominator now Financials row 103 (Total Equity), and Final Output L37:Q37 caches updated."
+  },
+  {
+    "id": "F3",
+    "title": "Ground truth for 'Debt / Equity' in Ratio_Analysis divides by Total Assets instead of Total Equity",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The prompt instructs: 'In the Ratio Analysis sheet, calculate Debt/Equity for all periods.' In Ratio_Analysis!F25:O25 (labeled 'Debt / Equity' in B25), the golden workbook gt_04_Consumer_golden.xlsx uses the formula '=+(Financials!F95+Financials!F90)/Financials!F87' through '=+(Financials!O95+Financials!O90)/Financials!O87', where Financials row 87 is 'Total Assets' and Financials row 103 is 'Total Equity'. Note that on the Final Output sheet right above row 37 ('Debt/equity', which links to 'Ratio_Analysis '!J25:O25), row 36 ('Total assets/equity') explicitly uses '=Financials!J87/Financials!J103', and Ratio_Analysis row 24 ('Equity / Assets') uses '=+Financials!F103/Financials!F87'. Every agent unit correctly calculated Debt/Equity as Total Debt / Total Equity ('=(Financials!F95+Financials!F90)/Financials!F103', yielding 0.4591 for 2013 in J25 and 0.4278 for 2014F in K25) and failed the single weight-1 verifier (score=0.0) on all 16 cells in Ratio_Analysis!F25:O25 and Final Output!L37:Q37 (where GT expects Debt/Assets: 0.2265 for 2013, 0.2176 for 2014F).",
+    "confirmation": "In gt_04_Consumer_golden.xlsx, Ratio_Analysis!F25 (labelled 'Debt / Equity') = (Financials!F95+F90)/Financials!F87, and Financials row 87 is 'Total Assets' while row 103 is 'Total Equity'. The key is really debt/assets (about half of true D/E), so a correct Debt/Equity fails the all-or-nothing cell ",
+    "fixed": true,
+    "fix": "Same GT fix: 'Ratio_Analysis '!F25:O25 denominator now Financials row 103 (Total Equity), and Final Output L37:Q37 caches updated."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: Verifier fails all units due to flawed ground-truth formula for Debt/Equity (dividing by Total Assets instead of Total Equity)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (weight: 1) returned score=0.0 (`unit 1: modification 0.8615, 18 cell error(s)`, `unit 2: modification 0.8462, 21 cell error(s)`, `unit 3: modification 0.8769, 16 cell error(s)`). In unit 3, the agent completed all requested calculations including the full Blended Price table on Valuation, leaving only 16 cell errors: `Ratio_Analysis !F25:O25` (10 cells) and the downstream linked cells `Final Output!L37:Q37` (6 cells). From the trajectories, all 3 units computed Debt/Equity in `Ratio_Analysis !F25:O25` as `(Short-term borrowings + Long-term borrowings) / Total Equity` (`=(Financials!F95+Financials!F90)/Financials!F103`, producing `0.459081051972813` in J25 and `0.427776435703411` in K25). However, the golden file `gt_04_Consumer_golden.xlsx` erroneously uses `Financials!F87:O87` (`Total Assets`) as the denominator (`=+(Financials!F95+Financials!F90)/Financials!F87`, producing `0.226499500944257` in J25 and `0.217598737967923` in K25). Because `verify_spreadsheetbench2_cells` requires 100% modification cell accuracy (`mod_ratio == 1.0`) to award 1.0 (otherwise 0.0), this ground-truth error causes a false negative (score 0.0 instead of 1.0) on unit 3 and accounts for 16 of the errors on units 1 and 2.",
+    "confirmation": "In gt_04_Consumer_golden.xlsx, Ratio_Analysis!F25 (labelled 'Debt / Equity') = (Financials!F95+F90)/Financials!F87, and Financials row 87 is 'Total Assets' while row 103 is 'Total Equity'. The key is really debt/assets (about half of true D/E), so a correct Debt/Equity fails the all-or-nothing cell ",
+    "fixed": true,
+    "fix": "gt_04_Consumer_golden.xlsx 'Ratio_Analysis '!F25:O25 changed from =+(Financials!X95+Financials!X90)/Financials!X87 to =+(Financials!X95+Financials!X90)/Financials!X103, with cached values recomputed (F25 0.274 -> 0.583 ... O25 0.192 -> 0.350). 'Final Output'!L37:Q37 (links to J25:O25) get the matching cached values. Nothing else changed. The patched GT, recalculated in LibreOffice, scores reg 1.0 / mod 1.0 locally."
+  }
+]

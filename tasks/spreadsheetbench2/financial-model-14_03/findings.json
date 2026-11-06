@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "Recalculation step freezes data-table (`TABLE(...)`) formulas to stale input values before LibreOffice recalculates",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `'DCF_Income Approach'!K27:O31`, the 25 sensitivity table cells contain `TABLE($J$26,$C$18,$J27,$C$21,K$26)` formulas whose cached values in the input workbook are `-25480.3` and in the golden workbook are `28810.1725164556`. During grading, `verify_spreadsheetbench2_cells` (weight: 1) calls `managed_recalculated_xlsx`, which invokes `freeze_datatable_formulas(patched_input)` (`libreoffice.py:926`) BEFORE running LibreOffice. For an openpyxl-saved workbook (where `DataTableFormula` cells have no cached `<v>` tags), those 25 cells become `None`; for an XML-patched workbook that preserves the input's `<v>` tags, `freeze_datatable_formulas` strips the `<f>` tags and freezes the stale input value `-25480.3` so LibreOffice cannot update them. In both cases, all 25 modification cells in `'DCF_Income Approach'!K27:O31` fail unless the agent manually computes and overwrites the cached `<v>` tags of the data table.",
+    "confirmation": "'DCF_Income Approach'!K27:O31 are TABLE() formulas that freeze_datatable_formulas strips before recalc, so graded values are whatever cache the agent's save left. Trial 2 of <id> kept the stale -25480.3 and an openpyxl save leaves them blank, while GT holds a flat 28810.17, so a correct model sa",
+    "fixed": true,
+    "fix": "answer_position no longer includes the TABLE() sensitivity block 'DCF_Income Approach'!K27:O31, which the grader freezes before recalculation."
+  },
+  {
+    "id": "F2",
+    "title": "Verifier comparison logic misses round-before-compare, causing 1,664 near-zero floating-point noise cells in NCD and TL to be graded as modification errors",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `verifiers/spreadsheetbench2.py`, `_values_match` checks `if isinstance(v1, (int, float)) and isinstance(v2, (int, float)): return _within_tolerance(v1, v2)` at lines 101-102 BEFORE calling `_transform_value` (which rounds floats to 2 decimal places at line 79). Because `_within_tolerance` computes relative difference `abs(v1 - v2) / max(abs(v1), abs(v2)) <= 0.01` for non-zero floats without an absolute near-zero floor or prior rounding, 776 cells in `'NCD'!B3:BW181` (e.g., `NCD!AA137`: input `1.06581410364015e-14`, golden `-3.37507799486048e-13`) and 888 cells in `'TL'!A1:BW376` (e.g., `TL!K245`: input `-3.19189119579732e-16`, golden `-3.12250225675825e-16`) are misclassified as modification cells. When LibreOffice recalculates the workbook during grading, 97 of these cells in `NCD` and 551 in `TL` evaluate to slightly different `~1e-13` to `~1e-16` floating-point residuals, failing the einzige verifier (`SpreadsheetBench 2 official cell check`, weight: 1) even when `gt_14_Refinery_golden.xlsx` itself is submitted (`score=0.0`, `modification 0.9585`, 97 cell errors).",
+    "confirmation": "_values_match compares two numeric floats with _within_tolerance before any rounding, so ~1e-13 residuals that differ between input, GT and LibreOffice recalc become modification cells and fail. My local replay of the GT shows 97 such NCD errors.",
+    "fixed": true,
+    "fix": "answer_position no longer includes the 6,290 NCD/TL cells whose input or golden value is a nonzero residue below 1e-6 (covers all 776 NCD and 888 TL noise 'modification' cells)."
+  },
+  {
+    "id": "F3",
+    "title": "The golden workbook fails its own verifier after required recalculation",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Recalculating gt_14_Refinery_golden.xlsx through the verifier's recalculation helper and checking it against the supplied reference and golden files produces regression 1.0000, modification 0.9585, and 97 modification errors, all in NCD. For example, NCD!AA137 is expected to equal -3.37507799486048e-13 but recalculates to -3.80140363631654e-13. These are numerical residues around zero, not meaningful financial differences. The comparison uses relative tolerance whenever both numbers are nonzero, and the verifier requires every modification cell to match. Consequently, even the recalculated golden workbook receives zero on the sole verification, weighted 1.",
+    "confirmation": "Same result reproduced: recalculating the golden workbook through managed_recalculated_xlsx and scoring yields modification 0.9585 with NCD!AA137 -3.375e-13 vs -3.801e-13 among 97 errors, so the golden fails its own check.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: removed 6,290 near-zero floating-point residue cells (|value| < 1e-6) on the untouched NCD and TL sheets and the 25 data-table cells 'DCF_Income Approach'!K27:O31 (TABLE() results LibreOffice cannot recompute). Locally the golden, an openpyxl-saved golden, and the input with the golden's 219 changed cells copied in all score regression 1.0, modification 1.0; the untouched input scores modification 0."
+  },
+  {
+    "id": "F4",
+    "title": "Ground truth fails its own verifier, so no agent can pass",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "I copied gt_14_Refinery_golden.xlsx to output.xlsx and ran verify_spreadsheetbench2_cells with the spec.yaml parameters. It returned score=0.0: 'FAILED - regression 1.0000, modification 0.9585. 97 cell error(s): Modification error at NCD!AA137: answer=-3.37507799486048e-13, output=-3.80140363631654e-13; ... NCD!AB134 ...'. All 97 errors are on the NCD sheet and are floating-point noise around zero. NCD!AA137 (=AA23+AA15+AA31+AA39+AA47+AA55+AA63) is cached as 1.07e-14 in the input and -3.375e-13 in the GT. Because the two differ, the cell is classed as a 'modification' cell. After LibreOffice recalculates, it becomes -3.80e-13. Neither value is 0, so _within_tolerance applies a relative 1% test, which fails (about 12% apart). The verifier is binary: 100% of modification cells must match. A perfect solution therefore scores 0 on the only verifier (weight 1).",
+    "confirmation": "Confirmed by local replay: GT as output gives regression 1.0, modification 0.9585, 97 NCD floating-point-noise errors, so the sole all-or-nothing verifier scores even the answer key 0.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: removed 6,290 near-zero floating-point residue cells (|value| < 1e-6) on the untouched NCD and TL sheets and the 25 data-table cells 'DCF_Income Approach'!K27:O31 (TABLE() results LibreOffice cannot recompute). Locally the golden, an openpyxl-saved golden, and the input with the golden's 219 changed cells copied in all score regression 1.0, modification 1.0; the untouched input scores modification 0."
+  },
+  {
+    "id": "F5",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "I ran the verifier's own recalc plus score_workbooks on gt_14_Refinery_golden.xlsx as output: regression 1.0, modification 0.9585, 98 errors (97 on NCD such as NCD!AA137 -3.375e-13 vs -3.801e-13), so the golden deliverable scores 0.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: removed 6,290 near-zero floating-point residue cells (|value| < 1e-6) on the untouched NCD and TL sheets and the 25 data-table cells 'DCF_Income Approach'!K27:O31 (TABLE() results LibreOffice cannot recompute). Locally the golden, an openpyxl-saved golden, and the input with the golden's 219 changed cells copied in all score regression 1.0, modification 1.0; the untouched input scores modification 0."
+  },
+  {
+    "id": "F6",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail due to unrounded near-zero float comparisons in NCD/TL and frozen data-table formulas",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (weight: 1) scored 0.0 (unit 1: modification 0.7154, 781 errors; unit 2: modification 0.7116, 788 errors; unit 3: modification 0.7544, 688 errors). In unit 3, the agent identified and wrote the exact ground-truth formulas for almost every target range (including `=AVERAGE(H27:K27)` in `Fixed Asset & Depreciation!L27`), yet still had 688 cell errors. Nearly all of those errors (648 of 688) come from `NCD` (97 cells) and `TL` (551 cells), where untouched formulas evaluate to floating-point zero residuals around `1e-13` to `1e-16` (e.g., `NCD!AA137`: input `1.0658e-14`, golden `-3.3751e-13`, LibreOffice recalculated `-3.8014e-13`). Because `_values_match` in `spreadsheetbench2.py` checks `_within_tolerance(v1, v2)` on raw floats before calling `_transform_value` (which rounds to 2 decimal places), relative tolerance fails on any two near-zero numbers that differ by more than 1%. In addition, `recalculate_xlsx` freezes the 25 data-table cells in `'DCF_Income Approach'!K27:O31` prior to recalculation. Even submitting the ground-truth workbook `gt_14_Refinery_golden.xlsx` itself scores 0.0 (`FAILED - regression 1.0000, modification 0.9585. 97 cell error(s)`), making it impossible for any legitimate solution to pass.",
+    "confirmation": "Reproduced locally: the GT itself fails with 97 NCD near-zero residual mismatches (e.g. NCD!AA137 answer -3.375e-13, output -3.801e-13), because _within_tolerance applies a 1% relative test to non-zero floats. All three trials of run <id> scored 0, so no submission can pass.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: removed 6,290 near-zero floating-point residue cells (|value| < 1e-6) on the untouched NCD and TL sheets and the 25 data-table cells 'DCF_Income Approach'!K27:O31 (TABLE() results LibreOffice cannot recompute). Locally the golden, an openpyxl-saved golden, and the input with the golden's 219 changed cells copied in all score regression 1.0, modification 1.0; the untouched input scores modification 0."
+  }
+]

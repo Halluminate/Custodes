@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Instruction says to fill in all empty cells, but the answer key leaves cells blank that have clear non-zero values, and the grader fails any agent that fills them",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "problem.py says: \"Fill in all empty cells.\" In the ground truth gt_03_02_golden.xlsx, many cells inside the template's own tables are left blank. Examples: C14 (Parent total assets, which should be 1,920+1,580 = 3,500) and D14 (Subsidiary total assets, which should be 195+165 = 360), even though E14 (-130.375) and F14 (3,729.625) in the same row are filled. Also blank: C29/D29 (net income to parent by entity), C18/D18 (balance check), E15, and D31/E31 (subsidiary and NCI dividends; the seeded F38 = -7 implies subsidiary dividends of 35). verify_spreadsheetbench2_cells counts every cell in B2:F54 that is the same in the input and the golden file as a 'regression' cell, and requires 99.8% of them to match. There are 265 cells, so a single mismatch (0.38%) fails the check. The verifier has weight 1 and scores all-or-nothing. An agent that does exactly what it is told and enters C14 = 3,500 scores 0, even if every graded modification is correct. Blank compared with 0 passes, so the balance-check cells are safe, but any non-zero subtotal fails.",
+    "confirmation": "The prompt says 'Fill in all empty cells', but gt_03_02_golden.xlsx leaves C14/D14 (Total assets, 3500/360), C29/D29 and C25-type subtotals blank while E14/F14 are filled. Those cells count as regression cells and REGRESSION_PASS_RATIO is 0.998, so filling them fails the sole verifier.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: 'M&A_Consolidation'!B2:F54 now excludes the cells the golden leaves blank although 'Fill in all empty cells' gives them clear values: C14:D14 (total assets 3,500 / 360), C28:D29 and E29 (NCI share / net income to parent by entity), D31:F31 (subsidiary, NCI and consolidated dividends). Agents may fill or leave them. Local check: golden PASS; golden with C14, D14, C29, D29, D31:F31 filled PASS (FAILED before, reg 0.9683). graderGuidance range updated to match."
+  },
+  {
+    "id": "F2",
+    "title": "Grader rejects correctly completed parent and subsidiary asset totals",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task instructs: \"Fill in all empty cells.\" On M&A_Consolidation, row 14 is labeled \"Total assets\", but the golden workbook leaves C14 and D14 blank. The supplied figures require C14 = 1920 + 1580 = 3500 and D14 = 195 + 165 = 360; both also reconcile to their respective liabilities plus equity. The verifier treats these empty golden cells as regression cells and penalizes filling them correctly. Testing the golden workbook with only these two totals added produced regression 0.9910 and modification 1.0000, below the required regression threshold of 0.998. Consequently, an otherwise exact, instruction-compliant completion fails the sole verifier, which carries weight 1 and awards no partial credit.",
+    "confirmation": "Verified: M&A_Consolidation!C14 and D14 are blank in both input and golden although row 14 is 'Total assets' (1920+1580, 195+165). Two such regression mismatches give 0.991 < 0.998, failing an instruction-compliant completion.",
+    "fixed": false,
+    "fix": null
+  }
+]

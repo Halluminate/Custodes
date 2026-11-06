@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer key sets forecast Other Revenue at exactly 2% of operating revenue, which is the Key Assumptions 'Other Income as % of Revenue' value. The prompt instead says to hardcode the last actual year's ratio, which is about 0.154%.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "prompt-answer-contradiction",
+    "evidence": "Golden 'Consolidated P&L'!H6=72.343845 = 0.02 × H5 3617.19225 (also L6=210.899 = 0.02 × L5). Last actual year: G6 4.8948374 / G5 3184.843377 ≈ 0.00154. 'Key Assumptions'!D9=0.02. An agent following the prompt gets H6≈5.56, and the difference cascades into Total Revenue, EBIT, DCF and the ratios.",
+    "confirmation": "Golden 'Revenue Drivers'!I138 ='Key Assumptions'!D9 (2%), giving P&L H6=72.34, but the prompt says to hardcode the last actual year's % (H138 = 4.89/3184.8 ≈ 0.154%). The prompt-compliant H6≈5.56 cascades through revenue and the DCF."
+  }
+]

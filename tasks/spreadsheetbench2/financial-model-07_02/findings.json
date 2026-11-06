@@ -1,0 +1,90 @@
+[
+  {
+    "id": "F1",
+    "title": "Area assumptions and expected answers contradict the task",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Inputs labels D10=275000 as 'Construction Area', D11=250000 as 'Saleable Area', and D12=25000 as 'Basement Area'; it supplies no Balance Saleable Area assumption. Nevertheless, the golden Executive Summary treats D10 as Total Salable Area and D11 as Balance Saleable Area, producing Sold Area=25000—the basement area. The seeded Sales Schedule instead totals 231250 sold square feet and 18750 remaining. The golden also calculates Construction Schedule (1)!E9 as 4720000/275000=17.1636363636364, although the instruction explicitly requires division by total saleable area, which gives 18.88 using Inputs!D11. These contradictions affect required modification cells in the all-or-nothing, weight-1 verifier.",
+    "confirmation": "The core claim holds: the GT's Sold Area is 275,000-250,000=25,000, i.e. Construction minus Saleable (the basement figure), with no Balance Saleable assumption in Inputs. The E9 point is weaker because 'Construction Schedule (1)'!E1 is itself labeled Saleable Area (=Inputs!D10).",
+    "fixed": true,
+    "fix": "Prompt: the area mapping is spelled out as above, and Amount/sf now divides 'by the sheet's Saleable Area in Sq.ft (E1)', which is the divisor the golden uses (=D9/$E$1)."
+  },
+  {
+    "id": "F2",
+    "title": "Ground-truth cached values come from an XLOOKUP that returned #NAME?, so the GT fails its own LibreOffice-recalculated grading and the task cannot be passed",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The verifier recalculates the agent's output in LibreOffice before comparing it (spreadsheetbench2.py:360, managed_recalculated_xlsx(force_recalculation=True)). It compares the result against the GT's cached values (data_only). In the GT, 'Sales Schedule'!D19:D20 are '=_xlfn.xlookup(C19,Inputs!$E$58:$E$68,...)' with cached value '#NAME?'. That error cascades: E19 IFERROR(VLOOKUP(D19,...),0) is cached as 0, Sales Revenue is cached as 0 across the model, and 'Executive Summary'!D26 is cached as 0. LibreOffice in the container evaluates XLOOKUP properly: after recalculation D26 = 274.49, 'Sales Schedule'!E19 = 0.3, N21 = 43,125,000, and 'Cashflow (Monthly)'!D63 = 274.49. I ran score_workbooks on the LibreOffice-recalculated GT itself and got regression 0.9695 (pass bar is 0.998) and modification 0.5143, with 1,177 cell errors (578 in Cashflow (Monthly), 296 in Sales Schedule, 194 in Cashflow (Quaterly), 109 in Executive Summary). The verifier is all-or-nothing on weight 1, so even an output identical to the GT scores 0. Some graded modification cells are also wrong in the key: 'Executive Summary'!D27 Net Cashflows is keyed at -224.88, but recalculation gives 49.61.",
+    "confirmation": "Same verified stale-cache defect: the golden caches #NAME? for the XLOOKUP in Sales Schedule and 0 for downstream revenue (Executive Summary D26=0, D27=-224.88), while a recalculated output evaluates XLOOKUP, so the all-or-nothing check fails.",
+    "fixed": true,
+    "fix": "Same golden and reference recalculation; Executive Summary!D27 is now keyed at 49.61, the recalculated value."
+  },
+  {
+    "id": "F3",
+    "title": "Golden workbook has stale #NAME? cached values from LibreOffice 7.3 XLOOKUP incompatibility, making the benchmark unpassable under LibreOffice 26.2 recalculation",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1) loads `gt_07_RealEstate_golden.xlsx` without recalculating it, but force-recalculates the submitted workbook using LibreOffice 26.2.4.2 (`managed_recalculated_xlsx(..., force_recalculation=True)`). `gt_07_RealEstate_golden.xlsx` was saved by `LibreOffice/7.3.7.2` (`docProps/app.xml`), which did not support `_xlfn.xlookup` and cached `#NAME?` across `'Sales Schedule'!D18:D102` (e.g., `D18` formula `=_xlfn.xlookup(C18,Inputs!$E$58:$E$68,Inputs!$C$58:$C$68,,-1)` has cached value `'#NAME?'`), causing `E18:E102` (`Collection %`) and all downstream sales revenue cells (`'Cashflow (Monthly)'!N60:CP60`, `'Cashflow (Quaterly)'!K60:AA60`, `'Executive Summary'!D26, F26:R26`) to cache `0`. When LibreOffice 26.2.4.2 recalculates any submission (or the golden workbook itself), `_xlfn.xlookup` evaluates to `'Approval'`, `'Structure 1'`, etc., producing non-zero collections and `274.49` in `'Executive Summary'!D26`. Passing `gt_07_RealEstate_golden.xlsx` through `verify_spreadsheetbench2_cells` yields `score=0.0` (`regression 0.9695, modification 0.5143`, 1,177 cell errors, including 15 of the 35 modification cells in `'Executive Summary'!D27, J33:Q33, K20:R20`).",
+    "confirmation": "Confirmed: the golden's 'Sales Schedule'!D18 formula =_xlfn.xlookup(...) has cached value #NAME? and E18 is cached 0, from LibreOffice 7.3.7.2. A recalculating comparison against these stale caches cannot pass.",
+    "fixed": true,
+    "fix": "Same golden and reference recalculation, which clears the stale #NAME? caches."
+  },
+  {
+    "id": "F4",
+    "title": "Total and Balance Saleable Area do not exist in Inputs, and the GT maps them to Construction Area and Saleable Area without saying so",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The instruction says: \"calculate Sold Area as Total Saleable Area minus Balance Saleable Area by referencing Inputs\". Inputs only has 'Construction Area' 275,000 (D10), 'Saleable Area' 250,000 (D11) and 'Basement Area' 25,000 (D12). The GT sets 'Executive Summary'!D8 'Total Salable Area' = Inputs!D10 (Construction Area), D10 'Balance Saleable Area*' = Inputs!D11 (Saleable Area), and D9 = 25,000. The instruction never says D8 and D10 must be populated, yet both are graded modification cells. An agent could reasonably set Total Salable Area = Inputs!D11 (Saleable Area, 250,000). It would then have no source for Balance, or would compute Sold Area as 0 or 25,000 by a different mapping, and fail the all-or-nothing check.",
+    "confirmation": "Inputs has only Construction Area (D10), Saleable Area (D11) and Basement Area (D12), with no Balance Saleable Area. The GT's D8=Inputs!D10 and D10=Inputs!D11 cannot be derived from the instruction, yet D8:D10 are graded cells.",
+    "fixed": true,
+    "fix": "Prompt: the Sold Area sentence now says to link Total Salable Area to Construction Area and Balance Saleable Area to Saleable Area in Inputs, matching the golden's D8=Inputs!D10 and D10=Inputs!D11."
+  },
+  {
+    "id": "F5",
+    "title": "Misleading terminology in prompt for Saleable Area vs Construction Area and sheet name for Construction Area link",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `problem.py`, the prompt instructs: (1) 'In the Executive Summary sheet ... calculate Sold Area as Total Saleable Area minus Balance Saleable Area by referencing Inputs' and (2) 'In the Construction Schedule (1) sheet, calculate Amount/sf for Design and Preconstruction by dividing each item amount by total saleable area, then calculate End Month for Mobilization Logistics by adding Duration to Start Date. Link Construction Area to the corresponding value in Inputs.' In `Inputs`, cell `D10` is labeled `'Construction Area'` (275,000) and cell `D11` is labeled `'Saleable Area'` (250,000); there is no row labeled `'Balance Saleable Area'` in `Inputs`. Yet in `gt_07_RealEstate_golden.xlsx`, `'Executive Summary'!D8` (`'Total Salable Area'`) is linked to `=Inputs!D10` (`Construction Area` = 275,000) and `'Executive Summary'!D10` (`'Balance Saleable Area*'`) is linked to `=Inputs!D11` (`Saleable Area` = 250,000), yielding `'Sold Area'` (`D9`) = 25,000 (which is actually `Inputs!D12`, `'Basement Area'`). Because `Inputs!D11` is literally labeled `'Saleable Area'`, all 3 units set `Executive Summary!D8` = `=Inputs!D11` (250,000) and looked up `Balance Area` from `Sales Schedule`, failing `D8`, `D9`, and `D10` in `verify_spreadsheetbench2_cells` (weight: 1). Additionally, the prompt places 'Link Construction Area to the corresponding value in Inputs' under the `'Construction Schedule (1)'` sentences, whereas `'Construction Schedule (1)'!E1` (labeled `'Saleable Area in Sq.ft '`) is already linked to `=Inputs!D10` in the input file, and the actual blank cell modified in the golden workbook is `'Construction Schedule'!E5` (labeled `'Construction Area'`) on the `'Construction Schedule'` sheet.",
+    "confirmation": "The GT sets Executive Summary D8 (Total Salable Area)=Inputs!D10, which Inputs labels 'Construction Area', and D10 (Balance Saleable Area)=Inputs!D11, labeled 'Saleable Area'. That gives Sold Area 25,000, the basement area. The prompt does not support this mapping, so reasonable agents fail D8:D10.",
+    "fixed": true,
+    "fix": "Prompt: the area mapping is spelled out as above, and the last sentence now says 'In the Construction Schedule sheet, link Construction Area ...', the sheet whose E5 the golden fills."
+  },
+  {
+    "id": "F6",
+    "title": "Golden workbook fails the problem's own grading procedure",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The verifier recalculates the submission but compares it with unrecalculated reference and golden caches. Passing the supplied golden workbook through that same recalculation and comparison produced regression 0.9695, modification 0.5143, and 1,177 cell errors. For example, 'Cashflow (Monthly)'!D63 changes from cached 0 to 274.493518728221, and 'Executive Summary'!D27 changes from -224.879852019083 to 49.6136667091384. The sole verifier has weight 1 and requires both ratios to equal 1, so even the supplied answer receives zero.",
+    "confirmation": "Same verified defect: the golden caches stale XLOOKUP #NAME?-derived zeros (e.g. Executive Summary D26=0) that a LibreOffice recalculation changes, so the golden fails its own weight-1 check.",
+    "fixed": true,
+    "fix": "Same golden and reference recalculation."
+  },
+  {
+    "id": "F7",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "The GT does score 0 on the real grader. The cause is the stale XLOOKUP #NAME? cache in the golden ('Sales Schedule'!D18 onward), which the recalculated output can never match, and not a missing file. The defect itself is real.",
+    "fixed": true,
+    "fix": "Same golden and reference recalculation; the golden now grades 1.0 locally."
+  },
+  {
+    "id": "F8",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails all runs (and the golden file itself) due to LibreOffice XLOOKUP recalculation mismatch against stale golden cached values",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "`SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1) scored 0.0 on all 3 units: unit 1 (`regression 0.9694, modification 0.4000, 1183 cell error(s)`), unit 2 (`regression 0.9695, modification 0.4000, 1181 cell error(s)`), and unit 3 (`regression 0.9695, modification 0.4000, 1181 cell error(s)`). Independent trajectory inspection shows that all 3 units correctly wrote the required formulas for `'Executive Summary'!F21:R21` (`='Cashflow (Quaterly)'!J19:V19`), `'Construction Schedule (1)'!E9` (`=D9/$E$1`), `'Construction Schedule (1)'!I10` (`=EDATE(F10,H10)`), and `'Construction Schedule'!E5` (`=Inputs!D10`) (unit 1 at step [55], unit 2 at step [40]/[55], unit 3 at step [51]), and none of the units modified `'Sales Schedule'`, `'Cashflow (Monthly)'`, or `'Cashflow (Quaterly)'`. However, `verify_spreadsheetbench2_cells` force-recalculates `output_path` in LibreOffice 26.2.4.2 while loading `gt_path` (`gt_07_RealEstate_golden.xlsx`) without recalculation. Because `gt_07_RealEstate_golden.xlsx` was saved in LibreOffice 7.3.7.2 where `_xlfn.xlookup` in `'Sales Schedule'!D18:D102` evaluated to `#NAME?` (caching `0` for all sales revenue), whereas LibreOffice 26.2.4.2 evaluates `_xlfn.xlookup` properly (producing `274.49` in `'Executive Summary'!D26`), recalculating even the untouched `gt_07_RealEstate_golden.xlsx` causes 1,177 cell errors (`regression 0.9695, modification 0.5143`, failing 15 of the 35 modification cells in `'Executive Summary'!D27, J33:Q33, K20:R20` and 1,162 regression cells). Thus no valid submission can ever pass.",
+    "confirmation": "gt_07_RealEstate_golden.xlsx was saved by LibreOffice 7.3.7.2 (docProps/app.xml) and caches #NAME? for 'Sales Schedule'!D18 (=_xlfn.xlookup), so sales revenue caches 0 (Executive Summary D26=0). The verifier recalculates the output but not the GT, so even a correct output mismatches.",
+    "fixed": true,
+    "fix": "Replaced gt_07_RealEstate_golden.xlsx and untouched_input_07_02_RealEstate_input.xlsx with LibreOffice-recalculated copies (formulas unchanged), so the cached Sales Schedule XLOOKUP chain matches what the verifier's recalculation of a submission produces. Local verify_spreadsheetbench2_cells on the new golden: regression 1.0, modification 1.0."
+  }
+]

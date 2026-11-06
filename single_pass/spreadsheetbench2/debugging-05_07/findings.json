@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer key's 2019 and 2020 Gross Profit values use constants that appear nowhere in the input, so no solver can reproduce them.",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "unrecoverable-answer-values",
+    "evidence": "The golden 'Financial Overview' has D16 = D8-308.126 (134.973) and E16 = E8-261.587 (129.393). The input has D16 = D8+179.281 and E16 = E8+179.281. 'Financial Performance' quarterly gross profit only starts in Q4 2021 (H5), and no 2019 or 2020 COGS figure exists anywhere in the workbook.",
+    "confirmation": "Golden 'Financial Overview' D16=D8-308.126, E16=E8-261.587 and F16=F8-217.881, while input C16:F16 all use +179.281. None of 308.126/261.587/217.881 or the resulting 134.973/129.393 appears anywhere in the input workbook, values or formulas."
+  },
+  {
+    "id": "S2",
+    "title": "The natural sign-convention fix (flipping + to - on the shared constant) matches the golden only for 2018 and fails for 2019–2021, because the golden swaps in different constants for those years.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "inconsistent-golden-fix",
+    "evidence": "Input 'Financial Overview' C16:F16 all use '+179.281'. The golden keeps C16 = C8-179.281 but uses D16 = D8-308.126, E16 = E8-261.587 and F16 = F8-217.881. A consistent flip gives D16 = 263.818 against the expected 134.973.",
+    "confirmation": "Flipping the sign on the shared constant (D16=D8-179.281) matches the golden only at C16. D16:F16 are modification cells whose golden values rest on different, unrecoverable constants, so the natural fix fails the all-modifications-must-match rule."
+  }
+]

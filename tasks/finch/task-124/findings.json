@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "January 2000 temperature cells in the answer key point at the December sheet",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In the answer key, Summary!G40 = '=+December!C5', G41 = '=+December!C6' and G42 = '=+December!C7'. The rest of the January block, for example G38 = '=+January!C4' and G45 = '=+January!C10', reads from the January sheet. The correct sources hold different values: January!C6 = 46 against December!C6 = 40, and January!C7 = 56 against December!C7 = 54. Only G40 matches, by coincidence (67 = 67). An agent that correctly reads January!C5:C7 therefore disagrees with the key on G41 and G42 and on the averages I41 and I42 (key 42.58 against a correct 43.78; key 54.18 against 54.58).",
+    "confirmation": "GT Summary!G40:G42 = '=+December!C5/C6/C7' (67, 40, 54) inside the January block, while January!C5:C7 hold 67, 46, 56 and G38 correctly uses January!C4.",
+    "fixed": true,
+    "fix": "Summary!G40:G42 now =+January!C5, C6, C7 (67, 46, 56); I41=43.78, I42=54.58."
+  },
+  {
+    "id": "F2",
+    "title": "Reference answer uses incorrect metric, month and year mappings",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The reference workbook contains incorrect links for graded summary cells. Summary!G5 (November 1999 CDD) links to November!D5, which is Average Max. Temp = 77; Summary!G22 similarly substitutes December's maximum temperature, 67, for unavailable CDD. January 2000 minimum and average temperatures at Summary!G41:G42 link to December!C6:C7 (40 and 54), instead of January!C6:C7 (46 and 56). February Midcon cells C67:E67, headed 1996–1998, link to February!D38:F38, headed 1995–1997, producing 32, 93 and 22 instead of 93, 22 and 0. These errors also propagate into summary averages. The grader's binary correctness criterion compares against the reference, creating a risk that correctly sourced answers fail.",
+    "confirmation": "Verified the G5/G22 CDD-to-max-temp links and the G41:G42 December links. C67:E67 also use February!D38:F38 (32, 93, 22), while the neighbouring rows use E:H columns for the same years, so the year mapping is shifted.",
+    "fixed": true,
+    "fix": "Fixed the G5/G22 CDD links, the G40:G42 December links and the C67:E67 year shift (now February!E38:G38 = 93, 22, 0; I67=28.75)."
+  },
+  {
+    "id": "F3",
+    "title": "Answer key fills CDD rows with Average Max Temp values",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The November and December month sheets have no CDD line in their current-year block (rows 4-7 are HDD, Avg Max, Avg Min, Avg Temp). Even so, the answer key sets Summary!G5 (Nov 1999 CDD) to '=+November!D5', which is Average Max Temp, value 77. G6 (Avg Max Temp) uses the same formula. Summary!G22 (Dec 1999 CDD) is '=+December!C5' (Avg Max Temp, 67), the same as G23. The CDD 5-yr averages come out wrong as a result: I5=54.1 against 48.375 from the four real CDD years; I22=45.3 against 39.875. Under the prompt's 'leave blank' rule these cells should be empty, so an agent that is right gets marked wrong.",
+    "confirmation": "GT Summary!G5 '=+November!D5' (Average Max Temp 77, the same formula as G6) and G22 '=+December!C5' (67) sit in CDD rows, although the November/December current-year blocks (rows 4-7) have no CDD line.",
+    "fixed": true,
+    "fix": "Summary!G5 and G22 (CDD rows, no current-year CDD in November/December) are now blank; I5=48.375 and I22=39.875."
+  },
+  {
+    "id": "F4",
+    "title": "Answer key hardcodes values that appear nowhere in the source, even though the prompt says to leave cells blank when there is no data",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The prompt says: \"Complete the content in the summary sheet based on other spreadsheets. Leave blank if no information found.\" The answer key's Summary sheet has typed-in numbers with no formula: G16=15.3 (Nov 1999 Midcon), G33=25.86 (Dec 1999 Midcon), G67=42.3 (Feb 2000 Midcon), G84=73.3 (Mar 2000 Midcon) and I39=498.3 (January CDD 5-yr average). I searched every sheet of 124_src_0.xlsx for 15.3, 25.86, 42.3, 73.3 and 498.3 and found none of them. I39 is also impossible: the January CDD values it should average (C39:F39 = 14, 21.5, 15, 35.5) average 21.5. An agent that follows the prompt leaves these cells blank or computes the average. The grader then sees a mismatch with the key and scores correctness=0, and score is a single 0/1 pass.",
+    "confirmation": "Confirmed: the GT Summary holds hardcoded G16=15.3, G33=25.86, G67=42.3, G84=73.3 and I39=498.3, and a search of every sheet in 124_src_0.xlsx finds none of these values. I39 should average C39:F39 (14, 21.5, 15, 35.5), which is 21.5, despite the prompt's 'Leave blank if no information found'.",
+    "fixed": true,
+    "fix": "Removed the unsourced hardcodes G16=15.3, G33=25.86, G67=42.3, G84=73.3 (now blank) and replaced I39=498.3 with =AVERAGE(C39:G39) (21.5)."
+  },
+  {
+    "id": "F5",
+    "title": "Ground truth reference workbook (gt_124_ref_0.xlsx) contains broken cross-sheet references, wrong-column shifts, hardcoded values absent from source sheets, and a corrupted average cell",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The task prompt (problem.py:1) states: 'Complete the content in the summary sheet based on other spreadsheets. Leave blank if no information found.' The AI grader guidance (problems-metadata.json, Evaluation Criteria #2 Data Accuracy) instructs the judge to verify whether 'the model\\'s values/text/formulas [are] logically equivalent to the reference answer in business logic' and to 'check every value filled or modified by the model and determine whether there is corresponding data in the reference answer', scoring binary pass/fail (0 or 1). However, inspecting the ground truth file `gt_124_ref_0.xlsx` against the source sheets in `124_src_0.xlsx` reveals 22 out of 330 cells in the Summary sheet's target grid (`C:G` and `I` across the 5 monthly blocks) where the ground truth itself violates the source sheets and prompt instructions:\n\n1. **Wrong-sheet and wrong-row formula references in Column G (latest year actuals)**:\n   - `Summary!G5` (November 1999 CDD) has formula `=+November!D5` (evaluating to `77`, which is `November!D5` 'Average Max. Temp', duplicating `G6`), and `Summary!G22` (December 1999 CDD) has formula `=+December!C5` (evaluating to `67`, which is `December!C5` 'Average Max. Temp', duplicating `G23`). Neither the `November` nor `December` top table (rows 1–15) has a `CDD` row, whereas in `January` (`G39`), `February` (`G56`), and `March` (`G73`) the GT leaves the corresponding CDD cell blank as instructed ('Leave blank if no information found'). Cascading from `G5` and `G22`, `I5` (`=AVERAGE(C5:G5)` = 54.1 vs. 48.375) and `I22` (`=AVERAGE(C22:G22)` = 45.3 vs. 39.875) are also distorted.\n   - `Summary!G40:G42` (January 2000 Average Max. Temp, Average Min. Temp, and Average Temp) reference the **December** sheet (`=+December!C5`, `=+December!C6`, `=+December!C7`, yielding `67`, `40`, `54`) instead of the **January** sheet (`January!C5=67`, `January!C6=46`, `January!C7=56`). This also corrupts the 5-year averages in `I41` (`42.58` vs. `43.78`) and `I42` (`54.18` vs. `54.58`).\n\n2. **Off-by-one year column shift in February TOTAL MIDCON (`C67:E67`)**:\n   - In `Summary` rows 53–67 (February block), columns `C`, `D`, `E`, `F` correspond to years `1996`, `1997`, `1998`, `1999`. In the `February` sheet (row 21), `1995` is in col `D`, `1996` is in col `E`, `1997` is in col `F`, `1998` is in col `G`, and `1999` is in col `H`. Every other row in the February Summary block (`C55:F59`, `C62:F65`) correctly pulls from `February!E:H`. However, `Summary!C67:E67` (TOTAL MIDCON for 1996–1998) pull from `February!D38:F38` (1995–1997 values `32`, `93`, `22`) instead of `February!E38:G38` (1996–1998 values `93`, `22`, `0`).\n\n3. **Unobtainable hardcoded values and inconsistent `'n/a'` entries in TOTAL MIDCON (`Row 16, 33, 50, 67, 84`)**:\n   - None of the five monthly sheets (`November` through `March`) have a Midcon row in their top table (1999/2000 actuals, rows 1–15). Yet the GT hardcodes `G16 = 15.3` (Nov 1999), `G33 = 25.86` (Dec 1999), `G67 = 42.3` (Feb 2000), and `G84 = 73.3` (Mar 2000) — numbers that do not exist anywhere in `124_src_0.xlsx` — while setting `G50 = +January!C15` (an empty cell in `January` that evaluates to `0`).\n   - For 1999 Midcon (`F50`, `F67`, `F84`), the source sheets `January!G34`, `February!H38`, and `March!H40` all contain the numeric value `0`, yet the GT hardcodes the string `'n/a'` in `F50`, `F67`, and `F84` and uses custom 4-cell formulas `=AVERAGE(C50,D50,E50,G50)` in `I50`, `I67`, and `I84` (yielding `32`, `47.325`, `63.075` instead of the true source-backed averages `25.6`, `28.75`, `44.75`).\n\n4. **Corrupted hardcoded value in January CDD 5-YR AVG (`Summary!I39`)**:\n   - Whereas every other `5-YR AVG` cell in column `I` uses `=AVERAGE(C...:G...)`, `Summary!I39` (January CDD 5-YR AVG, where `C39:F39` are `14, 21.5, 15, 35.5` and `G39` is blank, giving an average of `21.5`) is hardcoded to the unobtainable number `498.3`.\n\nBecause the agentic grader scores completeness and correctness as binary `0 or 1` by comparing the agent's workbook against `gt_124_ref_0.xlsx`, an agent that accurately populates the Summary sheet from the monthly tabs and leaves missing fields blank as instructed will diverge from the reference answer on 22 cells and risk failing `correctness` (and overall `score`).",
+    "confirmation": "In gt_124_ref_0.xlsx, Summary!G5 '=+November!D5' duplicates G6 (Avg Max Temp, 77) as CDD, and G40:G42 point to December!C5:C7 instead of January. G16/G33/G67/G84 and I39 are hardcoded (15.3, 25.86, 42.3, 73.3, 498.3), and none of those numbers appear anywhere in 124_src_0.xlsx.",
+    "fixed": true,
+    "fix": "gt_124_ref_0.xlsx Summary: G5 and G22 (CDD with no source) blanked, G40:G42 now =+January!C5:C7, C67:E67 now =+February!E38:G38, hardcoded G16/G33/G67/G84 and G50 blanked, F50/F67/F84 'n/a' replaced by =+January!G34, =+February!H38, =+March!H40, I39 498.3 replaced by =AVERAGE(C39:G39), I50/I67/I84 now =AVERAGE(C:G). Dependent averages I5, I16, I22, I33, I41, I42 recomputed (LibreOffice recalculation)."
+  },
+  {
+    "id": "F6",
+    "title": "Reference requires unsupported values despite instructions to leave missing information blank",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task explicitly says, \"Leave blank if no information found.\" Nevertheless, the reference hardcodes Summary!G16 = 15.3, G33 = 25.86, G67 = 42.3 and G84 = 73.3 for latest-year Midcon volumes that are not supplied in the input workbook. It also hardcodes January's five-year CDD average, Summary!I39 = 498.3, although the available January CDD observations are 14, 21.5, 15 and 35.5, whose average is 21.5, and the fifth observation is absent. No supporting email, chat, external link or workbook note supplies these figures. These unsupported reference values and their dependent averages can cause an instruction-compliant submission to fail the binary comparison.",
+    "confirmation": "Same verified defect: the GT hardcodes G16, G33, G67 and G84 Midcon values and I39=498.3, none of which exist in the source workbook, contrary to the prompt's 'Leave blank if no information found'.",
+    "fixed": true,
+    "fix": "Unsupported Midcon hardcodes blanked and 'n/a' cells replaced with source links; averages use =AVERAGE(C:G) over the filled cells."
+  }
+]

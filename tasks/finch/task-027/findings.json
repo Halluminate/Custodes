@@ -1,0 +1,13 @@
+[
+  {
+    "id": "F1",
+    "title": "Reference headcounts include vacancies and contradict the required blank-cell convention",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task requests headcount and explicitly says, \"If a department has no headcount data, leave the corresponding cell blank.\" However, the reference sets Master!K61 to 12 even though HR contains 11 named employees plus A14=\"Calgary\", B14=\"Vacancy\". It sets Master!K67 to 33 although Canada Support has 32 named employees plus A17=\"Vacancy\", B17=\"HR\", and the Master label explicitly excludes HR. Consequently, reference total K68 is 802 rather than 800 when vacancies are excluded. Reference cells K64 and K66 also contain \"-\" instead of the explicitly required blanks. The guidance asks for logical equivalence to the reference and uses a binary overall score, creating a risk that a substantively correct workbook fails because of these reference discrepancies.",
+    "confirmation": "Canada Support has 32 named staff plus row 17 'Vacancy, HR'. GT Master!K67=33 counts it despite the label 'including Legal but not HR', and the same Calgary vacancy is also counted in HR (K61=12, HR row 14). GT also puts '-' in K64/K66 where the prompt says leave blank, so a correct count can disagr",
+    "fixed": true,
+    "fix": "gt_27_ref_0.xlsx Master: K61 12 -> 11, K67 33 -> 32, K64 and K66 '-' -> blank, K68 (=SUM(K1:K67)) cached 802 -> 800; nothing else changed. grader_guidance.md: one added sentence saying Vacancy rows are not headcount and departments with no data are blank rather than '-'."
+  }
+]

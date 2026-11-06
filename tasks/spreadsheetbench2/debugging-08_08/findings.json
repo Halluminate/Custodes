@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key penalizes repairing a broken working-capital reference",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Both the input and golden workbook retain 'Operating Model + DCF'!R84 = '=R847-M83', although R847 is empty. The change in working capital should reference R83. In the golden workbook, R83 is -84.2928522758825 and M83 is 29.613, making the change -113.905852275882 rather than the keyed -29.613. Correcting only this typo in a copy of the golden workbook and recalculating produces modification ratio 0.9792: D95 becomes 142.419244815882 instead of 58.1263925399994, with further mismatches in discounted cash flow totals. The sole verifier, weighted 100%, requires every modification cell to match, so this legitimate repair changes a passing workbook into a zero-score submission despite the instruction to fix broken references thoroughly.",
+    "confirmation": "In both input and GT, 'Operating Model + DCF'!R84 = '=R847-M83' (R847 empty) while S84 = '=S83-R83', so the GT keeps a broken reference. GT R83 = -84.29 and M83 = 29.61, so the correct change is -113.91, not the keyed -29.61. The task asks for broken references and sign errors to be fixed, but fixin",
+    "fixed": true,
+    "fix": "Same GT change as verifier-correctness-0 (C90 = 0.3, R84 = R83-M83, dependents recomputed)."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth keeps a negative tax rate (-30%) in the DCF bridge, a sign-convention error in a task named 'Incorrect Sign Conventions'",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "'Operating Model + DCF'!C90 (Tax Rate, 2025) is hardcoded -0.3, while D90:H90 are 0.3. NOPAT C91 '=C89*(1-C90)' therefore becomes EBIT*1.3 = -130.392*1.3 = -169.51 in the GT, not -91.27. That makes C95 = -224.264 and C100 = -204.508, which flow into C102 and every implied EV, equity value, price and upside cell. The input file is literally titled 'Incorrect Sign Conventions_input.xlsx', and the GT fixes the other sign flips (row 62, row 84, row 95, rows 114/128/141, Revenue Build S5:V5, Comps C36). An agent that corrects this sign error changes many modification cells and fails the all-or-nothing verifier.",
+    "confirmation": "In both input and gt_08_golden.xlsx, 'Operating Model + DCF'!C90 = -0.3 while D90:H90 = 0.3, so C91 = C89*(1-C90) = -169.51 instead of -91.27. It is a leftover sign error in a sign-conventions task. The task asks for broken references and sign errors to be fixed, but fixing them changes modification",
+    "fixed": true,
+    "fix": "Same GT change as verifier-correctness-0 (C90 = 0.3, R84 = R83-M83, dependents recomputed)."
+  },
+  {
+    "id": "F3",
+    "title": "Golden solution leaves injected sign-convention and formula errors unfixed in 'Operating Model + DCF' (C90 = -0.3 and R84 = R847-M83)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The task prompt instructs the agent: 'Please audit and fix this file thoroughly. Errors may include but are not limited to: formula logic errors or inconsistencies... broken cell references... potential calculation errors' on input file 'Incorrect Sign Conventions_input.xlsx'. However, the golden workbook `gt_08_golden.xlsx` leaves multiple clear errors in `'Operating Model + DCF'` untouched, classifying them as 'regression' cells or cascading into 'modification' cells: (1) Cell `'Operating Model + DCF'!C90` (2025 DCF Tax Rate) is `-0.3` (-30%), whereas D90:H90 (2026–2030 Tax Rate) are all `0.3` (+30%), causing NOPAT in `C91` (`=C89*(1-C90)`) to multiply EBIT by `1.3` instead of `0.7` (`-169.51` in GT vs `-91.27` when fixed to `0.3`); (2) Cell `'Operating Model + DCF'!R84` (2026 Change in NWC) contains the broken/typo formula `=R847-M83` (referencing empty cell `R847` far outside the 145-row table instead of `R83`), yielding `-29.613` instead of `R83-M83 = -113.906` and corrupting `D94`, `D95`, and `D100`. Because `verify_spreadsheetbench2_cells` (weight 1.0) requires `mod_ratio == 1.0` to return score 1.0 (otherwise 0.0), fixing `C90` to `0.3` and `R84` to `=R83-M83` on top of the golden solution drops `mod_ratio` to `0.9722` (12 cell errors) and results in a score of `0.0`. Every attempt (Units 1, 2, and 3) identified and fixed `C90` from `-0.3` to `0.3`, and every attempt was penalized at `C90`, `C91`, `C95`, `C100`, `C102`, `C107`, `C121`, and `C135`.",
+    "confirmation": "In both input and gt_08_golden.xlsx, 'Operating Model + DCF'!C90 = -0.3 while D90:H90 = 0.3, so C91 = C89*(1-C90) = -169.51 instead of -91.27. In both input and GT, 'Operating Model + DCF'!R84 = '=R847-M83' (R847 empty) while S84 = '=S83-R83', so the GT keeps a broken reference. The task asks for br",
+    "fixed": true,
+    "fix": "Same GT change as verifier-correctness-0 (C90 = 0.3, R84 = R83-M83, dependents recomputed)."
+  },
+  {
+    "id": "F4",
+    "title": "Ground truth leaves an obvious broken cell reference (R84 =R847-M83) unfixed, and it feeds every valuation output",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In both the input and gt_08_golden.xlsx, 'Operating Model + DCF'!R84 (Change in NWC) is '=R847-M83'. R847 is an empty cell, so the GT caches R84 = -29.613. The neighbouring cells follow the pattern S84 '=S83-R83', so the correct formula is =R83-M83 = -84.293-29.613 = -113.906. R84 flows into D94, then D95 (UFCF GT 58.126), D100, C102, C107, C112, C114, C116, C118, C126, C128, C130, C139, C141 and C143. All of these are modification cells (cells that differ between input and GT) in the only verifier, verify_spreadsheetbench2_cells (weight 1). That verifier needs 100% of modification cells to match, otherwise it scores 0. The instruction explicitly tells the agent to fix 'broken cell references'. An agent that does what it is told and fixes R84 changes all of these values and gets 0 on the whole task.",
+    "confirmation": "In both input and GT, 'Operating Model + DCF'!R84 = '=R847-M83' (R847 empty) while S84 = '=S83-R83', so the GT keeps a broken reference. The correct =R83-M83 gives -113.9 against the cached -29.6, and this feeds D94/D95 and the valuation cells. The task asks for broken references and sign errors to ",
+    "fixed": true,
+    "fix": "Same GT change as verifier-correctness-0 (C90 = 0.3, R84 = R83-M83, dependents recomputed)."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: Verifier penalizes valid fixes to 'Operating Model + DCF'!C90 and R84 due to unfixed errors in ground truth",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, the agent inspected `'Operating Model + DCF'` and identified that cell `C90` (2025 DCF Tax Rate) was `-0.3` (-30%) while `D90:H90` (2026–2030 Tax Rate) were `0.3` (+30%), and that cell `R84` (2026 Change in NWC) contained the broken reference `=R847-M83`. All 3 units fixed `C90` to `0.3`, which changed `C91` (`=C89*(1-C90)`) from `-169.5096` to `-91.2744` and cascaded into `C95`, `C100`, `C102`, `C107`, `C121`, and `C135`. In every unit, `verify_spreadsheetbench2_cells` (weight 1) flagged these valid fixes as errors against `gt_08_golden.xlsx`: `Regression error at Operating Model + DCF!C90: answer=-0.3, output=0.3; Regression error at Operating Model + DCF!C91: answer=-169.509599999999, output=-91.2744000000005`. Because `verify_spreadsheetbench2_cells` requires 100% modification match (`mod_ratio == 1.0`) to award score 1.0, any agent that fixes `C90` or `R84` is guaranteed to score `0.0`.",
+    "confirmation": "In both input and gt_08_golden.xlsx, 'Operating Model + DCF'!C90 = -0.3 while D90:H90 = 0.3, so C91 = C89*(1-C90) = -169.51 instead of -91.27. In both input and GT, 'Operating Model + DCF'!R84 = '=R847-M83' (R847 empty) while S84 = '=S83-R83', so the GT keeps a broken reference. The task asks for br",
+    "fixed": true,
+    "fix": "files/gt/gt_08_golden.xlsx: 'Operating Model + DCF'!C90 tax rate -0.3 -> 0.3 (matches D90:H90), and R84 '=R847-M83' -> '=R83-M83' (FY2026 change in NWC vs FY2025, like M84 and S84). Dependent cached values recomputed in LibreOffice (C91, C95, C100, C102, C107, C112, C114, C116, C118, C121, C126, C128, C130, C132, C135, C139, C141, C143, C145, D94, D95, D100, F107, F121). No other cell changed."
+  }
+]

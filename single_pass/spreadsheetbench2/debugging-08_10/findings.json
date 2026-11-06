@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit of all errors, but the golden fixes only a few of them. Every compared cell must match, so an agent that correctly fixes any other genuine error will fail.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "incomplete-golden-strict-compare",
+    "evidence": "Golden changes only 'Operating Model + DCF'!I26:L26 (drop *4), D90:H90 (30→0.3), C136 (7.5→0.075) and 'Comps + WACC'!C39. Clearly broken cells such as R84, K9/L9, M27 and C36:H36 are left as in the input, and the check covers A2:X145 with mode 'values'.",
+    "confirmation": "Golden changes only I26:L26, D90:H90, C136 and 'Comps + WACC'!C39, while compared cells still hold clear errors such as R84 '=R847-M83', K9/L9 '=K41' in a % margin row (0), M27 '=M26/M7' vs L27 '=L26/L4', and C36:H36 pointing to empty 'IS Annual' row 75; fixing any of them fails the all-cells check."
+  },
+  {
+    "id": "S2",
+    "title": "R84 refers to an empty, far-off cell instead of R83, which should be fixed. Fixing it changes R84, D94, D95 and every downstream valuation cell, so a correct fix fails.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "broken-reference-left-in-golden",
+    "evidence": "'Operating Model + DCF'!R84 '=R847-M83' gives -29.613 in both input and golden; the intended '=R83-M83' gives about -113.9.",
+    "confirmation": "Golden 'Operating Model + DCF'!R84 '=R847-M83' (-29.61) references an empty cell while S84:V84 use '=S83-R83'; the correct =R83-M83 is about -113.9 and flows to D94/D95 and valuation, so fixing it fails the comparison."
+  }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "The ground truth fails its own verifier: circular debt schedule recalculates to different values",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "I ran verify_spreadsheetbench2_cells with gt_07_golden.xlsx as the output. The verifier forces a LibreOffice recalculation, and the ground truth scored 0.0: 'FAILED - regression 1.0000, modification 0.9837. 17 cell error(s): Modification error at LBO & Lenders!T50: answer=-7.49437449150413, output=-7.25996975435565; U50: answer=-9.027, output=-8.298; V50: answer=-11.042, output=-9.531; V53: answer=115.42, output=116.93; V57: answer=115.42, output=116.93 ...'. The cause is a circular reference in the LBO debt schedule: amortization row 50 is '=S53-S52', interest row 53 is '=S54*AVERAGE(S49,S51)', and ending balance row 51 is '=SUM(S49:S50)'. The workbook depends on iterative calculation (calcPr iterate=\"true\" iterateCount=\"100\" iterateDelta=\"0.0001\"). The cached Excel values in the ground truth differ from LibreOffice's iterated result by more than the 1% tolerance. The verifier passes only when every modification cell matches, and this is the only verifier (weight 1). A perfect answer therefore scores 0, so the problem cannot be passed.",
+    "confirmation": "'LBO & Lenders' rows 49-54 form a circular schedule (X50 '=X53-X52', X51 '=SUM(X49:X50)', X53 '=X54*AVERAGE(X49,X51)') under calcPr iterate=true, and the golden caches are not converged (X53 cached 109.64 vs 113.36 from cached inputs), so the LibreOffice-recalculated golden cannot match its own Exce",
+    "fixed": true,
+    "fix": "Same answer_position change as gt-replay-0."
+  },
+  {
+    "id": "F2",
+    "title": "The golden workbook fails its own mandatory recalculation and grading",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The verifier forcibly recalculates submissions with LibreOffice but compares them against unrecalculated golden caches. Passing gt_07_golden.xlsx through that same recalculation produced 17 grading errors: regression ratio 1.0000 and modification ratio 0.9837, which yields zero on the sole verifier (weight 1). For example, 'LBO & Lenders'!X50 is cached as -16.8263732189333 but recalculates to -12.7810638582942. The golden caches are internally inconsistent: X53 contains =X54*AVERAGE(X49,X51), whose cached inputs give 113.35963381484534, not its cached result 109.6382395757. The circular debt schedule therefore makes even the supplied expected workbook fail.",
+    "confirmation": "Verified the cited inconsistency: golden X53 caches 109.6382395757 while 0.1275*AVERAGE(897.508,880.682) = 113.3596, so the cached circular values are not a fixed point and forced recalculation of the golden itself yields modification errors on the sole all-or-nothing verifier.",
+    "fixed": true,
+    "fix": "Same answer_position change as gt-replay-0."
+  },
+  {
+    "id": "F3",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "The golden truly fails its grader, though not because a file never arrived: gt_07_golden.xlsx uses iterative calc (iterate=true) for the LBO debt circle, and its caches are not settled (X53 '=X54*AVERAGE(X49,X51)' caches 109.638 but its cached inputs give 113.360), so after LibreOffice recalculation",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: 'LBO & Lenders'!B2:Z65 split into row runs that skip the circular debt-schedule cells X46:X47, S49:X51, S53:X53, S57:X59 (iterative calc, period-2 oscillation, values depend on the recalculation start point). All other ranges unchanged. Locally: golden and golden re-saved without caches both score 1.0 (before: modification 0.9837, 17 errors); the untouched input still scores 0. grader_guidance.md range note updated to match."
+  }
+]

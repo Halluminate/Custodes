@@ -1,0 +1,13 @@
+[
+  {
+    "id": "F1",
+    "title": "The answer key's tax side contradicts itself: the DTA never reverses and the tax loss and retained-earnings rows are hardcoded to zero",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "GT gt_01_02_golden.xlsx: deferred tax asset builds to F26 = 630 (= 1,800 OID × 35%) and never reverses. F35 'Loss on debt extinguishment' = '=F31-F22' = 18000 - 18000 = 0. This formula takes the tax-basis repayment (F31) and subtracts the GAAP carrying value (F22), so it mixes two bases. Rows 34-36 ('Retained earnings') are 0 in every year, and C34/C35-E35 are typed in as 0. The two consistent readings of 'OID not deductible annually' both disagree with this key. (a) If the OID is deductible at retirement, which is the usual meaning of 'not annually', Year 4 should show a tax deduction/loss of 1,800 and the DTA should reverse back to 0. (b) If the OID is never deductible, it is a permanent difference and no DTA should be recognized at all (rows 14 and 24-26 would be 0). The GT does both at once: it books a temporary-difference DTA and then never lets it reverse. The tax retained-earnings line also never accumulates any tax-basis income. The verifier spans 'OID_Bond'!B2:I36 and grades all-or-nothing (weight 1, every modified cell must match within 1%). So an agent that models either consistent treatment scores 0.",
+    "confirmation": "In gt_01_02_golden.xlsx, the DTA builds to F26 = 630 (C25:F25 = -row14) and never reverses, F35 '=F31-F22' gives 0, and C34/C35:E35 are hardcoded 0. That mixes a temporary-difference DTA with no reversal at retirement, which is internally inconsistent, and the all-or-nothing check over B2:I36 fails ",
+    "fixed": false,
+    "fix": null
+  }
+]

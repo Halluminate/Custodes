@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Broad audit instructions conflict with an answer key that preserves calculation errors",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task asks to 'audit and fix this file thoroughly,' explicitly including formula logic and calculation errors, but the golden workbook changes only seven font colors and preserves demonstrably incorrect calculations. For example, 'PP&E, Debt, NWC'!I79 identifies 2021, but I81:I83 pull 2020 inventory, payables and accrued expenses while I80 pulls 2021 receivables. Consequently, I84 reports operating working capital of 45.28395 instead of 22.980531 calculated from the same-year balance-sheet components. DCF!C19 consequently reports a 2021 increase of 22.31095 rather than the same-year decrease of 21.650469. Separately, the debt-summary years stop at 2024: 'Income Statement'!N26 references blank I73 and reports zero 2025 interest despite the debt schedules showing 90.617718 of 2025 interest. Both defects remain in gt_04_golden.xlsx. The sole verifier, weight 1, requires all seven modifications and 99.8% agreement on 5,502 regression cells. Correcting just the working-capital component references produces 27 in-range differences beyond its numeric tolerance, already exceeding the approximately 11 permitted regression differences. Thus a competent agent following the comprehensive audit instruction can lose the entire score for repairing genuine errors.",
+    "confirmation": "Confirmed: the golden keeps the working-capital year misalignment (I80 uses 'Balance Sheet'!J15 but I81 uses I17) and 'Income Statement'!N26=-'PP&E, Debt, NWC'!I73 (blank). Fixing these as the 'audit thoroughly' prompt asks exceeds the regression tolerance of the sole verifier.",
+    "fixed": true,
+    "fix": "gt_04_golden.xlsx: 'PP&E, Debt, NWC' C81:M83 now read the same-year Balance Sheet column as row 80 (D:N instead of C:M, e.g. I81 ='Balance Sheet'!J17), so I84 = 22.98 and DCF!C19 = -21.65; Income Statement J26:N26 now =-'PP&E, Debt, NWC'!D73 ... H73 (was E73 ... blank I73), so N26 carries the 2025 interest. Fonts untouched; all cached values recomputed with the verifier's LibreOffice recalc (38 formula cells changed, nothing else)."
+  },
+  {
+    "id": "F2",
+    "title": "The prompt asks for a full audit, but only 7 font-colour cells are graded, and any other fix fails the whole task",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "problem.py tells the agent to audit and fix 'formula logic errors or inconsistencies, hardcoded values that should be formulas, broken cell references, data validation issues, potential calculation errors, inconsistent formatting...'. spec.yaml has one weight-1 verifier, verify_spreadsheetbench2_cells, in mode font_color. I diffed the input against gt_04_golden.xlsx. Across 5,509 answer_position cells, only 7 change, and every change is a font colour: Income Statement B6 (black→green), B7 (blue→green), E6 (black→blue), J11 (black→blue); Balance Sheet B6 (black→green); DCF C16 (green→black); LBO Analysis E7 (green→black). No value or formula changes. The score is all-or-nothing: all 7 modification cells must match, and at least 99.8% of the rest must keep the golden value and colour, which allows about 11 cell deviations. The model also contains real-looking logic issues that the GT leaves alone. In Income Statement, the projection formulas anchor to different historical columns: J29 '=$G29', J30 '=$F30', J31 '=$H31', J33 '=$H33'. A competent auditor who fixes something like this, or turns a hardcode into a formula, changes values that flow through the IS, CFS, DCF and LBO. That pushes past the 11-cell allowance and scores 0, even if the colour fixes are perfect. The prompt also contradicts itself: 'strictly avoid altering any cells that already contain values unless explicitly instructed' versus 'fix ... hardcoded values that should be formulas'.",
+    "confirmation": "Diffing input against gt_04_golden.xlsx finds exactly 7 font-colour changes (e.g. Income Statement B6 black to green, DCF C16 green to black). Real formula errors are left in place, such as 'PP&E, Debt, NWC'!I81='Balance Sheet'!I17 next to I80=J15. A thorough audit that fixes calculations changes ma",
+    "fixed": true,
+    "fix": "Same answer-key correction as 07150921 for the working-capital (I80 vs I81) error. The Income Statement J29 '=', J30 '=', J31 '=', J33 '=' anchors have no single defensible repair (zero hardcode in blue vs a consistent formula in black, and which year to anchor), so verifications[0].answer_position now skips 'Income Statement'!J29:J31 and J33 ('Income Statement'!B2:J57 -> B2:J28, B29:I33, J32, B34:J57); grader guidance range text updated to match."
+  }
+]

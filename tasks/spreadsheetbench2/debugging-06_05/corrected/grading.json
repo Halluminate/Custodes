@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_06_golden.xlsx",
+        "reference_path": "reference/untouched_input_Incorrect Average_input.xlsx",
+        "answer_position": "'Cover'!C2:J10,'Revenue Build'!A2:AC47,'Operating Model'!A2:W46,'DCF'!B2:AA4,'DCF'!B5:U7,'DCF'!W5:Z7,'DCF'!B8:AA12,'DCF'!B13:M25,'DCF'!AA13:AA25,'DCF'!B26:AA30,'DCF'!B31:M43,'DCF'!AA31:AA43,'DCF'!B44:AA50,'Dilution'!E13:M39,'WACC'!B2:F25,'Supporting Schedules'!A7:AF118,'Comps + Beta'!A2:K43,'Supporting Tables'!B4:F61,'BS Ann'!A5:F95,'BS'!A5:N93,'CFS Ann'!A5:E77,'CFS Q'!A5:F75,'IS Q'!A5:F112,'IS Ann'!A5:I115,'PTA'!B2:R39,'PTs'!A5:I20",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

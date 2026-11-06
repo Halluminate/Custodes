@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key requires an unrequested hardcoded value in DCF Valuation!D35, so no faithful solution can pass",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The task's five instructions cover only the Balance Sheet, Assumptions – Line 01, Dashboard, Ratio Analysis and Working Capital tabs. A diff of the untouched input against the ground truth also finds a new hardcoded number in the DCF sensitivity grid: input 'DCF Valuation'!D35 = None, ground truth D35 = 0.143833422543056. The rest of that row (E35:I35) is the same stale static output in both files. D35 falls inside the graded range 'DCF Valuation'!B1:O67, and because it changed from input to answer key, the verifier treats it as a 'modification' cell. The SpreadsheetBench 2 verifier (weight 1, the only verifier) passes only when every modification cell matches. In _values_match, None against 0.1438 is a type mismatch, so it fails. I confirmed this by taking the ground truth, clearing only D35, recalculating in LibreOffice and scoring it: 'Modification error at DCF Valuation!D35: answer=0.143833422543056, output=None', with modification ratio 0.9999, so the score is 0. The unmodified ground truth scores 1.0. An agent that does every requested edit correctly still scores 0 unless it somehow guesses a sensitivity-table value nobody asked for.",
+    "confirmation": "The golden adds an unrequested literal at 'DCF Valuation'!D35 (input blank), and None versus 0.1438 fails _values_match. A faithful solution therefore gets modification 0.9999 and a score of 0.",
+    "fixed": true,
+    "fix": "Golden gt_08_Seafood_golden.xlsx: cleared the unrequested hardcoded 0.143833422543056 in 'DCF Valuation'!D35 (a direct XML edit, so no other cell or cached value changed). D35 now matches the input and counts as a regression cell. The patched golden grades 1.0 locally."
+  },
+  {
+    "id": "F2",
+    "title": "Undisclosed modification cell DCF Valuation!D35 in ground truth is blank in input workbook and never mentioned in instructions",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The task instructions in problem.py specify five edits across five tabs: (1) Balance Sheet (PP&E and Long-Term Debt), (2) Assumptions – Line 01 (monthly volume distribution), (3) Dashboard (Line 01–03 segment revenues), (4) Ratio Analysis (EBITDA Margin), and (5) Working Capital (Total Net Working Capital), while explicitly warning: 'When completing spreadsheet tasks, strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.' However, in the ground-truth workbook (`gt_08_Seafood_golden.xlsx`), cell `DCF Valuation!D35` (part of a hardcoded sensitivity table in `D35:I38` with no formulas) contains a hardcoded literal float `0.143833422543056` (`<c r=\"D35\" s=\"78\" t=\"n\"><v>0.143833422543056</v></c>`), whereas in the input workbook (`08_02_Seafood_input.xlsx` and `untouched_input_08_02_Seafood_input.xlsx`) `DCF Valuation!D35` is completely blank (`<c r=\"D35\" s=\"78\"/>`, `value=None`). Because `verify_spreadsheetbench2_cells` (weight 1.0) includes `'DCF Valuation'!B1:O67` in `answer_position` and classifies every cell that differs between input and ground truth as a required modification cell (requiring `mod_ratio == 1.0` to pass), any submission that follows the instructions and does not populate the unmentioned literal cell `DCF Valuation!D35` fails with score 0.0 (`Modification error at DCF Valuation!D35: answer=0.143833422543056, output=None`). In production runs, Unit 3 matched 100% of all instructed cells and 100% of regression cells (`regression 1.0000, modification 0.9999. 1 cell error(s): Modification error at DCF Valuation!D35: answer=0.143833422543056, output=None`) and scored 0.0 solely due to this cell.",
+    "confirmation": "Confirmed: input D35=None and golden D35=0.143833422543056 in a static sensitivity grid (E35:I35 identical in both). None of the five instructed edits touches the DCF Valuation sheet, yet D35 counts as a modification cell.",
+    "fixed": true,
+    "fix": "Golden gt_08_Seafood_golden.xlsx: cleared the unrequested hardcoded 0.143833422543056 in 'DCF Valuation'!D35 (a direct XML edit, so no other cell or cached value changed). D35 now matches the input and counts as a regression cell. The patched golden grades 1.0 locally."
+  },
+  {
+    "id": "F3",
+    "title": "Using openpyxl as the prompt recommends shifts ~1,139 Capex-sheet values on recalculation, pushing regression below the 99.8% pass bar",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "planted_trick",
+    "evidence": "The model contains circular references and the workbook sets iterate=true, iterateCount=100. The prompt tells the agent to use openpyxl ('Implement: Create a python script ... using openpyxl'). Saving with openpyxl drops the cached values, so LibreOffice's iterative recalculation starts from zero and settles at a different result. I loaded the ground truth with openpyxl, changed only D35 and saved it. After the verifier's LibreOffice recalculation, 'Capex and Debt Assumptions'!C214 came out as 0 instead of 30,000,000, and C319 as -11,000,000 instead of 19,000,000. That made 1,139 regression errors, all in that sheet, and a regression ratio of 0.9939, below the 0.998 threshold. These cells are not part of the task, yet changing them fails the whole binary verifier. Saving the same ground truth file without openpyxl recalculates cleanly and scores 1.0. So the score depends on which save tool the agent picks, not on whether its finance is right.",
+    "confirmation": "Reproduced locally: the golden graded as-is scores 1.0, but the same golden loaded and saved with openpyxl scores 0.0 (regression 0.9939, 1,142 errors, all in 'Capex and Debt Assumptions', for example C214 30000000 vs 0). The prompt's recommended openpyxl workflow therefore breaks grading through th",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position (+ graderGuidance range text): 'Capex and Debt Assumptions '!A2:DL319 split into 75 ranges that leave out the 1,139 cells of the circular capex and debt block (rows 155-185 and 214-319, columns C:R) that a LibreOffice recalculation from a workbook without cached values (as openpyxl saves it) settles at a different fixed point. All are regression cells. Real SB2 scorer with the new answer_position: golden PASS (reg 1.0, mod 1.0), the golden re-saved with openpyxl PASS (was reg 0.9939, 1,141 errors), untouched input FAIL (mod 0.0001). The prompt line naming a save method is removed."
+  },
+  {
+    "id": "F4",
+    "title": "Verifier requires an unrequested repair to DCF Valuation!D35",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "D35 is blank in both the staged input and untouched reference, but the golden workbook contains the hardcoded value 0.143833422543056. The instructions specify work in five other tabs and do not request repairing the DCF sensitivity table. Preserving this original blank while retaining every other golden value produces the verifier error 'Modification error at DCF Valuation!D35: answer=0.143833422543056, output=None'. The modification ratio becomes 0.9999, which fails the sole weight-1 check and yields zero credit.",
+    "confirmation": "D35 on 'DCF Valuation' is blank in the input and reference but 0.143833422543056 in the golden, and no instruction asks for it. Leaving it blank fails the sole weight-1 all-or-nothing check.",
+    "fixed": true,
+    "fix": "Golden gt_08_Seafood_golden.xlsx: cleared the unrequested hardcoded 0.143833422543056 in 'DCF Valuation'!D35 (a direct XML edit, so no other cell or cached value changed). D35 now matches the input and counts as a regression cell. The patched golden grades 1.0 locally."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails all units (including Unit 3's complete solution) due to uninstructed modification cell DCF Valuation!D35 in ground truth",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `verify_spreadsheetbench2_cells` (weight: 1) returns `score=0` and flags `Modification error at DCF Valuation!D35: answer=0.143833422543056, output=None`. From Unit 3's trajectory (steps [58]–[80]), the agent accurately completed all five instructed tasks: (1) linked `Balance Sheet` rows 18 and 23 (`I18:CB18` and `I23:CB23`) to `'Capex and Debt Assumptions '!U131:CN131` and `U125:CN125`, (2) populated `Assumptions - Line 01` `L6:CE6` with the 12 monthly volume percentages in blue (`0x0070C0`), (3) linked `Dashboard` `J3:O5` to `'Income Statement'!C7:H9` divided by `10^6`, (4) wrote EBITDA Margin formulas in `Ratio Analysis` `C15:H15`, and (5) wrote Total Net Working Capital formulas `=J50-J51` across `Working Capital` `J52:BV52`. Unit 3 achieved `regression 1.0000, modification 0.9999` with only 1 cell error out of all 13 sheets: `DCF Valuation!D35`. `DCF Valuation!D35` is a hardcoded literal cell inside a static sensitivity table (`D35:I38`) that is `None` in the input file (`untouched_input_08_02_Seafood_input.xlsx`) and `0.143833422543056` in `gt_08_Seafood_golden.xlsx`, and is never mentioned in the instructions (which forbid altering uninstructed cells). Because `verify_spreadsheetbench2_cells` requires `mod_ratio == 1.0` to return 1.0, this ground-truth defect causes a false negative (score 0.0 instead of 1.0) on Unit 3 and makes passing impossible for any compliant agent.",
+    "confirmation": "'DCF Valuation'!D35 is blank in untouched_input_08_02_Seafood_input.xlsx but holds the hardcoded 0.143833422543056 in gt_08_Seafood_golden.xlsx. It sits inside the graded B1:O67 range, so it is a required modification cell that no instruction mentions, and the all-or-nothing verifier fails otherwise",
+    "fixed": true,
+    "fix": "Golden gt_08_Seafood_golden.xlsx: cleared the unrequested hardcoded 0.143833422543056 in 'DCF Valuation'!D35 (a direct XML edit, so no other cell or cached value changed). D35 now matches the input and counts as a regression cell. The patched golden grades 1.0 locally."
+  }
+]

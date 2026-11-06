@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Reference payables calculations contradict the workbook’s stated calculation rule",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Summary!A23 explicitly defines the payable as “55 days times the Daily Volume times the average 2002 wellhead netback price.” Using the seeded Forgan volume and January–December 2002 prices gives $431,394.5075. However, the bundled reference uses Summary!F4 = -AVERAGE(Exposure!C7:C18), yielding -$424,522.0353: both the sign and calculation differ. The reference also applies inconsistent averaging cutoffs to contracts sharing the same May 31, 2002 end date: F13 averages January–June exposure, including the June residual, while F15 and F16 average January–May only, excluding their nonzero June residuals of $684,036.70 and $620,486.70. No agent-visible instruction explains these conventions. The grader guidance requires logical equivalence to reference values and uses binary correctness and overall scores, so following the explicit seeded calculation rule can fail the substantive numeric grading.",
+    "confirmation": "Summary!A23 defines the payable as 55 days x daily volume x average 2002 price, but the GT uses negative averages of Exposure columns (F4 = -AVERAGE(Exposure!C7:C18) = -424,522). It also applies inconsistent cutoffs (F13 rows 7-12 vs F15/F16 rows 7-11), so the reference contradicts the workbook's st",
+    "fixed": true,
+    "fix": "Prompt sentence: 'Take the payables from the Exposure sheet rather than from the price formula described in the Summary footnote.' Guidance note allows either sign for the payables."
+  },
+  {
+    "id": "F2",
+    "title": "Contradictory and ambiguous definition of '55 days payables' between prompt, workbook footnote, and ground truth",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "There are three conflicting definitions across the task context and ground truth for how to populate `Summary!F4:F16`: (1) `Summary!A23` explicitly defines the column: `* The \"55 days payable\" value above is calculated as 55 days times the Daily Volume times the average 2002 wellhead netback price (curve date = Nov 9, 2001)` (which uses `Curves` 2002 prices and yields e.g. `431,394.51` for Forgan and `4,193,475.00` for Glenrock). (2) `problem.py` says to cross-reference the `Exposure` sheet and 'Calculate the average of 55-day payables at each designated time point'. Because `Exposure` rows represent rolling 55-day payables as of the 25th of each month (30/31 days of prior month + 25 days of current month), a contract ending May 31, 2002 still has a partial 30-day trailing payable on June 25, 2002 (`Exposure` row 12). In `gt_127_ref_0.xlsx`, `F13` (Glenrock, ending May 31, 2002) includes June 2002 (`=-AVERAGE(Exposure!F7:F12)` = `-3,504,637.50`), whereas `F15` and `F16` (both Ignacio contracts, also ending May 31, 2002 with the exact same active dates in `Volumes` rows 4-9) exclude June 2002 (`=-AVERAGE(Exposure!H7:H11)` = `-1,208,683.82` and `=-AVERAGE(Exposure!I7:I11)` = `-1,113,233.82`, vs `-1,121,242.64` and `-1,031,109.30` if row 12 were included). (3) The summary total labels in `E7:E8`, `E17:E18`, and `E20:E21` ask for 'Total Payables as of Jan 25, 2002' and 'as of July 25, 2002', which in `Exposure` correspond to specific rows (`row 7` for Jan 25, 2002 and `row 13` for Jul 25, 2002), whereas the ground truth sums the 2002 contract averages from `F4:F6` and `F13:F16` active on those dates (`F7 = =F4+F5`, `F8 = =F6+F7`, `F17 = =SUM(F13:F16)`, `F18 = =F14`).",
+    "confirmation": "In gt_127_ref_0.xlsx Summary, F13 (Glenrock, ends 31-May-02) is =-AVERAGE(Exposure!F7:F12), which includes June, while F15/F16 (also ending 31-May-02) use H7:H11/I7:I11 and leave out the nonzero June row 12 (684,037/620,487). The A23 footnote also defines the value differently, so no single stated r",
+    "fixed": true,
+    "fix": "gt_127_ref_0.xlsx: Summary!F15 =-AVERAGE(Exposure!H7:H12), F16 =-AVERAGE(Exposure!I7:I12) (were rows 7-11), the same window as F13. F17 and F20 recalculated (-8,079,628.19 and -8,928,672.26). Prompt: one sentence added saying to take payables from the Exposure sheet, not the footnote formula. Guidance: task note on the averaging window."
+  },
+  {
+    "id": "F3",
+    "title": "Ground truth averages the payables of contracts with the same term over different windows (Glenrock uses 6 months, the two Ignacio deals use 5)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Three proposed deals in Summary have the same term, Start 1-Dec-01 to End 31-May-02: row 13 Glenrock, row 15 Ignacio/El Paso and row 16 Ignacio/NWPL. The GT averages them differently. F13 is '=-AVERAGE(Exposure!F7:F12)', which covers Jan through Jun 2002 (6 rows, including the June row that holds May's carry-over payable of 2,057,625). F15 is '=-AVERAGE(Exposure!H7:H11)' and F16 is '=-AVERAGE(Exposure!I7:I11)', which cover Jan through May only (5 rows, leaving out the June carry-over rows of 684,037 and 620,487). Recomputing: with the 5-row window Glenrock is -3,794,040, not the GT's -3,504,637.5. With the 6-row window El Paso is -1,121,243, not -1,208,684. No consistent rule reproduces F13, F15 and F16 together. All three feed the graded totals F17 (-8,249,194) and F20 (-9,098,238). The grader scores pass/fail on whether every value is 'logically equivalent to the reference', so an agent that applies one rule consistently must fail at least one cell.",
+    "confirmation": "Verified: Exposure row 12 (Jun 2002) is nonzero for F, H and I. GT F13 averages rows 7-12 but F15/F16 average rows 7-11, so three contracts with the same Dec-01 to May-02 term use different windows, and that flows into F17/F20.",
+    "fixed": true,
+    "fix": "Same GT edit: all three 31-May-2002 contracts now average Exposure rows 7-12."
+  }
+]

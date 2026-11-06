@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_06_03_golden.xlsx",
+        "reference_path": "reference/untouched_input_06_03_input.xlsx",
+        "answer_position": "'iPhone_Revenue_Build'!B2:J45,'iPhone_Revenue_Build'!B46:B46,'iPhone_Revenue_Build'!G46:J46,'iPhone_Revenue_Build'!B47:B47,'iPhone_Revenue_Build'!D47:J47,'iPhone_Revenue_Build'!B48:J48",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

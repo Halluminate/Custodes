@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Excel data-table (TABLE()) cells cannot be reproduced by the verifier's LibreOffice recalc. GT holds Excel-only values that stay stale, and openpyxl edits wipe them to None, so the task cannot pass.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Same issue reported 2 times, differing only in the verifier/range/step cited:\n- The input's Berk-Hath sensitivity table (G10:K14, every cell =TABLE($F$9,$C$12,$F10,$C$15,G$9)) has a stale cached value of 11432.167 in almost every cell. The GT holds Excel-recomputed values (H10=11137.09, K11=9769.95, G14=12241.37, ...). 22 of these cells count as 'modifications' that must match exactly. The verifier recalculates the output in LibreOffice. I ran the verifier's own score_workbooks plus managed_recalculated_xlsx on the untouched input: LibreOffice kept the stale 11432.167 in all 22 cells (mod ratio 0.0). The GT scores 1.0 only because its cached values pass through untouched.\n- I copied every GT font colour onto the input with openpyxl, saved, and ran the verifier pipeline. Every TABLE() cell came back None after the LibreOffice recalc: DCF!V10:Z14 (25 cells) and Berk-Hath G10:K30 etc. (53 cells). Result: regression 0.9878, below REGRESSION_PASS_RATIO 0.998; modification 0.4054; 100 cell errors; score 0. The problem statement steers the agent to 'Pandas, openpyxl, numpy and LibreOffice' and says 'Create a python script... Decide how to manipulate the data using openpyxl'. So the recommended workflow cannot pass even when the colour work is perfect.",
+    "confirmation": "The 22 G10:K14 modification cells require GT values that LibreOffice recalc never produces: the frozen TABLE() cells keep 11432.17 or go blank, and GT's Excel-only numbers are wrong anyway. So the colour-fix task cannot reach the required modification ratio of 1.0.",
+    "fixed": true,
+    "fix": "All TABLE() grid cells, which LibreOffice recalculation cannot reproduce, are excluded from answer_position."
+  },
+  {
+    "id": "F2",
+    "title": "Incorrect sensitivity-table answer key rejects mathematically correct repairs",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook's 'Berk-Hath Investment Package'!G11:K14 contains 20 incorrect scenario values. For example, F11 specifies a 7.5% dividend and G9 a 6.3% discount rate, but G11 is 11152.8830174067; evaluating the workbook's existing C19, C20 and C42 calculations with those inputs gives 11878.5427134403. G12 repeats 11152.8830174067 despite its higher 8% dividend; its correct value is 12241.3725614571. These errors range from approximately 5.6% to 9.2%, exceeding the verifier's 1% tolerance. Substituting independently calculated scenario values into an otherwise unchanged golden workbook produces a modification ratio of 0.5135 instead of 1.0. The sole verifier has weight 1 and requires every modification cell to match, so correcting this table causes the entire task score to be zero.",
+    "confirmation": "Recomputing C19+C20+C42 at 7.5%/6.3% gives 11878.54 and at 8%/6.3% gives 12241.37, but GT G11 and G12 are both 11152.88. Correct scenario values miss by more than 1%, as trial 3's modification 0.5135 shows.",
+    "fixed": true,
+    "fix": "The wrong golden sensitivity values are no longer compared, so a correct table is not penalised."
+  },
+  {
+    "id": "F3",
+    "title": "Corrupted ground-truth sensitivity table values in Berk-Hath Investment Package!G10:K14 and frozen data-table recalculation make 22 of 37 modification cells impossible to pass",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1, `mode: font_color`) compares `untouched_input_Inconsistent Color Coding_input.xlsx` against `gt_02_golden.xlsx` across `answer_position` and identifies 37 modification cells: 15 font-color fixes (`DCF!C8:C10`, `DCF!J15:R15`, `WACC!C7`, `Synergies!D36:D37`) and 22 value differences in the 2-way sensitivity table `'Berk-Hath Investment Package'!G10:K14` (Dividend Rate `F10:F14` = 7.0%, 7.5%, 8.0%, 8.5%, 9.0% vs. Discount Rate `G9:K9` = 6.3%, 6.8%, 7.3%, 7.8%, 8.3%). In the input file, `G10:K14` holds `=TABLE($F$9,$C$12,$F10,$C$15,G$9)` formulas with stale cached values of `11432.1670414077` throughout, and header cell `F12` has `=C12` (referencing the Data Table's own row input cell `C12`). First, in `gt_02_golden.xlsx`, `G10:K14` was saved as hardcoded values produced while `F12` still referenced `=C12`, causing sequential state-corruption across rows during table evaluation: Row 10 (7.0%) evaluated at 7.0% (`G10=11515.71`), Row 11 (7.5%) evaluated at 6.5% (`G11=11152.88`), Row 12 (8.0%) also evaluated at 6.5% (`G12=11152.88`), Row 13 (8.5%) evaluated at 7.0% (`G13=11515.71`), and Row 14 (9.0%) evaluated at 8.0% (`G14=12241.37`), instead of the true sensitivity values for 7.5% (`G11=11878.54`), 8.0% (`G12=12241.37`), 8.5% (`G13=12604.20`), and 9.0% (`G14=12967.03`). Second, `verify_spreadsheetbench2_cells` runs `managed_recalculated_xlsx`, which calls `freeze_datatable_formulas` in `libreoffice.py` before running LibreOffice—stripping `<f>TABLE(...)</f>` tags and freezing the stale `11432.17` cached values in `G10:K14`. Thus, keeping the `TABLE(...)` formulas fails 22/37 modification cells (`modification 0.4054`), while fixing `F12` to `0.08` and computing the mathematically correct sensitivity table values (as Unit 3 did) matches only Row 10 (`H10:K10`, 4 cells) and still fails 18/37 modification cells (`modification 0.5135`).",
+    "confirmation": "Confirmed: input G10:K14 are TABLE() formulas with stale 11432.17 and F12 '=C12'. GT rows 11-14 repeat the 6.5%/7%/8% values instead of 7.5-9% (true G11 11878.54, G12 12241.37), and the verifier freezes data-table cells before recalc, so these modification cells cannot be passed legitimately.",
+    "fixed": true,
+    "fix": "The 22 corrupted Berk-Hath G10:K14 modification cells are no longer graded, via the same answer_position change."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells consistently scores 0.0 across all runs due to corrupted ground-truth Data Table values in Berk-Hath Investment Package!G10:K14",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1) returned `score=0`: Unit 1 (`regression 0.9953, modification 0.4054`), Unit 2 (`regression 0.9964, modification 0.4054`), and Unit 3 (`regression 0.9956, modification 0.5135`). Reconstructing the agents' work from their trajectories shows that all 3 units found and fixed all 15 actual font-color modification cells (`DCF!C8:C10`, `DCF!J15:R15`, `WACC!C7`, `Synergies!D36:D37`, which is `15/37 = 0.4054`). Furthermore, Unit 3 (`[49]`–`[111]`) diagnosed why the sensitivity table `'Berk-Hath Investment Package'!G10:K14` had stale cached values (`11432.17`), fixed `F12` from `=C12` to `0.08`, and populated `G10:K14` with the mathematically exact 2-way sensitivity values. However, the verifier still failed Unit 3 on 18 of the 22 modification cells in `G10:K14` (`modification 0.5135 = 19/37`) because `gt_02_golden.xlsx` contains corrupted values for rows 11–14 of `G10:K14` (where Excel evaluated `F12 = C12` self-referentially during table substitution, producing identical values for 7.5% and 8.0% dividend rates: `G11 = G12 = 11152.88` and `G10 = G13 = 11515.71`), and because `managed_recalculated_xlsx` freezes `TABLE(...)` formulas to their cached values before invoking LibreOffice. No legitimate solution can match the corrupted numbers in `gt_02_golden.xlsx`.",
+    "confirmation": "All three trials of run <id> scored 0 (modification 0.4054/0.4054/0.5135). GT 'Berk-Hath Investment Package'!G10:K14 holds hardcoded values that are wrong (G11=G12=11152.88, G10=G13=11515.71) while the input keeps TABLE() cells cached at 11432.17, so no correct repair can match all 22 modificati",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: the 'DCF'!B1:Z35 and 'Berk-Hath Investment Package'!B2:K44 ranges are split so they skip the TABLE() grids DCF!V10:Z14, Berk-Hath G10:K14, G18:K22 and G26:K30. Checked locally with the unchanged golden: the input with only the 15 golden font-colour changes (DCF C8:C10, J15:R15, WACC C7, Synergies D36:D37) applied with openpyxl now scores 1.0, the golden scores 1.0 and the untouched input scores 0."
+  }
+]

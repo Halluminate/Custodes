@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_10_golden.xlsx",
+        "reference_path": "reference/untouched_input_Errors_input.xlsx",
+        "answer_position": "'Model'!B2:AX335,'P&L Summary'!B2:T51,'4-Wall Analysis'!A2:DX1443,'Rollup'!A1:N80,'3-month Term SOFR'!B7:P130,'FY2023A (IS)'!A5:O72,'FY2023A (Earnings)'!A2:P61,'FY2023A (BS)'!A3:N84,'FY2023A (CF)'!A1:O59,'FY23SAIL15'!A3:O69,'FY23SAIL16'!A3:O69,'FY23SAIL17'!A3:O69,'FY23SAIL18'!A3:O69,'FY23SAIL21'!A3:O69,'FY23SAIL23'!A3:O69,'FY23SAIL24'!A3:O69,'FY23SAIL26'!A3:O69,'FY23SAIL27'!A3:O69,'FY23SAIL29'!A3:O69,'FY23SAIL30'!A3:O69,'FY23SAIL31'!A3:O69,'FY23Web'!A3:O69,'FY23Operations'!A3:O69,'FY2024A (IS)'!A3:O72,'FY2024A (Earnings)'!A2:P61,'FY2024A (BS)'!A3:N84,'FY2024A (CF)'!A11:O59,'FY24SAIL15'!A3:R69,'FY24SAIL16'!A3:R69,'FY24SAIL17'!A3:R69,'FY24SAIL18'!A3:R69,'FY24SAIL21'!A3:R69,'FY24SAIL23'!A3:R69,'FY24SAIL24'!A3:R69,'FY24SAIL26'!A3:R69,'FY24SAIL27'!A3:R69,'FY24SAIL29'!A3:R69,'FY24SAIL30'!A3:R69,'FY24SAIL31'!A3:R69,'FY24Web'!A3:R69,'FY24Operations'!A3:R69,'FY2025A (IS)'!A3:O72,'FY2025A (Earnings)'!A2:P61,'FY2025A (BS)'!A3:N84,'FY2025A (CF)'!A11:O59,'FY25SAIL15'!A3:R69,'FY25SAIL16'!A3:R69,'FY25SAIL17'!A3:R69,'FY25SAIL18'!A3:R69,'FY25SAIL21'!A3:R69,'FY25SAIL23'!A3:R69,'FY25SAIL24'!A3:R69,'FY25SAIL26'!A3:R69,'FY25SAIL27'!A3:R69,'FY25SAIL29'!A3:R69,'FY25SAIL30'!A3:R69,'FY25SAIL31'!A3:R69,'FY25Web'!A3:R69,'FY25Operations'!A3:R69,'FY2026A (YTD IS)'!A3:O72,'FY2026A (YTD Earnings)'!A2:P61,'FY2026A (YTD BS)'!A3:N84,'FY2026A (YTD CF)'!A11:O59,'FY2026B (IS)'!A3:Q72,'FY2026B (Earnings)'!A3:P62,'FY2026B (BS)'!A3:O76,'FY2026B (CF)'!A3:O51,'FY26SAIL15'!A3:O69,'FY26SAIL16'!A3:O69,'FY26SAIL17'!A3:O69,'FY26SAIL18'!A3:O69,'FY26SAIL21'!A3:O69,'FY26SAIL23'!A3:O69,'FY26SAIL24'!A3:O69,'FY26SAIL26'!A3:O69,'FY26SAIL27'!A3:O69,'FY26SAIL29'!A3:O69,'FY26SAIL30'!A3:O69,'FY26SAIL31'!A3:O69,'FY26Web'!A3:O69,'FY26Operations'!A3:O69,'FY2027P (IS)'!A3:O74,'FY2027P (Earnings)'!A1:P64,'FY2027P (BS)'!A3:O78,'FY2027P (CF)'!A3:O53,'FY2028P (IS)'!A3:R74,'FY2028P (Earnings)'!A3:P64,'FY2028P (BS)'!A3:O78,'FY2028P (CF)'!A3:O53",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_19_Transformer_golden.xlsx",
+        "reference_path": "reference/untouched_input_19_01_Transformer_input.xlsx",
+        "answer_position": "'AUDIT LOG'!A1:F14,'Cover Page'!B5:B18,'Summary Valuation'!B2:E25,'DCF'!B1:P31,'WACC'!B2:F23,'IS'!B2:O36,'BS'!B2:N43,'CF'!B2:H32,'Ratio Analysis'!B2:M32,'Revenue Drivers'!B2:M34,'Cost Drivers'!B2:L14,'Working Capital'!B2:N35,'Assets Sch.'!B2:K60,'Debt Schedule'!B2:K20,'Trading Comps'!B2:FL51,'Txn Comps'!B2:N30",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

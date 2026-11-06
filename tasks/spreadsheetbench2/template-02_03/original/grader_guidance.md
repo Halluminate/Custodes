@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'DebtWaterfall'!B2:F32,'SharedData'!B2:B12, after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

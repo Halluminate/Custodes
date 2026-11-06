@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_06_19_golden.xlsx",
+        "reference_path": "reference/untouched_input_06_19_input.xlsx",
+        "answer_position": "'IncomeStatement'!A2:F8,'IncomeStatement'!A9,'IncomeStatement'!C9:E9,'IncomeStatement'!A10:D10,'IncomeStatement'!A11:F63,'IncomeStatement'!G2:I8,'IncomeStatement'!G11:I12,'IncomeStatement'!G14:I15,'IncomeStatement'!G17:I18,'IncomeStatement'!G20:I21,'IncomeStatement'!G23:I24,'IncomeStatement'!G26:I26,'IncomeStatement'!G28:I28,'IncomeStatement'!G31:I31,'IncomeStatement'!G34:I35,'IncomeStatement'!G37:I63",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

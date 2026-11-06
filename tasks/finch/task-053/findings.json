@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "Grader reference uses December 2012 instead of the requested April 2012 cutoff",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task explicitly requests 'December 2000 through April 2012', but the authoritative grader guidance gives nominal volume 75,100,712, discounted volume 53,458,048, and difference 21,642,663. These reproduce the sums over all 145 source rows, Volumes!11:155, ending December 2012. The requested 137 months occupy rows 11:147 and sum to nominal volume 71,901,425.88495594, discounted volume 52,010,138.51935604, and difference 19,891,287.3655999, using the corresponding Curves discount factors. The reference therefore includes eight out-of-scope months. Because grading requires logical equivalence to this reference and uses a binary overall score, correctly applying the explicit cutoff can fail the task.",
+    "confirmation": "Duplicate of the confirmed cutoff error: the reference 75,100,712 equals the rows 11-155 sum, not the requested rows 11-147 (71,901,426).",
+    "fixed": true,
+    "fix": "Same recomputation over Dec 2000-Apr 2012."
+  },
+  {
+    "id": "F2",
+    "title": "Reference answer swaps CNG and TCO labels relative to the column headers in 53_src_0.xlsx",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `53_src_0.xlsx` (`Volumes` sheet, row 10), the left table (columns B–H) has volume in column E (`Monthly Volume in MMBtu's`, starting at 455,652.43 in Dec 2000) alongside `TCO Bids` (column G) and `TCO All in Bid` (column H), identifying the left table as TCO. The right table (columns J–P) has volume in column M (`Monthly Volume in MMBtu's`, starting at 224,425.82 in Dec 2000) alongside `CNG Bid` (column O) and `CNG All in Bid` (column P), identifying the right table as CNG. No other headers exist in the workbook (rows 1–9 are empty). Thus, based on the workbook's headers, TCO has the larger volume (average daily nominal volume of 11,409 across all 145 months, or 11,564 across 137 months) and CNG has the smaller volume (average daily nominal volume of 5,619 across all 145 months, or 5,696 across 137 months), making `Average Daily Nominal Volume (CNG) - Average Daily Nominal Volume (TCO)` equal to `-5,790` (or `-5,869` for Dec 2000–Apr 2012). However, the reference answer in `grader_guidance` (and `gt_answer.txt`) assigns the left table's value to CNG and the right table's value to TCO: `Average Daily Nominal Volume (CNG): 11,409`, `Average Daily Nominal Volume (TCO): 5,619`, and `Average Daily Nominal Volume (CNG) - Average Daily Nominal Volume (TCO)=5,790`. An agent that identifies TCO and CNG from the `TCO Bids` and `CNG Bid` column headers in row 10 will get the opposite assignment and fail the binary correctness check.",
+    "confirmation": "Volumes row 10 labels the left block (volume col E, 455,652 in Dec 2000) with 'TCO Bids'/'TCO All in Bid' and the right block (col M, 224,426) with 'CNG Bid'/'CNG All in Bid', yet gt_answer.txt calls 11,409 CNG and 5,619 TCO.",
+    "fixed": true,
+    "fix": "Same CNG/TCO relabel in gt_answer.txt and grader guidance."
+  },
+  {
+    "id": "F3",
+    "title": "Grader reference reverses the CNG and TCO daily-volume comparison",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The source identifies the left-hand volume block through 'TCO Bids' and 'TCO All in Bid' in Volumes!G10:H10, and the right-hand block through 'CNG Bid' and 'CNG All in Bid' in O10:P10. Thus column E belongs to TCO and column M to CNG. Across all source rows, the arithmetic means of monthly volume divided by days are 11,409.247422 for column E (TCO) and 5,619.480074 for column M (CNG). The grader reference instead states 'Average Daily Nominal Volume (CNG): 11,409', 'Average Daily Nominal Volume (TCO): 5,619', and 'CNG - TCO=5,790'. This reverses the entities and the comparison's sign, independently of the cutoff defect. A source-supported conclusion that TCO exceeds CNG can therefore fail the binary correctness requirement.",
+    "confirmation": "Duplicate of the confirmed CNG/TCO swap: header cells G10/H10 mark column E as TCO and O10/P10 mark column M as CNG, opposite to the reference labels.",
+    "fixed": true,
+    "fix": "Same CNG/TCO relabel in gt_answer.txt and grader guidance."
+  },
+  {
+    "id": "F4",
+    "title": "The answer key sums Dec 2000–Dec 2012, but the prompt asks for Dec 2000 through April 2012",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "I recomputed the totals from Volumes!E11:E155 (the TCO block) plus M11:M155 (the CNG block). For discounting I used Curves!B, matched on the Gas Market Report Date. The reference figures only come out over all 145 rows, Dec 2000–Dec 2012 (rows 11–155). That gives nominal 75,100,711.7, discounted 53,458,048.5 and difference 21,642,663.2, which match the GT's 75,100,712 / 53,458,048 / 21,642,663. Over the range the prompt states, Dec 2000–Apr 2012 (rows 11–147, 137 months), the figures are nominal 71,901,426, discounted 52,010,139 and difference 19,891,287. The average daily volumes have the same problem. They use all 145 months, giving 11,409 and 5,619. Through April 2012 they would be about 11,564 and 5,696, or 11,555 and 5,691 if computed as total volume divided by total days. An agent that follows the stated range exactly will fail every figure under the grader's single 0/1 score.",
+    "confirmation": "Confirmed GT totals match all 145 rows (Dec 2000-Dec 2012) rather than the prompt's Dec 2000-Apr 2012 (rows 11-147 nominal 71,901,426), so following the stated range fails.",
+    "fixed": true,
+    "fix": "gt_answer.txt and the reference block in grader guidance: totals recomputed over Volumes rows 11-147 (Dec 2000-Apr 2012, discount factor from Curves!B by Gas Market Report Date): nominal 71,901,426, discounted 52,010,139, difference 19,891,287."
+  },
+  {
+    "id": "F5",
+    "title": "Reference answer in grader guidance uses Dec 2000–Dec 2012 (145 months) instead of the requested Dec 2000–Apr 2012 (137 months)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The task statement in `problem.py` instructs: \"For each month from December 2000 through April 2012, compute the difference between the Total Monthly Nominal Volume (CNG + TCO) and the Total Monthly Discounted Volume (CNG + TCO) for the long-term natural gas contract. Then compare the Average Daily Nominal Volume for CNG with the Average Daily Nominal Volume for TCO.\" In `53_src_0.xlsx`, the `Volumes` sheet contains rows 11–147 for December 2000 through April 2012 (137 months) and rows 148–155 for May 2012 through December 2012 (an additional 8 months, 145 months total). Computing the metrics for the requested period (December 2000 through April 2012, rows 11–147) yields: Total Monthly Nominal Volume = 71,901,425.88; Total Monthly Discounted Volume = 52,010,138.52; Difference = 19,891,287.37. However, the `grader_guidance` in `problems-metadata.json` (and `gt_answer.txt`) specifies: \"Total Monthly Nominal Volume (CNG+TCO): 75,100,712 / Total Monthly Discounted Volume (CNG+TCO): 53,458,048 / Total Monthly Nominal Volume (CNG+TCO) - Total Monthly Discounted Volume (CNG+TCO) = 21,642,663 / Average Daily Nominal Volume (CNG): 11,409 / Average Daily Nominal Volume (TCO): 5,619 / Average Daily Nominal Volume (CNG) - Average Daily Nominal Volume (TCO)=5,790\". Those reference numbers are computed over all 145 rows (December 2000 through December 2012: 50,317,476.84 + 24,783,234.86 = 75,100,711.70 nominal; 53,458,048.47 discounted; 21,642,663.23 difference). Because this problem uses single-score binary grading (`\"score\": 0 or 1`) requiring numerical equivalence to the reference answer, an agent that follows the prompt's date range (Dec 2000–Apr 2012) will fail grading.",
+    "confirmation": "Summing Volumes E+M over rows 11-155 gives 75,100,711.7 (the GT figure) while the requested Dec 2000-Apr 2012 rows 11-147 give 71,901,425.9, so the key covers eight out-of-scope months.",
+    "fixed": true,
+    "fix": "Same recomputation over Dec 2000-Apr 2012 (137 months), including the average daily volumes."
+  },
+  {
+    "id": "F6",
+    "title": "The reference answer swaps the CNG and TCO volumes, so the comparison is backwards",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In the Volumes sheet, the block of columns B–H has the headers 'Monthly Volume in MMBtu's' (E10), 'Nymex Bids' (F10), 'TCO Bids' (G10) and 'TCO All in Bid' (H10). Column E is therefore the TCO volume, 455,652 in Dec 2000. The block of columns J–P has 'CNG Bid' (O10) and 'CNG All in Bid' (P10), so column M is the CNG volume, 224,426. The GT gives 'Average Daily Nominal Volume (CNG): 11,409', but 11,409 is the average of column E/days, which is TCO. It gives 'Average Daily Nominal Volume (TCO): 5,619', which is column M (CNG). It then states 'CNG - TCO = 5,790'. An agent that reads the headers correctly will say TCO exceeds CNG by about 5,790 (CNG − TCO = −5,790) and will be marked wrong. The block-title cells in rows 1–9 (the empty cyan cell above E) are blank, so the column headers are the only label the agent can use.",
+    "confirmation": "Rows 1-9 are blank, so the only labels are G10:H10 (TCO) over column E and O10:P10 (CNG) over column M; the GT assigns E's 11,409 to CNG and reports CNG-TCO = +5,790, reversing the comparison.",
+    "fixed": true,
+    "fix": "Average daily volumes relabelled per the headers: CNG (column M) 5,696, TCO (column E) 11,564, CNG - TCO = -5,869."
+  }
+]

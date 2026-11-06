@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Incomplete seeded volume totals produce division-by-zero errors in the reference",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "In the input workbook, Volumes!I58:I64 are blank even though B:H contain nonzero volumes: rows 58–61 sum to 52,000 each and rows 62–64 sum to 42,000 each. The bundled reference divides by these missing totals; for example, Exposure!L60 is '=J60/Volumes!I58/(25+A59)'. Consequently, reference cells L60:L66 all contain '#DIV/0!'. These are invalid benchmarks for seven required WA Price results, and the grader's binary correctness check against reference values can penalize a correctly calculated workbook.",
+    "confirmation": "Both 37_src_0.xlsx and the GT have Volumes!I58:I64 blank while B58:D64 hold 52,000/42,000 per day, so reference WA Price L60:L66 are #DIV/0!.",
+    "fixed": true,
+    "fix": "gt_37_ref_0.xlsx (sheet XML edited directly, rest of the file untouched): Exposure!L6:L66 WA Price now divides Total (J) by the actual volume over the exposure days, L6 =J6/SUM(Volumes!B4:H4)/25 and L{r} =J{r}/(A{r-1}*SUM(Volumes!B{r-3}:H{r-3})+25*SUM(Volumes!B{r-2}:H{r-2})), summing B:H so the blank Volumes!I58:I64 no longer give #DIV/0!. Cached values written: L60:L66 now 2.62/2.50/2.55/2.57/2.58/2.68/2.84 instead of #DIV/0!, L12 now 1.7226 instead of 2.0272 (volume change month). All other L values are unchanged because daily volume is flat in those months."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth shows #DIV/0! in WA Price for 7 months that have real exposure",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In gt_37_ref_0.xlsx, Exposure!L60:L66 hold the formula pattern '=J{r}/Volumes!I{r-2}/(25+A{r-1})', and their cached values are '#DIV/0!'. The Total column for the same rows is non-zero: J60=9,244,878.60, J61=7,151,530.37 … J66=6,548,908.55. The cause is in the source Volumes sheet: the Total column has '=SUM(B57:H57)' at row 57 and stops there, so Volumes!I58:I64 are empty. Those rows still carry volumes (B58:D61 = 5000/5000/42000, D62:D64 = 42000). The GT therefore divides by a blank total. An agent that computes the volume-weighted price correctly (from B:H, or by extending Volumes!I) gets real prices, about 4.14 at row 60. The grader is told to check that values are 'logically equivalent to the reference answer' and returns a binary 0/1 score, so this correct answer gets marked wrong. An agent that copies the GT's broken pattern gets credit for error values.",
+    "confirmation": "Confirmed gt_37_ref_0.xlsx Exposure!L60:L66 cache #DIV/0! while J60:J66 are non-zero (J60=9,244,878.60), since Volumes!I58:I64 are empty despite volumes in B:D.",
+    "fixed": true,
+    "fix": "gt_37_ref_0.xlsx (sheet XML edited directly, rest of the file untouched): Exposure!L6:L66 WA Price now divides Total (J) by the actual volume over the exposure days, L6 =J6/SUM(Volumes!B4:H4)/25 and L{r} =J{r}/(A{r-1}*SUM(Volumes!B{r-3}:H{r-3})+25*SUM(Volumes!B{r-2}:H{r-2})), summing B:H so the blank Volumes!I58:I64 no longer give #DIV/0!. Cached values written: L60:L66 now 2.62/2.50/2.55/2.57/2.58/2.68/2.84 instead of #DIV/0!, L12 now 1.7226 instead of 2.0272 (volume change month). All other L values are unchanged because daily volume is flat in those months."
+  },
+  {
+    "id": "F3",
+    "title": "Ground truth WA Price formula in gt_37_ref_0.xlsx is mathematically flawed at volume transition months and produces #DIV/0! errors for the last 7 months (June–December 2006)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The task statement asks to append two columns to the Exposure table: 'Total' and 'WA Price' (volume-weighted average price averaged over the days). In `Exposure`, each row `r` (for `r >= 7`, Jan 2002 to Dec 2006) computes monthly dollar exposure across two periods: `A(r-1)` days of the prior month's volume and price plus `25` days of the current month's volume and price (e.g., `C7 = $A6*Volumes!B4*Curves!G5 + 25*Volumes!B5*Curves!G6`). However, the ground truth workbook (`gt_37_ref_0.xlsx`, which corresponds to the reference Excel file evaluated by `grader_guidance` under 'Data Accuracy' / `correctness`) uses `=J{r}/Volumes!I{r-2}/(25+A{r-1})` in `Exposure!L7:L66`. This formula has two major defects:\n1. In `Volumes`, the `Total` column (`I4:I57`) stops at Row 57 (May 2006), leaving `Volumes!I58:I64` (June–December 2006) blank even though `Volumes!B58:D64` contain non-zero volumes (52,000/day in Jun–Sep 2006 and 42,000/day in Oct–Dec 2006). Because the GT formula divides directly by `Volumes!I58:I64`, cells `Exposure!L60:L66` in `gt_37_ref_0.xlsx` evaluate to `#DIV/0!` instead of valid prices (~$2.50–$2.84).\n2. When total daily volume changes between months, dividing by `Volumes!I{r-2}*(25+A{r-1})` applies only the current month's daily volume to both the `A{r-1}` prior-month days and the `25` current-month days. In Row 12 (June 2002), where daily volume drops from 95,000 (`Volumes!I9`) to 72,000 (`Volumes!I10`), the true total volume over the exposure days is `31*95,000 + 25*72,000 = 4,745,000` (giving a true WA Price of `8,173,658.21 / 4,745,000 = $1.72/MMBtu`), whereas the GT formula divides by `72,000 * (25 + 31) = 4,032,000`, yielding an overstated `$2.03/MMBtu` (`2.027197`). The same distortion occurs in Jun 2006 (Row 60) and Oct 2006 (Row 64) if `Volumes!I58:I64` are populated.\nBecause `grader_guidance` instructs the judge to check whether every value/formula is logically equivalent to the reference answer (`correctness: 1 if all values, formulas, charts, and text are logically equivalent to the reference answer; 0 otherwise`) and also penalizes modifying sheets outside the instruction scope (`over_edit_avoidance`, if an agent fills `Volumes!I58:I64`), a competent agent computing true volume-weighted average prices will diverge from the ground truth on Rows 12 and 60–66 and risk failing the single-score binary rubric.",
+    "confirmation": "gt_37_ref_0.xlsx Exposure!L7:L66 = J/Volumes!I{r-2}/(25+A{r-1}); L60:L66 cache #DIV/0! because Volumes!I58:I64 are blank, and L12 (2.027) divides by current-month 72,000 only although J12 mixes 31 days at 95,000.",
+    "fixed": true,
+    "fix": "gt_37_ref_0.xlsx (sheet XML edited directly, rest of the file untouched): Exposure!L6:L66 WA Price now divides Total (J) by the actual volume over the exposure days, L6 =J6/SUM(Volumes!B4:H4)/25 and L{r} =J{r}/(A{r-1}*SUM(Volumes!B{r-3}:H{r-3})+25*SUM(Volumes!B{r-2}:H{r-2})), summing B:H so the blank Volumes!I58:I64 no longer give #DIV/0!. Cached values written: L60:L66 now 2.62/2.50/2.55/2.57/2.58/2.68/2.84 instead of #DIV/0!, L12 now 1.7226 instead of 2.0272 (volume change month). All other L values are unchanged because daily volume is flat in those months."
+  }
+]

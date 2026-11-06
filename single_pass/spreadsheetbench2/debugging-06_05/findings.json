@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough open-ended audit, but the golden fixes only the injected beta-averaging error plus two minor items, and the verifier requires every cell across almost the whole workbook to match within 1%, so legitimate additional fixes fail the task.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "overbroad-exact-match",
+    "evidence": "Prompt: 'Errors may include but are not limited to... hardcoded values that should be formulas...'. answer_position spans e.g. 'DCF'!B2:AA50 and 'Operating Model'!A2:W46. Golden differs from input only at 'Comps + Beta'!C30 (AVERAGE(K22:K26)), H15 (MEDIAN(H6:H10)) and 'Supporting Schedules'!J27:S27 (AVERAGE($G$27:$I$27)).",
+    "confirmation": "The golden still holds a genuine error in compared cells: 'Revenue Build'!AC41/AC43 '=rri(...)' cache #NAME?. One run that repaired them as =(AA41/W41)^(1/5)-1 was marked 'Modification error at Revenue Build!AC41: answer=#NAME?, output=0.3797', so a legitimate extra fix fails the all-cells match."
+  }
+]

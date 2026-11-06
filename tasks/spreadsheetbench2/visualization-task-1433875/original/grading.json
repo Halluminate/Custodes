@@ -1,0 +1,53 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official chart checklist",
+      "function": "verify_spreadsheetbench2_chart_checklist",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "checklist": [
+          "The chart is a line chart",
+          "The chart title reads 'Monthly Orders (January-December)'",
+          "A data table is displayed below the chart inside the chart area",
+          "The X-axis categories appear left to right in this order: Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec",
+          "The legend contains an entry labeled '2023'",
+          "The legend contains an entry labeled '2024'",
+          "The legend contains an entry labeled '2025'",
+          "The Total column is excluded from the plotted chart lines (no data points plotted for Total)",
+          "The Total column is visible in the data table",
+          "The 2023 line has a data point at Jan with value 20",
+          "The 2023 line has a data point at Feb with value 18",
+          "The 2023 line has a data point at May with value 25",
+          "The 2023 line has a data point at Jun with value 29",
+          "The 2023 line has a data point at Aug with value 29",
+          "The 2023 line has a data point at Dec with value 26",
+          "The 2024 line has a data point at Jan with value 22",
+          "The 2024 line has a data point at Jun with value 34",
+          "The 2024 line has a data point at Jul with value 32",
+          "The 2024 line has a data point at Oct with value 20",
+          "The 2024 line has a data point at Nov with value 34",
+          "The 2024 line has a data point at Dec with value 30",
+          "The 2025 line has a data point at Jan with value 23",
+          "The 2025 line has a data point at May with value 35",
+          "The 2025 line has a data point at Aug with value 35",
+          "The 2025 line has a data point at Oct with value 32",
+          "The 2025 line has a data point at Dec with value 24",
+          "The data table shows the value 20 for 2023 in the Jan column",
+          "The data table shows the value 34 for 2024 in the Jun column",
+          "The data table shows the value 35 for 2025 in the May column",
+          "The data table shows the value 288 for 2023 in the Total column",
+          "The data table shows the value 311 for 2024 in the Total column",
+          "The data table shows the value 342 for 2025 in the Total column"
+        ]
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

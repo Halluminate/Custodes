@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "Reference CIS cash flows omit a distribution and produce an inflated NPV",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The bundled reference calculates a $1,304.295 CIS distribution in M16 but leaves its corresponding total cash flow O16 blank. Consequently, N16 + O16 equals $301,328.705 rather than the $302,633 available in H16. Additionally, O14:O16 are blank and O28 uses '=NPV(0.25,O14,O15,O16,O17,O18,O19,O20,O21,O22,O23,O24,O25,O26)'. Excel ignores those blank references, moving the first recorded CIS payment three periods earlier. Recomputing the reference's recorded cash flows with their actual row periods gives $67,788.1572, not the cached $132,398.7445; restoring the omitted O16 distribution gives $68,455.9562 under the same first-row discount convention. The rubric requires numerical and business-logic equivalence to the reference and returns a binary correctness result, so a correctly timed, reconciled return analysis can be penalized.",
+    "confirmation": "GT O14:O16 are blank while M16=1,304.30, and O28 '=NPV(0.25,O14,O15,O16,O17,...)' ignores the blank arguments, shifting CIS flows three periods earlier (cached 132,398.74). A correctly timed analysis would not match the reference.",
+    "fixed": true,
+    "fix": "Same GT patch; O28 is now 68,455.96."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth relies on undisclosed 90%/10% partner split, undisclosed $13,000,000 exit valuation in Row 26, and unstated shortfall sign convention",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `problem.py:1`, the task states: \"Based on the assumptions in the table, build out a complete pro forma model for the real estate investment and populate the capital stack and return analysis as shown.\" However, inspecting the source workbook (`assets/167_src_0.xlsx`, sheet `version1`) against the reference workbook (`gt_167_ref_0.xlsx`, sheet `version 1`) reveals that essential numerical inputs and conventions required to compute Columns J–O and the return metrics (`N28:O28`, `N30`) are completely absent from both `problem.py` and `167_src_0.xlsx`:\n1. **Undisclosed 90% / 10% partner profit split**: In `gt_167_ref_0.xlsx`, `L14:L25` (`Operating Cash Flow - PA & KH`) uses `=MAX(0,$J14)*0.9` and `M14:M25` (`Operating Cash Flow - CIS`) uses `=MAX(0,$J14)*0.1`, and `N26:O26` also split terminal proceeds `0.9` / `0.1`. Neither `90%` nor `10%` appears anywhere in `167_src_0.xlsx` or `problem.py`.\n2. **Undisclosed $13,000,000 terminal exit value in unlabelled Row 26**: In `gt_167_ref_0.xlsx`, `N26` contains `=0.9*(13000000-C8)` (`3,060,000`) and `O26` contains `=0.1*(13000000-C8)` (`340,000`), which are then included as a 13th period in `N28` (`=NPV(0.25,N14,...,N26)` = `$296,091`), `O28` (`=NPV(0.25,O14,...,O26)` = `$132,399`), and `N30` (`=IRR(N14:N26,0.3)` = `31%`). In `167_src_0.xlsx`, Row 26 has no label in Column A (`A14:A25` are Years 1–12, `A26` is blank), and the `$13,000,000` sale price is never mentioned anywhere (the only property value in `167_src_0.xlsx` is `C6 = 12,000,000` for `Appraised Value`).\n3. **Unstated sign convention for `Cash after priority` (`J14:J25`) and `Unfunded priority` (`K14:K25`)**: `I14:K25` are completely blank in `167_src_0.xlsx`, yet `gt_167_ref_0.xlsx` stores `J14:J15` (`=H14-I14`) and `K14:K15` (`=MIN(0,J14)`) as negative numbers (`-350,074.35` and `-179,515.70`) and accumulates them via `=C15*$I$10-MIN(0,K14)`, whereas a positive shortfall convention (`K14 = MAX(0,I14-H14)`) is equally standard.\nBecause `grader_guidance` (`Evaluation Criteria -> 2. Data Accuracy` and `Output Format`) grades binary pass/fail (`score`: 0 or 1) on whether every cell matches the reference workbook, a competent agent cannot pass without guessing these undisclosed constants.",
+    "confirmation": "167_src_0.xlsx (the only input) has no partner split or exit value, yet GT uses L14 '=MAX(0,$J14)*0.9', M14 '*0.1' and N26 '=0.9*(13000000-C8)'. The source only gives appraised value C6=12,000,000, so the graded split and exit are not derivable.",
+    "fixed": true,
+    "fix": "prompt.md: added one sentence after 'populate the capital stack and return analysis as shown.' giving the 90%/10% split of cash after the priority return and the Year-13 reversion of a $13,000,000 sale less the permanent loan split the same way. grader_guidance.md: added one sentence accepting either sign for the shortfall in Cash after priority / Unfunded priority if it carries forward the same way."
+  },
+  {
+    "id": "F3",
+    "title": "The answer key depends on deal terms that appear nowhere in the materials (90/10 split, $13M exit value, timing of CIS cash flows)",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The only input is 167_src_0.xlsx: one sheet with costs, equity, loan, appraised value, LTV, a 15% rate in I10, NOI for year 2, debt service, reserves and blank column headers. There are no emails, chat messages or data room. The ground truth (gt_167_ref_0.xlsx) builds the waterfall on terms the agent cannot find anywhere: (1) L14:M25 '=MAX(0,$J14)*0.9' and '*0.1' give PA & KH 90% and CIS 10% of cash after the priority return. No ratio is stated in the source. (2) N26 '=0.9*(13000000-C8)' and O26 '=0.1*(13000000-C8)' assume a sale or reversion value of $13,000,000. The source only has an appraised value of 12,000,000, and no exit year, cap rate or sale costs are given. (3) CIS Total Cash Flow (column O) starts in year 4 (O17), even though CIS operating cash flow is already non-zero in year 3 (M16 = 1,304). (4) N15 '=1600000+H15' treats the year-2 equity return of 1.6M as a cash flow to PA & KH. (5) The 15% in I10 has no label, and the source never says it is a cumulative preferred return or how the shortfall accrues (the GT carries it forward through K). The grader gives a binary 0/1 score on whether the output is 'logically equivalent to the reference answer', with no partial credit. So NPV@25% ($296,091 / $132,399) and IRR (31.07%) can only be matched by guessing the hidden 90/10 split and the $13M exit. Different, equally reasonable assumptions (a 12M exit from the appraisal, 80/20, a different pref treatment) will be graded as failures.",
+    "confirmation": "Verified in gt_167_ref_0.xlsx: the 90/10 split (L14:M25), the $13,000,000 reversion (N26:O26), CIS cash flows starting at O17, and N15 '=1600000+H15'. None of these terms appear in 167_src_0.xlsx, which is the only input.",
+    "fixed": true,
+    "fix": "Same prompt sentence (90/10 split, $13M sale less permanent loan after Year 12) and the same GT patch for the CIS timing. The 15% in I10 sits under the existing 'Cumulative Priority Return' header and the 1.6M Year-2 equity return follows from C15 in the source, so neither needs a change."
+  },
+  {
+    "id": "F4",
+    "title": "In the GT, CIS's year-3 share is deducted from PA & KH but never paid to CIS, so the partner cash flows don't add up",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Ground truth row 16 (year 3): M16 (CIS operating cash flow) = 1,304.30 and N16 '=H16-M16' = 301,328.71, which takes CIS's share out of PA & KH. But O16 (CIS total cash flow) is blank; the O column starts at O17 '=M17'. So 1,304.30 of distributable cash (H16 = 302,633) goes to no one. N16 + O16 = 301,328.71, not H16 = 302,633. The formula pattern also breaks: N15 '=1600000+H15' and N16:N25 '=H-M' use different logic, and O16 is missing while O17:O25 exist. CIS NPV@25% (O28 = $132,399) is understated as a result. With binary equivalence grading, an agent that correctly pays CIS in year 3 will not match the key.",
+    "confirmation": "In the GT, M16=1,304.30 is subtracted in N16 (=H16-M16=301,328.71) but O16 is blank, so N16+O16 does not equal H16=302,633 and CIS's year-3 distribution is lost. This error then flows into O28.",
+    "fixed": true,
+    "fix": "Same GT patch: O16 now pays CIS the 1,304.30 deducted in N16, so N16+O16 = H16."
+  },
+  {
+    "id": "F5",
+    "title": "Required distribution and exit assumptions are missing from the task inputs",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "data_presence",
+    "evidence": "The task says to build the model 'Based on the assumptions in the table', but the supplied workbook contains no partner distribution percentages, terminal sale value, or exit timing assumption. Nevertheless, the bundled reference uses '=MAX(0,$J14)*0.9' and '*0.1' for partner distributions and '=0.9*(13000000-C8)' / '=0.1*(13000000-C8)' for terminal proceeds in N26:O26. Neither the 90%/10% split nor the $13,000,000 exit value can be derived from the supplied table. Initialization stages only that workbook and supplies no explanatory correspondence. These missing inputs prevent a competent agent from determining the graded partner cash flows and returns without inventing assumptions.",
+    "confirmation": "The source sheet holds only costs, equity, loan, appraised value 12M, LTV, 15% priority (I10), year-2 NOI, debt service and reserves. The GT's 0.9/0.1 distribution and '=0.9*(13000000-C8)' terminal value cannot be derived from it, and no other input files exist.",
+    "fixed": true,
+    "fix": "Same prompt sentence supplying the distribution split and exit value."
+  },
+  {
+    "id": "F6",
+    "title": "Ground-truth workbook (`gt_167_ref_0.xlsx`) omits Year 3 CIS cash flow (`O16`) and leaves `O14:O16` blank, causing Excel `NPV` in `O28` to mis-discount CIS cash flows by 3 years",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `gt_167_ref_0.xlsx` (sheet `version 1`), Column M (`Operating Cash Flow - CIS`) computes `=MAX(0,$J14)*0.1` through `=MAX(0,$J25)*0.1`. In Year 3 (Row 16), `J16 = 13,042.95`, so CIS's 10% operating cash flow is `M16 = 1,304.295`, and PA & KH's Total Cash Flow in `N16` explicitly deducts `M16` (`=H16-M16 = 301,328.705`). However, in Column O (`Total Cash Flow - CIS`), the ground truth leaves `O14`, `O15`, and `O16` completely blank (`None`) and only begins copying `=M17`..`=M25` starting in Row 17 (Year 4), omitting Year 3's `$1,304.30` cash flow from CIS's Total Cash Flow column.\nWorse, cell `O28` (`NPV@25%` for CIS) uses the formula `=NPV(0.25,O14,O15,O16,O17,O18,O19,O20,O21,O22,O23,O24,O25,O26)`, which evaluates to `$132,398.74`. Because Excel's `NPV()` function ignores empty cell references, leaving `O14:O16` blank instead of `0` (`O14:O15`) and `1,304.295` (`O16`) shifts the entire CIS cash flow series 3 years earlier—discounting Year 4 (`O17 = 21,499.87`) by `(1.25)^1` instead of `(1.25)^4` and Row 26 (`O26 = 340,000`) by `(1.25)^10` instead of `(1.25)^13`. When `O14:O25` are properly populated with `=M14`..`=M25`, the true NPV at 25% is `$68,455.96` (nearly half the ground truth's `$132,398.74`). Under `grader_guidance` (`Evaluation Criteria -> 2. Data Accuracy`, binary `score` 0 or 1), a correct model that populates `O14:O25` (`=M14`..`=M25`) will be penalized for not matching the corrupted ground-truth values in `O16` and `O28`.",
+    "confirmation": "GT M16 = 1,304.30 (CIS share) and N16 '=H16-M16' deducts it, but O14:O16 are blank and O starts at O17 '=M17'. O28 '=NPV(0.25,O14,...,O26)' then skips the blank cells (Excel NPV ignores empties), so it discounts O17 as period 1 and caches 132,398.74.",
+    "fixed": true,
+    "fix": "gt_167_ref_0.xlsx 'version 1': O14 =M14 (0), O15 =M15 (0), O16 =M16 (1,304.30), formatted like O17; O28 cached value 132,398.74 -> 68,455.96 (the formula is unchanged, now discounting each CIS flow in its own year). Everything else is identical, and a LibreOffice recalc reproduces the cached values."
+  }
+]

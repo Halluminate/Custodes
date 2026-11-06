@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks the agent to audit and fix the file thoroughly, but the golden file fixes only two calculation errors (the DIO average window and the Senior Notes interest average); every compared cell must match, so an agent that correctly fixes other genuine errors in the graded ranges will fail.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "overbroad-prompt-vs-narrow-key",
+    "evidence": "Golden still has: 'Income Statement'!J26 = -'PP&E, Debt, NWC'!E73, which is the 2022 interest booked in 2021, with N26 = -I73 (blank, so 0); 'PP&E, Debt, NWC' rows 81-83 shifted one year (C81='Balance Sheet'!C17 under 2015, while C80='Balance Sheet'!D15); 'Line Item Metrics'!H24 averages H27:J27; H35 = 'Balance Sheet'!J22/H12. Fixing any of these changes values in DCF, LBO, Returns or Line Item Metrics by more than 1%.",
+    "confirmation": "The golden only changes BS row 67, LIM L24 and LBO row 41, yet keeps IS J26 = -E73 (2022 interest in 2021) with N26 = 0, 'PP&E, Debt, NWC' C81:C83 pulling BS column C (2014) under C79 = 2015 while C80 pulls BS D15, and LIM H24 averaging BS H27:J27 and H35 = BS J22/H12. Fixing these, as the thorough-"
+  }
+]

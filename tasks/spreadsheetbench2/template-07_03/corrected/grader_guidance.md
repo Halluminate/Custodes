@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'EquityMethod'!B2:G55 (except F23:G24, the post-close Investment in affiliate and Intangible assets balances, where amortization may reduce either line), after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

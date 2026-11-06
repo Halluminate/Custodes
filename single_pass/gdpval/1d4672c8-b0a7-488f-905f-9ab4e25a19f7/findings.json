@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer-key correlation matrix is Pearson correlation of raw monthly index price levels, not of monthly returns. This contradicts the prompt ('compares index returns') and the rubric ('correlation matrix of the nine specified indices' returns', 'reproducible from the provided monthly return series').",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-wrong-method",
+    "evidence": "gt_Correlation Matrix.xlsx 'Correlation Table' F8 (EM ex China vs China) = -0.3346. Recomputing from 'Performance Data' levels (B7:J18) gives exactly -0.335 on levels. The same pair's 11 monthly returns correlate at about -0.05.",
+    "confirmation": "Pearson correlation of the 'Performance Data' price levels reproduces the GT matrix exactly (EM ex China vs China -0.3346, LatAm vs ACWI IMI -0.5287). Monthly returns give -0.054 and 0.167. The prompt asks for a matrix that compares index returns, and the rubric asks for a returns-based matrix."
+  },
+  {
+    "id": "S2",
+    "title": "The expert PDF's headline findings and recommendations rest on the level-based correlations, so the reference deliverable is substantively wrong. In a pairwise comparison, an agent that correctly correlates returns would show different coefficients and could be judged worse than a flawed baseline.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-spurious-conclusions",
+    "evidence": "gt_Correlation Analysis.pdf cites 'EM ex-China ... negative correlation with MSCI China (-0.335)', 'EM Latin America ... negative correlations with MSCI ACWI IMI (-0.529) and MSCI World (-0.572)' and 'India and China (-0.444)'. It then recommends a LatAm hedge and an India counterbalance. All of these values are level correlations (Correlation Table D10, E10, H9).",
+    "confirmation": "The GT PDF's headline negatives (-0.335, -0.529, -0.572, India/China -0.444) and its LatAm-hedge and India-counterbalance recommendations all come from level correlations. On returns those pairs are about -0.05, 0.17, 0.11 and -0.08, so the expert baseline that the pairwise grade compares against is"
+  }
+]

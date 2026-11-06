@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Golden workbook retains invalid balance-sheet totals and penalizes their correction",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task requests a thorough audit, including formula logic and calculation errors, but the golden workbook still adds nonmonetary metrics into monetary totals. Model!E59 contains '=SUM(E51:E53,E55,E57)', including E52 ('Days Unbilled Outstanding') of 107.383412232908. Its monetary components total 137.738, but the expected total is 245.121412232908. This error repeats through N59. Likewise, E67:N67 include row 62 ('Net Revenue %') in 'Total Current Liabilities'; E67 expects 85.917985242306 rather than the monetary components' 85.851. These errors contaminate working capital and dependent calculations. The verifier classifies E59 as a modification cell and rejects the correctly reconciled total under its 1% tolerance. Because the sole verification has weight 1 and requires every modification cell to match, correcting this genuine audit issue can cause the entire check to score zero.",
+    "confirmation": "The golden Model!E59:N59 keeps the E51:E53 range (E52 = 107.38 days), giving 245.12 vs the 137.738 monetary sum. Since the input formula changed there (E61 removed), it is a graded modification cell, and correcting the range fails by far more than 1%.",
+    "fixed": true,
+    "fix": "Same GT change as verifier-correctness-0 (rows 59 and 67 sum only dollar lines, dependents recomputed)."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth workbook gt_05_golden.xlsx retains invalid range sums in Model!E59:N59 and Model!E67:N67 that include Days Unbilled Outstanding (row 52) and Net Revenue % (row 62) in dollar totals",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The task asks the agent to audit and fix `/home/model/Desktop/Double Counting_input.xlsx` for formula logic errors and calculation errors. In `Model` (Balance Sheet Line Items), rows 51, 53, 55, and 57 are dollar asset items (`Contract Assets`, `Receivables`, `Other Receivables`, `Prepaid Expenses`), while row 52 (`Days Unbilled Outstanding`, e.g. `E52 = (E51/E$26)*365 = 107.3834` days) is a non-dollar turnover metric row located between `Contract Assets` (row 51) and `Receivables` (row 53). In the input workbook, `Model!E59:N59` (`Total Current Assets`) has `=SUM(E51:E53,E55,E57,E61)`, which both includes `Contract Liabilities` (`E61`) and uses the range `E51:E53` instead of `E51,E53`, thereby adding `E52` (107.38 days) into the dollar total. However, `gt_05_golden.xlsx` only removes `E61` (`=SUM(E51:E53,E55,E57)`), leaving `E52:N52` summed into `Total Current Assets` (`Model!E59` golden value `245.121412232908` vs true dollar sum `59.288 + 67.211 + 6.267 + 4.972 = 137.738`). Similarly, `Model!E67:N67` (`Total Current Liabilities`) in both the input and `gt_05_golden.xlsx` uses `=SUM(E61:E63,E65)`, which includes row 62 (`Net Revenue %`, e.g. `E62 = E61/E$26 = 0.0670`) in the dollar sum (`85.917985` vs true dollar sum `13.499 + 36.672 + 35.68 = 85.851`). Because `SpreadsheetBench 2 official cell check` (weight 1.0) requires 100% match on all modification cells against `gt_05_golden.xlsx`, any agent that properly fixes `E59:N59` to `=SUM(E51,E53,E55,E57)` fails 23 cells (`E59:N59`, `E68:N68`, `F69:H69`) and scores 0.0.",
+    "confirmation": "Confirmed: the golden Model!E59 '=SUM(E51:E53,E55,E57)' includes row 52 (days), and E67 '=SUM(E61:E63,E65)' includes row 62 Net Revenue % (=E61/E$26). So the answer key has wrong Total Current Assets/Working Capital values, which penalize a correct audit fix.",
+    "fixed": true,
+    "fix": "Same GT change as verifier-correctness-0 (rows 59 and 67 sum only dollar lines, dependents recomputed)."
+  },
+  {
+    "id": "F3",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check falsely fails all 3 units (score 0.0) due to flawed ground truth in Model!E59:N59 and Model!E67:N67",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, the agents identified and fixed all three double-counting bugs (`Financial Overview!C8:I8` to `=SUM(C4,C6)`, `Model!J88:N88` to `=SUM(J83:J87)`, and removing `E61:N61` from `Model!E59:N59`) AND also fixed the range-sum bug in `Model!E59:N59` (`=SUM(E51,E53,E55,E57)` instead of `=SUM(E51:E53,E55,E57)`) and `Model!E67:N67` (`=SUM(E61,E63,E65)` instead of `=SUM(E61:E63,E65)`), which otherwise add `Days Unbilled Outstanding` (row 52, in days) and `Net Revenue %` (row 62, a percentage) into dollar Balance Sheet totals. Because `gt_05_golden.xlsx` left `E51:E53` in `Model!E59:N59`, all 3 units got the exact same verifier verdict: `score=0 - FAILED - regression 1.0000, modification 0.9594. 23 cell error(s): Modification error at Model!E59: answer=245.121412232908, output=137.738; Modification error at Model!E68: answer=159.203426990602, output=51.887...`. Every single one of the 23 cell errors (`Model!E59:N59`, `Model!E68:N68`, `Model!F69:H69`) is caused solely by `gt_05_golden.xlsx` erroneously summing row 52 (`Days Unbilled Outstanding`) into `Total Current Assets`. Since this verifier carries 100% of the problem weight (weight: 1), all three correct submissions received 0.0.",
+    "confirmation": "In gt_05_golden.xlsx, Model!E59 is '=SUM(E51:E53,E55,E57)' (cached 245.12), which adds E52 Days Unbilled Outstanding (=(E51/E$26)*365, 107.38 days) to the 137.738 dollar total. E59:N59 is a modification cell, so an agent that also fixes this real error fails the sole all-or-nothing check.",
+    "fixed": true,
+    "fix": "files/gt/gt_05_golden.xlsx: Model!E59:N59 '=SUM(x51:x53,x55,x57)' -> '=SUM(x51,x53,x55,x57)' (drops row 52 Days Unbilled Outstanding) and Model!E67:N67 '=SUM(x61:x63,x65)' -> '=SUM(x61,x63,x65)' (drops row 62 Net Revenue %). Cached values recomputed in LibreOffice for rows 59, 67, 68 and F69:H69 (e.g. E59 245.12 -> 137.738). No other cell changed."
+  }
+]

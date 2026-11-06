@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Ambiguous Balance Sheet column timeline (`BOP 2018` vs year-end columns) and undisclosed tax basis conventions",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The GAAP Balance Sheet (`C32:G43`) and Tax Balance Sheet (`C46:G53`) have 5 columns labeled `BOP 2018` (Col C), `12/31/2018` (Col D), `12/31/2019` (Col E), `12/31/2020` (Col F), and `12/31/2021` (Col G), for a 4-year bond issued on `1/1/2018` and maturing on `12/31/2021`. Neither the prompt nor the workbook explains how 4 years of operating activity map across these 5 balance sheet columns or how the bond is treated for tax purposes:\n1. In `gt_01_05_golden.xlsx`, the 4 annual premium amortizations and DTL increases are placed in columns `C:F` (`C34:F34 = -113.20, -117.62, -122.21, -126.97` and `C42:F42 = 33.96, 35.29, 36.66, 38.09`), treating the column labeled `BOP 2018` (Col C) as the Year 1 (2018) amortization period and shifting Years 2-4 into Columns D-F (`12/31/2018` to `12/31/2020`), while using Column G (`12/31/2021`) exclusively for the maturity principal repayment (`G33 = 12000`, `G34 = -12000`, `G35 = 0`; `G47 = 12000`, `G48 = -12000`, `G49 = 0`) and leaving `Deferred Tax Liability - Ending` at `G43 = 144.000000000001` even after both GAAP and Tax bond liabilities are 0.\n2. Nothing in the prompt or input workbook states the tax accounting rule that the Tax Balance Sheet carries the bond at face value (`C47:G47 = 12000`) rather than issue proceeds (`12480`), nor that the $600 annual coupon is fully deductible for Cash Taxes Due (`C28:F28 = (Cash Revenue - Cash Expenses - 600) * 30%`) so that premium amortization creates a Deferred Tax Liability (`C41:G43`) rather than a Deferred Tax Asset (`C37:G39 = 0`).\nAll 3 evaluated units failed on these exact cells (`C24`, `C34`, `C42`, `C43`, `C47`), scoring 0.0 on `SpreadsheetBench 2 official cell check` (weight 1.0).",
+    "confirmation": "GT puts 2018 activity under the 'BOP 2018' column (C34 -113.20, C35 12366.80, C43 33.96) and repayment under 12/31/2021, and uses an unstated tax basis of 12000 (C47). All three trials of run <id> failed on exactly C24/C34/C42/C43/C47 under the all-or-nothing check.",
+    "fixed": true,
+    "fix": "prompt.md: added \"On the GAAP and Tax balance sheets, enter each year's activity starting in the BOP 2018 column (2018 under BOP 2018 through 2021 under 12/31/2020), show only the principal repayment at maturity in the 12/31/2021 column, and use the $12,000 face value as the bond's tax basis.\" which states the column layout and tax basis the answer key uses (GT C33:C35 2018 activity under BOP 2018, F35 12000, G-column repayment, C47 12000)."
+  },
+  {
+    "id": "F2",
+    "title": "GT keeps a $144 deferred tax liability after the bond is retired and classifies the temporary difference with the wrong sign",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "GT G41 = 144.000000000001, G42 = 0, G43 = 144.000000000001 under '12/31/2021', where GAAP bond G35 = 0 and tax bond G49 = 0. With zero book-tax difference, any deferred tax balance must be 0. At issuance, book liability is 12480 and tax basis is 12000 (C47). A liability whose book value exceeds its tax basis is a deductible temporary difference: a DTA of 480 x 30% = 144 that unwinds to 0, which gives the same 33.96/35.29/36.66/38.09 deferred tax expense. The GT instead records the DTA rows as all 0 and builds a DTL from 0 up to 144 that never reverses. A competent balance-sheet-approach answer (DTA 144 → 0, DTL 0) fails every DTA/DTL cell, and the verifier is all-or-nothing.",
+    "confirmation": "GT G41:G43 leave a deferred tax liability of 144 at 12/31/2021 while GAAP bond G35 and tax bond G49 are both 0, and DTA rows 37-39 are all 0 despite book 12480 vs tax 12000 at issue. No temporary difference supports that balance, so a reconciled deferred-tax answer fails.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F3",
+    "title": "Answer key shifts balance-sheet activity one period earlier than the supplied headers",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The supplied workbook labels C32 'BOP 2018', D32 '12/31/2018', and F32 '12/31/2020'. However, the golden workbook puts first-year premium amortization of -113.202675834038 in C34 and an ending liability of 12366.797324166 in C35, under 'BOP 2018'. It then expects 12249.179042588 at D35 under '12/31/2018', which already incorporates two years of amortization, and 12000 at F35 under '12/31/2020', incorporating all four years although maturity is 12/31/2021. The deferred-tax schedules have the same shift. Following the explicit dates instead of this unstated convention fails the sole weight-1 verifier, which requires every modification cell to match.",
+    "confirmation": "Duplicate of the column-shift defect: GT C34/C35 hold year-1 amortization and the 12366.80 ending balance under 'BOP 2018', D35 12249.18 under 12/31/2018, F35 12000 under 12/31/2020, and the DTL block is shifted the same way.",
+    "fixed": true,
+    "fix": "prompt.md: added \"On the GAAP and Tax balance sheets, enter each year's activity starting in the BOP 2018 column (2018 under BOP 2018 through 2021 under 12/31/2020), show only the principal repayment at maturity in the 12/31/2021 column, and use the $12,000 face value as the bond's tax basis.\" which states the column layout and tax basis the answer key uses (GT C33:C35 2018 activity under BOP 2018, F35 12000, G-column repayment, C47 12000)."
+  },
+  {
+    "id": "F4",
+    "title": "Ground-truth balance-sheet values sit one column off from their period headers",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The GAAP balance-sheet headers in the input are C32 'BOP 2018', D32 '12/31/2018', E32 '12/31/2019', F32 '12/31/2020', G32 '12/31/2021'. The GT puts the full 2018 roll-forward in the 'BOP 2018' column: C33 beginning 12480, C34 -113.20, C35 ending 12366.80. It then shows F35 = 12000 under '12/31/2020', but by the GT's own amortization schedule the end-2020 carrying value is 12126.97 and face (12000) is only reached at 12/31/2021. G33/G34/G35 (12000, -12000, 0) under '12/31/2021' put repayment in the same period the bond reaches face. The DTL block has the same shift (C43 = 33.96 under 'BOP 2018'). An analyst who follows the headers would enter C35 = 12480 (opening balance), D35 = 12366.80, ..., G35 = 12000 and then repayment. That fails roughly 20+ modification cells. The verifier (verify_spreadsheetbench2_cells, weight 1) passes only if every modification cell matches, so the whole score turns on guessing this misalignment.",
+    "confirmation": "Confirmed in gt_01_05_golden.xlsx: C33:C35 = 12480/-113.20/12366.80 under 'BOP 2018', and F35 = 12000 under '12/31/2020' although the GT's own amortization reaches face only after year 4. A header-faithful layout therefore misses many modification cells.",
+    "fixed": true,
+    "fix": "prompt.md: added \"On the GAAP and Tax balance sheets, enter each year's activity starting in the BOP 2018 column (2018 under BOP 2018 through 2021 under 12/31/2020), show only the principal repayment at maturity in the 12/31/2021 column, and use the $12,000 face value as the bond's tax basis.\" which states the column layout and tax basis the answer key uses (GT C33:C35 2018 activity under BOP 2018, F35 12000, G-column repayment, C47 12000)."
+  },
+  {
+    "id": "F5",
+    "title": "Golden tax schedule leaves an unsupported deferred tax liability after the bond is extinguished",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "At maturity, the golden workbook has both GAAP bond liability G35=0 and tax bond liability G49=0, but still expects G43=144.000000000001 of deferred tax liability. Its four GAAP tax expenses total 1464, while cash taxes total 1320; the entire 144 difference accumulates without reversal. The model contains no remaining bond tax-basis difference or other temporary difference supporting this liability, and its initial deferred tax balances are also zero despite different initial book and tax bond balances of 12480 and 12000. Neither the instructions nor the seed workbook specifies a tax treatment that reconciles these positions. A reconciled deferred-tax model is therefore penalized by the sole weight-1, all-or-nothing cell verifier.",
+    "confirmation": "Verified: GT G35=0 and G49=0 but G43=144.000000000001. GAAP tax expense totals 1464 against cash taxes of 1320 with no reversal, so the GT keeps an unsupported DTL after extinguishment.",
+    "fixed": false,
+    "fix": null
+  }
+]

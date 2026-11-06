@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for an open-ended, thorough audit and fix of every error. The verifier instead requires an exact value match across almost every populated cell of all 13 sheets against a golden file that fixes only a narrow set of cross-sheet reference errors, so any additional legitimate fix fails the task.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "open-ended-prompt-exact-key",
+    "evidence": "Prompt: 'Please audit and fix this file thoroughly. Errors may include but are not limited to...'. answer_position covers 'Operating Model + DCF'!A2:X145, 'Revenue Build'!A2:AA44, 'Comps + WACC'!B2:L41, etc. The task passes only if every compared cell matches.",
+    "confirmation": "The golden differs from the input only in about 34 cross-sheet reference cells (e.g. E4:G4, C7:H7, C62:H62, M71, M77, Revenue Build H17/M17, Comps C34) and leaves other obvious errors in place, such as R84=R847-M83. A thorough audit that also fixes those changes modification and regression values ac"
+  },
+  {
+    "id": "S2",
+    "title": "The golden keeps the obviously broken formula R84=R847-M83, which points at an empty cell. Correcting it to R83-M83 changes R84, D94, D95, C102 and every implied price and upside, so a correct fix is marked wrong.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden-retains-broken-reference",
+    "evidence": "'Operating Model + DCF'!R84: golden formula '=R847-M83' with value -29.613; the logical R83-M83 gives about -113.9.",
+    "confirmation": "'Operating Model + DCF'!R84 is '=R847-M83' in both the input and the golden, and R847 is empty, so the golden value is -29.613. The intended R83-M83 gives about -113.9, and since R84 is a modification cell (input cached -452.6) a correct fix fails it and the DCF cells downstream."
+  }
+]

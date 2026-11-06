@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key requires a Year-0 EBITDA value (C8 = 55) that appears nowhere in the agent's materials, so the task cannot be fully passed",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The input workbook (assets/09_01_input.xlsx, identical to untouched_input_09_01_input.xlsx) has DebtSchedule!C8 blank. EBITDA is given only for D8=62.5, E8=68.8, G8=77, I8=81.5, K8=85 and M8=88. The ground truth gt_09_01_golden.xlsx has C8 = 55. The only verifier, verify_spreadsheetbench2_cells (weight 1, the whole score), grades 'DebtSchedule'!B2:M39. Any cell that differs between input and ground truth becomes a 'modification' cell, and the verifier returns 1.0 only when every modification cell matches. C8 is a modification cell: input None, GT 55, and blank vs 55 does not match. The number 55 cannot be derived from any assumption. It is not a growth rate off Year 1, and the C29 junior debt of 55 is unrelated. There are no emails, chat or other files. The sheet's own instruction says to calculate 'ONLY for years where EBITDA is provided', so Year 0 should stay blank. An agent that builds the whole debt schedule perfectly still scores 0.0.",
+    "confirmation": "Same verified defect: golden C8=55 versus a blank input C8, with EBITDA given only for D8,E8,G8,I8,K8,M8. A perfect schedule still fails the mod_ratio==1.0 requirement.",
+    "fixed": true,
+    "fix": "Same GT patch (C8 blank)."
+  },
+  {
+    "id": "F2",
+    "title": "Verifier requires a Year 0 EBITDA value absent from the supplied assumptions",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "DebtSchedule!C8 (Year 0 EBITDA) is blank in both the staged input and the untouched reference, but the golden workbook requires 55. No supplied instruction or assumption establishes this EBITDA value; C29's separate value of 55 is explicitly labeled 'Junior debt - Year 0'. The workbook states, 'EBITDA is only provided for select years,' so leaving C8 blank is reasonable. The sole verifier, weighted 1, includes C8 and requires every modification cell to match. A fixture-only test retaining all golden values except leaving C8 blank produces 'Modification error at DebtSchedule!C8: answer=55, output=None' and modification ratio 0.9886, which fails the entire check.",
+    "confirmation": "Same verified defect: the Year 0 EBITDA value 55 required in golden DebtSchedule!C8 is absent from the input and assumptions block (rows 28-35).",
+    "fixed": true,
+    "fix": "Same GT patch (C8 blank)."
+  },
+  {
+    "id": "F3",
+    "title": "Golden workbook contains an unprovided Year 0 EBITDA value at DebtSchedule!C8 (55 vs. None in input), making the 100%-threshold cell verifier impossible to pass",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In both `assets/09_01_input.xlsx` and `untouched_input_09_01_input.xlsx`, cell `DebtSchedule!C8` (Year 0 EBITDA) is empty (`None`), whereas in `gt_09_01_golden.xlsx` cell `DebtSchedule!C8` is `55`. No Year 0 EBITDA assumption appears anywhere in `problem.py` or `09_01_input.xlsx` (`B27:C35` only provides `Senior debt - Year 0 = 180` and `Junior debt - Year 0 = 55`), and `C8` is not referenced by any formula (cells `C9:C15` are empty in `gt_09_01_golden.xlsx`). Furthermore, `problem.py` instructs the agent to 'strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task,' and `DebtSchedule!B38` states 'EBITDA is only provided for select years.' Because `verify_spreadsheetbench2_cells` (`weight: 1`) compares `B2:M39` between `untouched_input_09_01_input.xlsx` and `gt_09_01_golden.xlsx`, it classifies `C8` as one of 88 required modification cells (`Modification error at DebtSchedule!C8: answer=55, output=None`) and requires `mod_ratio == 1.0` to return a non-zero score. Consequently, any valid solution receives a score of 0.0.",
+    "confirmation": "Confirmed: input DebtSchedule!C8 is None and golden C8=55. The only 55 in the input is B29/C29 'Junior debt - Year 0', and B38 says EBITDA is provided only for select years, so the graded value cannot be derived.",
+    "fixed": true,
+    "fix": "Same GT patch (C8 blank); every other GT cell unchanged, GT scores 1.0/1.0 against itself locally."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check cannot pass (trivial fail) because DebtSchedule!C8 is None in the input workbook but 55 in the golden workbook, and because it rejects valid average-balance LBO schedules",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units (unit 1 steps [23]-[43], unit 2 steps [28]-[44], unit 3 steps [24]-[44]), the agent produced `/home/model/Desktop/output.xlsx` with a complete, recalculated LBO debt schedule that matched all 368 regression cells (`regression 1.0000`) and all 44 non-circular modification cells (`C18, C20, C23, C25, D10..K10, D12..M14`, etc.). However, `SpreadsheetBench 2 official cell check` (`weight: 1`) scored `0.0` on all 3 units for two reasons: (1) `DebtSchedule!C8` (Year 0 EBITDA) is `None` in `untouched_input_09_01_input.xlsx` and `09_01_input.xlsx` but `55` in `gt_09_01_golden.xlsx`, causing `Modification error at DebtSchedule!C8: answer=55, output=None` on every unit despite no source providing `55` for `C8`; and (2) all 3 units modeled interest on average debt balance (`D9 = -9.1550`) rather than the unstated beginning balance (`D9 = -9.9`), causing 43 cascading modification cell mismatches. Because `verify_spreadsheetbench2_cells` requires `mod_ratio == 1.0` to return `1.0` (otherwise returning `0.0`), the `C8` mismatch alone guarantees a `0.0` score on every run.",
+    "confirmation": "DebtSchedule!C8 (Year 0 EBITDA) is blank in 09_01_input.xlsx but 55 in gt_09_01_golden.xlsx, and no input supplies it (row 8 gives EBITDA only for D,E,G,I,K,M). The all-modification-cells check therefore fails every run. The beginning-balance interest convention (GT D9=-9.9) is a secondary, debatabl",
+    "fixed": true,
+    "fix": "gt_09_01_golden.xlsx DebtSchedule!C8: 55 -> blank (now a regression cell matching the input). prompt.md: added 'Calculate each year's interest on the beginning balance of each debt tranche.' after the instruction, matching GT D9 = -0.055*180 and D10 = -0.095*55, so the average-balance reading is no longer left open."
+  }
+]

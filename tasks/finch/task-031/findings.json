@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth Rotation chart contains corrupted rotation timelines, unlabeled gap cells, out-of-2001 spillover columns, and a wrong group suffix (-Power instead of -Gas)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The problem statement requires: 'The Rotation Chart tab should display each employee’s assignments by month for 2001 so the schedule is easy to review at a glance. Each color-coded rotation should also be labeled with the corresponding group name. To distinguish between the power and gas groups, add the suffix “-power” or “-gas” to the group names.' However, the reference workbook (`gt_31_ref_0.xlsx`) against which the AI grader evaluates `correctness` ('1 if all values, formulas, charts, and text are logically equivalent to the reference answer; 0 otherwise') has multiple substantive errors on `Rotation chart` compared to `Rotation list`:\n1. Unexplained 1-month gap and shifted start date for Russell Ballato (Row 7) and Juan Padron (Row 13): In `Rotation list`, both have their 2nd rotation starting `2001-03-01` (F) and their 3rd rotation ('Book Running') starting `2001-08-01` (K). In `gt_31_ref_0.xlsx`, their 2nd rotation stops at July (`F7:J7` / `F13:J13`), August (`K7` / `K13`) is filled with an unlabeled yellow cell (`rgb=FFFFFF00`, value `None`), and their 3rd rotation ('Book Running-Power') is shifted to start in September (`L7:Q7` / `L13:Q13`).\n2. Rotations spill past December 2001 (Column O) into unlabeled columns P and Q: Every second/final rotation starting in February, August, or September is drawn as a fixed 6-column block regardless of the 2001 calendar boundary (e.g., Chuck Ames `L3:Q3`, Russell Ballato `L7:Q7`, Steven Gim `K9:P9`, Mog Heu `K11:P11`, Juan Padron `L13:Q13`, Denver Palchey `L15:Q15`, Elizabeth Shim `L17:Q17`, Matt Smith `K19:P19`,Vladi Pimenov merged `E21:P21`, Jason Wolfe `K23:P23`, Virawan Yawapongsiri `K25:P25`, Paul Schiavone `K27:P27`), even though `P1` and `Q1` have no month headers (`None`) and the prompt explicitly asks for assignments 'by month for 2001'.\n3. Wrong department suffix for Vladi Pimenov (Row 21): In `Rotation list`, Vladi Pimenov is listed under the `Gas` section (row 33, below `A19='Gas'`, assigned to 'East Gas Trading'). In `gt_31_ref_0.xlsx` cell `E21`, his rotation is labeled `'East Gas Trading-Power'` instead of `'East Gas Trading-Gas'`. \n4. Inconsistent typo normalization in `Rotation list`: Matt Smith's 2nd rotation in `Rotation list` `D39` is `'Norms'`, which `gt_31_ref_0.xlsx` silently changes to `'Noms-Gas'` (`M19`), whereas Russell Ballato's `'Fundamentals-Power'` (`D5`) is kept as `'Fundamentals-Power'` (`H7`) rather than appending a duplicate suffix.",
+    "confirmation": "Confirmed in gt_31_ref_0.xlsx Rotation chart: E21 (merged E21:P21) reads 'East Gas Trading-Power' for Gas-section Vladi Pimenov, K7/K13 are an unlabeled yellow gap with Book Running starting in L although the roster says 2001-08-01, and filled blocks run into columns P:Q which have no month header.",
+    "fixed": true,
+    "fix": "gt_31_ref_0.xlsx 'Rotation chart' (workbook has no formulas, edited with openpyxl): E21 'East Gas Trading-Power' -> 'East Gas Trading-Gas'; merge E21:P21 -> E21:O21; K7 and K13 yellow gap fill replaced by the Book Running block fill so that rotation starts 2001-08 as in Rotation list; fills removed from P:Q in every row (no month header there, all cells empty). No cell value other than E21 changed."
+  },
+  {
+    "id": "F2",
+    "title": "Reference assigns a gas employee the power suffix",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input places Vladi Pimenov in the Gas section ('Rotation list'!A19), with 'East Gas Trading' starting 2001-02-01 in C33:D33. However, the reference's 'Rotation chart'!E21 says 'East Gas Trading-Power'. This contradicts the requested sector suffix and affects his February–December assignment. The grader guidance checks labels for logical equivalence to the reference, so a correct '-gas' label risks being penalized.",
+    "confirmation": "Duplicate of the confirmed key error: GT Rotation chart!E21 = 'East Gas Trading-Power' for a Gas-section employee per Rotation list A19/B33.",
+    "fixed": true,
+    "fix": "Same GT edit: 'Rotation chart'!E21 now 'East Gas Trading-Gas'."
+  },
+  {
+    "id": "F3",
+    "title": "Answer key gives Vladi Pimenov, a Gas-section employee, the suffix '-Power'",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In the source 'Rotation list' sheet, Vladi Pimenov (B33, 'East Gas Trading', supervisor Scott Neal) sits in the 'Gas' block, which starts at A19. Every other Gas-block employee gets '-Gas' in the GT, but GT 'Rotation chart'!E21 (merged E21:P21) reads 'East Gas Trading-Power'. The statement says to add '-power' or '-gas' to tell the power and gas groups apart. An agent that correctly writes 'East Gas Trading-gas' will not match the answer key. The grader guidance checks correctness against the reference and gives a binary score with correctness required, so a correct submission can fail.",
+    "confirmation": "Rotation list puts Vladi Pimenov (row 33, East Gas Trading) under the 'Gas' header at A19, but GT Rotation chart!E21 is 'East Gas Trading-Power', so a correct '-gas' label conflicts with the binary-graded reference.",
+    "fixed": true,
+    "fix": "Same GT edit: 'Rotation chart'!E21 now 'East Gas Trading-Gas'."
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Grader shrinks the chart until its labels are unreadable",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The verifier fits the entire chart-bearing worksheet onto one page rather than rendering the chart independently. Running its rendering pipeline on the supplied golden workbook, which retains 483 data rows, produced a 147×650-pixel content image. Chart labels A–F were reduced to 0.9-point text, approximately 1.4 pixels high at the configured 110 DPI. A second, blank page was also included. This destroys the visual evidence needed for the label, coordinate and dashed-edge checks. The image-only verifier carries the entire task weight of 1, so a competent solution can be penalized because of its worksheet layout rather than its chart.",
+    "confirmation": "Same reproduced renderer defect: fitToHeight=1 on the 483-row sheet makes the golden chart a thumbnail about 60 px wide (scratch/b06/52d/page0.png), so the label, coordinate and dashed-edge items in the sole verifier cannot be judged.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F2",
+    "title": "SpreadsheetBench 2 official chart checklist: Chart renderer shrinks worksheet with 483 rows into an unreadable thumbnail and blank second page",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "In `verifiers/spreadsheetbench2_charts.py` (`_fit_to_one_page` and `_render_chart_pages`), the verifier forces `fitToPage=\"1\"`, `fitToWidth=\"1\"`, and `fitToHeight=\"1\"` onto every worksheet containing a drawing and converts the entire worksheet to PDF via LibreOffice at `RENDER_DPI = 110`. Because `Task 134_input.xlsx` has 483 rows of data in `A1:B483` and the instructions forbid deleting existing cells, fitting all 483 rows into a single page height scales the entire sheet down so that on `gt_Task 134_golden.xlsx` itself, `_render_chart_pages` produces a 147x650px image where the chart occupies only 66x35 pixels (plus a completely blank 910x1287px second page). At 66x35 pixels, vertex labels (A-F), coordinate values (items 9-14), and dashed polygon edges (items 16-17) are illegible to the VLM judge. In unit 1 (score=0, 8/18 passed, failed [9..18]) and unit 2 (score=0, 11/18 passed, failed [4, 11, 12, 13, 14, 17, 18]), the agents built scatter charts with the required series and vertex labels (A at (0, 14285.44), B at (2190000, 12939.32), C at (2434688.35, 0), D at (0, -13412.82), F at (-2434619.01, 0)), yet failed coordinate and label checklist items on the sole verifier (weight: 1), compounded by the empty 18th checklist item failing across all 3 units.",
+    "confirmation": "I ran _render_chart_pages from spreadsheetbench2_charts.py on gt_Task 134_golden.xlsx and reproduced it: a 147x650 px page where the fit-to-one-page squeeze over 483 data rows shrinks the chart to a tiny thumbnail with illegible A-F labels, plus a blank 910x1287 second page. The vision checklist can",
+    "fixed": false,
+    "fix": null
+  }
+]

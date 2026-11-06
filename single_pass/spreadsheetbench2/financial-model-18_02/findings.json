@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden file hardcodes 'NM' for Total Debt/EBITDA in FY37–FY39, but EBITDA is positive in all three years, so the prompt's stated rule (NM only where EBITDA is zero or negative) gives numbers instead.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-contradicts-prompt",
+    "evidence": "Golden 'Ratio Analysis'!R19:T19='NM', while R10=72.47, S10=41.39 and T10=38.47 are all >0. Applying IF(R10<=0,\"NM\",R6/R10) gives R19≈4.5e-5, S19=0 and T19=0, which fail against 'NM'.",
+    "confirmation": "Golden 'Ratio Analysis'!R19:T19 are hardcoded 'NM' while EBITDA R10:T10 = 72.47, 41.39, 38.47 (positive), so the prompt's rule and the golden's own N19 formula give numbers (~0), which the SB2 comparison treats as a type mismatch against 'NM'."
+  },
+  {
+    "id": "S2",
+    "title": "The golden workbook adds a label in a pre-existing sheet that no instruction asks for, and the checked range includes that cell, so a correct solution cannot pass.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "unrequested-golden-change",
+    "evidence": "Golden 'P&L'!A13='Esc. %' is blank in the input. The check range 'P&L'!A2:Q35 covers A13, and the prompt says to avoid altering cells not required by the task.",
+    "confirmation": "Golden 'P&L'!A13='Esc. %' is blank in the input (data/ and untouched copy), so it is a modification cell inside the checked range 'P&L'!A2:Q35 that no instruction asks for and must match exactly."
+  }
+]

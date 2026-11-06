@@ -1,0 +1,3 @@
+Build four multi-year line charts for “AGA Storage Report – Working Gas,” covering Producing, Consuming East, Consuming West, and Total, that compare weekly Storage Level (Bcf) across 1994/95, 1995/96, 1996/97, 1997/98, 1998/99, and 1999/00. Use Bcf on the Y-axis and Week Ending (from 5-Nov to 21-Oct) on the X-axis, include a vertical dashed line separating WINTER and SUMMER, and place each chart on sheets named Producing, East, West, and Total.
+
+Your input files are on your Desktop (/home/model/Desktop): 136_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

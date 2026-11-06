@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_06_06_golden.xlsx",
+        "reference_path": "reference/untouched_input_06_06_input.xlsx",
+        "answer_position": "'Revenue_Forecast'!B2:B42,'Revenue_Forecast'!C2:C8,'Revenue_Forecast'!C10:C12,'Revenue_Forecast'!C14:C16,'Revenue_Forecast'!C18:C20,'Revenue_Forecast'!C22:C27,'Revenue_Forecast'!C29:C31,'Revenue_Forecast'!C33:C35,'Revenue_Forecast'!C37:C40,'Revenue_Forecast'!C42,'Revenue_Forecast'!D2:F42,'Revenue_Forecast'!G2:G8,'Revenue_Forecast'!G11:G12,'Revenue_Forecast'!G15:G16,'Revenue_Forecast'!G19:G20,'Revenue_Forecast'!G23:G27,'Revenue_Forecast'!G30:G31,'Revenue_Forecast'!G34:G35,'Revenue_Forecast'!G38:G40",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

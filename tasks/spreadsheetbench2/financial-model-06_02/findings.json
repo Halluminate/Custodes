@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key calculates annual rather than monthly 1% depreciation",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions require \"Depreciation Rate at 1% monthly from Apr-25 to Mar-30.\" However, the golden workbook's Balancesheet Schedules!L13 contains '=SUM(L11:L12)*-L17/12', repeated through BS13. This references row 17, labeled \"Capex as % of Revenue,\" instead of row 18, labeled \"Depreciation Rate,\" and divides the rate by 12. With opening assets of 7.8446782 and additions of 0.1, monthly 1% depreciation is -0.079446782; the key expects -0.00662056516666667. This exceeds the verifier's 1% tolerance. The sole verifier has weight 1 and requires every modification cell to match, so a financially correct monthly-depreciation implementation is rejected.",
+    "confirmation": "The golden L13 '=SUM(L11:L12)*-L17/12' yields about -0.0066 against roughly -0.079 for a 1% monthly charge on the opening plus additions, far outside the 1% tolerance. It also references the wrong row (17 instead of 18), so the key contradicts the stated instruction.",
+    "fixed": true,
+    "fix": "Prompt: the depreciation sentence now reads \"In the Balance Sheet Schedules, set the annual Depreciation Rate at 1% in each month from Apr-25 to Mar-30, then calculate monthly Depreciation (rate/12, as in the Amortisation row) and Net Block for all months.\" so it states the rate/12 monthly charge the answer key (and the model's own Amortisation row) uses. gt_06_DigiMark_golden.xlsx: 'Balancesheet Schedules'!L13:BS13 now reference row 18 (Depreciation Rate) instead of row 17 (Capex as % of Revenue), =SUM(L11:L12)*-L18/12; both rows hold 0.01 so no value changes (formula text edited in the XML, cached values kept; local grade of the patched golden 1.0)."
+  },
+  {
+    "id": "F2",
+    "title": "Contradictory instruction and broken ground truth formula for Depreciation Rate ('1% monthly' vs 1%/12 referencing Capex row 17)",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The prompt instructs: 'In the Balance Sheet Schedules, set Depreciation Rate at 1% monthly from Apr-25 to Mar-30, then calculate Depreciation and Net Block for all months.' In `gt_06_DigiMark_golden.xlsx` ('Balancesheet Schedules'), row 18 ('Depreciation Rate', L18:BS18) is set to `0.01` (1%), while row 13 ('Depreciation for the Year', L13:BS13) uses the formula `=SUM(L11:L12)*-L17/12`. This formula both (a) divides the 1% rate by 12 (`0.0833%` monthly, contradicting the prompt's explicit 'at 1% monthly') and (b) erroneously references row 17 ('Capex as % of Revenue', which also happens to equal 0.01) instead of row 18 ('Depreciation Rate'). When an agent sets row 18 to 1% and calculates monthly depreciation at 1% per month (`=SUM(L11:L12)*-L18` or `=-L11*L18`), 522 cells across 'Balancesheet Schedules', 'Income Statement', 'Balance Sheet', 'Cashflow', 'Ratio Analysis', and 'DCF' (e.g., DCF!C9:G9 output `0.9665..1.0559` vs GT `0.0846..0.1283`) differ from the golden file, causing the sole verifier (`SpreadsheetBench 2 official cell check`, weight: 1) to fail with `score=0` (`regression 0.9968, modification 0.8595`). All 3 attempts failed on this exact discrepancy.",
+    "confirmation": "gt_06_DigiMark_golden.xlsx 'Balancesheet Schedules'!L13 is '=SUM(L11:L12)*-L17/12', which points at row 17 (Capex as % of Revenue) rather than row 18 (Depreciation Rate) and charges 1%/12 a month, while the prompt says 'Depreciation Rate at 1% monthly'. The literal 1%-per-month reading changes hundr",
+    "fixed": true,
+    "fix": "Prompt: the depreciation sentence now reads \"In the Balance Sheet Schedules, set the annual Depreciation Rate at 1% in each month from Apr-25 to Mar-30, then calculate monthly Depreciation (rate/12, as in the Amortisation row) and Net Block for all months.\" so it states the rate/12 monthly charge the answer key (and the model's own Amortisation row) uses. gt_06_DigiMark_golden.xlsx: 'Balancesheet Schedules'!L13:BS13 now reference row 18 (Depreciation Rate) instead of row 17 (Capex as % of Revenue), =SUM(L11:L12)*-L18/12; both rows hold 0.01 so no value changes (formula text edited in the XML, cached values kept; local grade of the patched golden 1.0)."
+  },
+  {
+    "id": "F3",
+    "title": "\"1% monthly\" depreciation wording conflicts with the answer key, which uses 1%/12 per month, and the grader is all-or-nothing",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "problem.py says: \"set Depreciation Rate at 1% monthly from Apr-25 to Mar-30, then calculate Depreciation and Net Block for all months.\" The ground truth (gt_06_DigiMark_golden.xlsx, 'Balancesheet Schedules'!L13:BS13) uses =SUM(L11:L12)*-L17/12. That divides the rate by 12, so the real monthly charge is 0.083% (1% a year), not 1% a month. I ran the spec's verifier (verify_spreadsheetbench2_cells, weight 1, the only check) on a copy of the GT with row 13 changed to =SUM(x11:x12)*-x18, the literal 1%-per-month reading. It scored 0.0: \"FAILED - regression 0.9968, modification 0.8595. 522 cell error(s): Modification error at DCF!C9: answer=0.0846, output=0.9665 ...\". With /12 kept, the same file scored 1.0. The verifier passes only when every modified cell matches, so this one reading decides the whole score. The only cue is the Amortisation row (row 23), which uses the annual-rate /12 pattern.",
+    "confirmation": "The prompt asks for 'Depreciation Rate at 1% monthly', but the key's L13:BS13 formula applies rate/12 (0.083% a month). The only hint toward the /12 convention is the Amortisation row 23 pattern, and the single all-or-nothing verifier rejects the literal reading.",
+    "fixed": true,
+    "fix": "Prompt: the depreciation sentence now reads \"In the Balance Sheet Schedules, set the annual Depreciation Rate at 1% in each month from Apr-25 to Mar-30, then calculate monthly Depreciation (rate/12, as in the Amortisation row) and Net Block for all months.\" so it states the rate/12 monthly charge the answer key (and the model's own Amortisation row) uses."
+  }
+]

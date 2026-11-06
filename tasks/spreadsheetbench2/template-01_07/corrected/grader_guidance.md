@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'BondAccounting'!B2:L37 except C29:H29, after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

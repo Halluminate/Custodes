@@ -1,0 +1,5 @@
+Using the assumption area plus monthly detail on the Scenario1, Scenario2, and Scenario3 tabs, please add two charts per scenario: a hedge coverage stacked column chart with Month on the X-axis and stacked series (monthly contract MW), with an optional Short reference line; Y-axis in MW; show only the first year. Also add a portfolio cost line chart with Month on the X-axis and series Portfolio Weighted Avg (primary) and Monthly Price (reference), optionally including the 10-Yr/5-Yr/1-Yr Fixed Price lines; Y-axis in $/MWh; include all years.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 26_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

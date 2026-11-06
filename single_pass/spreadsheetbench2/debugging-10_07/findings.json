@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit of every kind of error, but the checker requires every value in roughly 90 sheet ranges to match a golden file that fixes only a few injected bugs, so any further legitimate fix fails the task.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "underspecified-open-audit",
+    "evidence": "Golden differs from input only at Model!D2 (CHOOSE order) and the debt and interest chain (I121 -3.1197 -> -3.0041, R24 -31.57 -> -34.39). Many visible problems are left unchanged in the golden file. Yet answer_position spans the whole workbook in 'values' mode, and 'the task passes only if every compared cell matches'.",
+    "confirmation": "The evidence understates the golden edits (INDEX/MATCH fixes on 'Model' C330:C335, 'P&L Summary' and '4-Wall Analysis' are also there), but the core claim holds: golden 'Model'!H43 (FY26E) stays hardcoded 0.1 against the =SUM($F43,O43) pattern in P43, and K57:M57 stay hardcoded, so fixing them fails"
+  }
+]

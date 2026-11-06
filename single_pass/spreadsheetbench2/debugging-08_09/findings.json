@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook keeps the broken reference `R84 = R847-M83`, which points to an empty cell. A correct fix (`=R83-M83`) gives about -113.9 instead of the key's -29.613, so a correct agent fails on R84 and on everything downstream of it.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-unfixed-broken-ref",
+    "evidence": "Golden 'Operating Model + DCF'!R84 = -29.6129999999999 (=R847-M83). Downstream cells D94, D95, D100, C102, C107, C112–C118, C121–C132 and C135–C145 also change.",
+    "confirmation": "Golden 'Operating Model + DCF'!R84 '=R847-M83' (R847 blank) caches -29.61, while R83-M83 = -84.29-29.61 = -113.9. D94 = R84 feeds the DCF (C102 = 2725.73), so the fix the audit prompt invites moves many graded cells far beyond 1%; the golden's own edits are only Revenue Build OFFSET anchors."
+  }
+]

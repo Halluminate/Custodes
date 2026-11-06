@@ -1,0 +1,3 @@
+Create four grey area charts for the AGA Storage Report – Working Gas year-over-year comparison, showing the weekly difference versus the same week last year (in Bcf). Place them on Prod_Yr-Yr (Producing), East_Yr-Yr (East Consuming), West_Yr-Yr (West), and Total_Yr-Yr (Total), with the x-axis running through the week ending 9/23.
+
+Your input files are on your Desktop (/home/model/Desktop): 135_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

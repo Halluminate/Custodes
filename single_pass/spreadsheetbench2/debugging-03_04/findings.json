@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a broad audit (formula logic, hardcodes, broken references, validation, naming, and more), but the only verifier runs in font_color mode, so only font colours are scored and the hidden target (colour-coding fixes) is never stated.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "prompt-grader-mismatch",
+    "evidence": "verifications[0].parameters.mode = \"font_color\"; the instruction lists many error classes and mentions colours only indirectly via the 'inconsistent formatting' phrase; the task name 'Inconsistent Color Coding' is visible only in the file name.",
+    "confirmation": "The golden differs from the input only in the font colour of 9 cells (LBO!F11:F13, F20 to purple, J27:N27 to blue) under font_color mode, while the prompt is a generic audit; the golden itself still breaks the Cover colour legend in hundreds of cells (e.g. LBO!F14/F21 cross-sheet links left black be"
+  },
+  {
+    "id": "S2",
+    "title": "Apart from float noise, the golden workbook is value- and formula-identical to the input, so it leaves many legitimate audit findings unfixed; an agent that correctly converts hardcodes to links must recolour those cells (blue to green or purple per the Cover legend) and will then mismatch the golden.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden-keeps-real-errors",
+    "evidence": "Hardcodes that should link elsewhere: LBO!C33=0.053 (vs 'Ex 12 - Debt Schedule'!H9); LBO!J21:N21=1.8 (vs 'Ex 10 - Forecast Assumptions '!D39:H39); 'Ex 9 - Perf Metrics'!C19:G19 (equal to 'Ex 2 - Income Statement'!C36:G36); 'Ex 10 - Proj. Income Statement'!C13=1977.5 and C19=2077.8 (vs Ex 2 H11=1977.466 and H15=2077.753). Golden values and formulas are unchanged.",
+    "confirmation": "Golden values and formulas equal the input, and the cited hardcodes exist (LBO!C33 0.053 = Debt Schedule H9, LBO!J21:N21 1.8 = Forecast Assumptions D39, Ex 10 Proj. IS C13 1977.5 vs Ex 2 H11 1977.466); linking and recolouring these ~13 cells to the legend's green/purple exceeds the ~8-cell regressio"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer-key totals and daily averages cover December 2000 through December 2012, not the prompt's December 2000 through April 2012, so a correctly scoped answer will not match.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-wrong-range",
+    "evidence": "Volumes!E11:E147 (TCO) sums to about 48.17M and M11:M147 (CNG) to about 23.73M, for a combined nominal total of about 71.90M through Apr-2012. Adding May–Dec 2012 (rows 148–155, 8×(267,940.19+131,970.54) ≈ 3.20M) gives about 75.10M, which matches the key's 'Total Monthly Nominal Volume (CNG+TCO): 75,100,712'. TCO daily average through Apr-2012 is about 11,550, but through Dec-2012 it is about 11,400, consistent with the key's 11,409.",
+    "confirmation": "Volumes!E11:E147+M11:M147 (Dec-2000 to Apr-2012) sums to 71,901,426, while E11:E155+M11:M155 (through Dec-2012) sums to 75,100,712, which is exactly the key's nominal total. The key's 11,409 daily average likewise matches the through-Dec-2012 mean (Apr-2012 gives about 11,564)."
+  },
+  {
+    "id": "S2",
+    "title": "The answer key attributes the larger volume stream (column E, which sits under the TCO headers) to CNG and the smaller stream (column M, under the CNG headers) to TCO, so the CNG−TCO comparison has the wrong sign.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-label-swap",
+    "evidence": "Volumes row 10: E10 'Monthly Volume' sits beside G10 'TCO Bids' and H10 'TCO All in Bid'; M10 'Monthly Volume' sits beside O10 'CNG Bid' and P10 'CNG All in Bid'. E values are about 455k–268k and M values about 224k–132k. The key states 'Average Daily Nominal Volume (CNG): 11,409' and '(TCO): 5,619' with CNG−TCO = 5,790; per the sheet, CNG is the smaller stream and the difference is about −5,790.",
+    "confirmation": "Volumes column E (≈455k-268k) sits in the block with G10 'TCO Bids'/H10 'TCO All in Bid', and column M (≈224k-132k) sits with O10 'CNG Bid'/P10 'CNG All in Bid'. Yet the key reports CNG daily 11,409 (column E) and TCO 5,619 (column M), so the labels and the sign of CNG−TCO are swapped."
+  }
+]

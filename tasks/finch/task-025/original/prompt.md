@@ -1,0 +1,3 @@
+Using the daily data for August from the Eron (NC) Service Invoice, verify whether they reconcile with the monthly totals for Net Receipts – Allocated UA4 and Deliveries in the Imbalance Statement. Then compute the final month’s cumulative imbalance.
+
+Your input files are on your Desktop (/home/model/Desktop): 25_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

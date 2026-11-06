@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "PAT Margin answer key contradicts the explicit NM condition",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions require PAT Margin to display \"NM\" where Total Income is zero or negative. The golden workbook instead uses =IF(J34/J12<0,\"NM\",J34/J12), testing whether the margin is negative. In FY32, Total Income is 84.9430097345236 and PAT is -0.764114806001969, so the instructed result is approximately -0.00899562, but J35 expects \"NM\". FY39 has the same conflict at Q35. A solution following the stated condition fails the sole verifier, weighted 1, which requires every modification cell to match.",
+    "confirmation": "Golden J35 '=IF(J34/J12<0,\"NM\",J34/J12)' expects 'NM' though FY32 Total Income is 84.94 (positive), contradicting the prompt's 'NM where Total Income is zero or negative'. Q35 has the same conflict.",
+    "fixed": true,
+    "fix": "Golden gt_18_RoadAssets_golden.xlsx: P&L!C35:Q35 changed from =IF(X34/X12<0,\"NM\",X34/X12) to =IF(X12<=0,\"NM\",X34/X12) as the prompt states, then recalculated in LibreOffice; J35 and Q35 now hold -0.0090 and -0.0247 instead of 'NM'. No other value changed."
+  },
+  {
+    "id": "F2",
+    "title": "An undisclosed text insertion is mandatory for passing",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "P&L!A13 is blank in both the staged input and the untouched reference, but contains \"Esc. %\" in the golden workbook. The task never requests this label or any change to A13. The cell lies inside the graded P&L!A2:Q35 range and is classified as a modification cell. Because the weight-1 verifier requires all modification cells to match, leaving this unrelated cell untouched causes the entire check to fail.",
+    "confirmation": "P&L!A13 is blank in the input and untouched reference but 'Esc. %' in the golden, inside the graded range. It is a mandatory but unrequested modification cell.",
+    "fixed": true,
+    "fix": "Golden gt_18_RoadAssets_golden.xlsx: cleared the unrequested 'Esc. %' label in P&L!A13 so it matches the input and becomes a regression cell. No other value changed."
+  },
+  {
+    "id": "F3",
+    "title": "P&L PAT Margin 'NM' condition in prompt contradicts golden workbook formula and values at P&L!J35 and P&L!Q35",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The prompt in `problem.py` explicitly states: 'In the P&L sheet, calculate PAT Margin for FY25–FY39 displaying \"NM\" where Total Income is zero or negative.' In the P&L sheet, Total Income (`C12:Q12`) is strictly positive in every year from FY25 to FY39 (ranging from `73.28` to `89.71`; specifically `J12 = 84.943` in FY32 and `Q12 = 73.280` in FY39). Following the prompt's explicit rule (`=IF(C12<=0,\"NM\",C34/C12)`), `J35` evaluates to `-0.0089956` and `Q35` evaluates to `-0.0247172` because PAT (`J34 = -0.7641`, `Q34 = -1.8113`) is negative while Total Income is positive. However, the golden workbook (`gt_18_RoadAssets_golden.xlsx`) uses `=IF(C34/C12<0,\"NM\",C34/C12)` (displaying `'NM'` when PAT Margin / PAT itself is negative, matching EBIT Margin in row 28), producing `'NM'` at `'P&L'!J35` and `'P&L'!Q35`. Because `verify_spreadsheetbench2_cells` (weight 1.0) requires 100% modification cell accuracy, any agent following the literal instruction in `problem.py` scores 0.0 (as happened in all 3 attempts).",
+    "confirmation": "Golden P&L!J35 is '=IF(J34/J12<0,\"NM\",J34/J12)' and shows 'NM' with J12 = 84.94 > 0 and J34 = -0.764 (Q35 likewise). The prompt's rule (NM only when Total Income <= 0) gives -0.009/-0.025, which the verifier treats as a mismatch with 'NM'.",
+    "fixed": true,
+    "fix": "Golden gt_18_RoadAssets_golden.xlsx: P&L!C35:Q35 changed from =IF(X34/X12<0,\"NM\",X34/X12) to =IF(X12<=0,\"NM\",X34/X12) as the prompt states, then recalculated in LibreOffice; J35 and Q35 now hold -0.0090 and -0.0247 instead of 'NM'. No other value changed."
+  },
+  {
+    "id": "F4",
+    "title": "Ground-truth PAT Margin applies the wrong 'NM' rule: it shows NM when PAT is negative, not when Total Income is zero or negative",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The instruction says to calculate PAT Margin \"displaying \"NM\" where Total Income is zero or negative\". The GT formula in P&L!C35:Q35 is =IF(C34/C12<0,\"NM\",C34/C12), which tests the sign of the margin. Total Income (row 12) is positive in every year: J12=84.07 and Q12=73.28. PAT is negative in two years: J34=-0.764 and Q34=-1.811. The GT shows 'NM' in J35 and Q35. An agent that follows the instruction will output -0.0091 and -0.0247 there. The values-mode check counts these as modification errors. The single verifier (weight 1, all-or-nothing) needs 100% of modification cells to match, so a run that follows the instruction scores 0.",
+    "confirmation": "Confirmed: the golden NM test is on the margin sign, not Total Income. With Total Income positive in J12/Q12, the instructed formula yields numbers where the golden has 'NM', failing modification cells J35 and Q35.",
+    "fixed": true,
+    "fix": "Golden gt_18_RoadAssets_golden.xlsx: P&L!C35:Q35 changed from =IF(X34/X12<0,\"NM\",X34/X12) to =IF(X12<=0,\"NM\",X34/X12) as the prompt states, then recalculated in LibreOffice; J35 and Q35 now hold -0.0090 and -0.0247 instead of 'NM'. No other value changed."
+  },
+  {
+    "id": "F5",
+    "title": "Undisclosed modification at P&L!A13 ('Esc. %') required by golden workbook but omitted from instructions",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `gt_18_RoadAssets_golden.xlsx`, cell `'P&L'!A13` is changed from `None` (in `untouched_input_18_01_RoadAssets_input.xlsx`) to `'Esc. %'` (the column A header for the escalation percentage values `0.04` in `A14:A18`). Because `'P&L'!A2:Q35` is in `answer_position`, `verify_spreadsheetbench2_cells` classifies `'P&L'!A13` as a modification cell and requires an exact match to achieve `modification == 1.0` (weight 1.0, all-or-nothing). However, the prompt in `problem.py` only instructs for the P&L sheet: 'In the P&L sheet, calculate PAT Margin for FY25–FY39 displaying \"NM\" where Total Income is zero or negative' and 'link results to Tax Expense in the P&L sheet.' Nothing in the prompt or workbook mentions adding `'Esc. %'` to `'P&L'!A13`. All 3 agent attempts failed on `'P&L'!A13: answer=Esc. %, output=None`.",
+    "confirmation": "P&L!A13 is None in untouched_input but 'Esc. %' in gt_18_RoadAssets_golden.xlsx, inside graded range P&L!A2:Q35. That makes it a modification cell the all-or-nothing values check requires, although the prompt never asks for it.",
+    "fixed": true,
+    "fix": "Golden gt_18_RoadAssets_golden.xlsx: cleared the unrequested 'Esc. %' label in P&L!A13 so it matches the input and becomes a regression cell. No other value changed."
+  },
+  {
+    "id": "F6",
+    "title": "Ground truth adds an unrequested 'Esc. %' label in P&L!A13, and the all-or-nothing grader requires it",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "In the input, P&L!A13 is empty. The GT has 'Esc. %' there as a header above the escalation rates in A14:A18. Because the cell changed from input to GT, the verifier treats it as a modification cell. The instruction never asks for this label. An output that leaves A13 empty (None vs 'Esc. %') fails the 100% modification requirement, so the binary verifier scores 0. The task's own rule also says to modify only the cells the task requires.",
+    "confirmation": "P&L!A13 changes from empty (input) to 'Esc. %' (golden) with no instruction to add it. The verifier's _values_match fails None vs 'Esc. %', so leaving it blank scores 0.",
+    "fixed": true,
+    "fix": "Golden gt_18_RoadAssets_golden.xlsx: cleared the unrequested 'Esc. %' label in P&L!A13 so it matches the input and becomes a regression cell. No other value changed."
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground-truth golden file has no chart, only an 'isn't available' placeholder shape",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The only drawing in 'gt_Task 96_golden.xlsx' is xl/drawings/drawing1.xml. It holds a plain rectangle with the text 'This chart isn't available in your version of Excel. Editing this shape or saving this workbook into a different file format will permanently break the chart.' The package has no chart or chartEx part. The original sunburst was lost when the file was resaved, so the reference answer has no chart. The checklist judge does not use this file, so it does not change the score, but the answer key is broken.",
+    "confirmation": "Unzipping gt_Task 96_golden.xlsx shows no xl/charts or chartEx part; xl/drawings/drawing1.xml only contains the text 'This chart isn't available in your version of Excel', so the answer key has no chart.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F2",
+    "title": "Checklist requires nonexistent 'Sales' category under Sales department and corrupted golden file lacks a valid chart",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `Task 96_input.xlsx` (and `gt_Task 96_golden.xlsx`), the Sales department rows (B9:E10) only contain the category 'Travel' (`['Sales', 'Travel', 'Flights', 25000]` and `['Sales', 'Travel', 'Hotels', 20000]`). There is no 'Sales' category in the middle ring of the data. However, `spec.yaml` (weight 1.0) includes two impossible checklist items: item 16 ('The Sales department contains a category segment labeled \"Sales\" in the middle ring') and item 29 ('The Travel category is larger than the Sales category within the Sales department'). Furthermore, the ground-truth workbook `gt_Task 96_golden.xlsx` does not contain a chart at all—its `xl/drawings/drawing1.xml` only holds a fallback text box reading 'This chart isn’t available in your version of Excel. Editing this shape or saving this workbook into a different file format will permanently break the chart.' and LibreOffice cannot render Excel `chartEx` sunburst charts (forcing agents to approximate with concentric doughnut charts, which also fails checklist item 1: 'The chart is a sunburst chart').",
+    "confirmation": "Task 96_input.xlsx has only category 'Travel' under Sales (rows 9-10), yet checklist items 16 and 29 require a 'Sales' category under the Sales department, and gt_Task 96_golden.xlsx has no chart parts, only a drawing1.xml placeholder reading 'This chart isn't available in your version of Excel'.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.checklist: removed \"The Sales department contains a category segment labeled 'Sales' in the middle ring\" and \"The Travel category is larger than the Sales category within the Sales department\" (27 items remain; id, name, function, weight unchanged). The other half of this finding (GT has no chart) is covered under F1."
+  }
+]

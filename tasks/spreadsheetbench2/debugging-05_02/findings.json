@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Task prompt and input styling contradict the ground truth on which cells are errors versus protected inputs",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `problem.py:6-7,33`, the prompt instructs the agent to 'strictly avoid altering any cells that already contain values unless explicitly instructed' while also asking to 'audit and fix this file thoroughly. Errors may include... formula logic errors or inconsistencies, hardcoded values that should be formulas'. This creates two contradictions with `gt_05_golden.xlsx` (graded by `SpreadsheetBench 2 official cell check`, weight: `1`):\n1. In `Embedded Hardcodes_input.xlsx`, `Model!J91:N91` (`0.0309, 0.032, 0.034, 0.0357, 0.0375`) are styled in blue font (`FF0000FF`), the standard convention for hardcoded inputs used on `Model!J46:N46` (`0.25`), `Model!I97` (`0.04`), `Model!I104` (`0.04`), and `Model!I111` (`0.08`). Nothing in `Model!B91` ('SOFR') specifies whether the rate is 1-month or 3-month Term SOFR or which monthly row (`P21, P33, P45, P57, P69`, corresponding to December dates) should be linked. Consequently, all 3 units left `Model!J91:N91` untouched as blue inputs.\n2. Conversely, `gt_05_golden.xlsx` leaves severe formula bugs and embedded hardcodes inside `answer_position` unfixed and penalizes agents with Regression errors if they fix them: `Model!E59:N59` (`Total Current Assets`, `=SUM(E51:E53,E55,E57)`) erroneously sums Row 52 (`Days Unbilled Outstanding`, in days) into a `$m` total; `Model!E67:N67` (`Total Current Liabilities`, `=SUM(E61:E63,E65)`) erroneously sums Row 62 (`Net Revenue %`) into a `$m` total; `Model!I26` (`2025E Total Net Revenue`) contains the black-font embedded hardcode `=AVERAGE(360,365)` instead of linking to `'Financial Overview'!J12`; and `Model!E24:H24`, `Model!E29:H29`, and `Model!E35:H35` are hardcoded in 2021-2024 even though 2019-2020 (`C:D`) use formulas linking to `'Financial Overview'`. Fixing these cost Unit 2 (`Model!I26`) and Unit 3 (`41` regression errors, `regression 0.9959 < 0.998`) regression penalties.",
+    "confirmation": "Input Model!J91:N91 are blue-font hardcodes like other inputs (J46, I97) with label just 'SOFR', yet golden requires links to specific 3-month Term SOFR rows, while golden leaves Model!E59/E67 summing a days row and a % row and I26 =AVERAGE(360,365) as protected regression cells.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F2",
+    "title": "Verifier in formula mode enforces exact formula string matching and binary all-or-nothing scoring on multi-way formulas",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: `1`) runs with `mode: formula` (`spec.yaml:15`). In `spreadsheetbench2.py:139-157`, `_formulas_match` checks normalized string equality (`_normalize_formula(f1) == _normalize_formula(f2)`, which only removes `$`, strips a leading `+`, and uppercases) rather than formula equivalence or evaluated value, and `verify_spreadsheetbench2_cells` (`spreadsheetbench2.py:368-373`) returns `1.0` only if `reg_ratio == 1.0` and `mod_ratio == 1.0` (else `0.0`). For modification cell `Transaction Overview!L15` (weighted average debt interest rate, hardcoded as `0.0733` in input), `gt_05_golden.xlsx` requires the exact 89-character string `=(((Model!I104+Model!J91)*Model!I103)+(Model!I111*Model!I110))/SUM(Model!I103,Model!I110)`. An agent has no way to know it must use those redundant nested parentheses, reference `Model!I103` and `Model!I110` instead of the local table's debt amounts (`G12:G15`) and rates (`L12:L14`) or `Model!E4:E6`, use `SUM(Model!I103,Model!I110)` instead of `(Model!I103+Model!I110)`, or omit the Revolver tranche. Similarly, for `Model!J91:N91`, `gt_05_golden.xlsx` requires `='3-month Term SOFR'!P21` (`P33`, `P45`, `P57`, `P69`), rejecting links to the identical curve on `'SOFR'!Q21` (`Q33`, `Q45`, `Q57`, `Q69`) or dynamic `INDEX/MATCH` lookups. Both Unit 1 (step `[71]`) and Unit 2 (step `[61]`) derived the exact weighted-average rate formula for `Transaction Overview!L15`, yet all 3 units scored `0.4545` (5/11) on modifications and `0` overall.",
+    "confirmation": "problem_config mode is 'formula' with exact string comparison; golden L15 and Model!J91 =\"'3-month Term SOFR'!P21\" are one arbitrary form among equivalents (SOFR!Q21 holds the identical 0.0308573), so correct alternatives score 0.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F3",
+    "title": "Formula-mode grading accepts only the answer key's exact formula text, so correct equivalent fixes score 0",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "spec.yaml runs verify_spreadsheetbench2_cells with mode: formula and weight 1. That is the whole score, and it is all-or-nothing: the task fails unless all 11 changed cells match. In formula mode, _formulas_match only strips '$' and a leading '=+' before comparing strings. The answer key has Model!J45:N45 '=-J46*J44'. A correct '=-J44*J46', '=-J44*J$46' or '=-$J$46*J44' (with the row-46 rate) fails. The answer key has Model!J91 \"='3-month Term SOFR'!P21\". The SOFR sheet holds the same 3-month curve: 'SOFR'!Q21 = 0.0308573, the same as '3-month Term SOFR'!P21. So ='SOFR'!Q21, or a date-driven INDEX/MATCH or XLOOKUP on Dec-2026, gives the same value and still fails. Transaction Overview!L15 must be exactly '=(((Model!I104+Model!J91)*Model!I103)+(Model!I111*Model!I110))/SUM(Model!I103,Model!I110)'. The equivalent =((L13+Model!J91)*G13+L14*G14)/SUM(G13:G14), a SUMPRODUCT form, or any form that also weights the zero-balance revolver, all evaluate to 0.07330 and all fail.",
+    "confirmation": "In formula mode the 11 modification cells (Model!J45:N45 '=-J46*J44', J91:N91, Transaction Overview!L15) must match text exactly, so commuted forms like '=-J44*J46' or ='SOFR'!Q21 with the same value fail the all-or-nothing check.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: Verifier falsely rejects valid weighted-average interest rate formulas at Transaction Overview!L15 and penalizes valid bug fixes as regressions",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "`SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: `1`) scored `0.0` on all 3 units (`modification 0.4545` across all 3 units; `regression 1.0000` on units 1 and 2, `0.9959` on unit 3). From the trajectories:\n- All 3 units correctly identified and fixed the 5 embedded tax-rate hardcodes in `Model!J45:N45` (`=-0.25*J44` -> `=-J46*J44`).\n- Both Unit 1 (step `[71]`: `r=(424.6*(0.0309+0.04)+154.4*0.08)/579`) and Unit 2 (step `[61]`: `G12=0;G13=424.6;G14=154.4;L12=0.04;L13=0.04...`) identified that `Transaction Overview!L15` (`0.0733`) is the weighted-average interest rate of Total Debt and replaced it with a formula in `output.xlsx`. However, because `_formulas_match` only checks literal string equality against `=(((Model!I104+Model!J91)*Model!I103)+(Model!I111*Model!I110))/SUM(Model!I103,Model!I110)`, the verifier marked `Transaction Overview!L15` as a modification error in both units.\n- In Unit 2, the agent also replaced the embedded hardcode `Model!I26` (`=AVERAGE(360,365)`) with `='Financial Overview'!J12`, which the verifier flagged as `Regression error at Model!I26: answer==AVERAGE(360,365), output=='Financial Overview'!J12`.\n- In Unit 3, the agent fixed genuine range-sum bugs in `Model!E59:N59` (`=SUM(E51:E53,E55,E57)` -> `=SUM(E51,E53,E55,E57)`, removing Row 52 `Days Unbilled Outstanding` from Dollar Current Assets) and `Model!E67:N67` (`=SUM(E61:E63,E65)` -> `=SUM(E61,E63,E65)`, removing Row 62 `Net Revenue %` from Dollar Current Liabilities), as well as linking historical rows `E24:H24` and `E35:H35` to `'Financial Overview'`. The verifier penalized all 41 fixes as regression errors, pushing Unit 3's regression ratio to `0.9959` (below the `0.998` threshold).",
+    "confirmation": "Verifier runs in formula mode, so Transaction Overview!L15 must literally equal '=(((Model!I104+Model!J91)*Model!I103)+(Model!I111*Model!I110))/SUM(Model!I103,Model!I110)' and equivalent weighted-average formulas fail, while golden keeps bugs like Model!E59 =SUM(E51:E53,E55,E57) (includes Days Unbil",
+    "fixed": false,
+    "fix": null
+  }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Chart grading can omit charts outside the seed workbook's print area",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input sheet 'Target and Ratings' has print area B2:I47. The verifier's _chart_only_copy() preserves that range, and _fit_to_one_page() changes scaling without expanding it to include chart objects. A reproduction placing a chart at K2 produced a grading PDF without the chart; expanding the print area to B2:AB47 made it appear. The task specifies no chart placement or print-area requirement. A valid chart placed beside the source table can therefore be invisible to the sole verifier, which carries weight 1, and receive zero credit.",
+    "confirmation": "Input Print_Area is B2:I47 and the verifier keeps it (only fit-to-page is set), so a chart beside the table falls outside the exported PDF; the golden's own chart (anchored cols A-L, print area B2:I76) renders clipped.",
+    "fixed": true,
+    "fix": "prompt.md: added \"Place the chart on the Target and Ratings sheet and set that sheet's print area so it covers both the chart and the table.\" so an agent's chart is not clipped by the input print area B2:I47, which the verifier keeps when it exports the sheet (widening the input print area instead shrinks the chart to unreadable size, tested)."
+  },
+  {
+    "id": "F2",
+    "title": "Rendered the way the grader renders it, the GT chart is cut off at Nov-2024, so the ground truth fails its own checklist",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "I ran the verifier's own _render_chart_pages on the golden file. It produced 2 images. The first is the hidden __FDSCACHE__ sheet, which holds only a FactSet notice. The second is the chart sheet, where the chart is cut off at the right edge: Dec-2024 to Nov-2025 are missing, along with the right 'Price' axis and its 0-800 scale and the 'Target Price'/'Price' legend entries (the legend ends at 'Targe'). On that image these items cannot pass: the right Y-axis label, the right axis range, the Target Price and Price legend entries, Target Price at Nov-2025, Price at Aug-2025 and Nov-2025, Sell at Sep-2025 and Oct-2025, the 2025 Target Price trend, 37 columns, and the X-axis running to Nov-2025. Add the 3 incorrect value items and the result is roughly 18/33 ≈ 0.55, below the 0.7 pass threshold. An agent chart that is wider than the sheet's used range would be truncated in the same way and fail.",
+    "confirmation": "Rendering gt_Task 127_golden.xlsx with the verifier's _chart_only_copy plus LibreOffice PDF export gives a page 1 of __FDSCACHE__ and a page 2 where the chart is cut off around Oct-2024, losing the right 'Price' axis, 2025 months and the Target Price/Price legend entries, so many checklist items can",
+    "fixed": true,
+    "fix": "gt_Task 127_golden.xlsx: widened the Target and Ratings print area from $B$2:$I$76 to $A$1:$P$76 (workbook.xml defined name only) so the golden chart (anchored A4:L37) renders whole; re-rendered with the verifier's _chart_only_copy + LibreOffice: full x-axis to Nov-2025, right Price axis and full legend visible."
+  },
+  {
+    "id": "F3",
+    "title": "SpreadsheetBench 2 official chart checklist: verify_spreadsheetbench2_chart_checklist fails to clear Print_Area when rendering sheets to PDF, completely clipping charts placed outside B2:I47 and causing a false 0/33 verdict on unit 3",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "In verifiers/spreadsheetbench2_charts.py (_chart_only_copy, lines 94-137), the verifier prepares the workbook for LibreOffice PDF export by setting fitToPage='1', fitToWidth='1', fitToHeight='1' on sheets with a drawing relationship, but does not remove or expand _xlnm.Print_Area in xl/workbook.xml. In Task 127_input.xlsx, xl/workbook.xml contains a pre-existing definedName _xlnm.Print_Area set to 'Target and Ratings'!$B$2:$I$47 (the exact bounding box of the title cell B2 and data table B9:I47). Additionally, _chart_only_copy checks `b\"/drawing\" in entries.get(_rels_path(sheet_path), b\"\")`, which matches `../drawings/vmlDrawing1.vml` on the hidden sheet `__FDSCACHE__` and un-hides it as a second page. When an agent obeys the prompt instruction not to alter existing cells and places the chart in empty columns to the right of the table (or below row 47) without modifying _xlnm.Print_Area in xl/workbook.xml, LibreOffice exports only B2:I47 to PDF and omits the chart completely. In unit 3, the agent created the combo chart ([16] make_template.py), injected it into /home/model/Desktop/output.xlsx ([31] inject_chart.py, [36] drawing_onecell.xml), and visually verified the rendered chart via UNO export ([34]-[38] read_image /tmp/render/output_chart2.png) while preserving the original cells and workbook settings ([45]). Because unit 3 did not alter _xlnm.Print_Area, _render_chart_pages rendered only the data table B2:I47 with no chart visible, causing the vision judge to fail all 33/33 items (score=0.0, weight=1.0). Even on the ground-truth file gt_Task 127_golden.xlsx, _render_chart_pages clips columns J-L of the chart because its Print_Area is $B$2:$I$76 while the chart spans columns A-L.",
+    "confirmation": "_chart_only_copy in spreadsheetbench2_charts.py only sets fitToPage and never clears _xlnm.Print_Area, and the input defines Print_Area 'Target and Ratings'!$B$2:$I$47, so a chart placed outside that range is not exported; re-rendering the golden with the verifier's own code clips the chart at about",
+    "fixed": true,
+    "fix": "prompt.md: added \"Place the chart on the Target and Ratings sheet and set that sheet's print area so it covers both the chart and the table.\" so an agent's chart is not clipped by the input print area B2:I47, which the verifier keeps when it exports the sheet (widening the input print area instead shrinks the chart to unreadable size, tested)."
+  }
+]

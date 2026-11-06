@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The reference General Support Services breakdown includes rows that are not General Support Services items, so every percentage in the bottom chart is wrong.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-wrong-scope",
+    "evidence": "Reference sheet '4' K15:K27 = D15:D27/$D$29 with D29 = SUM(D15:D27) = 64,262,879.30. The base includes C24 'Maintenance of Plant', C25 'Community Services', C26 'Debt Services' and C27 'Other Misc'. The true GSS items are rows 15–23, totaling 57,389,846.70 (matching 'General Exp Page 4'!I28). Example: Operation of Plant is 31.96% correctly vs 28.54% in the reference.",
+    "confirmation": "In gt_122_ref_0.xlsx, chart6 plots '4'!C15:D27 and K15:K27 = D/$D$29 (64,262,879.30), which includes Maintenance of Plant, Community Services, Debt Services and Other Misc (transfers). 'General Exp Page 4' puts only rows 19-27 under 'General Support Services:' with subtotal I28 = 57,389,846.70, so t"
+  }
+]

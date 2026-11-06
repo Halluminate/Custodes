@@ -1,0 +1,3 @@
+Based on the provided financial data, generate an asset analysis report (a Word document) for Adidas in 2024, with a focus on the reasons behind the growth of total assets. The report should be divided into two parts: Current Assets and Non-Current Assets, describing their changes and the reasons for their growth.
+
+Your input files are on your Desktop (/home/model/Desktop): 162_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Comparable sales and active listing reference files marked '(attached)' in prompt are missing from environment, third-party listing sites are blocked, and subject/comp addresses are scrubbed",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `problem.py:8-19`, the task states: '• 5–10 comparable sales (ideally from the past 6–12 months) (attached)', '• 3–5 active or pending listings (in the immediate submarket or similar locations) (attached)', and 'Any reference files mentioned above are in your Desktop folder (/home/model/Desktop).' However, `desktop_plan.json` and `initialize.py` only stage `/home/model/Desktop/NEW CMA template.docx`; no comparable sales or active/pending listing files are present anywhere in the container. Furthermore, the fallback websites named in `problem.py:17` (`www.zillow.com`, `www.homes.com`, `www.realtor.com`) block requests from the container (`HTTP 403` on Zillow and Homes.com, `HTTP 429` on Realtor.com), and the subject address (`112 Pine Crest Ln, Adairsville, Georgia 30103`) as well as the comp addresses in `gt_NEW CMA  SCRUB.pdf` (`Sweetgum Trl`, `Lanier Pl, Adairsville, GA 30121`, `Halcyon Ln NE, Adairsville, GA 30161`, etc.) have been scrubbed/anonymized, making it impossible for an agent to retrieve the underlying comp dataset.",
+    "confirmation": "data/ holds only 'NEW CMA template.docx', with no comp or listing files despite '(attached)' and 'reference files ... are in your Desktop folder'. The named listing sites are blocked from the container and the subject/comp addresses are scrubbed, so the agent cannot obtain the real comp dataset the ",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F2",
+    "title": "Comps and active listings are described as 'attached', but only the blank template is provided, and the agent can't reliably reach live listing sites",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "problem.py says: '5–10 comparable sales ... (attached)' and '3–5 active or pending listings ... (attached)', and 'Any reference files mentioned above are in your Desktop folder'. desktop_plan.json and initialize.py stage only 'NEW CMA template.docx'. There is no comps file, MLS export or listing data anywhere (no inbox seed, no nextcloud_init). The statement points the agent to zillow/redfin/realtor/homes.com, but from the container `curl https://www.zillow.com` returns HTTP/2 403 (CloudFront bot block). Most of the rubric depends on real listing data: about 20 items at ±10 points each on comp addresses, list and sale prices, lot size, year built, beds, baths, public remarks, sale date within 6–12 months and distance of 1–3 miles. The agent is left to scrape blocked sites or make up data, and the grader is told to penalize fabricated values.",
+    "confirmation": "Only the blank template (placeholders like '[Listing 1]') is staged, and the listing sites the prompt points to are blocked (403/429), so the comp addresses, prices, beds/baths and lot sizes the rubric scores cannot be sourced without fabrication.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F3",
+    "title": "Promised comparable-sales and active-listing attachments are missing",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "data_presence",
+    "evidence": "The statement requests “5–10 comparable sales ... (attached)” and “3–5 active or pending listings ... (attached)” and says all reference files are in /home/model/Desktop. After both initialization phases, the Desktop contains only NEW CMA template.docx. The asset manifest and initialize.py stage only that template; no sales or listing datasets are seeded in email, chat, or a data room. The template contains placeholders such as “[Listing 1]” and “$[_] / $[_]”, not the promised records. All three trajectories independently encounter the same missing attachments at their opening steps. This removes required inputs for the comparable-property tables, market summaries, valuation, and graphs, including numerous rubric fields carrying 10-point omission penalties.",
+    "confirmation": "Confirmed: data/ contains only 'NEW CMA template.docx'. The promised comparable-sales and active-listing data are absent and cannot be fetched from the blocked listing sites, so the inputs behind the comp tables, valuation and graphs are missing.",
+    "fixed": false,
+    "fix": null
+  }
+]

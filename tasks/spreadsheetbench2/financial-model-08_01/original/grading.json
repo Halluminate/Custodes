@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_08_Seafood_golden.xlsx",
+        "reference_path": "reference/untouched_input_08_01_Seafood_input.xlsx",
+        "answer_position": "'DCF Valuation'!B1:O67,'Income Statement'!B2:CB69,'Balance Sheet'!B2:CB34,'Cashflow'!B2:CB33,'Dashboard'!A2:W133,'Ratio Analysis'!B2:H21,'Working Capital'!B2:BV68,'Assumptions - Line 01'!B2:CE409,'Assumptions - Line 02'!B2:CE652,'Assumptions - Line 03'!B2:CE598,'Assumptions - Company Level'!B2:BY60,'Capex and Debt Assumptions '!A2:DL319,'Funding Schedule'!B2:T195",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

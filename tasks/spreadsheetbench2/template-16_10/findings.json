@@ -1,0 +1,13 @@
+[
+  {
+    "id": "F1",
+    "title": "Undisclosed requirement to overwrite pre-populated text label 'Margin' in DCF!G42 contradicts prompt instruction not to alter existing values",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The prompt in `problem.py` explicitly instructs: \"When completing spreadsheet tasks, strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.\" In the input workbook (`16_10_input.xlsx`), cell `DCF!G42` already contains the string value `'Margin'`, while `DCF!I42` is formatted as a percentage (`0.00%`), making `G42` appear to be a row/metric label. However, the ground truth (`gt_16_10_golden.xlsx`) overwrites `DCF!G42` with the formula `=H42/H26` (`0.635363766958039`). Because `verify_spreadsheetbench2_cells` (weight: 1.0) requires 100% of modification cells (`mod_ratio == 1.0`) to pass, any agent following the prompt's instruction not to overwrite existing non-empty cells leaves `'Margin'` in `DCF!G42` and receives a score of 0.0 (as seen in all 3 attempts).",
+    "confirmation": "Input DCF!G42 holds the label 'Margin' (I42 is %-formatted), yet gt_16_10_golden.xlsx replaces G42 with =H42/H26. That makes it a mandatory modification cell, which contradicts the prompt's 'strictly avoid altering any cells that already contain values', so an agent that keeps the label scores 0.",
+    "fixed": true,
+    "fix": "answer_position 'DCF'!B2:P46 split to leave out DCF!G42 only (nothing depends on it): 'DCF'!B2:P41,'DCF'!B42:F42,'DCF'!H42:P42,'DCF'!B43:P46. Keeping the 'Margin' label or writing the NOI margin both pass; every other cell is graded as before."
+  }
+]

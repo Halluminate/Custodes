@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook keeps a clear one-column misalignment in the Operating Working Capital block, where Inventory, AP and Accrued rows pull the prior year while AR pulls the current year. A thorough audit that fixes this changes OWC, DCF NWC changes, FCF, the implied share price, the LBO sweep and IRR, so a correct solution fails the cell check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-retains-error",
+    "evidence": "'PP&E, Debt, NWC'!C80='Balance Sheet'!D15 but C81='Balance Sheet'!C17, C82=…C29, C83=…C30 (I81=BS I17 for 2021). These feed I84 and DCF!C19 ('PP&E, Debt, NWC'!I84-H84). Same in golden; ranges 'PP&E, Debt, NWC'!B2:L91 and DCF!B2:P34 are compared.",
+    "confirmation": "Golden 'PP&E, Debt, NWC' C80 = BS D15 (2015) but C81:C83 = BS C17/C29/C30 (2014) under C79 = 2015, same through I81 = BS I17 for 2021; the golden fixes only BS rows 15/17, row 21 and WACC C49. Correcting the shift changes I84 and DCF!C19 (NWC change) and everything downstream in the graded DCF range"
+  }
+]

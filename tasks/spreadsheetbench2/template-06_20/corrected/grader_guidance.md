@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'RevenueBuild'!B2:G50 except the Period-End cells C8:G8 and the first-year YoY % Change cells C47 and C50, after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

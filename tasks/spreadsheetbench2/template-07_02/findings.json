@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "The ground truth books the 6,000 investment in an unlabeled row 22 instead of the 'Investment in affiliate' row the instructions name",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The input's C3 says: \"Record the investment at the full purchase price in the 'Investment in affiliate' account.\" That label is in row 23, and row 22 has no label (C22 is blank in both input and GT). The GT puts E22 = D10 (6,000), F22 = SUM(D22:E22) = 6,000 and H22 = 6,000, and the Q1 total F27 = 160,000 picks up row 22. Row 23 has E23 = D10 (an array formula) but F23 is blank and H23 = 0. So the GT carries the investment in an unlabeled row, and E22 and E23 both hold 6,000. A competent agent that follows C3 and puts the investment only in row 23 (E23 6,000, F23 6,000) fails the modification cells E22, F22, H22 and F23. Under the all-or-nothing rule one mismatch scores 0.",
+    "confirmation": "Input C3 says to record the investment in the 'Investment in affiliate' account (row 23), but the GT books 6,000 in unlabeled row 22 (E22/F22/H22) and leaves F23 blank. An agent following C3 fails those modification cells.",
+    "fixed": true,
+    "fix": "gt_07_02_golden.xlsx, sheet EquityMethod: cleared the stray unlabeled row 22 (E22 '=D10', F22, H22), completed the 'Investment in affiliate' row 23 with F23 '=SUM(D23:E23)' (6,000), G23 '=D45' (3,900 equity income) so H23 = 9,900; Year-End Total Assets H27 now 235,400 = Total L&E H33. No other cell changed; caches recalculated and the GT scores 1.0 on its own verifier."
+  },
+  {
+    "id": "F2",
+    "title": "Answer key misplaces the investment and leaves the year-end balance sheet unbalanced",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input explicitly requires recording the full purchase price in 'Investment in affiliate' (row 23). However, the golden workbook places 6,000 in unlabeled row 22 at E22, F22 and H22, leaves F23 and G23 blank, and expects H23=0. It also omits the 3,900 annual equity-income increase from the investment balance. Recomputing the golden balance sheet gives year-end assets of 231,500 versus liabilities and equity of 235,400, a 3,900 discrepancy. The verifier treats the missing F23/G23 balances as regression expectations and the misplaced row-22 amounts as required modifications. Consequently, a correctly populated, balanced investment schedule fails the sole all-or-nothing verifier, which carries weight 1.",
+    "confirmation": "Duplicate of the confirmed row-22 and unbalanced-balance-sheet defect: GT row 22 carries 6,000, F23/G23 are blank, H23=0, and H27 231,500 does not equal H33 235,400.",
+    "fixed": true,
+    "fix": "gt_07_02_golden.xlsx, sheet EquityMethod: cleared the stray unlabeled row 22 (E22 '=D10', F22, H22), completed the 'Investment in affiliate' row 23 with F23 '=SUM(D23:E23)' (6,000), G23 '=D45' (3,900 equity income) so H23 = 9,900; Year-End Total Assets H27 now 235,400 = Total L&E H33. No other cell changed; caches recalculated and the GT scores 1.0 on its own verifier."
+  },
+  {
+    "id": "F3",
+    "title": "The ground-truth balance sheet doesn't balance at year end: equity income is never added to the investment",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Cached values in gt_07_02_golden.xlsx: H27 Total Assets = 231,500, but H33 Total L&E = 235,400. The 3,900 gap is exactly D55 'Equity income recognized'. On the equity side, G32 = D48 (net income 74,990.5, which includes the 3,900 equity income) and G31 = D59 deferred tax of 409.5. On the asset side, G22 and G23 are blank and H23 = SUM(F23:G23) = 0, so the investment never rises to 6,000 + 3,900 = 9,900. Under standard equity-method accounting the investment goes up by the equity income recognized. The verifier (verify_spreadsheetbench2_cells, weight 1, all-or-nothing: every modification cell must match) treats H23 = 0, a blank G23 and H27 = 231,500 as the answer. An agent that does the accounting correctly (G23 = 3,900, H23 = 9,900, H27 = 235,400) is marked wrong and scores 0 on the problem's only check.",
+    "confirmation": "GT H27 = 231,500 versus H33 = 235,400, a 3,900 gap equal to the equity income in D45/D55, because G22/G23 are blank. Correct equity-method accounting (G23 3,900, H23 9,900) is graded wrong.",
+    "fixed": true,
+    "fix": "gt_07_02_golden.xlsx, sheet EquityMethod: cleared the stray unlabeled row 22 (E22 '=D10', F22, H22), completed the 'Investment in affiliate' row 23 with F23 '=SUM(D23:E23)' (6,000), G23 '=D45' (3,900 equity income) so H23 = 9,900; Year-End Total Assets H27 now 235,400 = Total L&E H33. No other cell changed; caches recalculated and the GT scores 1.0 on its own verifier."
+  },
+  {
+    "id": "F4",
+    "title": "Corrupted ground-truth workbook shifts 'Investment in affiliate' values onto blank Row 22 and omits affiliate equity income from Row 23, resulting in an unbalanced Year-End Balance Sheet",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In the input workbook (`untouched_input_07_02_input.xlsx` and `assets/07_02_input.xlsx`), Row 22 is an unlabeled blank spacer row (`C22:H22` are all `None`), while Row 23 is labeled `C23='Investment in affiliate'` with opening balance `D23=0`. However, in the ground-truth workbook (`gt_07_02_golden.xlsx`), the 'Investment in affiliate' formulas and values are split and corrupted across Rows 22 and 23:\n- Blank Row 22 has `E22='=D10'` (6,000), `F22='=SUM(D22:E22)'` (6,000), and `H22='=SUM(F22:G22)'` (6,000).\n- Labeled Row 23 (`Investment in affiliate`) has `D23=None` (erasing the input's `0`), `E23` as an array formula `{=D10}` (6,000), `F23=None` (missing Q1 Ending balance), `G23=None` (missing the Year Changes equity method income pick-up of `D45=3900`), and `H23='=SUM(F23:G23)'` (evaluating to `0`).\nBecause `G22` and `G23` are both empty in `gt_07_02_golden.xlsx`, the 2024 equity income from affiliate (`3,900` in `D45`/`D55`) is included in Net Income (`D48=74,990.5`) and Shareholders' Equity (`H32=159,990.5`), but never added to `Investment in affiliate` on the Asset side. Consequently, the ground-truth Year-End Balance Sheet fails to balance by exactly 3,900 (`Total Assets H27 = 231,500` vs. `Total L&E H33 = 235,400`).\nBecause `verify_spreadsheetbench2_cells` (weight: 1) requires 100% modification match and >=99.8% regression match against `gt_07_02_golden.xlsx`, any agent that places the 'Investment in affiliate' balances on Row 23 (where the label and opening balance are) and properly records the 3,900 equity income pick-up in `G23` fails with modification errors at `E22`, `F22`, `H22`, `H27` and regression errors at `F23`, `G23`, `H23` (as seen in all 3 production units, which all scored 0).",
+    "confirmation": "Confirmed in gt_07_02_golden.xlsx: row 22 (blank label) holds E22 '=D10', F22 and H22 sums, while row 23 'Investment in affiliate' has D23 None, E23 array {=D10}, F23/G23 None and H23 0. The 3,900 equity income never reaches the asset, leaving H27 231,500 vs H33 235,400.",
+    "fixed": true,
+    "fix": "gt_07_02_golden.xlsx, sheet EquityMethod: cleared the stray unlabeled row 22 (E22 '=D10', F22, H22), completed the 'Investment in affiliate' row 23 with F23 '=SUM(D23:E23)' (6,000), G23 '=D45' (3,900 equity income) so H23 = 9,900; Year-End Total Assets H27 now 235,400 = Total L&E H33. No other cell changed; caches recalculated and the GT scores 1.0 on its own verifier."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: Verifier fails valid equity method balance sheet completions (false negative / trivial fail) due to corrupted Row 22/23 in ground truth",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "`SpreadsheetBench 2 official cell check` (weight: 1) scored 0.0 on all 3 units. From the trajectories, units 2 and 3 accurately computed every financial quantity required by the prompt: Purchase Price Allocation (`D13=4500`, `D14=1500`, `K6=4500`, `K10=6000`), Income Statement (`D44=110000`, `D45=3900`, `D46=113900`, `D47=38909.5`, `D48=74990.5`), Supporting Calculations (`D53=4000`, `D54=100`, `D55=3900`, `D58=38500`, `D59=409.5`, `D60=38909.5`), and Balance Sheet items on their labeled rows—including recording the acquisition and equity income on Row 23 (`Investment in affiliate`: `E23=6000`, `F23=6000`, `G23=3900`, `H23=9900`) so that Year-End Total Assets (`H27=235400`) equaled Total L&E (`H33=235400`). The verifier failed units 2 and 3 (`modification 0.8947`, `regression 0.9899`, 9 cell errors) solely because `gt_07_02_golden.xlsx` erroneously places the Investment in affiliate formulas on unlabeled blank Row 22 (`E22=6000`, `F22=6000`, `H22=6000`), leaves `F23` and `G23` as `None` on Row 23 (causing `H27=231500` to not balance with `H33=235400`), and treats `G27`/`G33` sums as regression errors.",
+    "confirmation": "GT EquityMethod puts the investment on unlabeled row 22 (E22=D10, F22, H22 = 6000), leaves F23/G23 blank and H23=0, so year-end Total Assets H27=231,500 against Total L&E H33=235,400. All three trials of run <id> failed on E22/F22 and F23/G23, so correct row-23 completions are false negatives.",
+    "fixed": true,
+    "fix": "gt_07_02_golden.xlsx, sheet EquityMethod: cleared the stray unlabeled row 22 (E22 '=D10', F22, H22), completed the 'Investment in affiliate' row 23 with F23 '=SUM(D23:E23)' (6,000), G23 '=D45' (3,900 equity income) so H23 = 9,900; Year-End Total Assets H27 now 235,400 = Total L&E H33. No other cell changed; caches recalculated and the GT scores 1.0 on its own verifier."
+  }
+]

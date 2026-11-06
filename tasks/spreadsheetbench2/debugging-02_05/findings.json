@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Corrupted ground truth values in Berk-Hath Investment Package!G10:K14 make the sole verifier impossible to pass",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight 1.0) recalculates `/home/model/Desktop/output.xlsx` in LibreOffice (`managed_recalculated_xlsx`) and compares it against `gt_02_golden.xlsx` and `untouched_input_Incorrect Average_input.xlsx` in `mode: values`. The task only intends three `AVERAGE` range fixes (`WACC!D7` from `=AVERAGE('Exhibit 6'!D36:J36)` to `=AVERAGE('Exhibit 6'!E36:J36)`, `WACC!D14` from `{=AVERAGE('Exhibit 9'!M8:M26/100)}` to `{=AVERAGE('Exhibit 9'!M8:M22/100)}`, and `DCF!I15` from `=AVERAGE($F$15:$H$15)` to `=AVERAGE($G$15:$H$15)`). However, in `Berk-Hath Investment Package!G10:K14` (a 2D Data Table with row input `$C$12` and column input `$C$15`), the middle row header `F12` is `=C12`, creating a circular reference with the row input cell `$C$12`. In `gt_02_golden.xlsx`, `G10:K14` was saved as static numbers (no `<f>` tags) holding corrupted values from Excel's stateful mid-table mutation of `C12` (`F10=7.0%` evaluated at 7.0% giving `G10=11515.71`, which mutated `F12` to 7.0% and `F11` to 6.5%; `F11` and `F12` both evaluated at 6.5% giving `G11=G12=11152.88`; `F13` evaluated at 7.0% giving `G13=11515.71`; `F14` evaluated at 8.0% giving `G14=12241.37`). Meanwhile, `untouched_input_Incorrect Average_input.xlsx` kept `<f aca=\"true\">TABLE($F$9,$C$12,$F10,$C$15,G$9)</f>`, which LibreOffice evaluates to `$F$9` (`11432.1670414077`) across all 25 cells due to the circular reference. Consequently, `score_workbooks` classifies 22 cells in `Berk-Hath Investment Package!G10:K14` as Modification cells requiring a 100% match. Leaving the table untouched yields `11432.1670414077` in LibreOffice (failing 22/26 modification cells, `mod_ratio=0.1538`), while fixing `F12` to `0.08` computes the true sensitivity values for 7.0%–9.0% (`G10:G14` = `11515.71, 11878.54, 12241.37, 12604.20, 12967.03`) and still fails the 18 modification cells in `G11:K14` by 5.6%–9.2% (`mod_ratio=0.3077`).",
+    "confirmation": "Confirmed: the input has =TABLE($F$9,$C$12,...) with F12 '=C12' (circular on the row input) caching 11432.17 everywhere, and the GT hardcodes corrupted, non-monotonic values in G10:K14 that a valid recalculation cannot match.",
+    "fixed": true,
+    "fix": "Same answer_position change (G10:K14 excluded)."
+  },
+  {
+    "id": "F2",
+    "title": "Answer key for the Berk-Hath dividend-rate × discount-rate sensitivity table (G10:K14) is wrong, so a correct fix can never pass the binary verifier",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The verifier passes only if every modification cell matches the GT (within 1%). G10:K14 count as modification cells because the input caches 11432.17 in all 25 cells, while the GT has hardcoded values. The table's row input is C12 (dividend rate, rows F10:F14 = 7.0%–9.0%) and its column input is C15 (discount rate, G9:K9 = 6.3%–8.3%). The output is C44 = PV(r,10,-d*10000) + PV(r,10,0,-10500) + 736.33. I recomputed it at r=7.3% (column I): d=7.0% gives 10775.7, 7.5% gives 11122.0, 8.0% gives 11468.4, 8.5% gives 11814.8, 9.0% gives 12161.1. The GT column I has 10775.67, 10429.31, 10429.31, 10775.67, 11468.40. The GT rows are not monotonic: row 11 equals row 12 and row 10 equals row 13. GT row 14 (9.0%) is an exact copy of the 8.0% values, and it is identical to G20:K20 of the term table. Only row 10 is correct. The other 20 cells are 3–10% off, which is outside the 1% tolerance. I ran the verifier on the untouched input: it reported 26 modification errors, including 'Berk-Hath Investment Package!G11: answer=11152.88'. An agent that computes the sensitivity correctly still fails the only verifier (weight 1, all-or-nothing). This affects the full score.",
+    "confirmation": "GT column I (rows 10-14) reads 10775.67, 10429.31, 10429.31, 10775.67, 11468.40 for rising dividend rates, which is not monotonic; repeated rows show the key is wrong, and the binary verifier grades these cells.",
+    "fixed": true,
+    "fix": "Same answer_position change (G10:K14 excluded)."
+  },
+  {
+    "id": "F3",
+    "title": "Incorrect golden sensitivity values make a correct audit fail",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook's 'Berk-Hath Investment Package'!G11:K14 contains 20 values inconsistent with the dividend rates and the workbook's valuation formulas. For example, I12 uses an 8% dividend, a 7.3% discount rate, a 10-year term, a 10,000 face value, a 10,500 redemption payment, and a 736.333882 warrant value. Recomputing PV(dividends) + PV(redemption) + warrant gives 11,468.395334, but the golden value is 10,429.314207. The golden also repeats I11=I12=10,429.314207 despite different dividend rates. All 20 discrepancies exceed the verifier's 1% tolerance; 18 are classified as modification cells, which must all match. Consequently, correcting this table mathematically fails the sole verifier, weighted 1, and yields zero overall credit.",
+    "confirmation": "Same confirmed defect: GT I11=I12=10429.31 although the rows carry different dividend rates, so a mathematically correct sensitivity table fails the sole weight-1 verifier.",
+    "fixed": true,
+    "fix": "Same answer_position change (G10:K14 excluded)."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails all units (score 0.0) including exact fixes of all intended AVERAGE bugs due to corrupted golden Data Table values",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (weight 1.0) returned `score=0`. Independently inspecting each unit's trajectory shows: (1) Unit 2 (steps `[60]`–`[68]`) fixed all three intended `AVERAGE` bugs (`DCF!I15` to `=AVERAGE($G$15:$H$15)`, `WACC!D7` to `=AVERAGE('Exhibit 6'!E36:J36)`, and `WACC!D14` to `=AVERAGE('Exhibit 9'!M8:M22/100)`), matched all 4 `WACC` modification cells (`D7, D8, D14, D22`), and had 0 regression errors across all 6,417 regression cells (`regression 1.0000`), yet failed with `modification 0.1538` solely due to the 22 cells in `Berk-Hath Investment Package!G10:K14`; (2) Unit 1 (steps `[42]`–`[57]`) also fixed all three `AVERAGE` bugs (`regression 1.0000, modification 0.1538`) and failed on the same 22 `Berk-Hath Investment Package!G10:K14` modification cells; (3) Unit 3 (steps `[44]`–`[52]`) fixed all three `AVERAGE` bugs and additionally fixed `Berk-Hath Investment Package!F12` from `=C12` to `0.08` so LibreOffice could evaluate the `G10:K14` Data Table (`regression 1.0000, modification 0.3077`), which matched Row 10 (`H10:K10`) but still failed on the 18 cells in `G11:K14` because `gt_02_golden.xlsx` stores corrupted static values from Excel's circular Data Table evaluation.",
+    "confirmation": "gt_02_golden.xlsx 'Berk-Hath Investment Package'!G10:K14 are static values with row 11 equal to row 12 (G11=G12=11152.88) and row 10 equal to row 13, while the input caches 11432.17 there, so these 22 modification cells can't be reproduced and the all-or-nothing check fails even correct AVERAGE fixe",
+    "fixed": true,
+    "fix": "verifications[0].answer_position: 'Berk-Hath Investment Package'!B2:K44 split into B2:K9, B10:F14, B15:K44, dropping the dividend-rate x discount-rate data-table grid G10:K14, whose golden values are corrupted (rows 11=12 and 10=13). graderGuidance range text updated to match. Checked locally with the verifier code: input + the three golden AVERAGE fixes (DCF!I15, WACC!D7, WACC!D14) now scores reg 1.0 / mod 1.0 (was mod 0.15 with 22 G10:K14 errors); the golden scores 1.0; the unchanged input still fails."
+  }
+]

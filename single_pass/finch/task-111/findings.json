@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "In the main GDA sheet, the reference changed the SCG spread formula to subtract the unadjusted TW price (E) instead of the fuel-adjusted price (F), so SCG spread, SCG profit, total profit, both profit shares, and Total Amt due TW are all overstated, and a correct recomputation would not match.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key",
+    "evidence": "Source 'March'01 GDAs'!I10 is =+D10-F10-G10; reference 'March01 GDAs'!I10:I40 is =+D10-E10-G10 (I10=7.7404, not 12.955-5.40625-0.0246=7.52465). This flows to N41=470583.80, Q41=415294.94 and Q49=470479.56. The reference's own Sheet1 keeps I=+D-(F+G).",
+    "confirmation": "Source I10:I40 is =+D-F-G, but the reference 'March01 GDAs'!I10:I40 is =+D10-E10-G10 (unadjusted TW price), a change the prompt never asks for, while its Sheet1 keeps I=+D-(F+G). Recomputing correctly gives SCG profit N41 about 462,183 against the reference's 470,584 (1.8%) and TW share about 411,93"
+  }
+]

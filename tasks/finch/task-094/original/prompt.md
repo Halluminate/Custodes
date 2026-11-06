@@ -1,0 +1,3 @@
+For September–December 2001 and September–December 2002, compute the monthly ratios of ERCOT peak power prices to NYMEX natural gas prices. Then calculate, for each period, the average ratio and the standard deviation (as a measure of volatility). Based on these results, determine in which period power prices were more “stable” relative to gas prices (using lower ratio volatility as the criterion).
+
+Your input files are on your Desktop (/home/model/Desktop): 94_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key gives a power book code for Seung Taek Oh that is not in the source workbook",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In the source sheet 'Master Power', row 29 has ERMS Short Name A29 = 'NETCO-HRLY-ERCT' and Trader N29 = 'Seung Taek Oh'. The column header A6 reads 'ERMS Short Name (15 character limit)'. The ground truth gt_141_ref_0.xlsx has Summary!C30 = 'NETCO-HRLY-ERCOT'. That is 16 characters, breaks the stated 15-character limit, and appears nowhere in the source. Every other GT power entry copies its Master Power short name exactly. The grader guidance gives a binary pass/fail score (0 or 1) and requires 'all values ... logically equivalent to the reference answer'. An agent that correctly copies the short-form code 'NETCO-HRLY-ERCT', as the task asks ('using the short-form names only'), will not match the reference and can fail the whole task.",
+    "confirmation": "Confirmed GT Summary!C30 'NETCO-HRLY-ERCOT' vs source Master Power!A29 'NETCO-HRLY-ERCT'; every other GT power code copies the source exactly, so this is an answer-key typo.",
+    "fixed": true,
+    "fix": "Same GT fix: Summary!C30 now 'NETCO-HRLY-ERCT'."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth contains a typo ('NETCO-HRLY-ERCOT' instead of 'NETCO-HRLY-ERCT') for Seung Taek Oh's Power Book in Summary!C30",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The prompt instructs: 'Identify and populate, for each Trader, the corresponding Book Organization for both Power and Natural Gas, using the short-form names only.' In 'Master Power', row 29 corresponds to trader 'Seung Taek Oh' (N29) and has 'ERMS Short Name (15 character limit)' in A29 set to `'NETCO-HRLY-ERCT'` (15 characters, truncated to fit the 15-character limit, just like `NETCO-ERCT-MGMT` in A26 and `PWR-GAS-LT-ERCT` / `PWR-GAS-ST-ERCT` in Master Gas B16:B17). However, the ground truth workbook (`gt_141_ref_0.xlsx`) populates `Summary!C30` with `'NETCO-HRLY-ERCOT'` (16 characters), which does not exist anywhere in `141_src_0.xlsx`. Under the `Data Accuracy` / `correctness` binary (0 or 1) criteria in `grader_guidance` ('check every value filled or modified by the model and determine whether there is corresponding data in the reference answer'), an agent that accurately looks up or uses a formula (`XLOOKUP`/`INDEX-MATCH`) against `Master Power!A7:A38` will produce `'NETCO-HRLY-ERCT'` and risk failing the binary correctness check against the defective ground truth.",
+    "confirmation": "Master Power!A29 is 'NETCO-HRLY-ERCT' for Seung Taek Oh (N29) under the '15 character limit' header, but gt_141_ref_0.xlsx Summary!C30 is 'NETCO-HRLY-ERCOT', a 16-character string not in the source, so the reference contradicts a correct lookup under a binary judge.",
+    "fixed": true,
+    "fix": "gt_141_ref_0.xlsx Summary!C30 'NETCO-HRLY-ERCOT' -> 'NETCO-HRLY-ERCT' (the code in source Master Power!A29). Only that cell changed."
+  },
+  {
+    "id": "F3",
+    "title": "Reference workbook disagrees with the source trader-to-book mappings",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The reference has two Power mapping defects. Summary!C30 contains 'NETCO-HRLY-ERCOT' for Seung Taek Oh, but the source Master Power!A29 contains the actual short code 'NETCO-HRLY-ERCT', with his name in N29. Summary!C13 lists only 'NETCO-ST-NY' for Bryce Schneider, although source Master Power rows 14 and 16 assign him both 'NETCO-ST-NY' and 'NETCO-HRLY-NY'. No additional reference entry preserves his second assignment. The task asks for the corresponding short-form book names, so copying the exact source code and retaining both assignments is supported by the inputs. The rubric compares modified values against the reference and uses a binary overall score, creating a risk that a source-correct, complete workbook fails.",
+    "confirmation": "The GT C30 typo ('NETCO-HRLY-ERCOT' vs source 'NETCO-HRLY-ERCT') is real, and Bryce Schneider has two source power books (Master Power rows 14 and 16) while GT C13 lists only 'NETCO-ST-NY', so a complete, source-exact answer can disagree with the reference.",
+    "fixed": true,
+    "fix": "GT Summary!C30 typo fixed as above, and one sentence added to grader guidance after the opening paragraph: 'Bryce Schneider has two power books in Master Power (NETCO-ST-NY and NETCO-HRLY-NY), so Summary!C13 may hold NETCO-ST-NY alone or both books.'"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The Q2 2024 normalized tax uses the wrong sign for the tax shield. Removing a $25 restructuring charge raises pre-tax income, so normalized tax should rise by 0.21*25 to 28.25, not fall to 17.75. This also contradicts the key's own Q3 treatment, where tax rises after an expense is added back.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key",
+    "evidence": "gt D32 = D12-0.21*25 = 17.75; compare E32 = E12+0.21*32 = 30.72 for the analogous Q3 impairment add-back. The correct value is 23+5.25 = 28.25.",
+    "confirmation": "Golden D32 = D12-0.21*25 = 17.75 even though removing the $25 Q2 restructuring charge (D26 = D9-25) raises EBT, so normalized tax should be 23+5.25 = 28.25; the key's own Q3 add-back uses E12+0.21*32, so D32 has the sign backwards."
+  },
+  {
+    "id": "S2",
+    "title": "The wrong D32 propagates into the historical and forecast cells, so a correctly normalized solution fails the all-cells-must-match check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "cascading-error",
+    "evidence": "Affected cells: D33=116.25 (should be 105.75), D41=0.1325 (should be ~0.2108), D42, G32/H32 (tax rate averaged over D41:F41 and E41:G41), G33/H33, G41/H41 and G42/H42. All fall within the compared range B2:H42.",
+    "confirmation": "D32 feeds D33, D41, D42 and the forecast tax rates G32 =AVERAGE(D41:F41)*G31 and H32 =AVERAGE(E41:G41)*H31, all modification cells in a 287-cell range with no regression slack, so a correctly normalized workbook fails."
+  }
+]

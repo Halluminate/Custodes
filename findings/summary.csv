@@ -1,0 +1,899 @@
+benchmark,task,finding_id,bucket,severity,title,fixed
+FINCH,task-001,F1,Verification,critical,"Ground-truth reference gt_1_ref_0.xlsx contains contradictory and erroneous formulas in R132, R134, and V132 (and external workbook links in L132, L134, N132, P132)",yes
+FINCH,task-001,F2,Verification,critical,Occupancy Loss: the GT swaps the A and B values relative to the workbook's own markers,yes
+FINCH,task-001,F3,Verification,critical,Reference answers contradict the requested A/B sums and seeded labels,yes
+FINCH,task-001,F4,Task Spec,critical,"Undisclosed subtraction conventions in ground truth for 'sum of A' and 'sum of B' (L134, N132, V132) despite positive values in source component columns",yes
+FINCH,task-001,F5,Verification,critical,"The answer key does not use 'sum of A / sum of B' for several indicators: it applies the original PHAS sign logic, so an agent that literally sums the marked cells fails",yes
+FINCH,task-012,F1,Task Spec,critical,Method 1 instructions give identical conditions for holding opposite indices,yes
+FINCH,task-012,F2,Environment & Infra,critical,"Method 1 guidance in cell H8 duplicates 'rising or flat' for both Index 1 and Index 2 signals, contradicting ground-truth formulas in column T",yes
+FINCH,task-012,F3,Task Spec,critical,Method 1 rule in H8 gives the same condition for Index 1 and Index 2,yes
+FINCH,task-016,F1,Verification,critical,"Much of the ground-truth continuation can't be derived from the inputs, and grading is a binary 'logically equivalent' check",yes
+FINCH,task-018,F1,Verification,critical,Reference answer conflicts with the supplied fee formula and transaction data,yes
+FINCH,task-018,F2,Verification,critical,"Ground truth answer (-0.940000) is truncated to 2 decimal places instead of rounded to 6 decimal places (-0.948103), and grader guidance lacks a numeric tolerance for this task",yes
+FINCH,task-018,F3,Verification,critical,The reference answer -0.940000 is wrong; the correct 6-decimal answer is -0.948103,yes
+FINCH,task-019,F1,Verification,critical,"Answer key has the wrong sign and size for Netflix's 2021 free cash flow, and the error flows into three other sheets",yes
+FINCH,task-019,F2,Verification,critical,Reference incorrectly records Netflix's 2021 free cash flow as positive 1.59 billion,yes
+FINCH,task-027,F1,Verification,critical,Reference headcounts include vacancies and contradict the required blank-cell convention,yes
+FINCH,task-028,F1,Verification,critical,Reference headcount summary disagrees with the detailed rosters,yes
+FINCH,task-028,F2,Verification,critical,"Ground truth (gt_28_ref_0.xlsx) overcounts the 'Canada' roster sheet by including the header cell A1='CANADA' and restructures Canada sub-departments without specification, making the reference grand total wrong",yes
+FINCH,task-028,F3,Verification,critical,"Answer key gives 11 for the Canada 'Canada' sub-department, but its roster block lists 10 names",yes
+FINCH,task-029,F1,Verification,critical,"Ground truth puts Power Risk at 200,000, but the department's sheet sums to 20,000",yes
+FINCH,task-029,F2,Verification,critical,"Ground truth contains a 10x typo on Power Risk budget (200,000 instead of 20,000), inflating the Master total by 180,000",yes
+FINCH,task-029,F3,Verification,critical,"Reference answer overstates Power Risk budget by 180,000",yes
+FINCH,task-031,F1,Verification,critical,"Ground truth Rotation chart contains corrupted rotation timelines, unlabeled gap cells, out-of-2001 spillover columns, and a wrong group suffix (-Power instead of -Gas)",yes
+FINCH,task-031,F2,Verification,critical,Reference assigns a gas employee the power suffix,yes
+FINCH,task-031,F3,Verification,critical,"Answer key gives Vladi Pimenov, a Gas-section employee, the suffix '-Power'",yes
+FINCH,task-032,F1,Verification,critical,The answer key gives Fundamentals-Power a supervisor that the source workbook never lists,yes
+FINCH,task-032,F2,Verification,critical,Ground truth workbook has wrong line supervisor ('Will Lloyd / Davis Dana') and unresolvable supervisor for Fundamentals-Power,yes
+FINCH,task-032,F3,Environment & Infra,critical,Required Fundamentals-Power supervisor is missing,yes
+FINCH,task-037,F1,Environment & Infra,critical,Incomplete seeded volume totals produce division-by-zero errors in the reference,yes
+FINCH,task-037,F2,Verification,critical,Ground truth shows #DIV/0! in WA Price for 7 months that have real exposure,yes
+FINCH,task-037,F3,Verification,critical,Ground truth WA Price formula in gt_37_ref_0.xlsx is mathematically flawed at volume transition months and produces #DIV/0! errors for the last 7 months (June–December 2006),yes
+FINCH,task-043,F1,Verification,critical,Ground truth for XNPV5 at 12/31/1996 (B41) and 12/31/2000 (B42) is hardcoded from an undisclosed monthly schedule and discounts to 1/31/1997 and 1/31/2001 instead of 12/31/1996 and 12/31/2000,yes
+FINCH,task-043,F2,Verification,critical,"GT XNPV values are discounted to the first payment date, not to the 12/31/1996 and 12/31/2000 dates the task asks for",yes
+FINCH,task-053,F1,Verification,critical,Grader reference uses December 2012 instead of the requested April 2012 cutoff,yes
+FINCH,task-053,F2,Verification,critical,Reference answer swaps CNG and TCO labels relative to the column headers in 53_src_0.xlsx,yes
+FINCH,task-053,F3,Verification,critical,Grader reference reverses the CNG and TCO daily-volume comparison,yes
+FINCH,task-053,F4,Verification,critical,"The answer key sums Dec 2000–Dec 2012, but the prompt asks for Dec 2000 through April 2012",yes
+FINCH,task-053,F5,Verification,critical,Reference answer in grader guidance uses Dec 2000–Dec 2012 (145 months) instead of the requested Dec 2000–Apr 2012 (137 months),yes
+FINCH,task-053,F6,Verification,critical,"The reference answer swaps the CNG and TCO volumes, so the comparison is backwards",yes
+FINCH,task-060,F1,Verification,critical,Ground truth workbook does not contain an Excel Ctrl+T table and appears to have been generated from a different source workbook than 60_src_0.xlsx,yes
+FINCH,task-060,F2,Environment & Infra,critical,"The reference workbook is a different, larger version of the sheet than the agent's input file",yes
+FINCH,task-075,F1,Verification,critical,The ground-truth chart leaves out the required Total Scheduled and Total Cancellation series,yes
+FINCH,task-075,F2,Verification,critical,Ground-truth workbook (gt_75_ref_0.xlsx) omits the required Total Scheduled and Total Cancellation chart series,yes
+FINCH,task-085,F1,Verification,critical,"Ground truth's Coated Groundwood regression reuses the Coated No. 3 column, so its answer key is wrong",yes
+FINCH,task-085,F2,Verification,critical,"Invalid golden solution: Ground-truth regression block #6 (Coated Grwd No. 4, 50lb) uses column V instead of column W",yes
+FINCH,task-087,F1,Verification,critical,GT 'Daily Trading Intensity' does not follow the formula the prompt states (it divides by company count),yes
+FINCH,task-087,F2,Verification,critical,"Ground truth Sheet2_KPIs 'Daily Trading Intensity' divides Average Daily Trading Value by Total Number of Listed Companies, contradicting the prompt formula",yes
+FINCH,task-087,F3,Verification,critical,Reference workbook calculates Daily Trading Intensity contrary to the task,yes
+FINCH,task-088,F1,Verification,critical,"Ground truth Debt Service Burden is Interest/Budget, not the stated Interest/Debt",yes
+FINCH,task-088,F2,Verification,critical,Reference answer contradicts both fiscal-indicator formulas,yes
+FINCH,task-088,F3,Verification,critical,Ground truth reference workbook gt_88_ref_0.xlsx computes Spending Efficiency and Debt Service Burden on Sheet3_Fiscal_Indicators using wrong formulas that contradict problem.py,yes
+FINCH,task-088,F4,Verification,critical,Ground truth uses the wrong formula for Spending Efficiency,yes
+FINCH,task-090,F1,Style,critical,The ground truth adds borders the instruction does not ask for: header underlines and lines on empty cells,yes
+FINCH,task-090,F2,Style,critical,"Ground-truth workbook gt_90_ref_0.xlsx contradicts the prompt by bordering column headers, empty cells, and wrong rows above blank spacer rows",yes
+FINCH,task-098,F1,Verification,critical,"The ground-truth workbook deletes original columns I–P, which breaks the task's own instruction to change nothing else",yes
+FINCH,task-098,F2,Verification,critical,"Ground truth workbook (gt_98_ref_0.xlsx) deletes Columns I through P of Sheet1 (35,427 cells), contradicting the task instruction to preserve all original contents",yes
+FINCH,task-103,F1,Verification,critical,Reference month ranges contradict the required aligned summaries,yes
+FINCH,task-103,F2,Verification,critical,The ground truth does not meet the prompt's 'aligned month sets' and 'months without data shown as 0' requirements,yes
+FINCH,task-103,F3,Verification,critical,"The ground truth leaves out January and February 2002 from both tables, even though the source data has amounts in those months",yes
+FINCH,task-103,F4,Verification,critical,Reference workbook calculates Peoples summaries from altered source data,yes
+FINCH,task-103,F5,Verification,critical,"Ground truth workbook (gt_103_ref_0.xlsx) has corrupted source data, omits Jan-Feb 2002 and Nov 2004-Dec 2005 rows, and violates the task's 'preserve original sheets' and 'time-aligned' requirements",yes
+FINCH,task-103,F6,Environment & Infra,critical,"The ground truth's 'Peoples Baseload Sale' sheet has different data from the input file the agent gets, so its Peoples Deal Value figures cannot be reproduced",yes
+FINCH,task-110,F1,Verification,critical,"Ground truth modifies original Sheet1 by stripping ROUND() formulas, contradicting the explicit instruction to preserve all original sheets and their contents",yes
+FINCH,task-110,F2,Verification,critical,"Ground truth changes the original 'Sheet1', even though the prompt says to keep original sheets and their contents",yes
+FINCH,task-111,F1,Verification,critical,"The answer key applies the new fuel factor to SCG differently on its two sheets, so whatever the agent does on one sheet will contradict the key",yes
+FINCH,task-111,F2,Verification,critical,Reference silently removes SCG fuel adjustment on one worksheet,yes
+FINCH,task-111,F3,Verification,critical,"Ground truth modifies SCG spread formula on the first sheet but not on Sheet1, introducing an undisclosed and inconsistent modeling change",yes
+FINCH,task-115,F1,Reward,critical,"The grader accepts data from any publication date but only tolerates 1% difference from one reference, so valid answers are rejected",yes
+FINCH,task-115,F2,Verification,critical,"The reference RawData joins pre-revision and post-revision UK HPI data, and the grader compares to it within 1%",yes
+FINCH,task-115,F3,Reward,critical,Grading tolerance conflicts with explicitly permitted HPI publication vintages,yes
+FINCH,task-117,F1,Style,critical,"The answer key changes font size, not typeface, and leaves the Courier New entries untouched",yes
+FINCH,task-117,F2,Style,critical,"Prompt asks to standardize 'typeface' across 'all data entries', whereas ground truth leaves Courier New entries unchanged and only changes font size (14pt/16pt to 12pt) in rows 19–23",yes
+FINCH,task-117,F3,Verification,critical,Ground-truth workbook does not perform the required font standardization,yes
+FINCH,task-117,F4,Reward,critical,"AI grader (production): rejects a valid answer on ""overall grade""",yes
+FINCH,task-122,F1,Verification,critical,Reference General Support chart includes four unrelated expenditure functions,yes
+FINCH,task-122,F2,Verification,critical,The answer key's General Support Services pie includes four rows from other functions,yes
+FINCH,task-122,F3,Task Spec,critical,"Ambiguity and ground-truth contradiction regarding source table, columns, and row scope for the bottom pie chart ('breakdown of General Support Services')",yes
+FINCH,task-124,F1,Verification,critical,January 2000 temperature cells in the answer key point at the December sheet,yes
+FINCH,task-124,F2,Verification,critical,"Reference answer uses incorrect metric, month and year mappings",yes
+FINCH,task-124,F3,Verification,critical,Answer key fills CDD rows with Average Max Temp values,yes
+FINCH,task-124,F4,Verification,critical,"Answer key hardcodes values that appear nowhere in the source, even though the prompt says to leave cells blank when there is no data",yes
+FINCH,task-124,F5,Verification,critical,"Ground truth reference workbook (gt_124_ref_0.xlsx) contains broken cross-sheet references, wrong-column shifts, hardcoded values absent from source sheets, and a corrupted average cell",yes
+FINCH,task-124,F6,Verification,critical,Reference requires unsupported values despite instructions to leave missing information blank,yes
+FINCH,task-126,F1,Environment & Infra,critical,Target county has conflicting spellings that produce different filtered results,yes
+FINCH,task-126,F2,Verification,critical,Reference filter keeps only the two misspelled 'Andrew' rows and hides the eight correctly spelled 'Andrews' County rows,yes
+FINCH,task-126,F3,Environment & Infra,critical,Ground-truth 'EOTT TX-NM Facilities' sheet comes from a different version of the workbook than the source the agent gets,yes
+FINCH,task-127,F1,Verification,critical,Reference payables calculations contradict the workbook’s stated calculation rule,yes
+FINCH,task-127,F2,Task Spec,critical,"Contradictory and ambiguous definition of '55 days payables' between prompt, workbook footnote, and ground truth",yes
+FINCH,task-127,F3,Verification,critical,"Ground truth averages the payables of contracts with the same term over different windows (Glenrock uses 6 months, the two Ignacio deals use 5)",yes
+FINCH,task-132,F1,Verification,critical,Ground truth contains undisclosed edits and an unobtainable hardcoded value in ENRON GLOBAL MARKETS and ENRON INDUSTRIAL MARKETS that cascade into TOTAL EWS,yes
+FINCH,task-132,F2,Verification,critical,"Answer key makes many edits the instruction never asks for: labels changed, units rescaled, placeholders filled, rows restructured",yes
+FINCH,task-133,F1,Verification,critical,Reference workbook leaves a material subtotal omission unrepaired,yes
+FINCH,task-133,F2,Verification,critical,"Ground truth workbook fails to fix the omitted =SUM(M57:M61) subtotal formula in ENA!M62 and its cascading roll-ups (M76, M139)",yes
+FINCH,task-133,F3,Verification,critical,"Reference answer leaves a broken roll-up in place (ENA row 62 'Upstream Products'), so an agent that does what the prompt asks gets marked wrong",yes
+FINCH,task-135,F1,Task Spec,critical,Prompt instruction 'with the x-axis running through the week ending 9/23' contradicts Prod_Yr-Yr in the ground truth and stems from the 47-row truncation bug in the other three GT charts,yes
+FINCH,task-135,F2,Verification,critical,GT East_Yr-Yr chart plots the wrong season (1997/98 vs 1996/97) while the other three charts plot 1998/99 vs 1997/98,yes
+FINCH,task-135,F3,Verification,critical,GT East/West/Total Yr-Yr charts are misaligned by 5 weeks: values start at row 121 but category dates start at row 116,yes
+FINCH,task-135,F4,Verification,critical,"Corrupted ground truth (gt_135_ref_0.xlsx) plots the wrong year column (1997/98) on East_Yr-Yr and misaligned 47-row value ranges ($121:$167 against $116:$167 categories) on East_Yr-Yr, West_Yr-Yr, and Total_Yr-Yr",yes
+FINCH,task-135,F5,Verification,critical,Reference charts pair weekly differences with the wrong dates,yes
+FINCH,task-135,F6,Task Spec,critical,"Prompt's 'x-axis running through the week ending 9/23' appears to come from the misaligned GT, contradicts the GT Producing chart, and does not say which season to compare",yes
+FINCH,task-140,F1,Verification,critical,Ground truth deletes original table U25:AA56 and cell F21 despite prompt requiring preservation of all original contents,yes
+FINCH,task-141,F1,Verification,critical,Answer key gives a power book code for Seung Taek Oh that is not in the source workbook,yes
+FINCH,task-141,F2,Verification,critical,Ground truth contains a typo ('NETCO-HRLY-ERCOT' instead of 'NETCO-HRLY-ERCT') for Seung Taek Oh's Power Book in Summary!C30,yes
+FINCH,task-141,F3,Verification,critical,Reference workbook disagrees with the source trader-to-book mappings,yes
+FINCH,task-142,F1,Verification,critical,Answer key's Scenario 1 grand-total P&L does not equal the sum of the per-point P&L rows,yes
+FINCH,task-142,F2,Verification,critical,Reference grand total does not equal its component P&Ls,yes
+FINCH,task-142,F3,Verification,critical,Answer key's Station 2 P&L is half the value its own method gives,yes
+FINCH,task-142,F4,Verification,critical,Answer key gives PG&E a P&L of 0 even though it has a nonzero position and a stdev,yes
+FINCH,task-142,F5,Verification,critical,Reference P&Ls for PG&E and Station 2 contradict the scenario inputs,yes
+FINCH,task-146,F1,Verification,critical,Reference requires Sea Q4 results published after the permitted source cutoff,yes
+FINCH,task-146,F2,Verification,critical,"Sea/Shopee Q4 2024 figures are in the answer key, but they were published after the stated cutoff",yes
+FINCH,task-148,F1,Environment & Infra,critical,"The workbook's formulas can't be recalculated with LibreOffice, the only spreadsheet engine in the environment, so the required 'refresh outputs' step can't be done cleanly",yes
+FINCH,task-158,F1,Verification,critical,Answer key hardcodes a new value in OCT 01!T38 (16 → 18) with nothing in the materials pointing to it,yes
+FINCH,task-158,F2,Environment & Infra,critical,"Source workbook 158_src_0.xlsx has a corrupted static input in OCT 01!T38 (16 vs 18.0 in GT) and an extra formula in OCT 01!V30, so fixing the formula error in OCT 01!T39 still fails to match ground-truth values",yes
+FINCH,task-158,F3,Verification,critical,Reference answer changes an input value without supporting data,no
+FINCH,task-159,F1,Task Spec,critical,"Prompt instructs agent to fill missing columns and add summary formulas on 'Benchmark Returns' sheet, but 'Benchmark Return' is already complete in source and unchanged in ground truth",yes
+FINCH,task-159,F2,Task Spec,critical,"Prompt asks for 'previously missing columns' on Benchmark Returns to be filled, but nothing is missing there and the GT leaves that sheet unchanged",yes
+FINCH,task-159,F3,Environment & Infra,critical,The requested missing Benchmark Return columns are already populated,yes
+FINCH,task-162,F1,Verification,critical,Ground truth reference document requires external qualitative commentary and currency-neutral metrics absent from the provided Excel file while prompt restricts task to 'Based on the provided financial data',yes
+FINCH,task-162,F2,Environment & Infra,critical,Supporting disclosures for the required growth explanations are not supplied,yes
+FINCH,task-162,F3,Environment & Infra,critical,"The reference answer's growth reasons cannot be derived from the only input file, and grading is pass/fail against that reference",yes
+FINCH,task-167,F1,Verification,critical,Reference CIS cash flows omit a distribution and produce an inflated NPV,yes
+FINCH,task-167,F2,Environment & Infra,critical,"Ground truth relies on undisclosed 90%/10% partner split, undisclosed $13,000,000 exit valuation in Row 26, and unstated shortfall sign convention",yes
+FINCH,task-167,F3,Task Spec,critical,"The answer key depends on deal terms that appear nowhere in the materials (90/10 split, $13M exit value, timing of CIS cash flows)",yes
+FINCH,task-167,F4,Verification,critical,"In the GT, CIS's year-3 share is deducted from PA & KH but never paid to CIS, so the partner cash flows don't add up",yes
+FINCH,task-167,F5,Environment & Infra,critical,Required distribution and exit assumptions are missing from the task inputs,yes
+FINCH,task-167,F6,Verification,critical,"Ground-truth workbook (`gt_167_ref_0.xlsx`) omits Year 3 CIS cash flow (`O16`) and leaves `O14:O16` blank, causing Excel `NPV` in `O28` to mis-discount CIS cash flows by 3 years",yes
+FINCH,task-170,F1,Verification,critical,"GT spread averages count days with no data as zero-spread weekdays, which changes their sign",yes
+FINCH,task-170,F2,Verification,critical,"Ground truth gt_170_ref_0.xlsx contains corrupted DOW lookups, distorted spread averages from unmasked missing data, and #N/A errors",yes
+FINCH,task-170,F3,Environment & Infra,critical,The selected month lacks required fundamental data,yes
+GDPval,11593a50-734d-4449-b5b4-f8986a133fd8,F1,Reward,critical,The grader evaluates individual property flyers instead of the requested two-page comparison and map,no
+GDPval,11593a50-734d-4449-b5b4-f8986a133fd8,F2,Reward,critical,The rubric contradicts itself: it requires 'fewer than 10' homes but also requires flyers for 10 specific homes,no
+GDPval,11593a50-734d-4449-b5b4-f8986a133fd8,F3,Task Spec,critical,"The problem statement describes a different task from the one the rubric, assets and ground truth grade",no
+GDPval,11593a50-734d-4449-b5b4-f8986a133fd8,F4,Task Spec,critical,"Task statement vs. grader guidance mismatch on deliverable format, location, home count, required fields, and map deliverable",no
+GDPval,11593a50-734d-4449-b5b4-f8986a133fd8,F5,Environment & Infra,critical,The staged listings do not describe the requested geographic market,no
+GDPval,11593a50-734d-4449-b5b4-f8986a133fd8,F6,Environment & Infra,critical,"The statement asks for data and outputs the provided materials cannot supply (list date, real map, MLSLI search for a fictional town)",no
+GDPval,1d4672c8-b0a7-488f-905f-9ab4e25a19f7,F1,Environment & Infra,critical,"Problem statement says reference files are on the Desktop, but the Desktop is empty and all data must be scraped live from msci.com",no
+GDPval,1d4672c8-b0a7-488f-905f-9ab4e25a19f7,F2,Verification,critical,"The answer key correlates price levels, not monthly returns, so its whole matrix and all its conclusions are wrong",yes
+GDPval,1d4672c8-b0a7-488f-905f-9ab4e25a19f7,F3,Verification,critical,Ground truth deliverables fail 11 rubric items (15 of 59 points) and compute correlations on raw index levels instead of monthly returns,yes
+GDPval,4520f882-715a-482d-8e87-1cb3cbdfe975,F1,Verification,critical,Ground truth workbook and 39 numerical rubric checks (78/175 points) use wrong CBA wage rates that contradict CBA excerpt.docx,yes
+GDPval,4520f882-715a-482d-8e87-1cb3cbdfe975,F2,Verification,critical,Graded payroll amounts use rates different from the supplied CBA,yes
+GDPval,4520f882-715a-482d-8e87-1cb3cbdfe975,F3,Verification,critical,Ground-truth rates and every rubric dollar figure are $1.00 higher than the contract rates in the CBA excerpt,yes
+GDPval,46b34f78-6c06-4416-87e2-77b6d8b20ce9,F1,Environment & Infra,critical,"The only input file, Research Material.docx, is corrupt: LibreOffice and python-docx both fail to open it",yes
+GDPval,46b34f78-6c06-4416-87e2-77b6d8b20ce9,F2,Environment & Infra,critical,"Corrupted XML in staged reference file 'Research Material.docx' causes LibreOffice and python-docx to crash, and replaces all hyperlink targets with 'https://example.invalid/_external'",yes
+GDPval,4c4dc603-c21c-4284-8fb1-1b827c1fddf4,F1,Reward,critical,The rubric grades a phone number that differs from the one the prompt gives,yes
+GDPval,4c4dc603-c21c-4284-8fb1-1b827c1fddf4,F2,Verification,critical,Contradictory and undisclosed contact details: grader_guidance requires an unstated phone number (+1-800-555-0144) and ignores the prompt's explicit contact details,yes
+GDPval,4c4dc603-c21c-4284-8fb1-1b827c1fddf4,F3,Task Spec,critical,Contradictory page-count requirement: prompt requires a one-page PDF while grader_guidance and ground truth require 3-6 pages,yes
+GDPval,4c4dc603-c21c-4284-8fb1-1b827c1fddf4,F4,Task Spec,critical,"The rubric rewards a 3–6 page PDF, but the task asks for a one-page summary",yes
+GDPval,4c4dc603-c21c-4284-8fb1-1b827c1fddf4,F5,Reward,critical,Grader rewards a page count that contradicts the required one-page deliverable,yes
+GDPval,4c4dc603-c21c-4284-8fb1-1b827c1fddf4,F6,Verification,critical,Grader requires a different phone number from the task,yes
+GDPval,5ad0c554-a7a2-48cd-b41a-ebc1bff4a9de,F1,Environment & Infra,critical,"Prompt states reference files are on Desktop, but the reference PDF is only available via external URL",yes
+GDPval,5ad0c554-a7a2-48cd-b41a-ebc1bff4a9de,F2,Environment & Infra,critical,Required reference PDF is not staged on the Desktop,yes
+GDPval,5ad0c554-a7a2-48cd-b41a-ebc1bff4a9de,F3,Environment & Infra,critical,"The reference PDF is not on the Desktop, but the statement says reference files are there",yes
+GDPval,6074bba3-7e3a-4b1c-b8c6-a15bb6695c3b,F1,Environment & Infra,critical,"Comparable sales and active listing reference files marked '(attached)' in prompt are missing from environment, third-party listing sites are blocked, and subject/comp addresses are scrubbed",no
+GDPval,6074bba3-7e3a-4b1c-b8c6-a15bb6695c3b,F2,Environment & Infra,critical,"Comps and active listings are described as 'attached', but only the blank template is provided, and the agent can't reliably reach live listing sites",no
+GDPval,6074bba3-7e3a-4b1c-b8c6-a15bb6695c3b,F3,Environment & Infra,critical,Promised comparable-sales and active-listing attachments are missing,no
+GDPval,83d10b06-26d1-4636-a32c-23f92c57f30b,F1,Task Spec,critical,"The entity and metric names in the prompt don't exist in the data, and the rubric grades one fixed reading of them",yes
+GDPval,83d10b06-26d1-4636-a32c-23f92c57f30b,F2,Environment & Infra,critical,Required entity and metric mappings are missing from agent-facing materials,yes
+GDPval,83d10b06-26d1-4636-a32c-23f92c57f30b,F3,Verification,critical,Ground-truth workbook (gt_Sample v2.xlsx) fails multiple rubric checks and corrupts 95 cells from Population v2.xlsx,yes
+GDPval,83d10b06-26d1-4636-a32c-23f92c57f30b,F4,Reward,critical,"Column letters and Q2/Q3 column order in grader_guidance contradict problem.py, Population v2.xlsx, and themselves",yes
+GDPval,83d10b06-26d1-4636-a32c-23f92c57f30b,F5,Verification,critical,"The expert GT fails many of its own rubric checks, so a pairwise comparison against it is unreliable",yes
+GDPval,83d10b06-26d1-4636-a32c-23f92c57f30b,F6,Task Spec,critical,Task points to the wrong input columns for quarterly data,yes
+GDPval,83d10b06-26d1-4636-a32c-23f92c57f30b,F7,Reward,critical,Grader reverses the quarters and contradicts the required output columns,yes
+GDPval,83d10b06-26d1-4636-a32c-23f92c57f30b,F8,Task Spec,critical,"Task statement references v1 entity, business, and metric names absent from Population v2.xlsx, while grader guidance checks v2 names",yes
+GDPval,83d10b06-26d1-4636-a32c-23f92c57f30b,F9,Reward,critical,The rubric contradicts itself on column letters and on which column holds Q2 and Q3,yes
+GDPval,83d10b06-26d1-4636-a32c-23f92c57f30b,F10,Task Spec,critical,The column letters in the prompt don't match the Population file or the rubric,yes
+GDPval,90f37ff3-e4ed-4a0b-94bb-bed0f7def1ef,F1,Environment & Infra,critical,The subject property's location is missing,yes
+GDPval,90f37ff3-e4ed-4a0b-94bb-bed0f7def1ef,F2,Verification,critical,"The expert ground truth fails many of its own rubric items, which makes the pairwise baseline weak",yes
+GDPval,90f37ff3-e4ed-4a0b-94bb-bed0f7def1ef,F3,Verification,critical,Ground truth PDF fails multiple rubric criteria and uses placeholder names instead of required street addresses,yes
+GDPval,94925f49-36bc-42da-b45b-61078d329300,F1,Environment & Infra,critical,Graded values depend on live Niche.com data that is blocked and changes over time,no
+GDPval,94925f49-36bc-42da-b45b-61078d329300,F2,Verification,critical,Grader guidance and ground truth evaluate 'New Hyde Park Road School' instead of the prompt's required 'Garden City Park School',yes
+GDPval,94925f49-36bc-42da-b45b-61078d329300,F3,Verification,critical,"Rubric grades 'New Hyde Park Road School', but the prompt asks for 'Garden City Park School'",yes
+GDPval,94925f49-36bc-42da-b45b-61078d329300,F4,Reward,critical,Grader substitutes New Hyde Park Road School for the required Garden City Park School,yes
+GDPval,c657103b-b348-4496-a848-b2b7165d28b2,F1,Verification,critical,"The prompt puts the first RMD at age 72, but the rubric and ground truth put it at age 75 (2035)",yes
+GDPval,c657103b-b348-4496-a848-b2b7165d28b2,F2,Environment & Infra,critical,The 'business digital tunnel' PowerPoint template the prompt requires is not provided,yes
+GDPval,c657103b-b348-4496-a848-b2b7165d28b2,F3,Task Spec,critical,Direct contradiction between task statement (RMDs begin at age 72) and grader guidance / ground truth (RMDs begin in 2035 at age 75),yes
+GDPval,c657103b-b348-4496-a848-b2b7165d28b2,F4,Environment & Infra,critical,Required Business Digital Tunnel PowerPoint template is missing,yes
+GDPval,c657103b-b348-4496-a848-b2b7165d28b2,F5,Task Spec,critical,Grader requires RMDs three years later than the task instructs,yes
+GDPval,ee09d943-5a11-430a-b7a2-971b4e9b01b5,F1,Environment & Infra,critical,Required April accounts-payable source is missing,no
+GDPval,ee09d943-5a11-430a-b7a2-971b4e9b01b5,F2,Environment & Infra,critical,"Source file AP_TB-1.xlsx is listed in the task but never staged, so the A/P Trade schedule cannot be built",no
+GDPval,fd3ad420-6f7d-43b1-a990-c0c5c047d071,F1,Reward,critical,"Rubric requires the firm name 'EstateWell Realty', which no agent-visible source contains. The prompt and the seed file name the firm 'Sample Realty'",yes
+GDPval,fd3ad420-6f7d-43b1-a990-c0c5c047d071,F2,Verification,critical,Grader requires a different firm name from the task and reference document,yes
+GDPval,fd3ad420-6f7d-43b1-a990-c0c5c047d071,F3,Reward,critical,Grader guidance and ground truth require the undisclosed firm name 'EstateWell Realty' instead of 'Sample Realty',yes
+SpreadsheetBench 2,debugging-01_01,F1,Verification,critical,"The ground-truth workbook's stale, self-contradictory cached values make it fail its own verifier, so no output can pass",yes
+SpreadsheetBench 2,debugging-01_01,F2,Verification,critical,Ground truth workbook gt_01_golden.xlsx contains corrupted LibreOffice data-table cache values and fails its own verifier,yes
+SpreadsheetBench 2,debugging-01_01,F3,Verification,critical,Stale golden-workbook values cause the golden solution itself to fail grading,yes
+SpreadsheetBench 2,debugging-01_01,F4,Verification,critical,"The sensitivity table in the GT is flat, so 100 graded cells all hold the same string",yes
+SpreadsheetBench 2,debugging-01_01,F5,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-01_01,F6,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (score 0.0) on all runs and on the golden workbook itself due to asymmetric LibreOffice recalculation,yes
+SpreadsheetBench 2,debugging-01_02,F1,Reward,critical,Mandatory recalculation makes the golden workbook fail its own verifier,no
+SpreadsheetBench 2,debugging-01_02,F2,Verification,critical,"Answer key's 'Multiple Expansion' formula multiplies the change in multiple by the multiple, not by exit EBITDA",no
+SpreadsheetBench 2,debugging-01_02,F3,Verification,critical,Required answer formula miscalculates the multiple-expansion value bridge,no
+SpreadsheetBench 2,debugging-01_02,F4,Reward,critical,"Grader recalculation pipeline freezes TABLE() data-table formulas and collapses array formulas before formula-mode comparison, causing even the golden file to fail",yes
+SpreadsheetBench 2,debugging-01_02,F5,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-01_02,F6,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells always scores 0.0 in formula mode on workbooks containing TABLE() data tables and CSE formulas due to destructive preprocessing in recalculate_xlsx,yes
+SpreadsheetBench 2,debugging-01_03,F1,Verification,critical,Corrupted ground-truth workbook (`gt_01_golden.xlsx`) contains LibreOffice Multiple Operations (`TABLE(...)`) pollution in 65 cached cells and fails its own verifier,yes
+SpreadsheetBench 2,debugging-01_03,F2,Verification,critical,Inconsistent golden caches cause the golden workbook to fail its own verifier,yes
+SpreadsheetBench 2,debugging-01_03,F3,Verification,critical,Every cell in the ground-truth sensitivity tables holds the same base-case string,yes
+SpreadsheetBench 2,debugging-01_03,F4,Verification,critical,The ground-truth workbook fails its own verifier: its cached values are left over from the data-table substitution,yes
+SpreadsheetBench 2,debugging-01_03,F5,Verification,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-01_03,F6,Verification,critical,SpreadsheetBench 2 official cell check: `verify_spreadsheetbench2_cells` always fails (0.0) because `managed_recalculated_xlsx` freezes data tables on the submission while `gt_01_golden.xlsx` has un-recalculated `TABLE(...)`-corrupted cached values,yes
+SpreadsheetBench 2,debugging-01_04,F1,Verification,critical,Sensitivity answer grids contain identical base-case results instead of scenario results,yes
+SpreadsheetBench 2,debugging-01_04,F2,Verification,critical,"The ground truth fails its own verifier: its cached values don't match its formulas, so no output can pass",yes
+SpreadsheetBench 2,debugging-01_04,F3,Verification,critical,Data-table sensitivity cells were replaced with '=#VALUE!' and the GT's 'answer' is a meaningless constant,yes
+SpreadsheetBench 2,debugging-01_04,F4,Verification,critical,Golden workbook contains stale un-recalculated cached values from an Excel What-If Data Table iteration while the verifier only recalculates the agent's output in LibreOffice,yes
+SpreadsheetBench 2,debugging-01_04,F5,Environment & Infra,critical,"The input workbook also has stale cached values that differ from both the GT and the true results, which turns about 65 unchanged formula cells into graded 'modification' cells",yes
+SpreadsheetBench 2,debugging-01_04,F6,Verification,critical,Inconsistent golden caches cause the golden workbook itself to fail grading,yes
+SpreadsheetBench 2,debugging-01_04,F7,Verification,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-01_04,F8,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail (cannot pass even on gt_01_golden.xlsx) because it compares LibreOffice-recalculated agent output against un-recalculated stale cached values in gt_path,yes
+SpreadsheetBench 2,debugging-01_05,F1,Verification,critical,Stale golden-workbook values cause the correct workbook to fail grading,yes
+SpreadsheetBench 2,debugging-01_05,F2,Verification,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-01_05,F3,Verification,critical,"SpreadsheetBench 2 official cell check: Verifier recalculates only output_path in LibreOffice while reading stale Excel Data Table cached values from gt_path, causing guaranteed 65-cell regression failure",yes
+SpreadsheetBench 2,debugging-01_06,F1,Verification,critical,Uncorroborated cached values in ground truth (gt_01_golden.xlsx) and input (reference_path) due to corrupted LibreOffice TABLE() evaluation state cause the golden solution to fail verification,yes
+SpreadsheetBench 2,debugging-01_06,F2,Verification,critical,Stale golden-workbook caches cause the answer key to fail its own verifier,yes
+SpreadsheetBench 2,debugging-01_06,F3,Verification,critical,"Golden workbook's stale cached values do not match its own formulas, so the golden file fails its own verifier and the answer key cells (e.g., the non-reconciling valuation bridge) are graded on stale numbers",yes
+SpreadsheetBench 2,debugging-01_06,F4,Verification,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-01_06,F5,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail (false negative on Unit 1 and on ground truth) because it compares force-recalculated output against un-recalculated corrupted cached values in GT and input,yes
+SpreadsheetBench 2,debugging-01_07,F1,Verification,critical,Golden workbook (gt_01_golden.xlsx) contains corrupted LibreOffice Multiple Operations cached values and fails its own verifier,yes
+SpreadsheetBench 2,debugging-01_07,F2,Verification,critical,"The ground-truth workbook fails its own verifier, so no output can pass",yes
+SpreadsheetBench 2,debugging-01_07,F3,Verification,critical,Stale golden-workbook values cause the expected solution to fail grading,yes
+SpreadsheetBench 2,debugging-01_07,F4,Verification,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-01_07,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all units (score=0) because freeze_datatable_formulas during grading diverges from the TABLE-polluted cached values in gt_01_golden.xlsx,yes
+SpreadsheetBench 2,debugging-01_08,F1,Verification,critical,Ground truth workbook contains corrupted LibreOffice data-table evaluation caches and fails its own verifier,yes
+SpreadsheetBench 2,debugging-01_08,F2,Verification,critical,Stale ground-truth values cause the golden workbook to fail its own grading,no
+SpreadsheetBench 2,debugging-01_08,F3,Verification,critical,The answer key fails its own verifier because its cached values are stale,yes
+SpreadsheetBench 2,debugging-01_08,F4,Verification,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-01_08,F5,Reward,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check cannot pass any formula-preserving submission due to asymmetric data-table recalculation against corrupted ground truth,yes
+SpreadsheetBench 2,debugging-01_09,F1,Verification,critical,The GT sensitivity tables show the same value in every cell,yes
+SpreadsheetBench 2,debugging-01_09,F2,Verification,critical,"The prompt asks for an open-ended audit, but the grader accepts only the exact cells the GT changed",yes
+SpreadsheetBench 2,debugging-01_09,F3,Verification,critical,"The answer key fails its own verifier because its cached values are stale, so no one can pass",yes
+SpreadsheetBench 2,debugging-01_09,F4,Verification,critical,Inconsistent ground-truth caches cause the golden workbook itself to fail grading,yes
+SpreadsheetBench 2,debugging-01_09,F5,Verification,critical,"Broad task instruction asks agent to fix all formula logic and reference errors, but ground truth only fixes 3 reference ranges and penalizes fixing other broken formulas in 'Ex 5 - M&A'",yes
+SpreadsheetBench 2,debugging-01_09,F6,Verification,critical,Ground truth workbook (gt_01_golden.xlsx) has corrupted cached values from LibreOffice data-table evaluation and fails its own verifier,yes
+SpreadsheetBench 2,debugging-01_09,F7,Verification,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-01_09,F8,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells cannot pass on any recalculated workbook (including gt_01_golden.xlsx) due to data-table corruption in the ground truth,yes
+SpreadsheetBench 2,debugging-01_10,F1,Verification,critical,"Ground-truth workbook fails its own verifier: its saved values are stale, so a correct fix cannot pass",yes
+SpreadsheetBench 2,debugging-01_10,F2,Verification,critical,Inconsistent golden-workbook caches cause the answer key to fail its own verifier,yes
+SpreadsheetBench 2,debugging-01_10,F3,Verification,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-01_10,F4,Verification,critical,SpreadsheetBench 2 official cell check: Verifier fails even on the ground-truth golden workbook due to data-table freezing mismatch between un-recalculated GT/input and recalculated output,yes
+SpreadsheetBench 2,debugging-02_01,F1,Reward,critical,Berk-Hath sensitivity-table cells that must change cannot be produced: the input's TABLE() cache is flattened and LibreOffice cannot recompute it,yes
+SpreadsheetBench 2,debugging-02_01,F2,Verification,critical,Ground truth for Berk-Hath Investment Package sensitivity table (G10:K14) contains corrupted hardcoded values instead of valid Data Table results,yes
+SpreadsheetBench 2,debugging-02_01,F3,Reward,critical,"Saving with openpyxl, the workflow the prompt recommends, wipes every TABLE() cached value and fails the regression threshold",yes
+SpreadsheetBench 2,debugging-02_01,F4,Verification,critical,Golden dividend sensitivity table contains 20 incorrect values,yes
+SpreadsheetBench 2,debugging-02_01,F5,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all units due to corrupted ground-truth values in Berk-Hath Investment Package!G10:K14,yes
+SpreadsheetBench 2,debugging-02_02,F1,Reward,critical,"Three unchanged INDEX/MATCH formulas are stored as array formulas in the answer key, so the agent must convert them to CSE array formulas to pass",yes
+SpreadsheetBench 2,debugging-02_02,F2,Reward,critical,Correct unchanged formulas fail grading solely because of array-formula serialization,yes
+SpreadsheetBench 2,debugging-02_02,F3,Verification,critical,Golden Berkshire dividend-sensitivity matrix contains 20 incorrect graded values,yes
+SpreadsheetBench 2,debugging-02_02,F4,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (scores 0.0 on all units and even on a perfect fix of the input workbook) due to ArrayFormula comparison bug and frozen data-table mismatch,yes
+SpreadsheetBench 2,debugging-02_03,F1,Verification,critical,The answer key requires a data-table refresh that is outside the stated debugging scope,yes
+SpreadsheetBench 2,debugging-02_03,F2,Verification,critical,Incorrect answer key for preferred-stock sensitivity analysis,yes
+SpreadsheetBench 2,debugging-02_03,F3,Verification,critical,"GT Berk-Hath preferred-stock sensitivity table is wrong and cannot be reproduced, so no correct fix can pass the all-or-nothing check",yes
+SpreadsheetBench 2,debugging-02_04,F1,Reward,critical,"Excel data-table (TABLE()) cells cannot be reproduced by the verifier's LibreOffice recalc. GT holds Excel-only values that stay stale, and openpyxl edits wipe them to None, so the task cannot pass.",yes
+SpreadsheetBench 2,debugging-02_04,F2,Verification,critical,Incorrect sensitivity-table answer key rejects mathematically correct repairs,yes
+SpreadsheetBench 2,debugging-02_04,F3,Verification,critical,Corrupted ground-truth sensitivity table values in Berk-Hath Investment Package!G10:K14 and frozen data-table recalculation make 22 of 37 modification cells impossible to pass,yes
+SpreadsheetBench 2,debugging-02_04,F4,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells consistently scores 0.0 across all runs due to corrupted ground-truth Data Table values in Berk-Hath Investment Package!G10:K14,yes
+SpreadsheetBench 2,debugging-02_05,F1,Verification,critical,Corrupted ground truth values in Berk-Hath Investment Package!G10:K14 make the sole verifier impossible to pass,yes
+SpreadsheetBench 2,debugging-02_05,F2,Verification,critical,"Answer key for the Berk-Hath dividend-rate × discount-rate sensitivity table (G10:K14) is wrong, so a correct fix can never pass the binary verifier",yes
+SpreadsheetBench 2,debugging-02_05,F3,Verification,critical,Incorrect golden sensitivity values make a correct audit fail,yes
+SpreadsheetBench 2,debugging-02_05,F4,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails all units (score 0.0) including exact fixes of all intended AVERAGE bugs due to corrupted golden Data Table values,yes
+SpreadsheetBench 2,debugging-02_06,F1,Reward,critical,"Leaving the data-table formulas as they are fails the grader: they come out blank after its LibreOffice recalc, so the agent must hardcode 100 cells",yes
+SpreadsheetBench 2,debugging-02_06,F2,Verification,critical,Invalid golden solution and corrupted input data-table values in 'Berk-Hath Investment Package'!G10:K14 make 22 of 91 modification cells impossible to pass properly,yes
+SpreadsheetBench 2,debugging-02_06,F3,Verification,critical,"The answer key's Berk-Hath sensitivity table (rows 11-14) is wrong, so a correct agent cannot pass",yes
+SpreadsheetBench 2,debugging-02_06,F4,Verification,critical,Golden sensitivity-table values contradict the model and reject correct calculations,yes
+SpreadsheetBench 2,debugging-02_06,F5,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells produces false negatives (score 0.0 on all units) due to corrupted sensitivity table values in gt_02_golden.xlsx vs untouched_input,yes
+SpreadsheetBench 2,debugging-02_07,F1,Verification,critical,Dividend sensitivity answer key contains incorrect graded values,yes
+SpreadsheetBench 2,debugging-02_07,F2,Verification,critical,Corrupted ground-truth values in 'Berk-Hath Investment Package'!G10:K14 and un-recalculable TABLE() formulas in input make the sole verifier impossible to pass,yes
+SpreadsheetBench 2,debugging-02_07,F3,Verification,critical,"The ground truth's dividend-rate sensitivity grid (Berk-Hath G11:K14) is wrong, so a correct fix scores 0",yes
+SpreadsheetBench 2,debugging-02_07,F4,Verification,critical,SpreadsheetBench 2 official cell check: Verifier fails valid sensitivity table fixes and all attempts due to corrupted ground-truth values in 'Berk-Hath Investment Package'!G10:K14,yes
+SpreadsheetBench 2,debugging-02_08,F1,Verification,critical,"Ground truth has wrong values in the Berk-Hath dividend-rate sensitivity table (G11:K14), so a correct answer cannot pass",yes
+SpreadsheetBench 2,debugging-02_08,F2,Verification,critical,Golden sensitivity table contains incorrect required answers,yes
+SpreadsheetBench 2,debugging-02_08,F3,Verification,critical,Invalid golden values in 'Berk-Hath Investment Package'!G10:K14 and frozen data-table evaluation in verifier,yes
+SpreadsheetBench 2,debugging-02_08,F4,Reward,critical,Correct formula fixes fail the verifier because the data tables are stored as plain TABLE() text that LibreOffice cannot recalculate,yes
+SpreadsheetBench 2,debugging-02_08,F5,Reward,critical,SpreadsheetBench 2 official cell check: Verifier fails valid model edits because `recalculate_xlsx` freezes `TABLE(...)` formulas and compares against corrupted golden data-table values,yes
+SpreadsheetBench 2,debugging-02_09,F1,Verification,critical,Incorrect golden values in the dividend sensitivity table,no
+SpreadsheetBench 2,debugging-02_09,F2,Verification,critical,"Answer key's Berkshire dividend-rate sensitivity table (rows 11-14) has wrong values, so a correct fix fails the all-or-nothing verifier",yes
+SpreadsheetBench 2,debugging-02_09,F3,Verification,critical,Generic open-ended debugging prompt clashes with narrow ground truth and contains mathematically corrupted sensitivity table values in gt_02_golden.xlsx,yes
+SpreadsheetBench 2,debugging-02_09,F4,Verification,critical,SpreadsheetBench 2 official cell check: Verifier fails mathematically correct sensitivity table repairs due to corrupted ground truth in Berk-Hath Investment Package!G11:K14 and penalizes legitimate model fixes as regressions,yes
+SpreadsheetBench 2,debugging-02_10,F1,Verification,critical,Broken ground truth and missing data-table evaluation in Berk-Hath Investment Package and DCF sensitivity tables,yes
+SpreadsheetBench 2,debugging-02_10,F2,Verification,critical,Golden sensitivity table contains twenty incorrect required answers,yes
+SpreadsheetBench 2,debugging-02_10,F3,Verification,critical,The answer key has wrong values in the Berk-Hath dividend-rate × discount-rate sensitivity table (G11:K14),yes
+SpreadsheetBench 2,debugging-02_10,F4,Verification,critical,SpreadsheetBench 2 official cell check: Verifier fails to evaluate data tables and compares Berk-Hath Investment Package!G11:K14 against corrupted ground-truth values,yes
+SpreadsheetBench 2,debugging-03_03,F1,Task Spec,critical,Grading depends on putting deleted rows back at exact row numbers that nothing in the input reveals,yes
+SpreadsheetBench 2,debugging-03_03,F2,Task Spec,critical,Grading requires undisclosed wording and placement for deleted controls,yes
+SpreadsheetBench 2,debugging-03_03,F3,Verification,critical,"Rebuilt rows must contain exact label text the agent has no way to know, and the check is pass/fail on every changed cell",yes
+SpreadsheetBench 2,debugging-03_04,F1,Style,critical,Golden color key penalizes compliance with the workbook's color legend,yes
+SpreadsheetBench 2,debugging-03_04,F2,Verification,critical,"Answer key recolours only 9 cells but leaves about 630 other colour-legend violations, so a thorough colour fix fails the regression check",yes
+SpreadsheetBench 2,debugging-04_01,F1,Verification,critical,Broad audit instruction conflicts with golden workbook that preserves broken formulas/references (#DIV/0! and off-by-one shifts) and includes an unannounced non-double-counting LBO edit,yes
+SpreadsheetBench 2,debugging-04_01,F2,Verification,critical,Answer key preserves misaligned financial-year references and penalizes valid audit repairs,yes
+SpreadsheetBench 2,debugging-04_03,F1,Task Spec,critical,Historical charge dates contradict the graded answer,yes
+SpreadsheetBench 2,debugging-04_03,F2,Task Spec,critical,"Prompt reference data specifies wrong fiscal years (FY 2018 and FY 2019 instead of FY 2019 and FY 2020) for missing Income Statement line items, contradicting ground truth",yes
+SpreadsheetBench 2,debugging-04_03,F3,Reward,critical,Verifier awards full credit with the broken defined name and hundreds of calculation errors,no
+SpreadsheetBench 2,debugging-04_03,F4,Task Spec,critical,The prompt's fiscal years for the restored line items are one year earlier than where the ground truth puts them,yes
+SpreadsheetBench 2,debugging-04_04,F1,Verification,critical,Broad audit instructions conflict with an answer key that preserves calculation errors,yes
+SpreadsheetBench 2,debugging-04_04,F2,Verification,critical,"The prompt asks for a full audit, but only 7 font-colour cells are graded, and any other fix fails the whole task",yes
+SpreadsheetBench 2,debugging-04_05,F1,Verification,critical,Answer key preserves a one-year shift in projected interest expense,yes
+SpreadsheetBench 2,debugging-04_05,F2,Verification,critical,"The prompt asks for a thorough audit, but the grader only accepts the two injected AVERAGE fixes, and the answer key leaves other real errors in graded cells unfixed",yes
+SpreadsheetBench 2,debugging-04_05,F3,Verification,critical,Golden working-capital schedule mixes current-year receivables with prior-year balances,yes
+SpreadsheetBench 2,debugging-04_05,F4,Verification,critical,"Ground-truth workbook gt_04_golden.xlsx leaves multiple genuine formula and AVERAGE errors unfixed inside graded ranges, penalizing thorough fixes",yes
+SpreadsheetBench 2,debugging-04_06,F1,Verification,critical,"The answer key keeps uncorrected cross-sheet reference errors in graded Line Item Metrics cells, so an agent that fixes them scores 0",yes
+SpreadsheetBench 2,debugging-04_06,F2,Verification,critical,Answer key retains cross-sheet errors that a thorough audit must fix,yes
+SpreadsheetBench 2,debugging-04_06,F3,Verification,critical,"Golden workbook gt_04_golden.xlsx leaves multiple broken cross-sheet references unfixed, penalizing thorough fixes required by the prompt",yes
+SpreadsheetBench 2,debugging-04_06,F4,Verification,critical,"The open-ended 'audit thoroughly' prompt is graded all-or-nothing against exactly 4 planted fixes, so legitimate extra fixes are penalized",yes
+SpreadsheetBench 2,debugging-04_06,F5,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails all three valid attempts (score 0.0) because gt_04_golden.xlsx retains unfixed cross-sheet reference errors,yes
+SpreadsheetBench 2,debugging-04_08,F1,Verification,critical,Golden workbook requires zero final-year interest despite outstanding interest-bearing debt,yes
+SpreadsheetBench 2,debugging-04_08,F2,Verification,critical,Ground truth workbook gt_04_golden.xlsx contains severe unfixed broken cell references and calculation errors in graded ranges,yes
+SpreadsheetBench 2,debugging-04_08,F3,Verification,critical,Golden workbook preserves misaligned working-capital references and rejects their correction,yes
+SpreadsheetBench 2,debugging-04_08,F4,Verification,critical,Prompt instructs a full model audit while verifier enforces an undisclosed constraint that only 11 INDEX/MATCH cells may be fixed,yes
+SpreadsheetBench 2,debugging-04_08,F5,Verification,critical,SpreadsheetBench 2 official cell check: Verifier fails all 3 runs (score 0.0) because agents fix genuine broken references that remain unfixed in gt_04_golden.xlsx,yes
+SpreadsheetBench 2,debugging-04_09,F1,Task Spec,critical,Generic open-ended debugging prompt contradicts the narrow 4-row scope enforced by the regression/modification verifier,yes
+SpreadsheetBench 2,debugging-04_09,F2,Verification,critical,Answer key preserves a one-year shift in income-statement interest,yes
+SpreadsheetBench 2,debugging-04_09,F3,Verification,critical,Answer key retains mixed-year working-capital references,yes
+SpreadsheetBench 2,debugging-04_09,F4,Verification,critical,"Golden workbook (gt_04_golden.xlsx) leaves multiple objective formula and cell-reference bugs unfixed in graded ranges, penalizing valid fixes",yes
+SpreadsheetBench 2,debugging-04_09,F5,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all three attempts (score 0.0) because its golden file retains broken cell references that the agents properly fixed,yes
+SpreadsheetBench 2,debugging-04_10,F1,Verification,critical,Golden income statement uses the following year's interest expense,yes
+SpreadsheetBench 2,debugging-04_10,F2,Verification,critical,Golden workbook retains mixed-year working-capital references,yes
+SpreadsheetBench 2,debugging-04_10,F3,Verification,critical,"Ground truth leaves real formula errors unfixed, so an agent that fixes them as asked scores 0",yes
+SpreadsheetBench 2,debugging-04_10,F4,Verification,critical,Broad 'audit and fix thoroughly' prompt and unfixed formula/reference bugs in gt_04_golden.xlsx penalize agents for fixing genuine off-by-one reference errors,yes
+SpreadsheetBench 2,debugging-05_01,F1,Verification,critical,Golden workbook retains invalid balance-sheet totals and penalizes their correction,yes
+SpreadsheetBench 2,debugging-05_01,F2,Verification,critical,Ground truth workbook gt_05_golden.xlsx retains invalid range sums in Model!E59:N59 and Model!E67:N67 that include Days Unbilled Outstanding (row 52) and Net Revenue % (row 62) in dollar totals,yes
+SpreadsheetBench 2,debugging-05_01,F3,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check falsely fails all 3 units (score 0.0) due to flawed ground truth in Model!E59:N59 and Model!E67:N67,yes
+SpreadsheetBench 2,debugging-05_02,F1,Task Spec,critical,Task prompt and input styling contradict the ground truth on which cells are errors versus protected inputs,no
+SpreadsheetBench 2,debugging-05_02,F2,Reward,critical,Verifier in formula mode enforces exact formula string matching and binary all-or-nothing scoring on multi-way formulas,no
+SpreadsheetBench 2,debugging-05_02,F3,Reward,critical,"Formula-mode grading accepts only the answer key's exact formula text, so correct equivalent fixes score 0",no
+SpreadsheetBench 2,debugging-05_02,F4,Reward,critical,SpreadsheetBench 2 official cell check: Verifier falsely rejects valid weighted-average interest rate formulas at Transaction Overview!L15 and penalizes valid bug fixes as regressions,no
+SpreadsheetBench 2,debugging-05_07,F1,Environment & Infra,critical,Input workbook destroyed hardcoded historical constants in Financial Overview!D16:F16 that the verifier requires to match gt_05_golden.xlsx,yes
+SpreadsheetBench 2,debugging-05_07,F2,Verification,critical,"Ground truth uses per-year Gross Profit constants for 2019 and 2020 that cannot be derived from anything in the input, so the binary verifier cannot be passed",yes
+SpreadsheetBench 2,debugging-05_07,F3,Environment & Infra,critical,Historical cost data needed for two graded corrections is missing,yes
+SpreadsheetBench 2,debugging-05_07,F4,Environment & Infra,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check trivially fails all runs (0.0) because 22 modification cells depend on historical constants destroyed in the input file,yes
+SpreadsheetBench 2,debugging-05_08,F1,Verification,critical,"Golden workbook gt_05_golden.xlsx retains unfixed Balance Sheet SUM formula bugs while the prompt instructs a general audit, penalizing agents that fix non-INDEX/MATCH errors",yes
+SpreadsheetBench 2,debugging-05_08,F2,Verification,critical,Answer key penalizes correcting materially incorrect balance-sheet totals,yes
+SpreadsheetBench 2,debugging-05_08,F3,Verification,critical,SpreadsheetBench 2 official cell check: False negative on unit 1 due to unfixed Balance Sheet SUM bugs in gt_05_golden.xlsx,yes
+SpreadsheetBench 2,debugging-05_09,F1,Task Spec,critical,Undisclosed hardcoded target growth rate assumption (Model!N14 = 0.08) required by ground truth,yes
+SpreadsheetBench 2,debugging-05_09,F2,Task Spec,critical,The expected terminal growth assumption is not supplied,yes
+SpreadsheetBench 2,debugging-05_09,F3,Environment & Infra,critical,Graded fix requires a hardcoded 8% terminal growth assumption that was erased from the input and exists nowhere agent-visible (impossible_or_absent_data),yes
+SpreadsheetBench 2,debugging-05_10,F1,Verification,critical,Golden workbook requires retaining dimensionally invalid balance-sheet totals,yes
+SpreadsheetBench 2,debugging-06_01,F1,Verification,critical,Golden workbook leaves #NAME? error in Revenue Build!AC41 and AC43 by writing '=rri(...)' without the OOXML '_xlfn.' prefix required by Excel and LibreOffice,yes
+SpreadsheetBench 2,debugging-06_01,F2,Verification,critical,CAGR checks require broken formulas and reject correct numeric repairs,yes
+SpreadsheetBench 2,debugging-06_01,F3,Verification,critical,"The ground truth keeps a #NAME? error in Revenue Build AC41/AC43, so the verifier fails both a correct fix and an untouched cell",yes
+SpreadsheetBench 2,debugging-06_01,F4,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells falsely rejects valid fixes to Revenue Build!AC41 and AC43 because gt_06_golden.xlsx expects #NAME? with unprefixed '=rri(...)',yes
+SpreadsheetBench 2,debugging-06_02,F1,Reward,critical,Equivalent formula repairs are rejected by undocumented exact-string requirements,yes
+SpreadsheetBench 2,debugging-06_02,F2,Reward,critical,"Grader compares formula text exactly with all-or-nothing scoring, so correct fixes written differently score 0",yes
+SpreadsheetBench 2,debugging-06_02,F3,Verification,critical,"Broad open-ended audit prompt conflicts with golden workbook that leaves dozens of genuine formula, #NAME?, and hardcode bugs unfixed",yes
+SpreadsheetBench 2,debugging-06_02,F4,Reward,critical,Formula-mode verifier performs brittle raw-string comparison that rejects equivalent formulas on target modification cells,yes
+SpreadsheetBench 2,debugging-06_02,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all units (score=0) by rejecting equivalent formulas on modification cells and penalizing fixes to genuine bugs in gt_06_golden.xlsx,yes
+SpreadsheetBench 2,debugging-06_03,F1,Verification,critical,Answer key penalizes repairing two CAGR formula errors,yes
+SpreadsheetBench 2,debugging-06_03,F2,Task Spec,critical,"The answer key expects three deleted rows rebuilt with exact labels at exact row positions, and the prompt says nothing about deleted rows",yes
+SpreadsheetBench 2,debugging-06_03,F3,Verification,critical,"The answer key leaves #NAME? cached in the RRI CAGR cells, so only the exact formula text passes",yes
+SpreadsheetBench 2,debugging-06_03,F4,Verification,critical,The grader cannot be passed: the answer key needs free-text notes that appear nowhere in the input,yes
+SpreadsheetBench 2,debugging-06_04,F1,Verification,critical,Answer key penalizes formula repairs explicitly required by the audit,yes
+SpreadsheetBench 2,debugging-06_04,F2,Style,critical,"Answer key colors changed cells against the Cover legend (e.g., WACC!C8 link set to black, Supporting Schedules!AD75 formula set to red)",yes
+SpreadsheetBench 2,debugging-06_04,F3,Task Spec,critical,"Prompt asks for a full audit and fix, but grading checks only 28 font colors and penalizes most other legitimate fixes",yes
+SpreadsheetBench 2,debugging-06_05,F1,Verification,critical,"Hidden extra modification cells: the grader requires the literal RRI formula text in Revenue Build!AC41/AC43, and the ground-truth cached value there is #NAME?",yes
+SpreadsheetBench 2,debugging-06_05,F2,Verification,critical,Answer key requires two CAGR formulas to remain broken,yes
+SpreadsheetBench 2,debugging-06_05,F3,Verification,critical,Invalid ground-truth formulas in Revenue Build!AC41 and AC43 (#NAME? with =rri vs =_xludf.rri in input) make the task impossible to pass,yes
+SpreadsheetBench 2,debugging-06_05,F4,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails both untouched and properly fixed Revenue Build!AC41 and AC43 cells due to #NAME? formula prefix mismatch in ground truth,yes
+SpreadsheetBench 2,debugging-06_07,F1,Verification,critical,Correct alternative CAGR formulas are rejected because golden caches contain errors,yes
+SpreadsheetBench 2,debugging-06_07,F2,Verification,critical,"Answer key stores #NAME? for the RRI fix, so correct fixes that actually calculate are rejected",yes
+SpreadsheetBench 2,debugging-06_09,F1,Verification,critical,"Golden workbook leaves two #NAME? errors unfixed and omits other formula bugs, while the broad prompt and binary 99.8% regression threshold penalize valid fixes",yes
+SpreadsheetBench 2,debugging-06_10,F1,Verification,critical,Answer key uses a broken discount-period convention: the stub period is halved but later periods still step by +1,yes
+SpreadsheetBench 2,debugging-07_01,F1,Reward,critical,Unconverged circular-reference cached values in gt_07_golden.xlsx and un-recalculated GT comparison make the task impossible to pass,yes
+SpreadsheetBench 2,debugging-07_01,F2,Reward,critical,"GT cached LBO interest/debt values in the circular block are not converged, so the golden workbook fails its own grader after LibreOffice recalculation and is internally inconsistent",yes
+SpreadsheetBench 2,debugging-07_01,F3,Reward,critical,The golden workbook fails its own verifier after mandatory recalculation,yes
+SpreadsheetBench 2,debugging-07_01,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-07_01,F5,Reward,critical,"SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails correct solutions (score 0.0 on units 1 and 2, and on the golden file itself) because it force-recalculates output_path but compares against unconverged cached values in gt_07_golden.xlsx",yes
+SpreadsheetBench 2,debugging-07_02,F1,Reward,critical,Formula grading rejects identical formulas because of their storage representation,yes
+SpreadsheetBench 2,debugging-07_02,F2,Reward,critical,"A complete, correct fix still scores 0: the grader requires 8 unchanged INDEX/MATCH cells to be saved as legacy array (CSE) formulas",yes
+SpreadsheetBench 2,debugging-07_02,F3,Reward,critical,Spurious ArrayFormula wrappers on 8 unchanged INDEX/MATCH cells in gt_07_golden.xlsx combined with type-strict formula comparison make the task impossible to pass,yes
+SpreadsheetBench 2,debugging-07_02,F4,Reward,critical,"SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails to unwrap openpyxl ArrayFormula objects in formula mode, causing a guaranteed false fail on 8 unchanged INDEX/MATCH cells",yes
+SpreadsheetBench 2,debugging-07_03,F1,Reward,critical,The ground truth fails its own verifier: circular debt schedule recalculates to different values,yes
+SpreadsheetBench 2,debugging-07_03,F2,Reward,critical,The golden workbook fails its own mandatory recalculation and grading,yes
+SpreadsheetBench 2,debugging-07_03,F3,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-07_04,F1,Style,critical,Golden font colors contradict the task's explicit convention,yes
+SpreadsheetBench 2,debugging-07_04,F2,Reward,critical,The answer key fails its own verifier: LBO circular-calculation cells cannot match after LibreOffice recalculation,yes
+SpreadsheetBench 2,debugging-07_04,F3,Verification,critical,"Hundreds of cells in the answer key still break the stated colour rule, so a thorough correct fix fails the regression check",yes
+SpreadsheetBench 2,debugging-07_04,F4,Environment & Infra,critical,"Task prompt claims Pandas, openpyxl, and numpy are installed in the Python environment, but they are missing from the default python3",no
+SpreadsheetBench 2,debugging-07_04,F5,Reward,critical,Golden workbook fails its own mandatory recalculation and grading,yes
+SpreadsheetBench 2,debugging-07_04,F6,Style,critical,The answer key gives cells colours that contradict the stated blue/green/black rule,yes
+SpreadsheetBench 2,debugging-07_04,F7,Verification,critical,Golden workbook contradicts the stated font-color convention and fails its own verifier due to iterative calculation drift,yes
+SpreadsheetBench 2,debugging-07_04,F8,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-07_04,F9,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails all runs (and fails the golden workbook itself) due to forced recalculation on unconverged circular references and contradictory golden font colors,yes
+SpreadsheetBench 2,debugging-07_05,F1,Reward,critical,"The ground truth fails its own verifier: its circular debt schedule was cached before it converged, so no output can pass",yes
+SpreadsheetBench 2,debugging-07_05,F2,Reward,critical,Golden workbook fails its own verifier after mandatory recalculation,yes
+SpreadsheetBench 2,debugging-07_05,F3,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-07_05,F4,Reward,critical,"SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells force-recalculates only output_path in LibreOffice while reading unconverged Excel cached values from gt_path and reference_path, causing even the golden workbook to score 0.0",yes
+SpreadsheetBench 2,debugging-07_06,F1,Verification,critical,"Ground truth gt_07_golden.xlsx leaves a genuine cross-sheet reference error unfixed in DCF Model!D85:F85, penalizing agents across 98 cascading cells",yes
+SpreadsheetBench 2,debugging-07_06,F2,Reward,critical,"The GT's circular LBO debt schedule never converged: its iteration-noise values are graded as required modifications, so the ground truth fails its own verifier on recalculation",yes
+SpreadsheetBench 2,debugging-07_06,F3,Reward,critical,Ground truth gt_07_golden.xlsx stores unconverged iterative circular-reference values in LBO & Lenders!T49:X59 and fails its own verifier (score=0.0),yes
+SpreadsheetBench 2,debugging-07_06,F4,Reward,critical,Golden workbook fails its own mandatory recalculated cell check,yes
+SpreadsheetBench 2,debugging-07_06,F5,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-07_06,F6,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails every run (including gt_07_golden.xlsx itself and Unit 2's accurate cross-sheet reference fixes),yes
+SpreadsheetBench 2,debugging-07_07,F1,Reward,critical,"The non-converging circular reference in the LBO interest block recalculates differently each time. The ground truth fails its own verifier, and the iteration noise is graded as cells the agent must change.",yes
+SpreadsheetBench 2,debugging-07_07,F2,Reward,critical,"Ground truth workbook contains unconverged circular-reference cached values, causing gt_07_golden.xlsx to fail its own verifier when recalculated",yes
+SpreadsheetBench 2,debugging-07_07,F3,Reward,critical,Golden workbook fails its own required recalculation and cell check,yes
+SpreadsheetBench 2,debugging-07_07,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-07_07,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails correct solution in unit 3 (and cannot pass any recalculated workbook) due to unconverged circular references in gt_07_golden.xlsx,yes
+SpreadsheetBench 2,debugging-07_08,F1,Environment & Infra,critical,"Task prompt advertises Pandas, openpyxl, and numpy in the Python environment, but system python3 lacks those packages for the model user",no
+SpreadsheetBench 2,debugging-07_08,F2,Reward,critical,"Ground-truth workbook fails its own verifier after the forced LibreOffice recalc (circular LBO debt schedule), so even a perfect answer scores 0",yes
+SpreadsheetBench 2,debugging-07_08,F3,Reward,critical,"Golden workbook gt_07_golden.xlsx has unconverged circular-reference values on LBO & Lenders, causing even the golden file itself to fail verification",yes
+SpreadsheetBench 2,debugging-07_08,F4,Reward,critical,Golden workbook fails its own forced-recalculation grading,yes
+SpreadsheetBench 2,debugging-07_08,F5,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-07_08,F6,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells cannot pass even on the ground-truth workbook due to single-pass LibreOffice recalculation of circular references,yes
+SpreadsheetBench 2,debugging-07_09,F1,Reward,critical,The golden workbook fails its own recalculated cell check,yes
+SpreadsheetBench 2,debugging-07_09,F2,Reward,critical,The ground truth fails its own grading: circular LBO debt schedule recalculates to different values in LibreOffice,yes
+SpreadsheetBench 2,debugging-07_09,F3,Reward,critical,Ground truth gt_07_golden.xlsx stores unconverged circular-reference values in LBO & Lenders!T49:X59 and fails its own verifier,yes
+SpreadsheetBench 2,debugging-07_09,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-07_09,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (scores 0.0 even on gt_07_golden.xlsx itself and on converged golden solutions),yes
+SpreadsheetBench 2,debugging-07_10,F1,Reward,critical,The golden workbook fails its own recalculating verifier,yes
+SpreadsheetBench 2,debugging-07_10,F2,Verification,critical,"Golden applies a 7/12 partial-year factor to year 1 of the Equity Returns debt schedule with no cue, and only on one of two parallel schedules",yes
+SpreadsheetBench 2,debugging-07_10,F3,Task Spec,critical,"Open-ended 'audit everything' prompt graded all-or-nothing on one exact set of 46 changed cells, so other valid fixes are rejected",yes
+SpreadsheetBench 2,debugging-07_10,F4,Verification,critical,"Golden file makes Margin Analysis Total Revenues 1,000x too large, so it adds the unit error instead of fixing it",yes
+SpreadsheetBench 2,debugging-07_10,F5,Verification,critical,Generic audit instruction heavily under-specifies the task while golden solution requires only 8 unit/stub-period edits and leaves blatant broken cell references and formula errors unfixed,yes
+SpreadsheetBench 2,debugging-07_10,F6,Verification,critical,Margin Analysis!C25:E25 golden solution introduces a 1000x unit error rather than fixing a unit mismatch,yes
+SpreadsheetBench 2,debugging-07_10,F7,Reward,critical,"Golden workbook contains unconverged circular-reference cached values in LBO & Lenders, and the verifier's single-pass LibreOffice recalculation cannot reproduce the golden values even on the golden workbook itself",yes
+SpreadsheetBench 2,debugging-07_10,F8,Verification,critical,"The answer key requires multiplying already dollar-denominated revenue by 1,000",yes
+SpreadsheetBench 2,debugging-07_10,F9,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-07_10,F10,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is impossible to pass in values mode because single-pass LibreOffice recalculation of the circular reference in LBO & Lenders does not match gt_07_golden.xlsx (even when grading gt_07_golden.xlsx against itself),yes
+SpreadsheetBench 2,debugging-08_01,F1,Verification,critical,Answer key removes interest entirely from pretax income,yes
+SpreadsheetBench 2,debugging-08_01,F2,Verification,critical,Golden workbook preserves a wrong working-capital reference and penalizes its repair,yes
+SpreadsheetBench 2,debugging-08_01,F3,Verification,critical,"The answer key leaves pre-existing errors unfixed (e.g., broken R84 reference, negative 2025 tax rate, other non-injected errors), so the grader accepts only the four injected double-counting fixes and fails an agent that makes other legitimate fixes during the requested full audit",yes
+SpreadsheetBench 2,debugging-08_01,F4,Verification,critical,Undisclosed scope constraint and unfixed defects in golden workbook ('Double Counting' only vs. 'audit and fix thoroughly'),yes
+SpreadsheetBench 2,debugging-08_02,F1,Reward,critical,"The verifier only accepts the golden file's exact INDEX/MATCH formula text, so correct links to the same cells score 0",no
+SpreadsheetBench 2,debugging-08_02,F2,Verification,critical,"Golden workbook (gt_08_golden.xlsx) leaves numerous genuine formula errors and hardcoded values unfixed, penalizing thorough audits",yes
+SpreadsheetBench 2,debugging-08_02,F3,Reward,critical,Formula grading rejects mathematically equivalent repairs without specifying required syntax,no
+SpreadsheetBench 2,debugging-08_02,F4,Reward,critical,Verifier uses exact formula-string matching (mode: formula) and all-or-nothing binary grading against unstated formula syntax conventions,no
+SpreadsheetBench 2,debugging-08_02,F5,Verification,critical,Golden workbook preserves errors that the requested thorough audit must fix,yes
+SpreadsheetBench 2,debugging-08_02,F6,Reward,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check falsely fails valid formula fixes across all 3 units due to rigid formula-string matching and unfixed bugs in GT,yes
+SpreadsheetBench 2,debugging-08_03,F1,Reward,critical,Value grading over whole sheets requires the deleted rows to be re-inserted at exactly the original position,yes
+SpreadsheetBench 2,debugging-08_03,F2,Verification,critical,Prompt instruction to use INDEX/MATCH on 'Revenue Build' for historical FY totals contradicts ground truth for 2019–2023 and omits required A17 label,yes
+SpreadsheetBench 2,debugging-08_03,F3,Verification,critical,Golden workbook retains an invalid working-capital reference,yes
+SpreadsheetBench 2,debugging-08_03,F4,Verification,critical,"Ground truth leaves 15+ genuine model and formula errors unfixed while grading them as unchanged or modified cells, penalizing thorough fixes asked for by the prompt",yes
+SpreadsheetBench 2,debugging-08_03,F5,Task Spec,critical,Undisclosed structural row-insertion vs. in-place fill ambiguity in 'Revenue Build' and 'Operating Model + DCF' causes 570 of 617 modification cells to fail,yes
+SpreadsheetBench 2,debugging-08_03,F6,Verification,critical,"The GT answer key still contains obvious model/finance errors (e.g., negative tax rate, empty D&A row, Capex=D&A, TV discount period) that feed graded cells, so the all-or-nothing grader marks any extra correct fix requested by the 'thorough audit' prompt as wrong",yes
+SpreadsheetBench 2,debugging-08_04,F1,Style,critical,Answer key contradicts the explicit font-color convention,yes
+SpreadsheetBench 2,debugging-08_04,F2,Verification,critical,"Prompt asks for a full audit (formula logic, hardcodes, calculation errors), but grading only rewards a specific set of recolourings and penalizes any other legitimate fix",yes
+SpreadsheetBench 2,debugging-08_04,F3,Style,critical,"Ground truth breaks the stated 3-colour convention on about 5,468 graded cells, so an agent that applies the convention throughout fails the regression gate",yes
+SpreadsheetBench 2,debugging-08_04,F4,Verification,critical,"Task instructions contradict the ground truth and verifier: prompt requires fixing formula logic, broken references, and calculation errors, plus enforcing a 3-color font convention across the workbook, while the golden file leaves numerous formula/reference bugs unfixed and only updates font colors on 31 arbitrarily selected cells",yes
+SpreadsheetBench 2,debugging-08_05,F1,Verification,critical,"The GT's 'fixes' to the averaging ranges follow no consistent rule, so other reasonable corrections are rejected",yes
+SpreadsheetBench 2,debugging-08_05,F2,Verification,critical,"Answer key leaves obvious errors unfixed (e.g., broken reference R84 '=R847-M83', negative tax rate C90 = -0.3) even though the instruction asks for a thorough audit, so an agent that fixes them fails the all-or-nothing verifier",yes
+SpreadsheetBench 2,debugging-08_05,F3,Verification,critical,Golden workbook penalizes correcting a broken working-capital reference,yes
+SpreadsheetBench 2,debugging-08_05,F4,Verification,critical,Ground truth retains broken cell reference Operating Model + DCF!R84 (=R847-M83) that the prompt instructs agents to fix,yes
+SpreadsheetBench 2,debugging-08_05,F5,Verification,critical,"Undisclosed cell-specific historical averaging windows in ground truth (Operating Model + DCF!R72, R81, N18)",yes
+SpreadsheetBench 2,debugging-08_06,F1,Verification,critical,"Golden solution leaves blatant broken cell references and cross-sheet errors unfixed, penalizing thorough audits required by the prompt",yes
+SpreadsheetBench 2,debugging-08_06,F2,Verification,critical,Answer key retains a broken working-capital reference and penalizes its correction,yes
+SpreadsheetBench 2,debugging-08_06,F3,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check falsely fails all 3 units (score=0.0) for fixing genuine broken formulas left unfixed in gt_08_golden.xlsx,yes
+SpreadsheetBench 2,debugging-08_07,F1,Verification,critical,"Open-ended 'audit everything' instruction, but only 5 injected INDEX/MATCH fixes are graded and every other correct fix is penalized",yes
+SpreadsheetBench 2,debugging-08_07,F2,Verification,critical,Answer key preserves a broken working-capital reference and penalizes its correction,yes
+SpreadsheetBench 2,debugging-08_07,F3,Verification,critical,"Answer key keeps an obvious negative tax rate (C90 = -30%), so an agent that fixes it scores 0",yes
+SpreadsheetBench 2,debugging-08_07,F4,Verification,critical,Generic open-ended audit prompt contradicts narrow ground truth that only fixes 5 INDEX/MATCH formulas and leaves other genuine model bugs unfixed,yes
+SpreadsheetBench 2,debugging-08_07,F5,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all units (score 0.0) because fixing broken reference R84 (=R847-M83 -> =R83-M83) and negative tax rate C90 (-0.3 -> 0.3) alters modification cells C102/C107/C121/C135 against an incomplete golden file,yes
+SpreadsheetBench 2,debugging-08_08,F1,Verification,critical,Answer key penalizes repairing a broken working-capital reference,yes
+SpreadsheetBench 2,debugging-08_08,F2,Verification,critical,"Ground truth keeps a negative tax rate (-30%) in the DCF bridge, a sign-convention error in a task named 'Incorrect Sign Conventions'",yes
+SpreadsheetBench 2,debugging-08_08,F3,Verification,critical,Golden solution leaves injected sign-convention and formula errors unfixed in 'Operating Model + DCF' (C90 = -0.3 and R84 = R847-M83),yes
+SpreadsheetBench 2,debugging-08_08,F4,Verification,critical,"Ground truth leaves an obvious broken cell reference (R84 =R847-M83) unfixed, and it feeds every valuation output",yes
+SpreadsheetBench 2,debugging-08_08,F5,Verification,critical,SpreadsheetBench 2 official cell check: Verifier penalizes valid fixes to 'Operating Model + DCF'!C90 and R84 due to unfixed errors in ground truth,yes
+SpreadsheetBench 2,debugging-08_09,F1,Verification,critical,"Answer key only fixes the planted reference errors and keeps other obvious errors (e.g., negative 2025 tax rate in C90), so correct fixes are rejected",yes
+SpreadsheetBench 2,debugging-08_09,F2,Verification,critical,Answer key keeps a broken cell reference (R847) that the instruction explicitly asks the agent to fix,yes
+SpreadsheetBench 2,debugging-08_09,F3,Verification,critical,"Prompt instructs agent to fix all formula, reference, and calculation errors, but ground truth only fixes 27 relative/absolute reference cells and penalizes fixing other broken formulas and typos",yes
+SpreadsheetBench 2,debugging-08_09,F4,Verification,critical,The answer key penalizes correcting an obvious broken working-capital reference,yes
+SpreadsheetBench 2,debugging-08_10,F1,Verification,critical,Ground truth penalizes correcting a broken working-capital reference,yes
+SpreadsheetBench 2,debugging-08_10,F2,Verification,critical,"Golden workbook (gt_08_golden.xlsx) leaves broken cell references, formula logic errors, and sign errors unfixed that cascade into graded cells",yes
+SpreadsheetBench 2,debugging-08_10,F3,Task Spec,critical,Task prompt instructs a comprehensive workbook audit while the verifier enforces an undisclosed constraint to only fix four unit-mismatch items,yes
+SpreadsheetBench 2,debugging-08_10,F4,Verification,critical,Fixing a real error the answer key leaves in place fails the all-or-nothing verifier,yes
+SpreadsheetBench 2,debugging-08_10,F5,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells scores 0.0 on all 3 units because agents fix genuine workbook bugs alongside the 4 unit mismatches,yes
+SpreadsheetBench 2,debugging-09_01,F1,Reward,critical,Ground-truth workbook contains inconsistent cached values and fails its own verifier,yes
+SpreadsheetBench 2,debugging-09_01,F2,Reward,critical,"The ground-truth workbook's cached values are internally inconsistent (the circular revolver/interest roll-forward does not tie), so the golden fails its own verifier after LibreOffice recalculation and the task cannot be passed",yes
+SpreadsheetBench 2,debugging-09_01,F3,Reward,critical,Ground-truth workbook has unconverged circular-reference cached values and fails its own value-mode verifier,yes
+SpreadsheetBench 2,debugging-09_01,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-09_01,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail because recalculating the golden workbook in LibreOffice diverges from its unconverged cached values,yes
+SpreadsheetBench 2,debugging-09_03,F1,Task Spec,critical,Grader requires an undocumented rearrangement of valid worksheet sections,yes
+SpreadsheetBench 2,debugging-09_03,F2,Verification,critical,"The GT relabels the interest rows with exact strings an agent cannot infer, and the label cells are graded",yes
+SpreadsheetBench 2,debugging-09_03,F3,Verification,critical,Undisclosed structural row insertions and label renames on LBO and Financials sheets required for exact coordinate alignment,yes
+SpreadsheetBench 2,debugging-09_03,F4,Reward,critical,The grader only accepts a fix that inserts a new row at the exact position the GT uses; any other valid repair fails every shifted cell,yes
+SpreadsheetBench 2,debugging-09_03,F5,Reward,critical,Golden workbook gt_09_golden.xlsx contains unconverged circular-reference cached values and fails its own verifier upon recalculation,yes
+SpreadsheetBench 2,debugging-09_03,F6,Reward,critical,"The ground-truth workbook fails its own verifier after LibreOffice recalculation, so no submission can pass",yes
+SpreadsheetBench 2,debugging-09_03,F7,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-09_03,F8,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail because gt_09_golden.xlsx has unconverged iterative cached values that fail under LibreOffice recalculation,yes
+SpreadsheetBench 2,debugging-09_04,F1,Reward,critical,Golden workbook fails its own mandatory recalculation-based grading,yes
+SpreadsheetBench 2,debugging-09_04,F2,Reward,critical,"The circular model's forced LibreOffice recalculation makes the verifier fail correct outputs: the ground-truth workbook fails its own verifier, and a perfect color fix saved with openpyxl scores 0",yes
+SpreadsheetBench 2,debugging-09_04,F3,Reward,critical,Ground truth workbook has unconverged circular-reference cached values and fails its own verifier upon LibreOffice recalculation (invalid_golden_solution),yes
+SpreadsheetBench 2,debugging-09_04,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-09_04,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells scores 0.0 on all units (and on gt_09_golden.xlsx itself) due to unconverged circular-reference cache mismatch and unfixed color-coding inconsistencies in ground truth,yes
+SpreadsheetBench 2,debugging-09_05,F1,Reward,critical,"Golden workbook cached values are unconverged in Excel and mismatch LibreOffice recalculation, making the verifier impossible to pass",no
+SpreadsheetBench 2,debugging-09_05,F2,Reward,critical,Inconsistent golden workbook fails its own verifier after mandatory recalculation,no
+SpreadsheetBench 2,debugging-09_05,F3,Reward,critical,The ground-truth workbook fails its own verifier: its cached values are stale and don't match its own formulas,no
+SpreadsheetBench 2,debugging-09_05,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,no
+SpreadsheetBench 2,debugging-09_05,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails on all units and on the ground-truth workbook itself due to unconverged cached values in gt_09_golden.xlsx,no
+SpreadsheetBench 2,debugging-09_06,F1,Reward,critical,Ground-truth workbook fails its own grading: unconverged circular values make the official check unpassable,yes
+SpreadsheetBench 2,debugging-09_06,F2,Reward,critical,Golden workbook fails its own verifier after mandatory recalculation,yes
+SpreadsheetBench 2,debugging-09_06,F3,Reward,critical,Unconverged circular-reference cached values in ground truth cause valid solutions (and the golden workbook itself) to fail value verification,yes
+SpreadsheetBench 2,debugging-09_06,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-09_06,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells gives false-negative 0.0 verdicts on exact formula fixes due to unconverged circular references in gt_09_golden.xlsx,yes
+SpreadsheetBench 2,debugging-09_07,F1,Reward,critical,Golden workbook fails its own verifier because cached calculations are inconsistent,no
+SpreadsheetBench 2,debugging-09_07,F2,Reward,critical,"Ground-truth workbook fails its own grader, so the problem cannot be passed",yes
+SpreadsheetBench 2,debugging-09_07,F3,Reward,critical,"Golden workbook cached values are unconverged on circular references, causing the cell-value verifier to fail even on the golden workbook itself",yes
+SpreadsheetBench 2,debugging-09_07,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-09_07,F5,Reward,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check falsely fails all 3 units (and fails the golden workbook itself) due to unconverged circular-reference cached values in gt_09_golden.xlsx,yes
+SpreadsheetBench 2,debugging-09_08,F1,Reward,critical,Golden workbook contains inconsistent cached values and fails its own verifier,yes
+SpreadsheetBench 2,debugging-09_08,F2,Reward,critical,"Golden workbook's cached values are stale and do not satisfy its own formulas, so after LibreOffice recalculation the golden fails its own verifier and no output can pass",yes
+SpreadsheetBench 2,debugging-09_08,F3,Reward,critical,"Golden workbook (gt_09_golden.xlsx) contains un-converged cached values in its circular LBO debt/interest loop, causing a 100% correct model to fail verification",yes
+SpreadsheetBench 2,debugging-09_08,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-09_08,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails exact golden-formula solutions (units 2 and 3) with score=0 due to un-converged cached values in gt_09_golden.xlsx,yes
+SpreadsheetBench 2,debugging-09_09,F1,Reward,critical,Golden workbook (gt_09_golden.xlsx) contains un-converged circular-reference cached values and fails its own verifier check,yes
+SpreadsheetBench 2,debugging-09_09,F2,Reward,critical,Ground-truth workbook fails its own verifier: its cached circular-model values never converged,yes
+SpreadsheetBench 2,debugging-09_09,F3,Reward,critical,Inconsistent golden-workbook caches cause the answer key to fail its own verifier,yes
+SpreadsheetBench 2,debugging-09_09,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-09_09,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail (0.0) because LibreOffice recalculation diverges from un-converged cached values in gt_09_golden.xlsx,yes
+SpreadsheetBench 2,debugging-09_10,F1,Reward,critical,"Ground truth workbook gt_09_golden.xlsx contains unconverged, internally inconsistent cached values that fail its own verifier",no
+SpreadsheetBench 2,debugging-09_10,F2,Reward,critical,Golden workbook contains inconsistent cached values and fails its own grading,no
+SpreadsheetBench 2,debugging-09_10,F3,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,no
+SpreadsheetBench 2,debugging-09_10,F4,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (score 0.0) on all formula-driven workbooks including gt_09_golden.xlsx itself,no
+SpreadsheetBench 2,debugging-10_01,F1,Reward,critical,"Golden workbook fails its own values-mode verifier due to an unfixed oscillating circular reference, and values mode misses 5 of the 9 double-counting formula fixes",yes
+SpreadsheetBench 2,debugging-10_01,F2,Reward,critical,The golden workbook fails its own grading after mandatory recalculation,yes
+SpreadsheetBench 2,debugging-10_01,F3,Reward,critical,"The ground-truth file fails its own grading: after the LibreOffice recalc the verifier forces, the GT scores only 29% on the cells it changed",yes
+SpreadsheetBench 2,debugging-10_01,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-10_01,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all units (including exact 9-formula golden solutions in Units 1 and 3 and the ground truth itself) due to LibreOffice vs Excel circular-reference recalculation divergence,yes
+SpreadsheetBench 2,debugging-10_03,F1,Reward,critical,"The answer key fails its own verifier after the LibreOffice recalculation the verifier applies, so the task cannot be passed",no
+SpreadsheetBench 2,debugging-10_03,F2,Reward,critical,Golden workbook fails its own verifier after required recalculation,no
+SpreadsheetBench 2,debugging-10_03,F3,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,no
+SpreadsheetBench 2,debugging-10_03,F4,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial-fail verifier (scores 0.0 even on gt_10_golden.xlsx itself) due to a non-convergent circular reference in Model!I195:M195 during LibreOffice recalculation,yes
+SpreadsheetBench 2,debugging-10_04,F1,Style,critical,Ground-truth recolors contradict the font convention the prompt states,yes
+SpreadsheetBench 2,debugging-10_04,F2,Reward,critical,Nonconverged golden calculation caches fail the verifier's own recalculation,yes
+SpreadsheetBench 2,debugging-10_04,F3,Style,critical,Undisclosed four-color font convention (purple for intra-sheet links vs green for cross-sheet links) and unflagged operator exceptions in ground truth,yes
+SpreadsheetBench 2,debugging-10_04,F4,Reward,critical,Ground truth workbook contains unconverged circular-reference cached values causing 186 spurious modification cells that fail LibreOffice recalculation,yes
+SpreadsheetBench 2,debugging-10_04,F5,Style,critical,Golden font colors contradict the explicitly required three-color convention,yes
+SpreadsheetBench 2,debugging-10_04,F6,Reward,critical,Ground truth fails its own verifier: submitting the golden file scores 0,yes
+SpreadsheetBench 2,debugging-10_04,F7,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-10_04,F8,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (even on gt_10_golden.xlsx) and reports uninformative error messages in font_color mode,yes
+SpreadsheetBench 2,debugging-10_05,F1,Reward,critical,Golden workbook (gt_10_golden.xlsx) contains unconverged circular-reference cached values and fails its own verifier self-check,no
+SpreadsheetBench 2,debugging-10_05,F2,Reward,critical,"Ground-truth workbook fails its own verifier after LibreOffice recalculation, so the task cannot be passed",no
+SpreadsheetBench 2,debugging-10_05,F3,Reward,critical,The golden workbook fails its own verifier after mandatory recalculation,no
+SpreadsheetBench 2,debugging-10_05,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,no
+SpreadsheetBench 2,debugging-10_05,F5,Reward,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check is a trivial fail and gives false negative verdicts due to oscillating circular references during forced recalculation,no
+SpreadsheetBench 2,debugging-10_06,F1,Reward,critical,Golden workbook fails its own forced-recalculation grading,yes
+SpreadsheetBench 2,debugging-10_06,F2,Verification,critical,Golden ground-truth workbook fails its own verifier under LibreOffice recalculation and leaves a broken cross-sheet sign reference (`Model!D169`) unfixed,yes
+SpreadsheetBench 2,debugging-10_06,F3,Reward,critical,"The ground-truth workbook fails its own verifier after LibreOffice recalculates it, so no output can pass",yes
+SpreadsheetBench 2,debugging-10_06,F4,Verification,critical,Broad 'audit and fix this file thoroughly' prompt conflicts with exact-cell grading that only expects 3 undisclosed edits and environment lacks advertised Python packages,yes
+SpreadsheetBench 2,debugging-10_06,F5,Verification,critical,Answer key penalizes a formula correction explicitly required by the audit,yes
+SpreadsheetBench 2,debugging-10_06,F6,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-10_06,F7,Reward,critical,SpreadsheetBench 2 official cell check: `verify_spreadsheetbench2_cells` scores 0.0 on all runs and on the golden workbook itself due to LibreOffice-vs-Excel circular reference divergence and unfixed `Model!D169`,yes
+SpreadsheetBench 2,debugging-10_07,F1,Reward,critical,Golden workbook fails its own forced-recalculation grading,no
+SpreadsheetBench 2,debugging-10_07,F2,Reward,critical,"The ground-truth workbook fails its own verifier, so the task can't be passed",no
+SpreadsheetBench 2,debugging-10_07,F3,Reward,critical,Golden workbook (gt_10_golden.xlsx) contains unconverged circular-reference cached values in Model that fail the verifier's own single-pass LibreOffice recalculation,no
+SpreadsheetBench 2,debugging-10_07,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,no
+SpreadsheetBench 2,debugging-10_07,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail (0.0 on all units and 0.0 on the golden workbook itself) due to multi-pass circular-reference drift between gt_10_golden.xlsx and single-pass LibreOffice recalculation,yes
+SpreadsheetBench 2,debugging-10_08,F1,Reward,critical,The golden workbook fails its own full-weight verifier after recalculation,yes
+SpreadsheetBench 2,debugging-10_08,F2,Reward,critical,The ground-truth workbook fails its own verifier: 167 modification cells don't survive LibreOffice recalculation because the circular debt and cash model never converged,yes
+SpreadsheetBench 2,debugging-10_08,F3,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-10_08,F4,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails even on the golden workbook due to single-pass LibreOffice iterative recalculation divergence and penalizes valid bug fixes,yes
+SpreadsheetBench 2,debugging-10_09,F1,Reward,critical,The golden workbook fails its own mandatory recalculation check,yes
+SpreadsheetBench 2,debugging-10_09,F2,Reward,critical,Golden solution and verifier fail to converge on non-convergent circular revolver paydown formula under forced LibreOffice recalculation,yes
+SpreadsheetBench 2,debugging-10_09,F3,Reward,critical,The ground truth fails its own verifier: the model's circular debt/interest block recalculates to different values in LibreOffice,yes
+SpreadsheetBench 2,debugging-10_09,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-10_09,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail (scores 0.0 on all units and on the golden file itself) due to forced LibreOffice recalculation of an oscillating circular reference,yes
+SpreadsheetBench 2,debugging-10_10,F1,Environment & Infra,critical,"System Python is not executable by the `model` user (`Permission denied` on `/usr/bin/python3.12`), breaking the advertised Python environment",no
+SpreadsheetBench 2,debugging-10_10,F2,Reward,critical,"Golden solution fails its own verifier (score 0.0, 167 cell errors) due to un-recalculated Excel iterative cache vs. LibreOffice recalculation of output",yes
+SpreadsheetBench 2,debugging-10_10,F3,Reward,critical,Golden workbook fails the verifier's mandatory recalculation,yes
+SpreadsheetBench 2,debugging-10_10,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,debugging-10_10,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail (cannot pass even on the ground-truth golden workbook),yes
+SpreadsheetBench 2,financial-model-01_01,F1,Task Spec,critical,Task instruction for forecasted Other Revenue % of Operating Revenue directly contradicts the ground-truth workbook,yes
+SpreadsheetBench 2,financial-model-01_01,F2,Verification,critical,"The instruction says to carry forward the last actual year's Other Revenue %, but the answer key uses the 2% Key Assumption",yes
+SpreadsheetBench 2,financial-model-01_01,F3,Verification,critical,Ground truth contradicts the required Other Revenue forecast assumption,yes
+SpreadsheetBench 2,financial-model-01_01,F4,Verification,critical,SpreadsheetBench 2 official cell check: Verifier fails all three valid agent submissions (false negative) due to contradictory ground-truth assumption in Revenue Drivers!I138:M138,yes
+SpreadsheetBench 2,financial-model-01_02,F1,Verification,critical,"Ground truth expects an unrequested edit to Working Capital Schedule!M3, so an agent that does exactly what was asked scores 0",yes
+SpreadsheetBench 2,financial-model-01_03,F1,Verification,critical,Grader requires an unrequested 2031 date header,yes
+SpreadsheetBench 2,financial-model-01_03,F2,Verification,critical,Undisclosed ground-truth modifications on Working Capital Schedule (historical Receivables C4:G4 and terminal header M3) contradict the prompt's explicit scope and non-alteration rule,yes
+SpreadsheetBench 2,financial-model-01_03,F3,Task Spec,critical,"An unrequested 2031 date header (Working Capital Schedule!M3) is graded, and leaving it out fails the whole task",yes
+SpreadsheetBench 2,financial-model-02_03,F1,Task Spec,critical,"Instruction asks for Accounts Payable (AP) as a percentage of Sales, contradicting the worksheet label and golden workbook which compute AP as a % of COGS using a mixed EOP/average formula",yes
+SpreadsheetBench 2,financial-model-02_03,F2,Verification,critical,Graded AP calculation contradicts the task's requested denominator,yes
+SpreadsheetBench 2,financial-model-02_03,F3,Task Spec,critical,"Prompt says AP should be a % of Sales, but the sheet label and GT use % of COGS",yes
+SpreadsheetBench 2,financial-model-03_02,F1,Verification,critical,"The answer key's 'one year' ABV statistics cover about two years, and Min uses a different range from the other three",yes
+SpreadsheetBench 2,financial-model-03_02,F2,Verification,critical,The answer key uses almost two years for the requested one-year ABV statistics,yes
+SpreadsheetBench 2,financial-model-03_02,F3,Verification,critical,Golden solution has erroneous and inconsistent cell ranges for 'most recent one year' ABV statistics in Valuation Band!S7:S10,yes
+SpreadsheetBench 2,financial-model-03_02,F4,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails all three valid attempts (score 0.0) due to defective ground-truth formulas in Valuation Band!S7:S10,yes
+SpreadsheetBench 2,financial-model-04_01,F1,Verification,critical,"The grader requires the WACC × terminal-growth sensitivity table (Valuation!H60:L64), which the instruction never asks for and the 'do not alter cells with values' rule forbids",yes
+SpreadsheetBench 2,financial-model-04_01,F2,Task Spec,critical,Undisclosed requirement to populate hardcoded DCF sensitivity table values (Valuation!H60:L64),yes
+SpreadsheetBench 2,financial-model-04_01,F3,Task Spec,critical,"Forecast inventory days use hardcoded plugs (-1, -1, -1, -2, -2) that no source discloses, and only that exact sequence passes",yes
+SpreadsheetBench 2,financial-model-04_01,F4,Task Spec,critical,Grader requires overwriting a populated sensitivity table outside the requested edits,yes
+SpreadsheetBench 2,financial-model-04_01,F5,Task Spec,critical,Undisclosed forecast step-down assumptions (-1 vs. -2 days) in Average Days Inventory (Assumptions!K141:O141),yes
+SpreadsheetBench 2,financial-model-04_01,F6,Task Spec,critical,Required inventory forecast reductions are not provided,yes
+SpreadsheetBench 2,financial-model-04_02,F1,Task Spec,critical,Undisclosed and inconsistent Implied EV/EBITDA convention in Ratio_Analysis!K41:O41 causes valid period-specific solutions to score 0.0,yes
+SpreadsheetBench 2,financial-model-04_02,F2,Task Spec,critical,"The Implied EV/EBITDA answer key uses one undisclosed bridge, so a reasonable alternative build fails the whole task",yes
+SpreadsheetBench 2,financial-model-04_02,F3,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check gives false-negative 0.0 score across all 3 units due to Ratio_Analysis!K41:O41 Implied EV/EBITDA formula mismatch in golden workbook,yes
+SpreadsheetBench 2,financial-model-04_03,F1,Verification,critical,Debt/Equity answer key divides debt by assets instead of equity,yes
+SpreadsheetBench 2,financial-model-04_03,F2,Verification,critical,"The answer key computes Debt/Equity as debt divided by Total Assets, not by Equity",yes
+SpreadsheetBench 2,financial-model-04_03,F3,Verification,critical,Ground truth for 'Debt / Equity' in Ratio_Analysis divides by Total Assets instead of Total Equity,yes
+SpreadsheetBench 2,financial-model-04_03,F4,Verification,critical,SpreadsheetBench 2 official cell check: Verifier fails all units due to flawed ground-truth formula for Debt/Equity (dividing by Total Assets instead of Total Equity),yes
+SpreadsheetBench 2,financial-model-04_04,F1,Task Spec,critical,"Ground truth fills six Valuation cells the instruction never asks for, and the all-or-nothing verifier grades them plus about 120 cells that depend on them",yes
+SpreadsheetBench 2,financial-model-04_04,F2,Task Spec,critical,Prompt instructions mismatch the input/golden workbook diff: Valuation sheet Blended Price table is omitted from instructions while Ratio Analysis ratios are already pre-filled,yes
+SpreadsheetBench 2,financial-model-04_04,F3,Verification,critical,Grader requires six valuation outputs absent from the task instructions,yes
+SpreadsheetBench 2,financial-model-04_04,F4,Task Spec,critical,SpreadsheetBench 2 official cell check: Verifier fails all units (score=0.0) because 81 of 190 graded modification cells depend on uninstructed edits in the Valuation sheet,yes
+SpreadsheetBench 2,financial-model-05_05,F1,Environment & Infra,critical,Required starting salary assumptions are missing,yes
+SpreadsheetBench 2,financial-model-05_05,F2,Environment & Infra,critical,Undisclosed base monthly salary assumptions required in 'Workings Cost Sheet'!N68:N73 make 65.65% of modification cells impossible to derive,yes
+SpreadsheetBench 2,financial-model-05_05,F3,Environment & Infra,critical,"Starting monthly salaries in the answer key appear nowhere in the input or the prompt, so the task cannot be passed",yes
+SpreadsheetBench 2,financial-model-06_02,F1,Verification,critical,Answer key calculates annual rather than monthly 1% depreciation,yes
+SpreadsheetBench 2,financial-model-06_02,F2,Task Spec,critical,Contradictory instruction and broken ground truth formula for Depreciation Rate ('1% monthly' vs 1%/12 referencing Capex row 17),yes
+SpreadsheetBench 2,financial-model-06_02,F3,Task Spec,critical,"""1% monthly"" depreciation wording conflicts with the answer key, which uses 1%/12 per month, and the grader is all-or-nothing",yes
+SpreadsheetBench 2,financial-model-06_03,F1,Verification,critical,The answer key grades month-over-month growth instead of the requested YoY growth,yes
+SpreadsheetBench 2,financial-model-06_04,F1,Verification,critical,DCF sensitivity table ground truth values (DCF!N18:R22) are stale hardcoded numbers from a different model version that contradict the workbook's own DCF formulas,yes
+SpreadsheetBench 2,financial-model-06_04,F2,Verification,critical,"The ground-truth sensitivity table values can't be reproduced from the GT's own DCF, so a correctly built table always fails",yes
+SpreadsheetBench 2,financial-model-06_04,F3,Verification,critical,Sensitivity answer key does not match the supplied DCF model,yes
+SpreadsheetBench 2,financial-model-07_01,F1,Verification,critical,"The ground truth fails its own verifier: its cached values were computed by an engine that cannot evaluate XLOOKUP, but the agent's output is recalculated in LibreOffice",yes
+SpreadsheetBench 2,financial-model-07_01,F2,Verification,critical,The golden workbook fails its own forced-recalculation grading,yes
+SpreadsheetBench 2,financial-model-07_01,F3,Verification,critical,Golden workbook contains stale cached values from broken `_xlfn.xlookup` cells while verifier recalculates only the agent's output in LibreOffice,yes
+SpreadsheetBench 2,financial-model-07_01,F4,Verification,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,financial-model-07_01,F5,Verification,critical,SpreadsheetBench 2 official cell check: Verifier trivially fails all valid solutions (and the golden file itself) because it recalculates only output_path in LibreOffice while reading stale `#NAME?`-derived cached values from gt_path,yes
+SpreadsheetBench 2,financial-model-07_02,F1,Task Spec,critical,Area assumptions and expected answers contradict the task,yes
+SpreadsheetBench 2,financial-model-07_02,F2,Verification,critical,"Ground-truth cached values come from an XLOOKUP that returned #NAME?, so the GT fails its own LibreOffice-recalculated grading and the task cannot be passed",yes
+SpreadsheetBench 2,financial-model-07_02,F3,Verification,critical,"Golden workbook has stale #NAME? cached values from LibreOffice 7.3 XLOOKUP incompatibility, making the benchmark unpassable under LibreOffice 26.2 recalculation",yes
+SpreadsheetBench 2,financial-model-07_02,F4,Task Spec,critical,"Total and Balance Saleable Area do not exist in Inputs, and the GT maps them to Construction Area and Saleable Area without saying so",yes
+SpreadsheetBench 2,financial-model-07_02,F5,Task Spec,critical,Misleading terminology in prompt for Saleable Area vs Construction Area and sheet name for Construction Area link,yes
+SpreadsheetBench 2,financial-model-07_02,F6,Verification,critical,Golden workbook fails the problem's own grading procedure,yes
+SpreadsheetBench 2,financial-model-07_02,F7,Verification,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,financial-model-07_02,F8,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails all runs (and the golden file itself) due to LibreOffice XLOOKUP recalculation mismatch against stale golden cached values,yes
+SpreadsheetBench 2,financial-model-07_03,F1,Verification,critical,Ground-truth workbook has stale #NAME? cached values from un-evaluated _xlfn.xlookup formulas and fails its own verifier after LibreOffice recalculation,yes
+SpreadsheetBench 2,financial-model-07_03,F2,Verification,critical,The golden workbook fails its own verifier after recalculation,yes
+SpreadsheetBench 2,financial-model-07_03,F3,Verification,critical,The expected EQx formula uses cashflows before financing,yes
+SpreadsheetBench 2,financial-model-07_03,F4,Task Spec,critical,Prompt instruction for Project Performance EQx specifies 'Net Cashflows After Financing' (row 74) but ground truth uses 'Net Cashflows' before financing (row 66),yes
+SpreadsheetBench 2,financial-model-07_03,F5,Verification,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,financial-model-07_03,F6,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check trivially fails all runs (including exact golden solutions) because it recalculates only output.xlsx while comparing against stale #NAME? cached values in gt_path and reference_path,yes
+SpreadsheetBench 2,financial-model-07_04,F1,Task Spec,critical,"Requirement for 'Equity Balance' states 'maximum of Opening Balance, Equity Injection, Equity Distribution During Project, Equity Balloon Payment, and Total Equity Payout' instead of the net sum floored at zero used in ground truth",yes
+SpreadsheetBench 2,financial-model-07_04,F2,Verification,critical,The golden workbook fails its own verifier after mandatory recalculation,yes
+SpreadsheetBench 2,financial-model-07_04,F3,Verification,critical,Answer-key workbook has wrong cached values (sales revenue is 0) and scores 0 against its own verifier,yes
+SpreadsheetBench 2,financial-model-07_04,F4,Verification,critical,"Ground truth and reference workbooks contain stale cached values from LibreOffice 7.3 where XLOOKUP evaluated to #NAME?, causing the golden workbook to fail its own verifier after LibreOffice 26.2 recalculation",yes
+SpreadsheetBench 2,financial-model-07_04,F5,Verification,critical,"Equity Distribution GT formula does not follow its description, and its reference pattern breaks halfway across the row",yes
+SpreadsheetBench 2,financial-model-07_04,F6,Verification,critical,Requirement for 'Equity Distribution During Project' contradicts the ground truth formula in Cashflow (Monthly)!J87:CP87,yes
+SpreadsheetBench 2,financial-model-07_04,F7,Task Spec,critical,Equity Balance instruction does not describe the GT formula,yes
+SpreadsheetBench 2,financial-model-07_04,F8,Verification,critical,The stated Equity Balance calculation contradicts the answer key,yes
+SpreadsheetBench 2,financial-model-07_04,F9,Verification,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,financial-model-07_04,F10,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (scores 0.0 across all units) because it recalculates only the agent's output workbook in LibreOffice 26.2 while comparing against un-recalculated LibreOffice 7.3 ground truth and reference workbooks,yes
+SpreadsheetBench 2,financial-model-07_05,F1,Reward,critical,The golden workbook fails the verifier's forced recalculation,no
+SpreadsheetBench 2,financial-model-07_05,F2,Verification,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,financial-model-07_05,F3,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (scores 0.0) on all valid solutions and on the ground truth itself due to forced LibreOffice recalculation mismatch,yes
+SpreadsheetBench 2,financial-model-08_01,F1,Task Spec,critical,Undisclosed division by 12 (annualization) in Working Capital 'NWC as % Revenue' ground truth,yes
+SpreadsheetBench 2,financial-model-08_01,F2,Verification,critical,Answer key silently annualizes the requested monthly NWC ratio,yes
+SpreadsheetBench 2,financial-model-08_01,F3,Task Spec,critical,SpreadsheetBench 2 official cell check: All-or-nothing cell verifier trivially fails all runs due to unlinked hardcoded DCF sensitivity table values and undisclosed NWC/12 convention,yes
+SpreadsheetBench 2,financial-model-08_02,F1,Task Spec,critical,"Answer key requires an unrequested hardcoded value in DCF Valuation!D35, so no faithful solution can pass",yes
+SpreadsheetBench 2,financial-model-08_02,F2,Verification,critical,Undisclosed modification cell DCF Valuation!D35 in ground truth is blank in input workbook and never mentioned in instructions,yes
+SpreadsheetBench 2,financial-model-08_02,F3,Reward,critical,"Using openpyxl as the prompt recommends shifts ~1,139 Capex-sheet values on recalculation, pushing regression below the 99.8% pass bar",yes
+SpreadsheetBench 2,financial-model-08_02,F4,Task Spec,critical,Verifier requires an unrequested repair to DCF Valuation!D35,yes
+SpreadsheetBench 2,financial-model-08_02,F5,Task Spec,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails all units (including Unit 3's complete solution) due to uninstructed modification cell DCF Valuation!D35 in ground truth,yes
+SpreadsheetBench 2,financial-model-08_05,F1,Reward,critical,Single-pass recalculation rejects an unchanged golden workbook after an openpyxl save,no
+SpreadsheetBench 2,financial-model-08_05,F2,Verification,critical,Ground-truth Interest Coverage formula is wrong and inconsistent across columns,yes
+SpreadsheetBench 2,financial-model-08_05,F3,Verification,critical,The answer key requires two additional ratios not identified in the task's specific instructions,yes
+SpreadsheetBench 2,financial-model-08_05,F4,Task Spec,critical,Verifier grades unrequested Ratio Analysis rows (Debt to EBITDA and Interest Coverage Ratio) and ambiguous Debt to Equity definition,yes
+SpreadsheetBench 2,financial-model-08_05,F5,Verification,critical,"Grader requires two Ratio Analysis rows the task never asks for (Debt to EBITDA, Interest Coverage)",yes
+SpreadsheetBench 2,financial-model-08_05,F6,Verification,critical,Interest-coverage answer formulas change definition and double-count depreciation,yes
+SpreadsheetBench 2,financial-model-08_05,F7,Task Spec,critical,"Net Cost of Equity relies on an unstated, non-standard formula that drives the whole DCF",yes
+SpreadsheetBench 2,financial-model-08_05,F8,Task Spec,critical,Undisclosed non-standard Net Cost of Equity formula in DCF Valuation!C66 causes all DCF checks to fail,yes
+SpreadsheetBench 2,financial-model-09_02,F1,Reward,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check strips Valuation!H60:L64 data-table formulas before recalculation and fails valid MCP/openpyxl submissions (Unit 3 false negative),yes
+SpreadsheetBench 2,financial-model-09_03,F1,Reward,critical,Verifier cannot pass: the 25 cells in the WACC × terminal-growth sensitivity table (Excel TABLE()) recalculate to 0 or None in any agent output,yes
+SpreadsheetBench 2,financial-model-10_01,F1,Task Spec,critical,"Sensitivity axis values are unstated, so other reasonable grids are rejected (multiple_valid_answers_rejected)",yes
+SpreadsheetBench 2,financial-model-10_01,F2,Task Spec,critical,"Sensitivity table axis values, center points, and step increments in Valuation!G59:L64 are not specified in the task context",yes
+SpreadsheetBench 2,financial-model-10_01,F3,Task Spec,critical,Sensitivity-table assumptions are missing from the agent-facing task,yes
+SpreadsheetBench 2,financial-model-10_01,F4,Task Spec,critical,"Sensitivity table output is per-share value, but the prompt asks for 'implied equity value'",yes
+SpreadsheetBench 2,financial-model-10_02,F1,Reward,critical,"The grader fails correct work saved with openpyxl, the tool the prompt recommends, because 25 Valuation data-table cells come back empty",yes
+SpreadsheetBench 2,financial-model-10_04,F1,Reward,critical,"Any solution saved with openpyxl, the tool the prompt recommends, scores 0 because its 25 sensitivity-table cells come back empty",yes
+SpreadsheetBench 2,financial-model-10_05,F1,Task Spec,critical,"Instruction says to calculate Net Profit after Minority Interest for forecast years only, but the answer key also fills the historical years, so following the instruction exactly scores 0",yes
+SpreadsheetBench 2,financial-model-10_05,F2,Reward,critical,"Using openpyxl, the workflow the prompt recommends, breaks the Excel data table on the Valuation sheet, so a fully correct answer still scores 0",yes
+SpreadsheetBench 2,financial-model-10_05,F3,Verification,critical,Contradiction between task instruction ('for forecast years') and ground truth ('for all periods') on Net Profit after Minority Interest,yes
+SpreadsheetBench 2,financial-model-10_05,F4,Task Spec,critical,Forecast-only net-profit instruction conflicts with required historical answers,yes
+SpreadsheetBench 2,financial-model-10_05,F5,Task Spec,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails all 3 valid attempts due to prompt vs. ground-truth contradiction on historical Net Profit after Minority Interest (E47:J47),yes
+SpreadsheetBench 2,financial-model-12_02,F1,Task Spec,critical,Ambiguous and contradictory Depreciation instruction ('at 5%') causes valid interpretations to fail the verifier,yes
+SpreadsheetBench 2,financial-model-12_02,F2,Verification,critical,"Instruction says 5% depreciation, but the answer key uses the model's 4.815% rate",yes
+SpreadsheetBench 2,financial-model-12_02,F3,Verification,critical,The instructed 5% depreciation rate conflicts with the answer key,no
+SpreadsheetBench 2,financial-model-13_02,F1,Task Spec,critical,Verifier requires FY25 revenue calculations outside the requested forecast period,yes
+SpreadsheetBench 2,financial-model-13_02,F2,Task Spec,critical,"Task instructions ask for Revenue Summary for FY26–FY30 only, but ground truth and verifier require FY25A (column H) to be populated as well",yes
+SpreadsheetBench 2,financial-model-13_02,F3,Verification,critical,"Verifier grades FY25A Revenue Summary cells, but the instruction only asks for FY26–FY30",yes
+SpreadsheetBench 2,financial-model-13_02,F4,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check gives false-negative 0.0 scores on all 3 units due to uninstructed FY25A cells in ground truth,yes
+SpreadsheetBench 2,financial-model-14_01,F1,Reward,critical,The golden workbook fails its own grading after required recalculation,yes
+SpreadsheetBench 2,financial-model-14_01,F2,Task Spec,critical,Prompt instructs agent to calculate already-populated 'EBITDA Margin' instead of missing 'PAT Margin %' in Profit & Loss sheet,yes
+SpreadsheetBench 2,financial-model-14_01,F3,Verification,critical,The task requests EBITDA margins but the answer key requires PAT margins,yes
+SpreadsheetBench 2,financial-model-14_01,F4,Task Spec,critical,"Instruction asks for EBITDA Margin, but that row is already filled; the answer key grades PAT Margin (row 38) instead",yes
+SpreadsheetBench 2,financial-model-14_01,F5,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,financial-model-14_01,F6,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail (impossible to pass) due to unrounded float comparison on near-zero debt schedule cells and Excel DATA TABLE stale cache in golden file,yes
+SpreadsheetBench 2,financial-model-14_02,F1,Task Spec,critical,Undisclosed corner cell J26 requirement and strips of TABLE() formulas during recalculation,yes
+SpreadsheetBench 2,financial-model-14_02,F2,Reward,critical,Broken golden workbook and verifier comparison on floating-point zero residuals in untouched NCD and TL sheets,yes
+SpreadsheetBench 2,financial-model-14_02,F3,Verification,critical,Golden Sensitivity Analysis table in DCF_Income Approach!K27:O31 contains constant base-case Equity Value in all 25 cells,yes
+SpreadsheetBench 2,financial-model-14_02,F4,Verification,critical,"GT sensitivity table is flat: all 25 cells equal the base Equity Value, so a correct sensitivity grid fails",yes
+SpreadsheetBench 2,financial-model-14_02,F5,Verification,critical,The sensitivity-analysis answer key contains the same base-case value in every scenario,no
+SpreadsheetBench 2,financial-model-14_02,F6,Reward,critical,"Floating-point noise (~1e-13) in TL/NCD cells counts as modification errors under relative tolerance, so the ground truth and correct solutions fail the binary grader",yes
+SpreadsheetBench 2,financial-model-14_02,F7,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,financial-model-14_02,F8,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail (cannot pass even on the ground-truth workbook itself),yes
+SpreadsheetBench 2,financial-model-14_03,F1,Reward,critical,Recalculation step freezes data-table (`TABLE(...)`) formulas to stale input values before LibreOffice recalculates,yes
+SpreadsheetBench 2,financial-model-14_03,F2,Reward,critical,"Verifier comparison logic misses round-before-compare, causing 1,664 near-zero floating-point noise cells in NCD and TL to be graded as modification errors",yes
+SpreadsheetBench 2,financial-model-14_03,F3,Reward,critical,The golden workbook fails its own verifier after required recalculation,yes
+SpreadsheetBench 2,financial-model-14_03,F4,Reward,critical,"Ground truth fails its own verifier, so no agent can pass",yes
+SpreadsheetBench 2,financial-model-14_03,F5,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,financial-model-14_03,F6,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail due to unrounded near-zero float comparisons in NCD/TL and frozen data-table formulas,yes
+SpreadsheetBench 2,financial-model-14_04,F1,Verification,critical,Ground-truth sensitivity table shows the same Equity Value in every WACC × terminal growth cell,yes
+SpreadsheetBench 2,financial-model-14_04,F2,Reward,critical,The golden workbook fails the sole verifier after mandatory recalculation,yes
+SpreadsheetBench 2,financial-model-14_04,F3,Verification,critical,The EBITDA-margin answer key uses the wrong period for Q4,no
+SpreadsheetBench 2,financial-model-14_04,F4,Verification,critical,"Invalid golden solution and broken value comparison on DCF Sensitivity Analysis table, NCD, and TL sheets make the task unpassable",yes
+SpreadsheetBench 2,financial-model-14_04,F5,Verification,critical,The sensitivity-analysis answer key incorrectly expects a constant equity value,yes
+SpreadsheetBench 2,financial-model-14_04,F6,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,financial-model-14_04,F7,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (score 0.0) on all runs and even on the ground-truth workbook itself,yes
+SpreadsheetBench 2,financial-model-14_05,F1,Reward,critical,The golden workbook fails its own verifier after mandatory recalculation,no
+SpreadsheetBench 2,financial-model-14_05,F2,Reward,critical,"Graded answer range covers untouched sheets, so float/recalculation noise (e.g., NCD balance rows) is graded as modification and the ground truth fails its own verifier",yes
+SpreadsheetBench 2,financial-model-14_05,F3,Reward,critical,"Verifier grades untouched floating-point zero-residuals (~1e-13) in NCD and TL using relative tolerance before rounding, causing even the golden workbook to fail",yes
+SpreadsheetBench 2,financial-model-14_05,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,financial-model-14_05,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (score 0.0) on all 3 units despite every unit producing the exact ground-truth formulas,yes
+SpreadsheetBench 2,financial-model-15_01,F1,Task Spec,critical,"The answer key requires about 140 historical assumption cells in IS_BS_CF that the instruction never asks for, and the check is all-or-nothing",no
+SpreadsheetBench 2,financial-model-15_01,F2,Verification,critical,"Golden workbook grades 18 unrequested assumption rows in IS_BS_CF (rows 142-169), cascading into ~1,200 cell errors and 0.0 score",no
+SpreadsheetBench 2,financial-model-15_02,F1,Verification,critical,Answer key omits State 8 from FY25 group totals,yes
+SpreadsheetBench 2,financial-model-15_02,F2,Verification,critical,Answer key leaves State 8 out of the group totals in rows 40-50 from 1QFY25 onwards,yes
+SpreadsheetBench 2,financial-model-15_03,F1,Reward,critical,The golden workbook fails its own grading because of a volatile date,yes
+SpreadsheetBench 2,financial-model-15_03,F2,Reward,critical,The ground truth fails its own verifier: a TODAY()-based cell in the graded range makes the binary check impossible to pass,yes
+SpreadsheetBench 2,financial-model-15_03,F3,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,financial-model-15_03,F4,Reward,critical,SpreadsheetBench 2 official cell check: Golden workbook contains volatile =TODAY() in Formats!B9 causing verifier to fail when container clock differs from 2026-10-13,yes
+SpreadsheetBench 2,financial-model-15_04,F1,Verification,critical,Golden solution contains erroneous formulas for FCFEPS (using Net Change in Cash instead of FCFE) and inconsistent 2019 return ratio formulas,yes
+SpreadsheetBench 2,financial-model-15_04,F2,Verification,critical,The answer key applies undisclosed FY2019 return-ratio exceptions,yes
+SpreadsheetBench 2,financial-model-15_04,F3,Verification,critical,"Ground-truth FCFEPS divides Net Change in Cash, not FCFE, so a correct formula fails the whole all-or-nothing check",yes
+SpreadsheetBench 2,financial-model-15_04,F4,Verification,critical,SpreadsheetBench 2 official cell check: Verifier fails valid financial formulas due to defective ground truth in Consol_annual (FCFEPS and 2019 return ratios),yes
+SpreadsheetBench 2,financial-model-15_05,F1,Environment & Infra,critical,"Input workbook is missing 218 unmentioned historical schedule formulas in IS_BS_CF!B142:X169, causing 1,078 of 1,460 modification cells across 6 sheets to fail",yes
+SpreadsheetBench 2,financial-model-15_05,F2,Task Spec,critical,"The ratio work is graded in IS_BS_CF's Assumptions block, but the prompt points the agent to the Formats balance sheet",yes
+SpreadsheetBench 2,financial-model-15_05,F3,Task Spec,critical,"Four undisclosed CAGR scratch formulas in unlabelled column Formats!N4, N5, N7, N9 are graded as modification cells",yes
+SpreadsheetBench 2,financial-model-15_05,F4,Task Spec,critical,The GT adds CAGR cells that the prompt never asks for,yes
+SpreadsheetBench 2,financial-model-15_05,F5,Environment & Infra,critical,Deleted source formulas and unlabeled calculations exceed the stated task scope,yes
+SpreadsheetBench 2,financial-model-15_05,F6,Task Spec,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check always fails (score 0.0) because untouched_input_15_05_KIMS_input.xlsx and assets/15_05_KIMS_input.xlsx are missing 218 unmentioned formulas in IS_BS_CF!B142:X169,yes
+SpreadsheetBench 2,financial-model-17_01,F1,Verification,critical,"The answer key leaves forecast Tax Provision blank, so an agent that does the requested calculation fails the only verifier",yes
+SpreadsheetBench 2,financial-model-17_01,F2,Verification,critical,Ground truth omits the explicitly required forecast tax provisions,no
+SpreadsheetBench 2,financial-model-17_01,F3,Verification,critical,"Golden workbook sets EBITDA equal to EBIT (Financials!E17:O17 = E14+E10), ignoring Depreciation & Amortization in Row 21",yes
+SpreadsheetBench 2,financial-model-17_01,F4,Verification,critical,The answer key equates EBITDA with EBIT despite nonzero depreciation,no
+SpreadsheetBench 2,financial-model-17_01,F5,Verification,critical,"Golden workbook omits required 2014F–2018F Tax Provision (Financials!K38:O38), penalizing agents that follow the prompt instruction",yes
+SpreadsheetBench 2,financial-model-17_01,F6,Verification,critical,SpreadsheetBench 2 official cell check: Verifier fails all three units (score=0.0) due to defective ground-truth workbook on Tax Provision and EBITDA,yes
+SpreadsheetBench 2,financial-model-18_01,F1,Verification,critical,PAT Margin answer key contradicts the explicit NM condition,yes
+SpreadsheetBench 2,financial-model-18_01,F2,Verification,critical,An undisclosed text insertion is mandatory for passing,yes
+SpreadsheetBench 2,financial-model-18_01,F3,Verification,critical,P&L PAT Margin 'NM' condition in prompt contradicts golden workbook formula and values at P&L!J35 and P&L!Q35,yes
+SpreadsheetBench 2,financial-model-18_01,F4,Verification,critical,"Ground-truth PAT Margin applies the wrong 'NM' rule: it shows NM when PAT is negative, not when Total Income is zero or negative",yes
+SpreadsheetBench 2,financial-model-18_01,F5,Task Spec,critical,Undisclosed modification at P&L!A13 ('Esc. %') required by golden workbook but omitted from instructions,yes
+SpreadsheetBench 2,financial-model-18_01,F6,Verification,critical,"Ground truth adds an unrequested 'Esc. %' label in P&L!A13, and the all-or-nothing grader requires it",yes
+SpreadsheetBench 2,financial-model-18_02,F1,Verification,critical,"Answer key puts 'NM' in Total Debt/EBITDA for FY37–FY39 even though EBITDA is positive, so following the instruction fails the task",yes
+SpreadsheetBench 2,financial-model-18_02,F2,Verification,critical,Verifier requires an unrequested P&L label,no
+SpreadsheetBench 2,financial-model-18_02,F3,Task Spec,critical,Verifier enforces an undisclosed modification at P&L!A13 ('Esc. %') that is never mentioned in the instructions,yes
+SpreadsheetBench 2,financial-model-18_02,F4,Verification,critical,Golden debt-to-EBITDA answers contradict the required NM rule,no
+SpreadsheetBench 2,financial-model-18_02,F5,Verification,critical,"Golden workbook hardcodes 'NM' in Ratio Analysis!R19:T19 despite positive EBITDA, contradicting the prompt and existing formula pattern",yes
+SpreadsheetBench 2,financial-model-18_02,F6,Verification,critical,Answer key requires a label in P&L!A13 ('Esc. %') that the instruction never asks for,yes
+SpreadsheetBench 2,financial-model-18_02,F7,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check gives false-negative 0.0 scores to units 2 and 3 due to defective ground-truth cells P&L!A13 and Ratio Analysis!R19:T19,yes
+SpreadsheetBench 2,financial-model-18_03,F1,Verification,critical,Verifier requires an unrequested label restoration,yes
+SpreadsheetBench 2,financial-model-18_03,F2,Task Spec,critical,"Ground truth adds an unrequested label in P&L!A13 ('Esc. %'), and the all-or-nothing verifier fails any run that follows the instructions",yes
+SpreadsheetBench 2,financial-model-18_04,F1,Task Spec,critical,Undisclosed requirement to populate header label 'Esc. %' in cell P&L!A13 causes all otherwise-correct solutions to score 0.0,yes
+SpreadsheetBench 2,financial-model-18_04,F2,Task Spec,critical,An unrequested text label is mandatory for receiving any credit,yes
+SpreadsheetBench 2,financial-model-18_04,F3,Verification,critical,"Answer key requires an unrequested text label (P&L!A13 = 'Esc. %'), so a correct solution still scores 0",yes
+SpreadsheetBench 2,financial-model-18_04,F4,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check gives false negative (score 0.0) on Units 2 and 3 due to uninstructed golden cell P&L!A13 = 'Esc. %',yes
+SpreadsheetBench 2,financial-model-18_05,F1,Task Spec,critical,Verifier enforces unstated edit at P&L!A13 ('Esc. %') that is absent from input and task instructions,yes
+SpreadsheetBench 2,financial-model-18_05,F2,Verification,critical,"Ground truth adds a label nobody asked for (P&L!A13 'Esc. %'), so the all-or-nothing check fails correct solutions",yes
+SpreadsheetBench 2,financial-model-18_05,F3,Task Spec,critical,Verifier requires an unrequested P&L header change,yes
+SpreadsheetBench 2,financial-model-18_05,F4,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check returns false negative (score 0.0) on correct solutions in units 1 and 3 due to P&L!A13 discrepancy,yes
+SpreadsheetBench 2,financial-model-19_04,F1,Task Spec,critical,Task instruction for Trading Comps EV/EBITDA and P/E specifies 'Summary Valuation' while ground truth uses 'Trading Comps' values,yes
+SpreadsheetBench 2,financial-model-19_04,F2,Verification,critical,Trading Comps answer key contradicts the required valuation source,yes
+SpreadsheetBench 2,financial-model-19_04,F3,Verification,critical,"Trading Comps instruction says to use EV and Equity Value from Summary Valuation, but the answer key uses different Trading Comps cells",yes
+SpreadsheetBench 2,financial-model-19_04,F4,Verification,critical,"The GT P/E uses the equity value implied by EV/EBITDA, not the one implied by P/E, which the model itself feeds into the football field",yes
+SpreadsheetBench 2,financial-model-19_04,F5,Verification,critical,SpreadsheetBench 2 official cell check: Verifier fails all three units due to contradiction between prompt instruction and ground truth on 'Trading Comps'!E50:G51,yes
+SpreadsheetBench 2,financial-model-19_05,F1,Verification,critical,The erased revenue range includes historical years outside the requested range,yes
+SpreadsheetBench 2,financial-model-19_05,F2,Task Spec,critical,Instruction's period range for Total Revenue (FY25–FY30E) doesn't match the blank cells the GT fills (FY23A–FY28E),yes
+SpreadsheetBench 2,financial-model-19_05,F3,Verification,critical,"Instruction says to sum three revenue segments, but the GT sums four, including the largest (Solar & Wind)",yes
+SpreadsheetBench 2,financial-model-19_05,F4,Environment & Infra,critical,DCF sensitivity cells are permanently broken and require prohibited edits to pass,yes
+SpreadsheetBench 2,financial-model-19_05,F5,Task Spec,critical,Revenue instructions exclude a segment that the grader requires,yes
+SpreadsheetBench 2,financial-model-19_05,F6,Task Spec,critical,"A fully correct solution scores 0: the grader requires the DCF sensitivity table, which the task never mentions and cannot be rebuilt",yes
+SpreadsheetBench 2,financial-model-19_05,F7,Task Spec,critical,Revenue Drivers Total Revenue instruction specifies incorrect year range (FY25–FY30E vs golden's FY23A–FY28E) and omits the Solar & Wind Transformers segment,yes
+SpreadsheetBench 2,financial-model-19_05,F8,Environment & Infra,critical,"Input workbook has corrupted #DIV/0! formulas in DCF sensitivity table (DCF!L9:P12 and DCF!M8:P8) that are never mentioned in instructions, making 24 modification cells impossible to pass",yes
+SpreadsheetBench 2,financial-model-19_05,F9,Environment & Infra,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all valid agent solutions (score 0.0) due to 24 uninstructed #DIV/0! formula cells in DCF!L9:P12 and DCF!M8:P8,yes
+SpreadsheetBench 2,financial-model-20_03,F1,Reward,critical,The ground-truth workbook fails its own verifier because of floating-point noise in a balance check cell,yes
+SpreadsheetBench 2,financial-model-20_03,F2,Reward,critical,"Cashflow!E31 in golden workbook holds floating-point residue (-4.95e-10) instead of 0, causing relative-tolerance check to fail on LibreOffice-recalculated outputs",yes
+SpreadsheetBench 2,financial-model-20_03,F3,Reward,critical,Verifier rejects its own golden workbook because of floating-point noise,yes
+SpreadsheetBench 2,financial-model-20_03,F4,Reward,critical,Golden gate: the ground-truth deliverable does not score full reward,yes
+SpreadsheetBench 2,financial-model-20_03,F5,Reward,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all 3 correct runs (and fails the golden workbook itself) due to floating-point residue at Cashflow!E31,yes
+SpreadsheetBench 2,financial-model-20_04,F1,Verification,critical,"Return on Total Assets: the prompt asks for annual FY24–FY27 only, but the answer key also requires all 42 monthly cells",yes
+SpreadsheetBench 2,financial-model-20_04,F2,Task Spec,critical,Ground truth grades monthly Return on Total Assets (Jul-24 to Dec-27) despite prompt only asking for annual FY24–FY27,yes
+SpreadsheetBench 2,financial-model-20_04,F3,Task Spec,critical,Grader requires monthly Return on Total Assets that the instructions request only annually,yes
+SpreadsheetBench 2,financial-model-20_04,F4,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all three units (score=0) for omitting unrequested monthly Return on Total Assets cells,yes
+SpreadsheetBench 2,template-01_02,F1,Verification,critical,The answer key's tax side contradicts itself: the DTA never reverses and the tax loss and retained-earnings rows are hardcoded to zero,no
+SpreadsheetBench 2,template-01_05,F1,Task Spec,critical,Ambiguous Balance Sheet column timeline (`BOP 2018` vs year-end columns) and undisclosed tax basis conventions,yes
+SpreadsheetBench 2,template-01_05,F2,Verification,critical,GT keeps a $144 deferred tax liability after the bond is retired and classifies the temporary difference with the wrong sign,no
+SpreadsheetBench 2,template-01_05,F3,Verification,critical,Answer key shifts balance-sheet activity one period earlier than the supplied headers,yes
+SpreadsheetBench 2,template-01_05,F4,Verification,critical,Ground-truth balance-sheet values sit one column off from their period headers,yes
+SpreadsheetBench 2,template-01_05,F5,Verification,critical,Golden tax schedule leaves an unsupported deferred tax liability after the bond is extinguished,no
+SpreadsheetBench 2,template-01_07,F1,Task Spec,critical,"Multiple undisclosed accounting, layout, and sign conventions in the template cause ambiguous grading and contradict the ground truth",yes
+SpreadsheetBench 2,template-01_09,F1,Verification,critical,Passing requires changing a prefilled cell protected by the instructions,yes
+SpreadsheetBench 2,template-01_09,F2,Verification,critical,"Tax balance sheet in the answer key leaves a 1,200 loan balance after the debt is extinguished, and books no gain or loss",yes
+SpreadsheetBench 2,template-01_09,F3,Verification,critical,"Golden workbook (gt_01_09_golden.xlsx) contains broken Year 4 tax formulas and overwrites pre-filled cell F32, contradicting in-sheet note J11 and prompt rules",yes
+SpreadsheetBench 2,template-01_09,F4,Verification,critical,Year-4 tax answer key does not reconcile,yes
+SpreadsheetBench 2,template-01_09,F5,Verification,critical,The answer key's year-4 deferred-tax logic is internally inconsistent and contradicts the workbook's own note,yes
+SpreadsheetBench 2,template-01_09,F6,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells scores 0.0 on all runs by rejecting accounting-consistent Year 4 tax and interest calculations against a flawed ground truth,yes
+SpreadsheetBench 2,template-03_01,F1,Task Spec,critical,Undisclosed cell-filling scope and unlabelled tax rate assumption (C9) cause valid consolidation tables to fail both regression and modification checks,yes
+SpreadsheetBench 2,template-03_01,F2,Environment & Infra,critical,The tax-rate assumption has no label,yes
+SpreadsheetBench 2,template-03_01,F3,Verification,critical,Completing blank total-assets cells is penalized by the verifier,yes
+SpreadsheetBench 2,template-03_01,F4,Verification,critical,"The instruction says to fill ALL blank cells, but the answer key leaves many cells blank and the grader rejects any extra values",yes
+SpreadsheetBench 2,template-03_01,F5,Task Spec,critical,The tax rate the answer key needs has no label; the only candidate (C9 = 35%) also equals the NCI share,yes
+SpreadsheetBench 2,template-03_02,F1,Verification,critical,"Instruction says to fill in all empty cells, but the answer key leaves cells blank that have clear non-zero values, and the grader fails any agent that fills them",yes
+SpreadsheetBench 2,template-03_02,F2,Verification,critical,Grader rejects correctly completed parent and subsidiary asset totals,no
+SpreadsheetBench 2,template-03_03,F1,Verification,critical,Answer key contradicts the workbook's required deduction signs,yes
+SpreadsheetBench 2,template-03_03,F2,Verification,critical,"Contradictory sign convention on 'Less: NCI Portion' (E31, F31) between worksheet footnote B59 and ground truth",yes
+SpreadsheetBench 2,template-03_03,F3,Verification,critical,"Answer key enters 'Less: NCI Portion' as a positive number, which contradicts the sheet's own 'deductions as negative numbers' footnote",yes
+SpreadsheetBench 2,template-04_03,F1,Verification,critical,Incorrect 2028 depreciation in the answer key causes consistent models to fail,yes
+SpreadsheetBench 2,template-04_03,F2,Verification,critical,"Ground-truth depreciation formula is inconsistent across 2026–2028, and every consistent method fails the binary check",yes
+SpreadsheetBench 2,template-04_03,F3,Verification,critical,Invalid golden solution and ambiguous 'Prior Year PP&E' definition cause 2026–2028 PP&E and Depreciation cells to contradict standard accounting and row labels,yes
+SpreadsheetBench 2,template-04_03,F4,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails valid financial models due to buggy ground truth values in E33 and F33,yes
+SpreadsheetBench 2,template-06_06,F1,Verification,critical,"Golden solution uses mathematically flawed current-revenue-weighted average for subtotal and portfolio Y/Y Growth % instead of prior-year revenue weighting, causing cell C22 to fail under the 1% relative tolerance",yes
+SpreadsheetBench 2,template-06_06,F2,Verification,critical,Incorrect aggregate year-over-year growth in the answer key rejects correct financial calculations,no
+SpreadsheetBench 2,template-06_06,F3,Verification,critical,"Answer key gets total-row Y/Y growth wrong: it weights segment Y/Y by current-period revenue, so the correct method fails the pass/fail check",yes
+SpreadsheetBench 2,template-06_06,F4,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails mathematically correct aggregate Y/Y Growth % at Revenue_Forecast!C22 due to flawed ground truth,yes
+SpreadsheetBench 2,template-06_07,F1,Verification,critical,"Answer key divides monthly revenue/COGS by 365, so forecast balances fall 4-10x below the actuals",yes
+SpreadsheetBench 2,template-06_07,F2,Verification,critical,"Ground truth uses unannualized 365-day denominator on monthly Revenue/COGS and unlabeled row 31 for Prepaid Expenses, contradicting Q1 historical actuals",yes
+SpreadsheetBench 2,template-06_07,F3,Verification,critical,Answer key applies an annual denominator to monthly operating flows,yes
+SpreadsheetBench 2,template-06_07,F4,Verification,critical,SpreadsheetBench 2 official cell check: Verifier scores 0.0 across all runs due to all-or-nothing modification pass criteria against inconsistent ground truth,yes
+SpreadsheetBench 2,template-06_16,F1,Verification,critical,"The labelled 'YoY Growth %' row is left blank in the ground truth, and filling it fails the whole task",yes
+SpreadsheetBench 2,template-06_16,F2,Verification,critical,Completing the labeled YoY growth row causes the entire task to fail grading,yes
+SpreadsheetBench 2,template-06_16,F3,Verification,critical,"Golden workbook leaves Q1-Q3 2007 YoY Growth % (H10:J10) blank, penalizing complete solutions as regression errors",yes
+SpreadsheetBench 2,template-06_16,F4,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check returns false negative (score 0.0) on all 3 units due to H10:J10 YoY Growth %,yes
+SpreadsheetBench 2,template-06_20,F1,Verification,critical,The answer key uses a driver-based forecast instead of the instructed historical CAGR,yes
+SpreadsheetBench 2,template-06_20,F2,Task Spec,critical,Contradictory task instruction ('Project each segment using its historical CAGR from Year 1 to Year 3') vs. ground truth and undisclosed formula convention for Row 20 ('Prior Year Sales per Square Foot'),yes
+SpreadsheetBench 2,template-06_20,F3,Verification,critical,"Instruction 'Fill in all empty cells' conflicts with ground truth leaving Period-End (C8:G8) and Year 1 YoY % Change (C47, C50) empty",yes
+SpreadsheetBench 2,template-06_20,F4,Task Spec,critical,Unstated derivation conventions for the forecast and the KPIs; the historical row-20 values don't follow the convention the GT uses for forecast years,yes
+SpreadsheetBench 2,template-06_20,F5,Task Spec,critical,"Instruction/spec/metadata use a mismatched 'segment CAGR' template, but the model has no segments and the answer key uses no CAGR",yes
+SpreadsheetBench 2,template-06_20,F6,Task Spec,critical,"""Fill in all empty cells"" contradicts a GT that leaves row 8 and C47/C50 blank, and the strict regression check fails anyone who fills them",yes
+SpreadsheetBench 2,template-07_02,F1,Verification,critical,"The ground truth books the 6,000 investment in an unlabeled row 22 instead of the 'Investment in affiliate' row the instructions name",yes
+SpreadsheetBench 2,template-07_02,F2,Verification,critical,Answer key misplaces the investment and leaves the year-end balance sheet unbalanced,yes
+SpreadsheetBench 2,template-07_02,F3,Verification,critical,The ground-truth balance sheet doesn't balance at year end: equity income is never added to the investment,yes
+SpreadsheetBench 2,template-07_02,F4,Verification,critical,"Corrupted ground-truth workbook shifts 'Investment in affiliate' values onto blank Row 22 and omits affiliate equity income from Row 23, resulting in an unbalanced Year-End Balance Sheet",yes
+SpreadsheetBench 2,template-07_02,F5,Verification,critical,SpreadsheetBench 2 official cell check: Verifier fails valid equity method balance sheet completions (false negative / trivial fail) due to corrupted Row 22/23 in ground truth,yes
+SpreadsheetBench 2,template-07_03,F1,Task Spec,critical,"The instruction contradicts itself on when operating results start, and the all-or-nothing verifier rejects the other reading",yes
+SpreadsheetBench 2,template-07_03,F2,Verification,critical,Answer key changes balances between the same quarter-end and next-quarter opening,yes
+SpreadsheetBench 2,template-07_03,F3,Task Spec,critical,Task instruction ('operating results first appear in Q2') contradicts Ground Truth ('gt_07_03_golden.xlsx') Q1 income statement and Q2 Start balance sheet,yes
+SpreadsheetBench 2,template-07_03,F4,Verification,critical,SpreadsheetBench 2 official cell check: Verifier fails all three units (score 0.0) because the ground truth contradicts the prompt's instruction on when operating results appear,yes
+SpreadsheetBench 2,template-08_01,F1,Task Spec,critical,"The sign convention for interest and revolver lines is not stated, and the grader is all-or-nothing",yes
+SpreadsheetBench 2,template-08_01,F2,Verification,critical,"The answer key adds term loan interest with the wrong sign in the revolver formula, so it counts interest paid as cash coming in",yes
+SpreadsheetBench 2,template-08_01,F3,Task Spec,critical,Internal contradiction in modeling notes and golden solution regarding the sign convention of interest expense and its use in the closed-form Revolver Balance formula,yes
+SpreadsheetBench 2,template-08_01,F4,Verification,critical,Prescribed revolver formula does not reconcile the cash flows,no
+SpreadsheetBench 2,template-09_01,F1,Environment & Infra,critical,"Answer key requires a Year-0 EBITDA value (C8 = 55) that appears nowhere in the agent's materials, so the task cannot be fully passed",yes
+SpreadsheetBench 2,template-09_01,F2,Environment & Infra,critical,Verifier requires a Year 0 EBITDA value absent from the supplied assumptions,yes
+SpreadsheetBench 2,template-09_01,F3,Environment & Infra,critical,"Golden workbook contains an unprovided Year 0 EBITDA value at DebtSchedule!C8 (55 vs. None in input), making the 100%-threshold cell verifier impossible to pass",yes
+SpreadsheetBench 2,template-09_01,F4,Environment & Infra,critical,"SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check cannot pass (trivial fail) because DebtSchedule!C8 is None in the input workbook but 55 in the golden workbook, and because it rejects valid average-balance LBO schedules",yes
+SpreadsheetBench 2,template-10_01,F1,Verification,critical,Grading fails a correct model if the Year 2 share rows (D39/D40) are filled in,yes
+SpreadsheetBench 2,template-10_01,F2,Verification,critical,Undisclosed empty-column constraint for Year 2 Pro Forma share counts (D39:D40) causes a two-column Pro Forma table to fail regression checks,yes
+SpreadsheetBench 2,template-11_01,F1,Verification,critical,Answer key requires an inconsistent Year 7 repayment percentage,yes
+SpreadsheetBench 2,template-11_01,F2,Verification,critical,"Answer key shows a 14.29% Year 7 repayment rate next to a 100% balloon repayment, so a consistent 100% entry fails the all-or-nothing check",yes
+SpreadsheetBench 2,template-11_01,F3,Verification,critical,Golden ground-truth workbook has an erroneous formula in DebtSchedule!K8 that contradicts the Year 7 balloon repayment assumption in D22,yes
+SpreadsheetBench 2,template-11_01,F4,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails all three valid attempts (score 0.0) due to defective ground truth at DebtSchedule!K8,yes
+SpreadsheetBench 2,template-11_03,F1,Verification,critical,"Ground truth deletes pre-existing input label in F35 ('Starting Rate:'), causing compliant agents to fail",yes
+SpreadsheetBench 2,template-11_03,F2,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells enforces an erroneous deletion of pre-existing input cell MergerPremium!F35,yes
+SpreadsheetBench 2,template-13_03,F1,Verification,critical,Ground truth reverses the Q2 restructuring tax-shield adjustment,yes
+SpreadsheetBench 2,template-13_03,F2,Verification,critical,Golden solution has inverted tax adjustment sign for Q2 2024 in cell D32,yes
+SpreadsheetBench 2,template-13_03,F3,Verification,critical,"Ground truth gets the sign of the Q2 restructuring tax shield wrong, so a correct answer fails the all-or-nothing check",yes
+SpreadsheetBench 2,template-13_03,F4,Verification,critical,SpreadsheetBench 2 official cell check: False negative on unit 1 due to buggy golden workbook formula in FinancialNormalization!D32,yes
+SpreadsheetBench 2,template-13_04,F1,Verification,critical,"The answer key deletes the seeded input value E36, so an agent that follows the 'don't alter existing cells' rule fails the only verifier",no
+SpreadsheetBench 2,template-13_04,F2,Verification,critical,Corrupted ground-truth cell E36 in gt_13_04_golden.xlsx contradicts task instructions and causes valid solutions to fail,yes
+SpreadsheetBench 2,template-13_04,F3,Verification,critical,"Answer key requires deleting a supplied tax assumption, contradicting preservation instructions",no
+SpreadsheetBench 2,template-13_04,F4,Verification,critical,SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells gives false-negative 0.0 score across all 3 units due to missing E36 value in golden workbook,yes
+SpreadsheetBench 2,template-13_05,F1,Verification,critical,"Q3 nonrecurring note says opex 'excludes' the gain, yet the ground truth adds $18 back (contradictory requirement)",yes
+SpreadsheetBench 2,template-13_05,F2,Task Spec,critical,Q3 normalization note contradicts the graded adjustment,no
+SpreadsheetBench 2,template-13_06,F1,Verification,critical,"Golden workbook gt_13_06_golden.xlsx inconsistently leaves 2025E assumptions J42 and J44 blank while populating J43 and J45, making the verifier impossible to pass for any consistent solution",yes
+SpreadsheetBench 2,template-13_06,F2,Verification,critical,Answer key penalizes completing two required 2025E forecast assumptions,yes
+SpreadsheetBench 2,template-13_06,F3,Verification,critical,"Answer key leaves 2025E blank for revenue growth and opex margin, so filling them makes the whole task fail",yes
+SpreadsheetBench 2,template-13_06,F4,Verification,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check scores 0.0 on all units (including high-quality solutions in units 2 and 3) due to contradictory ground truth in J42:J45,yes
+SpreadsheetBench 2,template-13_07,F1,Verification,critical,"The answer key deletes an input note (B33) without being asked, so a correct solution that keeps it scores 0",yes
+SpreadsheetBench 2,template-13_07,F2,Verification,critical,"The answer key leaves the 2025E assumption cells (I23:I26) blank even though it projects 2025E, so filling them fails",yes
+SpreadsheetBench 2,template-13_07,F3,Verification,critical,Grader requires deleting a supplied tax-rate assumption,yes
+SpreadsheetBench 2,template-13_07,F4,Verification,critical,Golden workbook penalizes completing the 2025E assumptions,yes
+SpreadsheetBench 2,template-14_05,F1,Verification,critical,Ground truth contradicts the workbook’s required sign convention,yes
+SpreadsheetBench 2,template-14_05,F2,Verification,critical,"The footnote says to show deductions as negative numbers, but the answer key shows operating expenses as positive, and grading is pass/fail",yes
+SpreadsheetBench 2,template-14_05,F3,Task Spec,critical,Undisclosed and ambiguous sign convention between Vacancy & Credit Loss (H35:H39) and Operating Expenses (J35:N39),yes
+SpreadsheetBench 2,template-14_05,F4,Task Spec,critical,SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails valid solutions (score 0.0 on all 3 units) due to ambiguous sign convention on J35:N39,yes
+SpreadsheetBench 2,template-16_01,F1,Style,critical,"C42 NOI per-unit cell is pre-formatted as a percentage, but the answer key puts $/SF/month there; under all-or-nothing grading one cell decides pass or fail",yes
+SpreadsheetBench 2,template-16_01,F2,Task Spec,critical,Undisclosed metric in DirectCap!C42 (NOI Per SF/Month) contradicts cell's percentage format (0.00%),yes
+SpreadsheetBench 2,template-16_01,F3,Task Spec,critical,"Units of the per-unit column change silently (per-unit cells next to a per-SF NOI cell), and which column-C cells to fill is never stated",yes
+SpreadsheetBench 2,template-16_01,F4,Task Spec,critical,NOI cell is formatted as a percentage but graded as dollars per square foot per month,yes
+SpreadsheetBench 2,template-16_01,F5,Task Spec,critical,SpreadsheetBench 2 official cell check: Verifier fails valid NOI margin in DirectCap!C42 due to conflicting cell percentage format and undisclosed ground-truth formula,yes
+SpreadsheetBench 2,template-16_06,F1,Verification,critical,"Answer key uses an incorrect, circular other-income subtotal",yes
+SpreadsheetBench 2,template-16_06,F2,Verification,critical,"Ground-truth Total Other Income (Valuation!D23) adds the wrong column and creates a circular reference, so every figure below it is wrong",yes
+SpreadsheetBench 2,template-16_06,F3,Verification,critical,"Golden workbook has a wrong formula in Valuation!D23 (=SUM(C23:C26) instead of =SUM(D19:D22)), corrupting 11 downstream cells",yes
+SpreadsheetBench 2,template-16_10,F1,Task Spec,critical,Undisclosed requirement to overwrite pre-populated text label 'Margin' in DCF!G42 contradicts prompt instruction not to alter existing values,yes
+SpreadsheetBench 2,visualization-task-126,F1,Reward,critical,Image-only judge has to read ~47 exact data values off charts that have no data labels,yes
+SpreadsheetBench 2,visualization-task-126,F2,Reward,critical,Verifier silently excludes charts outside the seed's print area,yes
+SpreadsheetBench 2,visualization-task-126,F3,Verification,critical,"Ground-truth workbook, rendered by the grader's own pipeline, fails its own structural checklist items",yes
+SpreadsheetBench 2,visualization-task-127,F1,Reward,critical,Chart grading can omit charts outside the seed workbook's print area,yes
+SpreadsheetBench 2,visualization-task-127,F2,Reward,critical,"Rendered the way the grader renders it, the GT chart is cut off at Nov-2024, so the ground truth fails its own checklist",yes
+SpreadsheetBench 2,visualization-task-127,F3,Reward,critical,"SpreadsheetBench 2 official chart checklist: verify_spreadsheetbench2_chart_checklist fails to clear Print_Area when rendering sheets to PDF, completely clipping charts placed outside B2:I47 and causing a false 0/33 verdict on unit 3",yes
+SpreadsheetBench 2,visualization-task-134,F1,Reward,critical,Grader shrinks the chart until its labels are unreadable,no
+SpreadsheetBench 2,visualization-task-134,F2,Reward,critical,SpreadsheetBench 2 official chart checklist: Chart renderer shrinks worksheet with 483 rows into an unreadable thumbnail and blank second page,no
+SpreadsheetBench 2,visualization-task-1411527,F1,Reward,critical,"Verifier checklist grades a second pre-existing chart ('Invoice Dollars Burndown August 2023' on the Dollars sheet) not mentioned in the prompt, and the verifier's fit-to-one-page rendering shrinks that sheet's chart to an illegible 119x81 thumbnail due to stray whitespace cells in the input workbook",yes
+SpreadsheetBench 2,visualization-task-1411527,F2,Environment & Infra,critical,SpreadsheetBench 2 official chart checklist: verify_spreadsheetbench2_chart_checklist renders the pre-existing Dollars chart as an unreadable 119x81 image and causes false negatives on units 1 and 3,yes
+SpreadsheetBench 2,visualization-task-1419935,F1,Reward,critical,"The checklist contradicts itself on the Player pie chart, so some items fail whatever the agent builds",yes
+SpreadsheetBench 2,visualization-task-1419935,F2,Reward,critical,Slicer connectivity and selection are checked through an inadequate rendering-only verifier,yes
+SpreadsheetBench 2,visualization-task-1419935,F3,Reward,critical,"Slicer items can never pass, and the allowed tools cannot build slicers or native pivot tables",yes
+SpreadsheetBench 2,visualization-task-1419935,F4,Verification,critical,Player-percentage answer key contradicts the fixture and itself,yes
+SpreadsheetBench 2,visualization-task-1419935,F5,Reward,critical,Self-contradictory checklist items and undisclosed 'N/A' filtering for 'Count of Player Activities' and 'Number of Game Events',yes
+SpreadsheetBench 2,visualization-task-1419935,F6,Verification,critical,The ground-truth workbook fails its own checklist,no
+SpreadsheetBench 2,visualization-task-1419935,F7,Reward,critical,SpreadsheetBench 2 official chart checklist: verify_spreadsheetbench2_chart_checklist trivially fails (score 0.0) across all units due to LibreOffice rendering limitations on slicers/sheet tabs and contradictory checklist items,yes
+SpreadsheetBench 2,visualization-task-1420776,F1,Environment & Infra,critical,Input workbook already contains the consolidated solution and requested chart,yes
+SpreadsheetBench 2,visualization-task-1420776,F2,Style,critical,Checklist and golden workbook contradict the prompt and each other on X-axis date/time formatting vs raw Excel serial numbers,yes
+SpreadsheetBench 2,visualization-task-1420776,F3,Environment & Infra,critical,Input workbook Task 1420776_input.xlsx already contains the complete consolidated data sheet and multi-series line chart (answer leak),yes
+SpreadsheetBench 2,visualization-task-1420776,F4,Reward,critical,SpreadsheetBench 2 official chart checklist: verify_spreadsheetbench2_chart_checklist produces a false negative on unit 3 due to extreme portrait-page downscaling and raw-serial-number checklist items,yes
+SpreadsheetBench 2,visualization-task-1430721,F1,Reward,critical,Checklist specifies GBP (£) on the x-axis while task instructions and ground truth specify USD ($),yes
+SpreadsheetBench 2,visualization-task-1430721,F2,Reward,critical,Grader requires pounds where the task explicitly requires dollars,no
+SpreadsheetBench 2,visualization-task-1430721,F3,Reward,critical,"The grading checklist uses pound signs (£) for every x-axis value, but the prompt and the answer key use dollars ($)",yes
+SpreadsheetBench 2,visualization-task-1430721,F4,Reward,critical,SpreadsheetBench 2 official chart checklist: Verifier produces false negatives and inconsistent verdicts across equivalent correct charts due to £ vs $ checklist mismatch,yes
+SpreadsheetBench 2,visualization-task-1431124,F1,Reward,critical,"Image-only grader shrinks the whole sheet to a 741x264 px image, so the value checks can't be read, even on the ground truth",no
+SpreadsheetBench 2,visualization-task-96,F1,Verification,critical,"Ground-truth golden file has no chart, only an 'isn't available' placeholder shape",no
+SpreadsheetBench 2,visualization-task-96,F2,Reward,critical,Checklist requires nonexistent 'Sales' category under Sales department and corrupted golden file lacks a valid chart,yes

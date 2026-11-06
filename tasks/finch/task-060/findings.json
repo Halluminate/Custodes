@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth workbook does not contain an Excel Ctrl+T table and appears to have been generated from a different source workbook than 60_src_0.xlsx",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The task statement in `problem.py` instructs: \"On the All Natural Gas sheet, create an Excel Ctrl+T table and filter to show only the COUNTERPARTY entries highlighted in red.\" However, inspecting `gt_60_ref_0.xlsx` against `assets/60_src_0.xlsx` reveals two major discrepancies:\n1. No Excel Table (`<tableParts>` / `ws.tables`) exists anywhere in `gt_60_ref_0.xlsx` (`ws.tables` is `{}`). Instead, `gt_60_ref_0.xlsx` only sets a worksheet-level `<autoFilter ref=\"B3:T143\">` with `<colorFilter dxfId=\"0\"/>` on `colId=\"1\"` (Short Name).\n2. `gt_60_ref_0.xlsx` has a different underlying table structure on `All Natural Gas` than `60_src_0.xlsx`: `60_src_0.xlsx` has 107 rows and 19 columns (`A3:S107`, starting with `ERMS GCP ID` in column A and 104 data rows in `A4:S107`), whereas `gt_60_ref_0.xlsx` has 143 rows and 20 columns (`A3:T143`), including a hidden Column A (`Sitara GCP ID` with values such as `167093`–`167104`) and 36 additional `PB-HDG-*` rows (e.g., rows 25–30 `PB-HDG-CENT1..6`, rows 43–48 `PB-HDG-CENT1-CAD..6-CAD`, rows 65–72 `PB-HDG-EAST1..8`, rows 85–90 `PB-HDG-TEXAS1..6`, rows 109–117 `PB-HDG-WEST1..9`, row 130 `PB-HDG-WEST10`) that were deleted when `60_src_0.xlsx` was created (`docProps/core.xml` shows `gt_60_ref_0.xlsx` was modified at `03:40:24Z` before `60_src_0.xlsx` at `03:42:08Z`).\nBecause the AI grader guidance instructs the judge to verify whether the agent's output is logically equivalent to the reference answer (`correctness`: \"You need to check every value filled or modified by the model and determine whether there is corresponding data in the reference answer\") and whether the agent avoided extra/missing rows (`completeness` / `over_edit_avoidance`), a valid submission built from `60_src_0.xlsx` with an actual Ctrl+T table (`A3:S107`) will differ from `gt_60_ref_0.xlsx` in row count (107 vs. 143), column count (19 vs. 20), cell coordinates, and XML table structure.",
+    "confirmation": "gt_60_ref_0.xlsx 'All Natural Gas' spans A1:T143 with a hidden extra column A ('Sitara GCP ID') and no Excel table (ws.tables empty, only an autoFilter B3:T143), while the input 60_src_0.xlsx spans A1:S107. A correct output built from the input cannot match the reference layout.",
+    "fixed": true,
+    "fix": "gt_60_ref_0.xlsx is now 60_src_0.xlsx plus a Ctrl+T table 'Table1' on 'All Natural Gas'!A3:S107 (TableStyleMedium2) with a colorFilter on column 2 (Short Name, under COUNTERPARTY) for red fill (FF0000). Rows 4-101 are hidden, leaving the six red-filled rows 102-107 (FB-CENT1..6-CAD-GD), the same six entries the old reference showed. No extra 'Sitara GCP ID' column and no extra rows. All cell values match the input."
+  },
+  {
+    "id": "F2",
+    "title": "The reference workbook is a different, larger version of the sheet than the agent's input file",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The input 60_src_0.xlsx 'All Natural Gas' covers A1:S107. Its row-3 headers start 'ERMS GCP ID','Short Name','Long Name' and it has 104 data rows. The reference gt_60_ref_0.xlsx 'All Natural Gas' covers A1:T143. It has an extra leading column A3='Sitara GCP ID' that is filled for PB-* rows (e.g. A19=167093, A57=167073). It also has 36 extra rows that do not exist in the input: PB-HDG-CENT1..6 (rows 25-30), PB-HDG-CENT1..6-CAD (43-48), PB-HDG-EAST1..8 (65-72), PB-HDG-TEXAS1..6 (85-90), PB-HDG-WEST1..9 (109-117) and PB-HDG-WEST10 (130). Because of the extra column, every other column is shifted one to the right (Short Name moves from B to C, the merged ranges move from D2:F2/P1:S1 to E2:G2/Q1:T1). The grader is told to check data accuracy and over-editing by comparing the output cell by cell with the reference, and to flag 'any extra modifications or additions' and deleted rows or columns. A correct agent output keeps 107 rows and columns A-S, so it will differ from the reference by a whole column and 36 rows. The grader may treat these as missing rows or a wrong layout and fail a correct run on 'correctness' and 'completeness'. The reference can only be compared reliably on which rows are visible (the 6 red rows).",
+    "confirmation": "Confirmed: the reference sheet has 143 rows and 20 columns (extra 'Sitara GCP ID' column, headers shifted right) versus 107 rows and 19 columns in the input, so a cell-by-cell comparison by the AI grader penalises a correct run.",
+    "fixed": true,
+    "fix": "Same rebuild: the reference sheet now has the input's 107 rows and 19 columns."
+  }
+]

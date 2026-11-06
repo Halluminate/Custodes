@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "The answer key deletes the seeded input value E36, so an agent that follows the 'don't alter existing cells' rule fails the only verifier",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In the input workbook (assets/13_04_input.xlsx, which matches untouched_input_13_04_input.xlsx cell for cell), Normalize_Adjustments!E36 = 0.35 ('Effective tax rate on adjustments', 2022). In gt_13_04_golden.xlsx, E36 is empty: the GT keeps only D36 = 0.35. The verifier verify_spreadsheetbench2_cells (weight 1, the only check) grades B2:I36. It treats any cell that differs between the reference input and the GT as a 'modification cell', and the task passes only if every modification cell matches the GT exactly. So E36 counts as a modification cell whose expected value is blank. In _values_match, None vs 0.35 has different types and returns False, so the score is 0. The problem statement, however, says: 'strictly avoid altering any cells that already contain values unless explicitly instructed.' An agent that follows this keeps E36 = 0.35 and gets zero, even if every normalization and projection is correct. To pass, the agent would have to delete a seeded input it was told not to touch. The run output directory (/tmp/run-output) was not present, so I could not check how runs scored on this cell.",
+    "confirmation": "Duplicate. gt_13_04_golden.xlsx E36 is None versus input 0.35, and the 'don't alter existing cells' rule makes keeping it the right move, but it scores 0.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F2",
+    "title": "Corrupted ground-truth cell E36 in gt_13_04_golden.xlsx contradicts task instructions and causes valid solutions to fail",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The task statement explicitly instructs the agent: 'When completing spreadsheet tasks, strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.' In the input spreadsheet (`assets/13_04_input.xlsx` and `untouched_input_13_04_input.xlsx`), row 36 ('Effective tax rate on adjustments') contains pre-populated input values in both `D36 = 0.35` (for 2021) and `E36 = 0.35` (for 2022). However, in the golden workbook `gt_13_04_golden.xlsx`, cell `E36` is empty (`None`), even though `E13` ('2022 Normalized Tax') in the golden workbook uses that exact 0.35 rate (`=24+0.35*(28-15)`). Because `verify_spreadsheetbench2_cells` (weight 1.0, the sole verifier) classifies any cell in `Normalize_Adjustments!B2:I36` that differs between the untouched input and golden as a required 'modification' cell and demands 100% modification match (`mod_ratio == 1.0`), `E36` is treated as a required modification from `0.35` to `None`. Any agent that obeys the instruction not to delete pre-existing input values leaves `E36 = 0.35` and receives score 0.0 (`modification 0.9859. 1 cell error(s): Modification error at Normalize_Adjustments!E36: answer=None, output=0.35`).",
+    "confirmation": "Golden E36 is blank while the input's seeded E36=0.35 must be preserved per the prompt, so the sole verifier fails an otherwise correct output (confirmed in run grade.json).",
+    "fixed": true,
+    "fix": "gt_13_04_golden.xlsx: restored the seeded input Normalize_Adjustments!E36 = 0.35 (2022 effective tax rate on adjustments), which the golden had blanked; nothing references it, no other cell changed."
+  },
+  {
+    "id": "F3",
+    "title": "Answer key requires deleting a supplied tax assumption, contradicting preservation instructions",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input workbook and untouched reference both contain 0.35 in Normalize_Adjustments!E36, the 2022 'Effective tax rate on adjustments', but the golden workbook leaves E36 blank. The task explicitly says to 'strictly avoid altering any cells that already contain values unless explicitly instructed'; nothing instructs the agent to delete this assumption. The verifier includes E36 in B2:I36 and treats its deletion as a required modification. Testing the golden workbook with only the original E36 restored produces 'Modification error at Normalize_Adjustments!E36: answer=None, output=0.35' and modification ratio 0.9859. Because the sole verifier has weight 1 and requires every modification cell to match, preserving this supplied value causes an otherwise golden-equivalent solution to receive zero credit.",
+    "confirmation": "Duplicate. Answer key deletes the supplied 2022 tax rate E36=0.35 (golden E13 still uses 0.35), and run grades show the 0.9859 modification failure on E36 alone.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells gives false-negative 0.0 score across all 3 units due to missing E36 value in golden workbook",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units (unit 1 step [16], unit 2 step [26], unit 3 steps [16]-[18]), the agent accurately computed and populated all 70 legitimate modification cells in `Normalize_Adjustments!B2:I36` (normalized COGS, OpEx, Tax, Gross Profit, EBIT, EBT, Net Income, Diluted EPS, historical ratios, and 2023-2025 projections) while preserving all pre-existing input cells including `E36 = 0.35`. Every unit achieved `regression 1.0000, modification 0.9859` (70/71 modification cells correct), failing solely on `Modification error at Normalize_Adjustments!E36: answer=None, output=0.35` because `E36` was inadvertently cleared in `gt_13_04_golden.xlsx`. Because this verifier carries 100% of the problem weight (weight: 1) and requires `mod_ratio == 1.0`, all three completely correct solutions scored 0.0.",
+    "confirmation": "Input and untouched_input both have Normalize_Adjustments!E36=0.35 but gt_13_04_golden.xlsx leaves E36 empty. All 3 trials' grade.json fail only on 'Modification error at Normalize_Adjustments!E36: answer=None, output=0.35'.",
+    "fixed": true,
+    "fix": "gt_13_04_golden.xlsx: restored the seeded input Normalize_Adjustments!E36 = 0.35 (2022 effective tax rate on adjustments), which the golden had blanked; nothing references it, no other cell changed."
+  }
+]

@@ -1,0 +1,45 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official chart checklist",
+      "function": "verify_spreadsheetbench2_chart_checklist",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "checklist": [
+          "The chart is a horizontal bar chart (football field valuation chart) showing valuation ranges",
+          "The chart title reads 'Project Mars - Standalone Valuation Summary'",
+          "The methodologies appear top to bottom in this order: DCF (Based on Management Forecast), Precedent Transactions (10.7x - 13.0x Management 2025A EBITDA), Mgmt Projections 2026E (Based on 9.0x - 15.0x Management Projection), Mgmt Projections 2027E (Based on 8.5x - 14.5x Management Projection), Analyst Target Price Range, 52-Week Trading Range",
+          "The X-axis starts at $15.00",
+          "The X-axis ends at $65.00",
+          "The X-axis displays gridlines at $5.00 intervals",
+          "The Analyst Target Price Range bar is displayed in light blue",
+          "The 52-Week Trading Range bar is displayed in light blue",
+          "The DCF (Based on Management Forecast) bar is displayed in dark blue",
+          "The Precedent Transactions bar is displayed in dark blue",
+          "The Mgmt Projections 2026E bar is displayed in dark blue",
+          "The Mgmt Projections 2027E bar is displayed in dark blue",
+          "The DCF (Based on Management Forecast) bar starts at 41.89 and ends at 51.56 on the X-axis",
+          "The data labels on the DCF bar read '41.89' and '51.56' (currency formatting such as '$20.90' is equivalent)",
+          "The Precedent Transactions bar starts at 38.53 and ends at 46.93 on the X-axis",
+          "The data labels on the Precedent Transactions bar read '38.53' and '46.93' (currency formatting such as '$20.90' is equivalent)",
+          "The Mgmt Projections 2026E bar starts at 20.9 and ends at 37.99 on the X-axis",
+          "The data labels on the Mgmt Projections 2026E bar read '20.9' and '37.99' (currency formatting such as '$20.90' is equivalent)",
+          "The Mgmt Projections 2027E bar starts at 36.25 and ends at 58.69 on the X-axis",
+          "The data labels on the Mgmt Projections 2027E bar read '36.25' and '58.69' (currency formatting such as '$20.90' is equivalent)",
+          "The Analyst Target Price Range bar starts at 33.72 and ends at 46.48 on the X-axis",
+          "The data labels on the Analyst Target Price Range bar read '33.72' and '46.48' (currency formatting such as '$20.90' is equivalent)",
+          "The 52-Week Trading Range bar starts at 38.65 and ends at 44.4 on the X-axis",
+          "The data labels on the 52-Week Trading Range bar read '38.65' and '44.4' (currency formatting such as '$20.90' is equivalent)"
+        ]
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

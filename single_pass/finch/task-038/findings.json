@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt says to use each Shipper's given hurdle rate, but the answer key silently replaces many of the source hurdle rates with different values. An agent that keeps the given inputs, as instructed, will mismatch the reference.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-contradicts-prompt",
+    "evidence": "Source C18/C19/C31/C32/C36/C37 = 0.2243 (=$C$52); answer = 0.4038. Source C20 and C25:C30 = 0.3365 (=$C$55); answer = 1.0096. Source C21/C34/C35 = 0.4038; answer = 2.0191. Source C16/C23/C33 = 0 (=$C$42); answer = 0.1346.",
+    "confirmation": "38_src_0.xlsx gives hurdle rates C18/C19/C31/C32/C36/C37 = $C$52 (0.2243), C20/C25:C30 = $C$55 (0.3365), C21/C34/C35 = $C$56 (0.4038), C16/C23/C33 = $C$42 (0), but gt_38_ref_0.xlsx replaces them with 0.4038, 1.0096, 2.0191 (not in the B45:C59 table) and 0.1346. The prompt says to use each Shipper's "
+  }
+]

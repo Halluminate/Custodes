@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_02_PP_golden.xlsx",
+        "reference_path": "reference/untouched_input_02_05_PP_input.xlsx",
+        "answer_position": "'IS,BS,CF'!B3:K121,'Revenue & COGS Schedule'!B1:O23,'BS schedules'!A1:J164,'Ratios'!B1:K31,'Peer Comparison'!B1:K11,'Valuation snapshot'!B1:C7,'SOTP Astral'!B1:N13,'Realization & EBIT Per KG'!B1:L23,'Rough Valuation'!B1:I18",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

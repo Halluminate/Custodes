@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "DCF sensitivity table ground truth values (DCF!N18:R22) are stale hardcoded numbers from a different model version that contradict the workbook's own DCF formulas",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In spec.yaml, `verify_spreadsheetbench2_cells` (weight: 1) checks `DCF!B2:R58` in `values` mode and requires 100% of modification cells (`mod_ratio == 1.0`) to match `gt_06_DigiMark_golden.xlsx` within 1% relative tolerance. The prompt asks the agent to 'create a sensitivity table using Terminal Growth Rate and WACC ranges' in `DCF!M17:R22`. In `gt_06_DigiMark_golden.xlsx`, the top-left corner cell `DCF!M17` contains the formula `=C24` (`Equity Value - Post Money` = `44,371,232.57`), the column headers `N17:R17` are Terminal Growth Rates (`2.5%`, `3.5%`, `4.0%`, `4.5%`, `5.5%`), and the row headers `M18:M22` are WACC values centered at `M20 = 18.43398%` (which itself does not equal the model's computed WACC in `DCF!C53 = 13.48684%`). Worse, the 25 interior cells `DCF!N18:R22` in `gt_06_DigiMark_golden.xlsx` contain hardcoded constants (`28267200.2302195` to `32694943.2751813`) rather than a live Data Table or formula. Evaluating the workbook's actual DCF model (`C24`) at each `(WACC, Terminal Growth Rate)` pair in `M18:M22` x `N17:R17` produces `33,933,659.08` to `38,438,882.50` (for example at `P18`, where `WACC = 16.43398%` and `TGR = 4.0%`, the workbook's DCF equations yield `35,919,195.68`, whereas `gt_06_DigiMark_golden.xlsx` has `30,213,996.65` — an ~18.9% discrepancy). Exact algebraic decomposition shows that the hardcoded numbers in `gt_06_DigiMark_golden.xlsx` `N18:R22` were frozen from an earlier version of the sheet in which `H14` omitted `H12` (`Terminal Year FCFF` = `3,679,462.44`, discounted by `H18`) and `C23` (`Less: Net Debt`) was `-3,777,711.70` in USD instead of `+3.7777117` in USD millions: for all 25 cells, `GT(N18:R22) = PV(C19:G19) + PV(H13) - 3,777,711.70` to 7 decimal places, whereas the actual workbook formula in `C24` is `PV(C19:G19) + PV(H12 + H13) + 3.7777117`. Consequently, any agent that builds a legitimate Excel two-variable Data Table on `M17:R22` or writes the exact DCF formula into `N18:R22` fails all 25 sensitivity table cells and receives a score of 0.0 (as seen across all 3 runs, where 25 of the 56 modification errors come from `DCF!N18:R22`).",
+    "confirmation": "GT DCF!N18:R22 are hardcoded constants around a hardcoded M20 WACC of 18.43% (model WACC C53 = 13.49%). Re-evaluating the GT's own DCF (which reproduces C24 = 44,371,232.57 at base case) gives 32,031,965 at P20 versus the GT's 26,461,332.",
+    "fixed": true,
+    "fix": "Golden gt_06_DigiMark_golden.xlsx: replaced the 25 stale hardcoded sensitivity values in DCF!N18:R22 with the golden's own DCF (C24 = PV of C16:G16 + PV of terminal H12+H13 + net debt C23) evaluated at each WACC in M18:M22 and terminal growth in N17:R17. The method reproduces the base case C24 = 44,371,232.57 exactly. Examples: N18 28,267,200 -> 34,026,690, P20 26,461,332 -> 32,031,965, R22 24,815,330 -> 30,220,519. Direct XML edit, so no other cell changed. The patched golden grades 1.0 locally."
+  },
+  {
+    "id": "F2",
+    "title": "The ground-truth sensitivity table values can't be reproduced from the GT's own DCF, so a correctly built table always fails",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In the GT, DCF!N18:R22 are pasted constants: 25 modification cells, all of which must match within 1%. I rebuilt the DCF from the GT's cached cash flows (C16:H16, period factors C17:H17, terminal FCFF = G6*(1+g)*0.75 + H11, net debt C23). At the base case (WACC = C53 = 0.13487, g = 4%) it gives exactly 44,371,232.57, which equals GT C24. So the method matches the GT model. Using the table's own axes (WACC M18:M22 = 16.43%…20.43%, g N17:R17 = 2.5%…5.5%), it gives N18 = 34.03M, P20 = 32.03M and R22 = 30.22M. The GT has N18 = 28,267,200, P20 = 26,461,332 and R22 = 24,815,330, which is 17–20% lower in every cell. Solving for the WACC that would produce each GT value gives an inconsistent set (N18 → 20.2%, R18 → 19.0%, both on the 16.4% row). No fixed input-cell mapping explains this, so the table looks like it was pasted from an older model state. The hardcoded axis center M20 = 0.18434 (the GT WACC is 0.1349) supports that. The only verifier (verify_spreadsheetbench2_cells, weight 1, all-or-nothing) needs 100% of modification cells to match. Any agent that correctly builds the requested 'sensitivity table using Terminal Growth Rate and WACC ranges' from the model therefore scores 0.",
+    "confirmation": "Confirmed by recomputation from GT cached cash flows: N18 (16.43%, 2.5%) is about 34.25M versus the GT's 28,267,200, so a correctly built sensitivity table misses all-or-nothing modification cells by about 17-20%.",
+    "fixed": true,
+    "fix": "Golden gt_06_DigiMark_golden.xlsx: replaced the 25 stale hardcoded sensitivity values in DCF!N18:R22 with the golden's own DCF (C24 = PV of C16:G16 + PV of terminal H12+H13 + net debt C23) evaluated at each WACC in M18:M22 and terminal growth in N17:R17. The method reproduces the base case C24 = 44,371,232.57 exactly. Examples: N18 28,267,200 -> 34,026,690, P20 26,461,332 -> 32,031,965, R22 24,815,330 -> 30,220,519. Direct XML edit, so no other cell changed. The patched golden grades 1.0 locally."
+  },
+  {
+    "id": "F3",
+    "title": "Sensitivity answer key does not match the supplied DCF model",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook's DCF!P20 contains 26,461,332.0724567 for WACC 18.4339827586283% and terminal growth 4%. Recalculating that same golden model with DCF!C53 and C36 set to those exact scenario inputs produces equity value DCF!C24 = 32,031,964.9400607. All 25 sensitivity answers disagree with recomputation of the supplied model, well beyond the verifier's 1% tolerance. The sole verifier has weight 1 and requires every modification cell to match, so a correctly calculated sensitivity table can lose the entire score.",
+    "confirmation": "Confirmed: with WACC 0.18434 and g 4%, the GT model gives equity value 32,031,964.94, while GT DCF!P20 holds 26,461,332.07, far beyond the 1% tolerance.",
+    "fixed": true,
+    "fix": "Golden gt_06_DigiMark_golden.xlsx: replaced the 25 stale hardcoded sensitivity values in DCF!N18:R22 with the golden's own DCF (C24 = PV of C16:G16 + PV of terminal H12+H13 + net debt C23) evaluated at each WACC in M18:M22 and terminal growth in N17:R17. The method reproduces the base case C24 = 44,371,232.57 exactly. Examples: N18 28,267,200 -> 34,026,690, P20 26,461,332 -> 32,031,965, R22 24,815,330 -> 30,220,519. Direct XML edit, so no other cell changed. The patched golden grades 1.0 locally."
+  }
+]

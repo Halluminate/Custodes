@@ -1,0 +1,29 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit, but the golden fixes only three reference-anchoring errors (LBO D41/D42 interest-rate anchors, LBO row 9 tax-rate anchor, DCF $C$8 discount anchor) and leaves many other obvious errors in place; because every compared cell must match, any agent that fixes additional real errors fails.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden-incomplete-vs-prompt",
+    "evidence": "Golden differs from input only in 'LBO Analysis'!E41:I42 ($D41/$D42), F9:I9 ('Sources & Uses'!$I15) and DCF!D22:G22 ($C$8) plus their downstream values; the prompt says 'Please audit and fix this file thoroughly' and lists many error types.",
+    "confirmation": "gt_04_golden.xlsx differs from the input only in DCF!C22:G22 and LBO Analysis rows 9/41/42, yet real errors remain in graded ranges (NWC rows 81-83 shifted a year, Income Statement J26:N26 pulling the next period's interest), so an agent following 'audit and fix thoroughly' that fixes them fails the"
+  },
+  {
+    "id": "S2",
+    "title": "The NWC schedule mixes fiscal years: AR pulls year t while Inventory, AP and Accrued pull year t-1, and the golden keeps this; correcting it changes compared cells in PP&E row 84, DCF row 19 and the share price.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden-retains-misaligned-reference",
+    "evidence": "'PP&E, Debt, NWC'!C80='Balance Sheet'!D15 (2015) but C81='Balance Sheet'!C17, C82=C29, C83=C30 (2014); the same shift runs through M81:M83. DCF!C19='PP&E, Debt, NWC'!I84-H84.",
+    "confirmation": "In the golden 'PP&E, Debt, NWC'!C80 ='Balance Sheet'!D15 (2015) while C81:C83 = Balance Sheet C17/C29/C30 (2014 column), a one-year misalignment kept in the GT that feeds graded DCF/Summary cells."
+  },
+  {
+    "id": "S3",
+    "title": "The Total Debt Summary is offset by one period, so the 2021 Income Statement interest pulls 2022 interest and 2025 pulls an empty cell; the golden keeps this, and fixing it changes compared Income Statement J26 and everything downstream.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden-retains-period-offset",
+    "evidence": "'PP&E, Debt, NWC'!E65=1 (2021) but E73=E61+M61 (period-2 columns); D65='Historical' but D73=D61+L61 (2021). 'Income Statement'!J26=-'PP&E, Debt, NWC'!E73 (golden -108.24 = 2022 interest) and N26=-I73=0.",
+    "confirmation": "Debt schedule D55:H55 is periods 1-5 (2021-2025) so D73 is 2021 interest, but golden 'Income Statement'!J26 (2021) = -'PP&E, Debt, NWC'!E73 (-108.24, 2022) and N26 = -I73 = 0; fixing it changes graded Income Statement J26."
+  }
+]

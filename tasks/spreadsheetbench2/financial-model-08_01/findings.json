@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Undisclosed division by 12 (annualization) in Working Capital 'NWC as % Revenue' ground truth",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The prompt instructs: 'In the Total Working Capital section of the Working Capital tab, calculate Inventory, Payables, and Receivables (adjusted for 70% bills discounting) for Aug-23 to Dec-28, then compute NWC as a percentage of Revenue monthly.' On the `Working Capital` tab, row 52 (`J52:BV52`) holds monthly `Total Net Working Capital` and `'Income Statement'!P6:CB6` holds monthly `Revenue`. Neither the prompt nor the workbook labels (`B53` is `NWC as % Revenue`) state that monthly revenue should be annualized (multiplied by 12) in the denominator. However, `gt_08_Seafood_golden.xlsx` uses the formula `=IFERROR((J52/'Income Statement'!P6),\"\")/12` in `Working Capital!J53:BV53` (yielding `0.162457` in `J53`), whereas the literal monthly ratio `J52/'Income Statement'!P6` yields `1.949485`. All 3 units wrote `J52/'Income Statement'!P6` without `/12`, causing all 65 cells in `Working Capital!J53:BV53` to fail in `verify_spreadsheetbench2_cells` (weight 1.0).",
+    "confirmation": "Golden J53:BV53 divide NWC/monthly revenue by 12 (J53 = 0.1625 instead of 1.949). Neither the prompt nor the B53 label 'NWC as % Revenue' discloses this annualization.",
+    "fixed": true,
+    "fix": "gt_08_Seafood_golden.xlsx 'Working Capital'!J53:BV53 (65 cells): removed the trailing /12 from =IFERROR((J52/'Income Statement'!P6),\"\")/12 and set each cached value to J52/P6 (e.g. J53 0.1625 -> 1.9495), so the key computes NWC as a percentage of that month's revenue as the instruction says. Patched in the sheet XML only; local verifier on the patched golden: PASS, reg 1.0, mod 1.0."
+  },
+  {
+    "id": "F2",
+    "title": "Answer key silently annualizes the requested monthly NWC ratio",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions say to compute 'NWC as a percentage of Revenue monthly', but the golden workbook divides each monthly NWC/revenue ratio by an additional 12. For Aug-23, NWC is 13,024,913.1395833 and monthly revenue is 6,681,208.33333334, giving 194.9485%. Golden cell J53 instead uses =IFERROR((J52/'Income Statement'!P6),\"\")/12 and expects 16.2457%. This unstated annualization affects all 65 months in J53:BV53. Substituting the literal monthly ratios into an otherwise unchanged golden fixture produces 65 modification errors; the sole weight-1 verifier consequently awards zero.",
+    "confirmation": "Same hidden /12 in the golden 'Working Capital'!J53 formula, which contradicts the instruction to compute NWC as a percentage of monthly revenue. A literal implementation fails 65 modification cells.",
+    "fixed": true,
+    "fix": "Same J53:BV53 answer-key correction."
+  },
+  {
+    "id": "F3",
+    "title": "SpreadsheetBench 2 official cell check: All-or-nothing cell verifier trivially fails all runs due to unlinked hardcoded DCF sensitivity table values and undisclosed NWC/12 convention",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `verify_spreadsheetbench2_cells` (weight 1.0) returned `score=0 - FAILED - regression 1.0000, modification 0.9285. 173 cell error(s): Modification error at DCF Valuation!D28: answer=47366611.5049744, output=None...`. Independent trajectory reconstruction shows that all 3 units correctly implemented every requested formula in `Income Statement` (EBITDA in `P54:CB54`, Tax in `P66:CB66`), `Balance Sheet` (Payables in `I12:CB12`, Receivables in `I28:CB28`, Check in `C34:CB34`), and `Working Capital` (Inventory in `J46:BV46`, Receivables in `J47:BV47`, Payables in `J48:BV48`), matching 2,247 out of 2,420 modification cells (`2247 / 2420 = 0.9285`) and 100% of regression cells. The remaining 173 cells consist of: (1) 108 cells in the `DCF Valuation` sensitivity table bodies (`D28:I31`, `D35:I38`, `D42:I46`, `D50:I54`), where the prompt only asked to 'link the Equity NPV and Equity IRR cells to their respective sensitivity tables' (which were already linked in `C27`, `C34`, `C41`, `C49` in the input file) while the ground truth expects hardcoded values (`output=None` vs. `answer=47366611.5049744`) that LibreOffice Data Tables cannot even compute for the Case tables (`D28:I31`, `D35:I38`); and (2) 65 cells in `Working Capital!J53:BV53` where the ground truth divides `NWC / Monthly Revenue` by an unstated factor of 12. Because `verify_spreadsheetbench2_cells` requires `mod_ratio == 1.0` to return `1.0` and otherwise returns `0.0`, every unit scores `0.0`.",
+    "confirmation": "At least the NWC part holds: golden 'Working Capital'!J53 is =IFERROR((J52/'Income Statement'!P6),\"\")/12 (0.1625), while the prompt asks only for 'NWC as a percentage of Revenue monthly', so a literal answer misses all 65 J53:BV53 cells under the all-or-nothing check. The sensitivity-table part is w",
+    "fixed": true,
+    "fix": "Same J53:BV53 correction (the confirmed part of this finding). The DCF sensitivity-table cells D28:I54 stay graded because the instruction asks for them."
+  }
+]

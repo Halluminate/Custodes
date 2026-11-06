@@ -1,0 +1,29 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook's cached values for 'Ex 1 - LBO' are internally inconsistent: data-table input substitutions were left in many cells, so a correctly fixed and recalculated workbook cannot match them within 1%.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "stale-golden-values",
+    "evidence": "Golden C31=0.24 but C32=109.5182 (=81.73*1.34; correct value 101.3452). C11=18.2034 while C20=14.2034. U41=0.137 while M17=0.092. U43=0.264 while M27=0.2215. F31=8301.17 while SUM(F20:F21)=9203.24. X24=8987.8 while Y24=8101.8, although both are =$F$21.",
+    "confirmation": "Golden 'Ex 1 - LBO' cached values contradict their own formulas: C11 (=+C20) caches 18.2034 while C20 caches 14.2034, C32 (=C30*(1+C31)) caches 109.5182 vs 81.73*1.24=101.35, and X24/Y24 are both =$F$21 but cache 8987.8 vs 8101.8. Grading is in values mode against these cached values, so a correctly"
+  },
+  {
+    "id": "S2",
+    "title": "The corrupted Ex 1 values feed other compared sheets, so their expected values are also wrong.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "cascading-wrong-expected",
+    "evidence": "Ex 2 C3=9203.24 and C8=20567.08 are built from the stale F20/F21. Ex 5 J75/Q75=18.2034 and X75=C75=17.81209 should all equal Ex1 C11 (14.2034). Ex 5 K79=136.5255 uses the bad multiple. Ex 1 U17=6467.79, U23, AC17-AC29 and Ex 3 G30 use the stale U41/U43.",
+    "confirmation": "Dependent compared cells carry the stale values: Ex 2 C3 (=F21+F20) caches 9203.24, Ex 5 J75/Q75 (=+'Ex 1 - LBO'!$C$11) cache 18.2034 while X75 with the same formula caches 17.81209, and K79 uses the stale J75."
+  },
+  {
+    "id": "S3",
+    "title": "Every sensitivity cell in the golden holds the same string, which is not a real data-table result, and LibreOffice does not evaluate Excel TABLE() data tables the same way.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "data-table-unverifiable",
+    "evidence": "Golden 'Ex 1 - LBO'!AG18:AK22, AG27:AK31, AG36:AK40 and AG45:AK49 all = '2.4x/19%' (=TABLE(...)). The prompt instead tells the agent to use F2/Ctrl+Alt+F9 in an Excel-like GUI.",
+    "confirmation": "Golden 'Ex 1 - LBO'!AG18:AK22 (and the other three blocks) are =TABLE(...) cells that all cache the corner string '2.4x/19%', not real varying sensitivity results, and they are modification cells (input shows #REF!), so a correctly recalculated output will not match; prompt line 36 relies on Excel-o"
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The reference workbook comes from a different version of the facilities sheet than the source. Its rows, columns and cell values do not match the input, so a correct solution that keeps the source data cannot be judged equivalent to the reference.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-mismatch",
+    "evidence": "Source 'EOTT TX-NM Facilities' H10='1194B', K10=10000; reference G7='1194A', H7=9093. Source B2='EOTT TANK LISTING- Last updated 5/15/2001' is absent in the reference. Source Status is in column I; reference Status is in column O. Source Hendrick Tank Farm rows 138-149, Mc Camey rows 173-206 and Midland Station tank 1455 (H230) are missing from the reference. Reference adds values not in the source, such as AE7 'this tank was resized...', D72 'sec 9, ccsd,rgng block X' and H20='36.5M'.",
+    "confirmation": "Source 'EOTT TX-NM Facilities' has B2='EOTT TANK LISTING- Last updated 5/15/2001', header row 5 with Status in column I, and row 10 Abell tank '1194B' 10000 BBL. The reference has a different header layout (Status in O5), G7='1194A' with H7=9093, and values such as D72='sec 9, ccsd,rgng block X' and"
+  }
+]

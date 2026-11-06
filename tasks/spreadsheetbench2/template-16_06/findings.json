@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key uses an incorrect, circular other-income subtotal",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "In the golden workbook, Valuation!D23 ('Total Other Income') is '=SUM(C23:C26)' and evaluates to 3.11627952867669, although its annual components D19:D22 sum to $1,048,642. The formula sums per-square-foot metrics instead of annual income and introduces a circular dependency through C25 → D25 → D23. Enabled iterative calculation masks the circularity. This understates NOI by approximately $971,407 and stabilized value by $19.62 million. The sole verifier has weight 1 and requires every modification cell to match this erroneous key, so a financially correct subtotal and its downstream calculations fail grading.",
+    "confirmation": "Golden D23 sums per-SF metrics C23:C26 rather than the annual components D19:D22 (335,232 + 365,280 + 192,450 + 155,680), creating a circular, understated subtotal that correct work cannot match.",
+    "fixed": true,
+    "fix": "gt_16_06_golden.xlsx: Valuation!D23 changed from =SUM(C23:C26) to =SUM(D19:D22) (1,048,642). Recalculated the workbook so the 13 downstream cells (C25:D26, C28:D28, C42:D42, C44:D44, C46:D46, D50) hold the corrected values. No other cell changed. The patched GT scores 1.0 on the local SB2 cell check."
+  },
+  {
+    "id": "F2",
+    "title": "Ground-truth Total Other Income (Valuation!D23) adds the wrong column and creates a circular reference, so every figure below it is wrong",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In the golden workbook, Valuation!D23 is '=SUM(C23:C26)'. It adds the $/SF/Mo column (C23..C26) when it should add the annual amounts D19:D22. C25 is '=D25/(C6*C7)/12' and D25 is '=D16+D23', so D23 also refers back to itself through C25 (a circular reference). The cached D23 is 3.116. The correct value is 335,232 + 365,280 + 192,450 + 155,680 = 1,048,642. Everything downstream is understated: GPR D25 11,269,431 (should be 12,318,070), EGR D28 10,762,307 (should be ~11,763,757), Property Mgmt D42 322,869 (should be ~352,913), NOI D46 6,300,203 (should be ~7,271,610), Stabilized Value D50 $127.28M (should be ~$146.9M, about 15% off, far outside the 1% tolerance). I copied the GT, changed only D23 to '=SUM(D19:D22)' and ran verify_spreadsheetbench2_cells. Result: 'FAILED - regression 1.0000, modification 0.8356. 12 cell error(s): Valuation!C25 … C26 … C28 … C42 … C46'. This is the only verifier (weight 1, all-or-nothing), so a correct model scores 0. Only an agent that copies the bug can pass.",
+    "confirmation": "Confirmed: golden D23 '=SUM(C23:C26)' = 3.116 sums the wrong column, and C25 '=D25/(C6*C7)/12' with D25 '=D16+D23' makes it circular. Downstream cells such as D25 (11,269,431) are understated by about $1.05M.",
+    "fixed": true,
+    "fix": "gt_16_06_golden.xlsx: Valuation!D23 changed from =SUM(C23:C26) to =SUM(D19:D22) (1,048,642). Recalculated the workbook so the 13 downstream cells (C25:D26, C28:D28, C42:D42, C44:D44, C46:D46, D50) hold the corrected values. No other cell changed. The patched GT scores 1.0 on the local SB2 cell check."
+  },
+  {
+    "id": "F3",
+    "title": "Golden workbook has a wrong formula in Valuation!D23 (=SUM(C23:C26) instead of =SUM(D19:D22)), corrupting 11 downstream cells",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In gt_16_06_golden.xlsx, 'Valuation'!D23 ('Total Other Income' in column D 'Annual Amount') contains the formula '=SUM(C23:C26)' (cached value 3.11627952867669), which sums column C ('$/SF/Mo' rows 23 to 26) instead of summing the four Other Income annual amounts in column D ('=SUM(D19:D22)' = 335232 + 365280 + 192450 + 155680 = 1048642). Because D23 flows into Gross Potential Revenue (D25 = D16+D23), General Vacancy & Credit Loss (D26 = -D25*0.045), Effective Gross Revenue (D28 = D25+D26), Property Management (D42 = D28*0.03), Total Operating Expenses (D44), Net Operating Income (D46 = D28-D44), Stabilized Value (D50 = D46/D49), and their corresponding column C metrics (C25, C26, C28, C42, C44, C46), 11 of the 12 modification cell errors in units 2 and 3 (and 11 of the 15 in unit 1) are caused directly by this golden workbook bug. Because 'SpreadsheetBench 2 official cell check' (weight: 1) requires 100% of modification cells to match the golden workbook within 1% tolerance, any agent that correctly sums Annual Other Income in D23 scores 0.0.",
+    "confirmation": "Golden Valuation!D23 'Total Other Income' is '=SUM(C23:C26)' (cached 3.116), summing $/SF/Mo cells instead of D19:D22 (= 1,048,642). The correct subtotal therefore changes GPR, EGR, NOI and value well beyond the 1% tolerance and fails the all-or-nothing check.",
+    "fixed": true,
+    "fix": "gt_16_06_golden.xlsx: Valuation!D23 changed from =SUM(C23:C26) to =SUM(D19:D22) (1,048,642). Recalculated the workbook so the 13 downstream cells (C25:D26, C28:D28, C42:D42, C44:D44, C46:D46, D50) hold the corrected values. No other cell changed. The patched GT scores 1.0 on the local SB2 cell check."
+  }
+]

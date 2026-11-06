@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt is an open-ended 'audit and fix thoroughly' request, but grading is an all-or-nothing cell-by-cell match over almost every used range of all nine sheets, so the agent must reproduce exactly the undisclosed set of fixes the golden applied, at the golden's exact cell positions.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "underspecified-strict-grading",
+    "evidence": "Instruction: 'Errors may include but are not limited to...'; verifier answer_position spans 'BS & CF'!B2:AC137 ... 'Margin Analysis'!A2:F37, and grader guidance says 'the task passes only if every compared cell matches'.",
+    "confirmation": "The golden's fixes are undisclosed row restorations that must land at exact positions with exact labels, e.g. a new 'DCF Model'!C66 'Memo: EBITDA' row with no values and a new 'BS & CF' row 30, shifting hundreds of compared cells; the generic audit prompt never mentions deleted rows, and only ~20 of"
+  },
+  {
+    "id": "S2",
+    "title": "The golden fixes the missing Cash Flow from Operations line by inserting a new row, which shifts every row below it, yet the input already has a blank row 30 where the line naturally belongs; an agent that fills row 30 produces correct values but fails every comparison from row 31 to row 137.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "layout-dependent-row-insertion",
+    "evidence": "Input 'BS & CF': D29 is AP change, row 30 is empty, D31='(-) CapEx', and F40=SUM(#REF!,F33,F38). Golden: D30='Cash Flow from Operations', CapEx moved to D32, Net Change in Cash at F41=SUM(F30,F34,F39), and the Adjusted block shifted (e.g. K58->K59, X133->X134).",
+    "confirmation": "Input 'BS & CF' row 30 is blank between D29 (AP change) and D31 (CapEx) with F40 =SUM(#REF!,F33,F38); golden inserts a row (D30 'Cash Flow from Operations', CapEx moved to D32, Net Change at F41), so an agent that fills row 30 computes the same cash flow but misaligns every compared cell from row 31"
+  }
+]

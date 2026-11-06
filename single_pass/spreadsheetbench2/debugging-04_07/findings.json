@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit and fix, but the golden workbook corrects only the sign-convention errors and leaves other genuine errors in place, so an agent that fixes them fails the exact-match check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden-retains-errors",
+    "evidence": "Golden 'Income Statement'!J26 = -'PP&E, Debt, NWC'!E73 (2022 interest, -108.24) is booked in 2021. N26 = -I73 = 0, so FY2025 interest is zero and 'Line Item Metrics'!M29 shows #DIV/0!. Re-pointing J26:N26 to D73:H73 changes net income, cash, CF statement and DCF/LBO values everywhere.",
+    "confirmation": "Golden 'Income Statement'!J26 (2021, in graded B2:J57) = -'PP&E, Debt, NWC'!E73, but column D of that schedule is 2021 (C41 pulls BS 2020), so it books 2022 interest; N26 = -I73 = 0 and 'Line Item Metrics'!M29 is #DIV/0!. Fixing it, as the thorough-audit prompt asks, moves net income and downstream "
+  },
+  {
+    "id": "S2",
+    "title": "Broken ratio references are kept in the golden, and correcting them moves values by far more than the 1% tolerance inside the graded range.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden-retains-errors",
+    "evidence": "Golden 'Line Item Metrics'!H24 = H14/AVERAGE('Balance Sheet'!H27:J27) skips I and averages 3 years; fixing it to H27:I27 changes the denominator from about 2004 to 1681. H35 = 'Balance Sheet'!J22/H12 (=0.570); the correct I22/H12 is about 0.577 (+1.2%). Row 35 is offset by one column through L35, and M35 = O22 gives 0. All of these sit in graded range A2:I35.",
+    "confirmation": "Golden 'Line Item Metrics'!H24 averages BS H27:J27 (pattern is H27:I27; denominator 2004 vs 1681) and H35 = BS J22/H12 = 0.570 vs I22/H12 = 0.577; both sit in graded A2:I35 and H24 moves ~19%, beyond the 1% tolerance."
+  }
+]

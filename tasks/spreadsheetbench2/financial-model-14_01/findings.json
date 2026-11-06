@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "The golden workbook fails its own grading after required recalculation",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Recalculating the supplied golden workbook through the verifier's managed_recalculated_xlsx helper and scoring it against the original golden produces regression 1.0000, modification 0.9531, and 97 modification errors, all in NCD. For example, NCD!AA137 expects -3.37507799486048e-13 but recalculates to -3.80140363631654e-13. The comparator applies relative tolerance without an absolute floor when both numbers are nonzero, rejecting economically immaterial floating-point residuals. Because the sole verifier has weight 1 and requires modification 1.0000, even the recalculated answer key receives zero.",
+    "confirmation": "A local recalculation and grade of the golden gives regression 1.0, modification 0.9531, and 98 NCD errors such as AA137 (-3.375e-13 expected vs -3.801e-13), so the answer key fails its own all-or-nothing verifier.",
+    "fixed": true,
+    "fix": "Same GT residue-to-zero edit."
+  },
+  {
+    "id": "F2",
+    "title": "Prompt instructs agent to calculate already-populated 'EBITDA Margin' instead of missing 'PAT Margin %' in Profit & Loss sheet",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The task prompt states: 'In the Profit & Loss sheet, calculate EBITDA Margin for Q4 2019-20 through 2026-27.' However, in the input workbook (14_01_Refinery_input.xlsx), row 37 ('EBITDA Margin %') is already fully populated with formulas (=K18/K6 in J37:K37 and =L18/L6 through =R18/R6 in L37:R37). Meanwhile, row 38 ('PAT Margin %') is blank (None) in J38:R38 in the input workbook, and in the ground truth (gt_14_Refinery_golden.xlsx) J38:R38 is populated with =K30/K6 through =R30/R6 (which also flows into 'DCF_Income Approach'!D45:K45). Because the prompt also warns 'strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task', all 3 comparison units left PAT Margin % (J38:R38) blank and unit 1/unit 3 modified J37 ('EBITDA Margin %' for Q4 2019-20) to =J18/J6, causing both regression errors at DCF_Income Approach!D44 and Profit & Loss!J37 and 17 modification errors across Profit & Loss!J38:R38 and DCF_Income Approach!D45:K45 on the sole verifier (weight 1).",
+    "confirmation": "In the input, 'Profit & Loss'!J37:R37 (EBITDA Margin %) is already filled ('=K18/K6' ... '=R18/R6') and J38:R38 (PAT Margin %) is blank. The golden fills J38:R38 with '=K30/K6' ..., so following the prompt's 'calculate EBITDA Margin' instruction leaves graded modification cells empty.",
+    "fixed": true,
+    "fix": "prompt.md: 'In the Profit & Loss sheet, calculate EBITDA Margin for Q4 2019-20 through 2026-27.' -> '... calculate PAT Margin for Q4 2019-20 through 2026-27.' Row 37 EBITDA Margin is already filled in the input; the GT fills row 38 PAT Margin J38:R38."
+  },
+  {
+    "id": "F3",
+    "title": "The task requests EBITDA margins but the answer key requires PAT margins",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions explicitly request 'calculate EBITDA Margin for Q4 2019-20 through 2026-27.' However, EBITDA Margin is already populated in Profit & Loss!J37:R37. The golden instead fills J38:R38, whose label is 'PAT Margin %', using net profit divided by revenue, such as K38 '=K30/K6'. These nine unrequested PAT cells are mandatory modification checks in the sole weight-1, all-or-nothing verifier. An agent completing the stated EBITDA requirement without adding PAT margins is therefore rejected. Additionally, the golden's Q4 cell J38 uses annual column K rather than Q4 column J.",
+    "confirmation": "The prompt asks for EBITDA Margin, which is already populated in 'Profit & Loss'!J37:R37. The golden instead adds PAT Margin J38:R38 (J38 '=K30/K6', using annual column K), and those cells are mandatory modification checks.",
+    "fixed": true,
+    "fix": "Same prompt sentence change (EBITDA Margin -> PAT Margin)."
+  },
+  {
+    "id": "F4",
+    "title": "Instruction asks for EBITDA Margin, but that row is already filled; the answer key grades PAT Margin (row 38) instead",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "problem.py says: \"In the Profit & Loss sheet, calculate EBITDA Margin for Q4 2019-20 through 2026-27.\" In the input workbook, 'Profit & Loss' row 37 ('EBITDA Margin %') is already complete for J37:R37 ('=K18/K6', '=K18/K6', '=L18/L6' … '=R18/R6'). Row 38 ('PAT Margin %') is the one left blank in J38:R38. The GT workbook fills J38:R38 ('=K30/K6' … '=R30/R6'; values 0.01248, 0.01248, 0.03916, … 0.08889). These are among the cells the input and GT disagree on, so they count toward the modification ratio. verify_spreadsheetbench2_cells (weight 1, the only verifier) returns 1.0 only when the modification ratio is exactly 1.0. An agent that follows the instruction finds EBITDA Margin already done, or re-enters the same formulas in row 37. Either way it leaves row 38 blank, and the whole task scores 0. The agent can only pass by ignoring the written instruction and guessing that the blank PAT row was meant.",
+    "confirmation": "Confirmed: row 37 EBITDA Margin is complete in the input, and the GT changes only row 38 PAT Margin (J38:R38). An agent that does what the prompt says cannot produce the graded modification cells.",
+    "fixed": true,
+    "fix": "Same prompt sentence change (EBITDA Margin -> PAT Margin)."
+  },
+  {
+    "id": "F5",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "Replaying the golden workbook through verify_spreadsheetbench2_cells locally scores 0.0 (modification 0.9531, 98 NCD floating-point residual mismatches), so the GT does not earn full reward. The finding's guess that the GT never reached the grader is wrong, but the failure is real.",
+    "fixed": true,
+    "fix": "Same GT residue-to-zero edit; golden now scores 1.0."
+  },
+  {
+    "id": "F6",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail (impossible to pass) due to unrounded float comparison on near-zero debt schedule cells and Excel DATA TABLE stale cache in golden file",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "The sole verifier `verify_spreadsheetbench2_cells` (weight 1) scores 0.0 on all 3 units (unit 1: 692 errors, mod=0.7199; unit 2: 666 errors, mod=0.7320; unit 3: 667 errors, mod=0.7320) and cannot pass even when given the ground-truth workbook (`gt_14_Refinery_golden.xlsx`) or the input workbook patched with the exact ground-truth formulas. Specifically: (1) In `_values_match` (`spreadsheetbench2.py:92-95`), when both `v1` and `v2` are `int` or `float`, `_within_tolerance(v1, v2)` is called BEFORE `_transform_value` rounds floats to 2 decimal places (`round(float(v), 2)`), and `_within_tolerance` uses relative tolerance `abs(v1 - v2) / max(abs(v1), abs(v2)) <= 0.01` whenever both values are non-zero. In `NCD!B3:BW181` (776 cells) and `TL!A1:BW376` (888 cells), paid-off debt balance rows hold floating-point residuals around `1e-16` to `1e-13` (e.g. `NCD!AA31` is `9.9476e-14` in `reference_path` vs `1.7053e-13` in `gt_path`). Because the input workbook (`14_01_Refinery_input.xlsx`) and golden workbook (`gt_14_Refinery_golden.xlsx`) differ in the last bit of 124 hardcoded decimal constants in `NCD` and `TL` (e.g. `TL!D52` is `31.3869854584649` in input vs `31.386985458465` in golden) and LibreOffice recalculation produces slightly different `1e-13` IEEE-754 residuals (e.g. `NCD!AA137` output `-3.8014e-13` vs golden `-3.3751e-13`), 648 cells in `NCD` (97) and `TL` (551) fail relative tolerance on any submission derived from the input workbook — and even recalculating `gt_14_Refinery_golden.xlsx` itself in LibreOffice fails 97 cells in `NCD` (mod_ratio=0.9531, score=0.0). (2) In `DCF_Income Approach!K27:O31` (25 cells), the cells contain Excel 2-variable data table formulas `{=TABLE($J$26,$C$18,$J27,$C$21,K$26)}`. LibreOffice strips `<f aca=\"true\">TABLE(...)</f>` on save or leaves cached `<v>93901.4559269735</v>` untouched from the input file (or `None` if saved via `openpyxl`), whereas `gt_14_Refinery_golden.xlsx` has `<v>28810.1725164556</v>`, causing 25 additional modification errors on every run.",
+    "confirmation": "Grading gt_14_Refinery_golden.xlsx against itself through the verifier's own recalculation locally gives modification 0.9531 and 98 errors, all near-zero NCD residuals (for example NCD!AA137 -3.375e-13 vs -3.801e-13). The relative-only tolerance rejects these, so the task cannot be passed.",
+    "fixed": true,
+    "fix": "gt_14_Refinery_golden.xlsx: 4,700 formula cells whose cached value was floating-point residue (0 < |v| < 1e-6; NCD 1,981, TL 2,674, Depn - IT _Current 43, Cash Flow 2, e.g. NCD!AA137 -3.375e-13) now cache exactly 0, formulas and every other cell unchanged (XML <v> edit). Zero triggers the verifier's absolute tolerance, so LibreOffice's own residue (e.g. -3.801e-13) matches. Local grade of the new golden through the real verifier: reg 1.0, mod 1.0 (was mod 0.9531, 98 errors)."
+  }
+]

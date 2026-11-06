@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_07_RealEstate_golden.xlsx",
+        "reference_path": "reference/untouched_input_07_01_RealEstate_input.xlsx",
+        "answer_position": "'Executive Summary'!B2:R50,'Inputs'!B2:J80,'Construction Schedule (1)'!A1:BJ70,'Construction Schedule (2)'!A1:BI70,'Construction Schedule'!A1:BI73,'Sales Schedule'!B2:AJ103,'Cashflow (Monthly)'!A1:CQ172,'Cashflow (Quaterly)'!A1:AB126",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

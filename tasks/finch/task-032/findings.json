@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "The answer key gives Fundamentals-Power a supervisor that the source workbook never lists",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In the source sheet 'Rotation list', row 5 (Russell Ballato, 3/1/2001, D5 'Fundamentals-Power') has a blank supervisor cell (E5). No other row gives a supervisor for Fundamentals-Power. The answer key's Requirements!B13 still reads 'Will Lloyd / Davis Dana', which is the supervisor of a different group, N/E Fundamentals (E16 'Lloyd Will/Dana Davis'). For ERCOT, where the source supervisor is also blank, the answer key leaves the cell empty (B23). So the key fills one blank by guessing and leaves the other blank. Grading is a single pass/fail score that checks every value against the reference. An agent that faithfully leaves Fundamentals-Power blank, or writes 'n/a', can therefore fail the whole task.",
+    "confirmation": "Confirmed: source E5 is blank for Fundamentals-Power, but GT B13 fills in the N/E Fundamentals supervisor from E16, while ERCOT-Power (also blank in the source) stays empty in GT B23. The key is inconsistent and not derivable.",
+    "fixed": true,
+    "fix": "Same GT change as F2 (Requirements!B13 cleared)."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth workbook has wrong line supervisor ('Will Lloyd / Davis Dana') and unresolvable supervisor for Fundamentals-Power",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The prompt requires a summary with 'Line Supervisor (surname first)' for each group and business line. In the ground truth (`gt_32_ref_0.xlsx`, `Requirements` sheet), `B13` (`Fundamentals-Power`) and `B27` (`N/E Fundamentals-Power`) both list `'Will Lloyd / Davis Dana'`. In `Rotation list!E16`, the supervisor for `N/E Fundamentals` is `'Lloyd Will/Dana Davis'` (where `Lloyd` is the first name and `Will` is the surname, as shown in the surname-first list at `Rotation list!G20 = 'Will Lloyd'` alongside `'Allen Philip'`, `'Arnold John'`, `'Davis Mark Dana'`). Thus, in surname-first order, Lloyd Will is `'Will Lloyd'`, and the GT inverted only Dana Davis while leaving Lloyd Will in given-name-first order (`'Will Lloyd / Davis Dana'`) or mistook `Will` for a first name. Furthermore, in the input file `32_src_0.xlsx`, `Fundamentals-Power` (`Rotation list` row 5) has a blank supervisor cell (`E5 = None`), so an agent has no way to determine from the source data that `'Will Lloyd / Davis Dana'` is the supervisor for `Fundamentals-Power`. Because the agentic grader scores `correctness` (0 or 1) and overall `score` (0 or 1) by comparing the model's values against the reference answer, a faithful answer derived from `32_src_0.xlsx` will mismatch the reference on `Fundamentals-Power` and `N/E Fundamentals-Power`.",
+    "confirmation": "The name-order complaint is wrong: 'Will Lloyd' matches the surname-first list at G20. The core claim holds, though. 'Rotation list'!E5 (Fundamentals-Power) is blank, yet gt Requirements!B13 expects 'Will Lloyd / Davis Dana', a value a faithful agent cannot derive, and the grader is a single pass/fa",
+    "fixed": true,
+    "fix": "files/gt/gt_32_ref_0.xlsx: Requirements!B13 (Fundamentals-Power line supervisor) cleared; it held 'Will Lloyd / Davis Dana', which belongs to N/E Fundamentals. The source leaves 'Rotation list'!E5 blank, so the key now leaves it blank the same way it already does for ERCOT-Power (B23). No other cell changed."
+  },
+  {
+    "id": "F3",
+    "title": "Required Fundamentals-Power supervisor is missing",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "data_presence",
+    "evidence": "The task requires each group's supervisor, but 'Rotation list' has 'Fundamentals-Power' dated March 1, 2001 in C5:D5 with E5 blank. No other input sheet identifies this group's supervisor. E16 supplies 'Lloyd Will/Dana Davis' only for the distinct 'N/E Fundamentals' group. Nevertheless, the reference workbook's Requirements!B13 expects 'Will Lloyd / Davis Dana' for Fundamentals-Power. A competent agent cannot establish that assignment from the provided data, and an honest missing-data response risks failing the grader's binary correctness assessment.",
+    "confirmation": "Same verified issue: 'Rotation list' C5:D5 Fundamentals-Power has blank E5, and only N/E Fundamentals (E16) names Lloyd Will/Dana Davis, yet GT Requirements!B13 expects that pair.",
+    "fixed": true,
+    "fix": "Same GT change as F2 (Requirements!B13 cleared)."
+  }
+]

@@ -1,0 +1,5 @@
+Run the holding-period return analysis for ChinaBond Export‑Import Bank debt assuming a 0.5‑year hold, comparing the 1‑year vs. 4‑year maturities. Use the scenario where, over the next six months, the 1Y yield shifts up by 1bp and the longer tenor shifts up by 6bp, with current coupons set at 1.25% and 1.75%, respectively.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 96_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

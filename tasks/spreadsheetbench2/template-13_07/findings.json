@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "The answer key deletes an input note (B33) without being asked, so a correct solution that keeps it scores 0",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The input Normalization!B33 says '• Statutory tax rate for adjustment tax effects: 25%'. In the answer key (gt_13_07_golden.xlsx) B33 is empty. B33 is inside the graded range 'Normalization'!B2:I35, so the verifier treats it as a cell that must change. The verifier is all-or-nothing: every changed cell must match. The prompt says 'strictly avoid altering any cells that already contain values unless explicitly instructed', and nothing tells the agent to delete this note. Footnote B35 only asks to rename 'Reported' labels. I built a correct full-precision solution and ran score_workbooks on it. With B33 kept the result was 'modification 0.9884', error 'Modification error at Normalization!B33: answer=None, output=• Statutory tax rate…'. The overall score is 0.0 (the only verifier, weight 1). The same solution with B33 cleared scored 1.0/1.0.",
+    "confirmation": "Input Normalization!B33 is '• Statutory tax rate for adjustment tax effects: 25%', but in gt_13_07_golden.xlsx it is empty. It sits inside the graded B2:I35 range as a required modification, and nothing in the prompt or footnote B35 asks for it to be deleted.",
+    "fixed": true,
+    "fix": "gt_13_07_golden.xlsx Normalization!B33 restored to the input text '• Statutory tax rate for adjustment tax effects: 25%' with the input cell's formatting; it is now an unchanged (regression) cell. Golden scores 1.0 locally; the old golden (B33 deleted) now fails."
+  },
+  {
+    "id": "F2",
+    "title": "The answer key leaves the 2025E assumption cells (I23:I26) blank even though it projects 2025E, so filling them fails",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The answer key fills the averaged assumptions for 2022E–2024E only (F23:H26, e.g. F23=G23=H23=0.0938, F24..H24=0.5209). Column I (2025E) is empty in rows 23–26. Yet I8:I19 still contain 2025E projections (I8=488.2, which needs the 9.38% growth rate). These cells are also empty in the input, so the verifier treats them as cells that must stay unchanged. Those cells must match 99.8% of the time, and there are about 270 of them, so a single mismatch fails. My simulation filled I23:I26 with the averages, which is the natural thing to do for a 2025E column. It scored 'regression 0.9785' with errors such as 'Regression error at Normalization!I23: answer=None, output=0.0938…', so the verifier returns 0. The task says to 'project 2022E-2025E using historical averages', which gives no reason to leave out the 2025E assumption column.",
+    "confirmation": "The golden fills assumptions F23:H26 (e.g. 0.0938, 0.5209, 0.1733, 0.3573) but leaves I23:I26 blank under I6='2025E', while I8:I19 hold 2025E projections. Filling the natural 2025E assumptions adds 4 regression mismatches against the 0.998 threshold, so a reasonable completion fails.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position 'Normalization'!B2:I35 -> 'Normalization'!B2:I22,'Normalization'!B23:H26,'Normalization'!B27:I35 (I23:I26 not compared). Golden with I23:I26 filled with the averages scores 1.0 locally, as does the golden with them blank."
+  },
+  {
+    "id": "F3",
+    "title": "Grader requires deleting a supplied tax-rate assumption",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The staged input and untouched reference contain Normalization!B33: '• Statutory tax rate for adjustment tax effects: 25%'. The golden workbook leaves B33 blank, although the instructions say to 'strictly avoid altering any cells that already contain values unless explicitly instructed' and never request deleting this note. The verifier therefore treats retaining the required assumption as an incorrect modification. A controlled golden-workbook copy with only this note restored produces modification ratio 0.9884 and fails the sole verifier, which carries 100% of the score.",
+    "confirmation": "Duplicate of the B33 defect: the input note '• Statutory tax rate ... 25%' at Normalization!B33 is blank in the golden, so keeping the supplied assumption fails the all-or-nothing modification check.",
+    "fixed": true,
+    "fix": "Same B33 restore in gt_13_07_golden.xlsx."
+  },
+  {
+    "id": "F4",
+    "title": "Golden workbook penalizes completing the 2025E assumptions",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task requests projections through '2022E-2025E', and column I is labeled '2025E'. However, the golden workbook populates projected growth, gross margin, operating expense margin and tax rate only through column H, leaving I23:I26 blank. These blanks are graded as unchanged reference cells. A controlled golden-workbook copy extending the same historical-average assumptions into I23:I26 (0.0938, 0.5209, 0.1733 and 0.3573) produces four regression errors and a regression ratio of 0.9785, below the required 0.998. Thus completing the final forecast year's assumptions fails the sole verifier and loses 100% of the score.",
+    "confirmation": "Duplicate of the I23:I26 defect: the golden leaves the 2025E assumption cells blank although column I (2025E) is projected, so completing them causes regression errors on the sole verifier.",
+    "fixed": true,
+    "fix": "Same answer_position change; grader guidance range text updated to match."
+  }
+]

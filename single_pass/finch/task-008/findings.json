@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt gives only the maximum points for each component of the Overall Severity Score and never says how the points are computed, yet the grader compares exact scores and classifications against the key.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "underspecified_formula",
+    "evidence": "Prompt: 'Duration component (max 40 points) + Economic component (max 30 points) + Workforce component (max 30 points)'. The key appears to scale each value linearly against the dataset maximum: I2=11.4 is 10/35*40, and I21=84.2 is 40+30+380000/800000*30. No solver could infer this from the prompt.",
+    "confirmation": "The prompt only gives component maxima (40/30/30) for the Overall Severity Score, while gt_8_ref_0.xlsx Sheet5 scales each against the dataset maximum (e.g. 1976: 10/35*40 = 11.4; 2013: 16/35*40 + 2100/5000*30 + 30 = 60.9). Any other reasonable scheme changes scores and classifications that the judg"
+  }
+]

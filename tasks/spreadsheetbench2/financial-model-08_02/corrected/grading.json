@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_08_Seafood_golden.xlsx",
+        "reference_path": "reference/untouched_input_08_02_Seafood_input.xlsx",
+        "answer_position": "'DCF Valuation'!B1:O67,'Income Statement'!B2:CB69,'Balance Sheet'!B2:CB34,'Cashflow'!B2:CB33,'Dashboard'!A2:W133,'Ratio Analysis'!B2:H21,'Working Capital'!B2:BV68,'Assumptions - Line 01'!B2:CE409,'Assumptions - Line 02'!B2:CE652,'Assumptions - Line 03'!B2:CE598,'Assumptions - Company Level'!B2:BY60,'Capex and Debt Assumptions '!A2:DL154,'Capex and Debt Assumptions '!A155:F155,'Capex and Debt Assumptions '!N155:DL155,'Capex and Debt Assumptions '!A156:DL156,'Capex and Debt Assumptions '!A157:E157,'Capex and Debt Assumptions '!G157:L157,'Capex and Debt Assumptions '!N157:DL157,'Capex and Debt Assumptions '!A158:E158,'Capex and Debt Assumptions '!N158:DL158,'Capex and Debt Assumptions '!A159:K159,'Capex and Debt Assumptions '!N159:DL159,'Capex and Debt Assumptions '!A160:E160,'Capex and Debt Assumptions '!M160:DL160,'Capex and Debt Assumptions '!A161:E161,'Capex and Debt Assumptions '!N161:DL161,'Capex and Debt Assumptions '!A162:DL162,'Capex and Debt Assumptions '!A163:E163,'Capex and Debt Assumptions '!N163:DL163,'Capex and Debt Assumptions '!A164:DL168,'Capex and Debt Assumptions '!A169:D169,'Capex and Debt Assumptions '!F169:L169,'Capex and Debt Assumptions '!N169:DL169,'Capex and Debt Assumptions '!A170:D170,'Capex and Debt Assumptions '!M170:DL170,'Capex and Debt Assumptions '!A171:D171,'Capex and Debt Assumptions '!N171:DL171,'Capex and Debt Assumptions '!A172:E172,'Capex and Debt Assumptions '!G172:DL172,'Capex and Debt Assumptions '!A173:DL173,'Capex and Debt Assumptions '!A174:E174,'Capex and Debt Assumptions '!N174:DL174,'Capex and Debt Assumptions '!A175:DL179,'Capex and Debt Assumptions '!A180:K180,'Capex and Debt Assumptions '!M180:DL180,'Capex and Debt Assumptions '!A181:E181,'Capex and Debt Assumptions '!L181:DL181,'Capex and Debt Assumptions '!A182:E182,'Capex and Debt Assumptions '!M182:DL182,'Capex and Debt Assumptions '!A183:E183,'Capex and Debt Assumptions '!G183:L183,'Capex and Debt Assumptions '!N183:DL183,'Capex and Debt Assumptions '!A184:DL184,'Capex and Debt Assumptions '!A185:E185,'Capex and Debt Assumptions '!N185:DL185,'Capex and Debt Assumptions '!A186:DL213,'Capex and Debt Assumptions '!A214:B225,'Capex and Debt Assumptions '!E214:E225,'Capex and Debt Assumptions '!G214:G225,'Capex and Debt Assumptions '!I214:DL225,'Capex and Debt Assumptions '!A226:B230,'Capex and Debt Assumptions '!E226:E230,'Capex and Debt Assumptions '!G226:G230,'Capex and Debt Assumptions '!I226:L230,'Capex and Debt Assumptions '!O226:O230,'Capex and Debt Assumptions '!Q226:Q230,'Capex and Debt Assumptions '!S226:DL230,'Capex and Debt Assumptions '!A231:B231,'Capex and Debt Assumptions '!E231,'Capex and Debt Assumptions '!I231:L231,'Capex and Debt Assumptions '!O231,'Capex and Debt Assumptions '!S231:DL231,'Capex and Debt Assumptions '!A232:B313,'Capex and Debt Assumptions '!E232:E313,'Capex and Debt Assumptions '!J232:L313,'Capex and Debt Assumptions '!O232:O313,'Capex and Debt Assumptions '!S232:DL313,'Capex and Debt Assumptions '!A314:B314,'Capex and Debt Assumptions '!E314,'Capex and Debt Assumptions '!J314:L314,'Capex and Debt Assumptions '!O314,'Capex and Debt Assumptions '!R314:DL314,'Capex and Debt Assumptions '!A315:B319,'Capex and Debt Assumptions '!E315:E319,'Capex and Debt Assumptions '!J315:P319,'Capex and Debt Assumptions '!R315:DL319,'Funding Schedule'!B2:T195",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

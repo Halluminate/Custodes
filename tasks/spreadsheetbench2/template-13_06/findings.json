@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Golden workbook gt_13_06_golden.xlsx inconsistently leaves 2025E assumptions J42 and J44 blank while populating J43 and J45, making the verifier impossible to pass for any consistent solution",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In both `13_06_input.xlsx` and `gt_13_06_golden.xlsx`, the `Key Metrics & Assumptions` table has headers `D40=2020`, `E40=2021`, `F40=2022`, `G40='Forecast'`, `H40='2023E'`, `I40='2024E'`, `J40='2025E'`, and all four metric rows (Row 42 `Revenue Growth Rate`, Row 43 `Gross Profit Margin`, Row 44 `Operating Expense Margin`, Row 45 `Tax Rate`) are formatted as `0.00%` across `D42:J45` with instructions in `K42:K45`. However, in `gt_13_06_golden.xlsx`, the `2025E` column (`J`) is populated for Row 43 (`J43 = '=G43' = 0.535232333596984`) and Row 45 (`J45 = '=G45' = 0.274860598590493`), but left blank (`None`) for Row 42 (`J42 = None`) and Row 44 (`J44 = None`). Because `verify_spreadsheetbench2_cells` (weight 1.0, 100% of the score) splits `'FinancialNormalization'!B2:K51` (500 cells) into 73 modification cells (where `input != golden`) and 427 regression cells (where `input == golden`), `J43` and `J45` are graded as modification cells while `J42` and `J44` are graded as regression cells. Because `REGRESSION_PASS_RATIO = 0.998` and `426/427 = 0.9977 < 0.998`, even 1 regression cell mismatch causes the verifier to return `0.0`. Consequently, any agent that consistently fills `J42:J45` for `2025E` fails with 2 regression errors at `J42` and `J44` (`reg_ratio = 425/427 = 0.9953`, `score = 0.0`), while any agent that leaves `J42:J45` empty fails with 2 modification errors at `J43` and `J45` (`mod_ratio = 71/73 = 0.9726`, `score = 0.0`).",
+    "confirmation": "Confirmed: the golden 2025E column fills J43 and J45 but leaves J42 and J44 blank, while the input labels J40 '2025E' and the prompt asks for a 2023E-2025E forecast. Only that arbitrary pattern passes.",
+    "fixed": true,
+    "fix": "Same GT fix: J42 =G42 and J44 =G44 in gt_13_06_golden.xlsx."
+  },
+  {
+    "id": "F2",
+    "title": "Answer key penalizes completing two required 2025E forecast assumptions",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input labels J40 as '2025E' and formats J42:J45 as assumption cells. However, the golden workbook leaves J42 (Revenue Growth Rate) and J44 (Operating Expense Margin) blank while populating J43 and J45. Completing J42 with 0.0944316436251921 and J44 with 0.165570885999925, consistent with the stated historical-average rules, produces 'Regression error at FinancialNormalization!J42: answer=None' and the equivalent error at J44. An otherwise golden workbook then receives regression ratio 0.9953, below the required 0.998. Because the sole verifier has weight 1 and requires both ratios to pass, correctly completing these assumptions changes the entire task score to zero.",
+    "confirmation": "Same defect: the golden workbook leaves J42 and J44 (2025E revenue growth and opex margin) blank, so completing the requested 2025E forecast creates regression errors on those cells.",
+    "fixed": true,
+    "fix": "Same GT fix: J42 =G42 and J44 =G44 in gt_13_06_golden.xlsx."
+  },
+  {
+    "id": "F3",
+    "title": "Answer key leaves 2025E blank for revenue growth and opex margin, so filling them makes the whole task fail",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In the Key Metrics block the row 40 headers are G40='Forecast', H40='2023E', I40='2024E', J40='2025E'. The GT fills J43 (=G43) and J45 (=G45) but leaves J42 and J44 empty, so the 2025E column is filled for gross margin and tax rate only. The verifier (verify_spreadsheetbench2_cells, weight 1, the only check, pass/fail) splits B2:K51 into 426 regression cells (same in input and GT) and 74 modification cells. A regression cell passes only when the output matches the GT, and the regression pass bar is 0.998. One extra populated regression cell gives 425/426 = 0.99765, which is below 0.998, so the task scores 0. J42 and J44 are blank in both input and GT, so they are regression cells. An agent that fills the visible '2025E' column for all four assumptions (the obvious, correct modelling choice, given that GT itself fills J43 and J45) fails the whole problem. An agent that leaves all of column J blank also fails, because J43 and J45 are modification cells. Only the arbitrary pattern 'fill J43 and J45, leave J42 and J44 blank' passes.",
+    "confirmation": "Golden row 42 stops at I42 '=G42' and row 44 at I44 '=G44', with J42 and J44 None, while J43 and J45 are filled. Filling the whole 2025E column makes the grade fail.",
+    "fixed": true,
+    "fix": "Same GT fix: J42 =G42 and J44 =G44 in gt_13_06_golden.xlsx."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check scores 0.0 on all units (including high-quality solutions in units 2 and 3) due to contradictory ground truth in J42:J45",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (weight 1.0) returned `score=0`. Reconstructing each attempt from its trajectory: (1) In unit 2, the agent computed every historical and forecast Income Statement value (`D8:I36`), every historical metric (`D42:F45`), and every `2023E`–`2025E` forecast assumption (`H42:J45`) accurately (`modification 0.9452`, `regression 0.9953`, 6 cell errors), failing only because it left the summary `Forecast` column `G42:G45` blank (`Modification error at FinancialNormalization!G42..G45`) and populated `J42` and `J44` under `J40='2025E'` (`Regression error at FinancialNormalization!J42: answer=None, output=0.0944316436251921` and `J44`). (2) In unit 3, the agent matched 100% of all 73 modification cells (`modification 1.0000`), populating both `G42:G45` and `H42:J45`, yet still failed (`score=0`) on regression (`0.9742`): even setting aside `G9:I9, G16:I16, G27:I27`, populating `J42` and `J44` consistently with `J43` and `J45` under `J40='2025E'` produces 2 regression errors (`425/427 = 0.9953 < 0.998`), guaranteeing `score=0.0`. Because `gt_13_06_golden.xlsx` requires `J43` and `J45` to be filled (for `mod_ratio == 1.0`) while requiring `J42` and `J44` in the same `2025E` column to be `None` (for `reg_ratio >= 0.998`), no consistent solution can pass.",
+    "confirmation": "In gt_13_06_golden.xlsx, FinancialNormalization!J43 and J45 are '=G43'/'=G45' but J42 and J44 are None, even though J40='2025E' applies to all four rows. A consistent solution either fills J42/J44 (regression errors) or leaves J43/J45 blank (modification errors), so the all-or-nothing values check f",
+    "fixed": true,
+    "fix": "gt_13_06_golden.xlsx FinancialNormalization!J42 set to =G42 (cached 0.0944) and J44 to =G44 (cached 0.1656), matching H:I and J43/J45. Nothing else changed. The patched GT, recalculated in LibreOffice, scores reg 1.0 / mod 1.0 locally."
+  }
+]

@@ -1,0 +1,5 @@
+Add a new worksheet named "Scenario3" to the same workbook, mirroring the structure, row/column layout, monthly detail table, and chart area of "Scenario1". For Scenario3, update the hedging assumptions to a balanced allocation: 10-Yr 25%, 5-Yr 20%, 1-Yr 15%, May-Sep 20%, Q3 15%. Keep the note "Maximum Monthly Average Short Position to Cover (July Peak) = 30,508 MW" unchanged; only the new sheet should be added, and formulas may be used within it.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 24_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

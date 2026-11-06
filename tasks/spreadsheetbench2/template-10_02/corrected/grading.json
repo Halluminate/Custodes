@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_10_02_golden.xlsx",
+        "reference_path": "reference/untouched_input_10_02_input.xlsx",
+        "answer_position": "'EPS_Accretion'!B2:E8,'EPS_Accretion'!B9:B9,'EPS_Accretion'!D9:E9,'EPS_Accretion'!B10:D10,'EPS_Accretion'!B11:E30,'EPS_Accretion'!B31:B32,'EPS_Accretion'!E31:E32,'EPS_Accretion'!B33:E42",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

@@ -1,0 +1,6 @@
+Total Monthly Nominal Volume (CNG+TCO): 71,901,426
+Total Monthly Discounted Volume (CNG+TCO): 52,010,139
+Total Monthly Nominal Volume (CNG+TCO) - Total Monthly Discounted Volume (CNG+TCO) = 19,891,287
+Average Daily Nominal Volume (CNG): 5,696
+Average Daily Nominal Volume (TCO): 11,564
+Average Daily Nominal Volume (CNG) - Average Daily Nominal Volume (TCO)=-5,869

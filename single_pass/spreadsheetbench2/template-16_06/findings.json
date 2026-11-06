@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden Total Other Income sums the $/SF/Mo column instead of the annual amounts, so it equals about 3.12 instead of about $1,048,642.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key-formula",
+    "evidence": "gt Valuation!D23 = 3.11627952867669 (=SUM(C23:C26)). The correct value is SUM(D19:D22) = 335,232 + 365,280 + 192,450 + 155,680 = 1,048,642.",
+    "confirmation": "Golden Valuation!D23 is '=SUM(C23:C26)' (a self-referencing sum over the $/SF/Mo column) with cached value 3.116, while the annual other-income lines D19:D22 sum to 1,048,642."
+  },
+  {
+    "id": "S2",
+    "title": "The bad D23 flows into every downstream cell, so a correct model fails the all-cells-must-match check by a wide margin.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "error-propagation",
+    "evidence": "gt D25 = 11,269,431 (should be about 12,318,070); D26 = -507,124 (should be about -554,313); D28 = 10,762,307 (should be about 11,763,757); D42, D44, D46 = 6,300,203 (should be about 7,271,610); D50 = 127.3M (should be about 146.9M); C25, C26, C28, C42, C44, C46 are also affected. All differences exceed the 1% tolerance.",
+    "confirmation": "Golden D25=D16+D23 caches 11,269,431 (about D16 alone), and D26, D28, D42, D46 and D50 (127.3M) all inherit the missing ~$1.05M, so a correct model differs by well over 1% in compared cells."
+  }
+]

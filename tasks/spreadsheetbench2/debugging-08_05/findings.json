@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "The GT's 'fixes' to the averaging ranges follow no consistent rule, so other reasonable corrections are rejected",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The input working-capital averages are R72 '=AVERAGE(M72,H72,E72:F72)', R75 '=AVERAGE(M75,H75,C75:G75)', R78 '=AVERAGE(M78,H78,C78:G78)' and R81 '=AVERAGE(M81,H81,G81)'. The GT changes R72 to '=AVERAGE(M72,H72,E72:G72)', which does not match the C:G pattern of its neighbours, and changes R81 to '=AVERAGE(M81,H81)', dropping 2023 entirely. A competent auditor would most likely align R72 and R81 to the neighbouring C:G pattern. That gives R72 ≈ 39.6 vs the GT's 45.36 and R81 ≈ 0.21 vs 0.294, a difference well over the 1% tolerance. Those values drive rows 71-84 and the whole DCF, all of which are modification cells. N18 is similar: the GT replaces '=AVERAGE(F18:H18)' with a hardcoded 0, which runs against the instruction's own complaint about 'hardcoded values that should be formulas'. The verifier is pass/fail on every modification cell, so any defensible alternative scores 0.",
+    "confirmation": "GT R72 '=AVERAGE(M72,H72,E72:G72)' and R81 '=AVERAGE(M81,H81)' follow no rule shared with R75/R78 '(M,H,C:G)', and N18 becomes a hardcoded 0. Equally defensible repairs (e.g. the C:G pattern) miss by more than 1% on the downstream modification cells.",
+    "fixed": true,
+    "fix": "Same GT R72/R81 re-keying to the C:G window shared by R75/R78 as F5."
+  },
+  {
+    "id": "F2",
+    "title": "Answer key leaves obvious errors unfixed (e.g., broken reference R84 '=R847-M83', negative tax rate C90 = -0.3) even though the instruction asks for a thorough audit, so an agent that fixes them fails the all-or-nothing verifier",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Same issue reported 3 times, differing only in the verifier/range/step cited:\n- The instruction explicitly lists 'broken cell references' as an error to fix. 'Operating Model + DCF'!R84 (Change in NWC, 2026) is '=R847-M83' in both the input and gt_08_golden.xlsx. R847 is an empty cell, so the GT caches R84 = -29.613 (just -M83). The correct formula, =R83-M83 (matching S84 '=S83-R83' etc.), gives -84.29 - 29.61 = -113.91. R84 feeds D94 → D95 → D100 → C102 (Sum of D. UFCF) → C107/C121/C135 → implied EV, equity value and share price in all three valuation blocks. D95, D100, C102 and the valuation outputs are already modification cells, because they change between input and G\n- 'Operating Model + DCF'!C90 (Tax Rate, 2025) = -0.3, while D90:H90 = 0.3. C91 = C89*(1-C90) = -130.39*1.3 = -169.5, so applying a negative tax rate makes the operating loss bigger. C100 is included in C102 = SUM(C100:H100), so this flows into implied EV and price per share (C116 = 276.63, C130 = 293.88, C143 = 279.13 in the GT). Those cells are modification cells under the binary verify_spreadsheetbench2_cells check. An agent that treats -0.3 as a 'potential calculation error', as the instruction invites, fails the task.\n- The instruction says: 'Please audit and fix this file thoroughly. Errors may include but are not limited to: formula logic errors..., hardcoded values that should be formulas, broken cell references, ... inconsistent formatting or naming conventions, best practice violations'. The GT differs from the input in only 4 formulas: N18, R72, R81 and Comps H12. Other visible errors are left in the GT and become regression cells, so fixing them risks failure:\n- R84 =R847-M83\n- C90 = -0.3\n- M27/R27 '% of revenue' dividing by COGS (=M26/M7, =R26/R7)\n- the hardcoded sensitivity-table headers in G107:I112",
+    "confirmation": "The GT leaves the broken R84 '=R847-M83' and the outlier C90 tax rate of -0.3 (D90:H90 = 0.3) even though the prompt asks for a thorough fix of broken references. Fixing them alters graded valuation cells, so a more thorough audit fails.",
+    "fixed": true,
+    "fix": "files/gt/gt_08_golden.xlsx 'Operating Model + DCF': R84 -> '=R83-M83', C90 -0.3 -> 0.3 (matches D90:H90), M27 '=M26/M7' -> '=M26/M4' and R27 '=R26/R7' -> '=R26/R4' (the '% of revenue' row divided by COGS; C27:L27 divide by revenue). 27 cached values recomputed (C91 -169.51 -> -91.27, D94 -29.61 -> -144.38, C116 276.80 -> 277.44, M27 -0.0332 -> -0.0057). answer_position: the hardcoded sensitivity grid 'Operating Model + DCF'!G108:K112 is dropped (stale pasted values with no single correct rebuild; its row/column headers stay graded and keep their values if turned into formulas). The prompt scope sentence from the earlier fix is removed."
+  },
+  {
+    "id": "F3",
+    "title": "Golden workbook penalizes correcting a broken working-capital reference",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task requests a thorough audit, including broken references, but the golden workbook retains 'Operating Model + DCF'!R84 =R847-M83. R847 is empty. Golden R83 is -84.2928522758825 and M83 is 29.613, so the change in NWC should be -113.9058522758825, not the golden value -29.613. Correcting only this reference to =R83-M83 in a golden-workbook copy and recalculating produces six modification-cell mismatches, including D95 and C102; the modification ratio falls to 0.9143. The sole verifier, weighted 100%, consequently returns zero for this legitimate additional repair. Run 2 explicitly reconsidered whether to fix R84/R847, demonstrating that this defect is visible during the requested audit.",
+    "confirmation": "Verified golden R84 '=R847-M83' with R847 empty, R83=-84.29 and M83=29.61. The correct change in NWC is -113.91 vs the golden -29.61, so the legitimate repair is penalized on the sole verifier.",
+    "fixed": true,
+    "fix": "files/gt/gt_08_golden.xlsx 'Operating Model + DCF'!R84 '=R847-M83' -> '=R83-M83' (2026 change in NWC, like S84 '=S83-R83'); cached D94, D95, D100, C102, C107:C145 and F107/F121 recomputed with the verifier's LibreOffice recalc and written at XML level. The prompt scope sentence from the earlier fix is removed."
+  },
+  {
+    "id": "F4",
+    "title": "Ground truth retains broken cell reference Operating Model + DCF!R84 (=R847-M83) that the prompt instructs agents to fix",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The prompt in problem.py:32 explicitly instructs the agent to fix 'broken cell references' and 'formula logic errors or inconsistencies'. In 'Operating Model + DCF', row 84 calculates annual 'Change in NWC' as current-year NWC (row 83) minus prior-year NWC (D84='=D83-C83', E84='=E83-D83', F84='=F83-E83', G84='=G83-F83', H84='=H83-G83', M84='=M83-H83', S84='=S83-R83', T84='=T83-S83', U84='=U83-T83', V84='=V83-U83'). However, cell R84 (2026 Change in NWC) contains the broken cell reference '=R847-M83' (referencing blank row 847 instead of R83) in both the input file and 'gt_08_golden.xlsx' (cached value -29.613 instead of R83-M83 = -113.906). Because R84 flows into the DCF Cash Flow Bridge at D94 ('=R84'), D95 (2026 UFCF), D100 (Discounted UFCF), C102 (Sum of Discounted UFCF), and all three DCF valuation sections (C107:C145), fixing this broken reference as instructed (as unit 1 did) causes 21 graded cells in 'Operating Model + DCF' to diverge from 'gt_08_golden.xlsx', guaranteeing a score of 0.0 on 'SpreadsheetBench 2 official cell check' (weight: 1).",
+    "confirmation": "'Operating Model + DCF'!R84 is '=R847-M83' in both input and GT (cached -29.613), while every neighbour is current minus prior (S84 '=S83-R83'). Fixing it to R83-M83 (-113.91) changes the D94/D95/C102 valuation chain, which are graded modification cells.",
+    "fixed": true,
+    "fix": "files/gt/gt_08_golden.xlsx 'Operating Model + DCF'!R84 '=R847-M83' -> '=R83-M83' (2026 change in NWC, like S84 '=S83-R83'); cached D94, D95, D100, C102, C107:C145 and F107/F121 recomputed with the verifier's LibreOffice recalc and written at XML level. The prompt scope sentence from the earlier fix is removed."
+  },
+  {
+    "id": "F5",
+    "title": "Undisclosed cell-specific historical averaging windows in ground truth (Operating Model + DCF!R72, R81, N18)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The prompt in problem.py:32 gives only a generic audit instruction: 'Please audit and fix this file thoroughly. Errors may include but are not limited to: formula logic errors or inconsistencies, hardcoded values that should be formulas, broken cell references...'. The sole verifier 'SpreadsheetBench 2 official cell check' (verify_spreadsheetbench2_cells, weight: 1) requires 100% of the 70 modification cells between 'untouched_input_Incorrect Average_input.xlsx' and 'gt_08_golden.xlsx' to match within 1% tolerance to award score 1.0 (otherwise 0.0). While 'Comps + WACC'!H12 ('=AVERAGE(H4:H11)' -> '=MEDIAN(H4:H11)') is discoverable from row label B12='Median', the other three root changes in 'gt_08_golden.xlsx' enforce arbitrary, undisclosed conventions: (1) 'Operating Model + DCF'!R72 (2026 DSO) changes from '=AVERAGE(M72,H72,E72:F72)' (44.37) to '=AVERAGE(M72,H72,E72:G72)' (45.36, a 5-year window covering 2021-2025 that excludes 2019-2020 in C72:D72), whereas adjacent working-capital drivers R75 ('=AVERAGE(M75,H75,C75:G75)') and R78 ('=AVERAGE(M78,H78,C78:G78)') average all 7 historical years 2019-2025; (2) 'Operating Model + DCF'!R81 (2026 Other Liabilities % of COGS) changes from '=AVERAGE(M81,H81,G81)' (0.3325, a valid 3-year average of 2023-2025) to '=AVERAGE(M81,H81)' (0.2944, a 2-year average of 2024-2025) with no indication anywhere in the workbook that a 3-year window is wrong or a 2-year window is required; and (3) 'Operating Model + DCF'!N18 (2026 Q1 Other expenses % of revenue) changes from '=AVERAGE(F18:H18)' (-0.0220) to hardcoded 0. These three undisclosed edits drive 61 of the 70 modification cells, causing all three runs to score 0.0 (unit 1: modification 0.1000; units 2 and 3: modification 0.1286).",
+    "confirmation": "The GT's only formula changes are Comps H12 AVERAGE->MEDIAN, R72 E72:F72->E72:G72, R81 dropping G81, and N18 replaced with hardcoded 0. The R72/R81 windows differ from the neighbours' C:G pattern (R75, R78) and nothing in the workbook signals them, yet they drive most of the all-or-nothing modificat",
+    "fixed": true,
+    "fix": "gt_08_golden.xlsx 'Operating Model + DCF': R72 =AVERAGE(M72,H72,E72:G72) -> =AVERAGE(M72,H72,C72:G72) and R81 =AVERAGE(M81,H81) -> =AVERAGE(M81,H81,C81:G81), the same window R75 and R78 use, which is the only rule the workbook signals. The 61 dependent cached values (rows 71-84 projections, DCF rows 94-145) were recomputed with the verifier's LibreOffice recalculation and written into the original file at XML level, with no other change. Checked locally with the verifier code: input + H12 MEDIAN, N18 0 and the C:G windows scores reg 1.0 / mod 1.0 against the new key; the new key scores 1.0 on itself; the untouched input fails."
+  }
+]

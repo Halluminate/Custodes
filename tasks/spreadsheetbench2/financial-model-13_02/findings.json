@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Verifier requires FY25 revenue calculations outside the requested forecast period",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions require calculating Revenue Summary for \"FY26–FY30\", corresponding to columns I:M. However, the golden workbook also fills FY25 cells H8 and H10 with 179.982674358702 and 6.89983885504; these cells are blank in the supplied input. Their subtotal H13 is also graded as a modification. A diagnostic golden-fixture copy retaining only those two original FY25 blanks produced regression 1.0000 but modification 0.9952, failing the sole verifier, which carries 100% of the score. Thus, completing the stated forecast period can still receive zero because of an unstated historical-year requirement.",
+    "confirmation": "Same verified mismatch: the FY25 cells H8/H10 are blank in the input but required by the golden (H8 '=H21+H26', H10 '=H29'), outside the requested forecast period.",
+    "fixed": true,
+    "fix": "Same answer_position change (Revenue Drivers H8:H13 excluded)."
+  },
+  {
+    "id": "F2",
+    "title": "Task instructions ask for Revenue Summary for FY26–FY30 only, but ground truth and verifier require FY25A (column H) to be populated as well",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `problem.py:34`, the instructions state: \"In the Revenue Drivers tab, calculate Revenue Summary for FY26–FY30\" and \"strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.\" In `Revenue Drivers`, row 5 headers are `D5='FY21A'`, `E5='FY22A'`, `F5='FY23A'`, `G5='=BS!I5'` (`FY24A`), `H5='=BS!J5'` (`FY25A`), and `I5:M5` (`FY26E`–`FY30E`). In the input workbook (`13_02_Logistic_input.xlsx`), the Revenue Summary rows `8, 10, 11, 12` are populated only for `D:G` (`FY21A–FY24A`) and are `None` in both `H` (`FY25A`) and `I:M` (`FY26E–FY30E`), while `H13` has `=SUM(H8:H12)` (cached value `0`). However, `gt_13_Logistic_golden.xlsx` populates `H8='=H21+H26'` (`179.982674358702`), `H10='=H29'` (`6.89983885504`), `H11='=H36'` (`0`), and `H12='=H39'` (`0`), changing `H13` from `0` to `186.882513213742`. Because `verify_spreadsheetbench2_cells` (weight: 1) requires `mod_ratio == 1.0` to award 1.0 (and otherwise awards 0.0), an agent that faithfully follows the prompt and fills only `I8:M12` (`FY26–FY30`) fails on `Revenue Drivers!H8`, `H10`, and `H13` and scores 0.0.",
+    "confirmation": "Confirmed: the golden Revenue Drivers H8='=H21+H26' and H10='=H29' sit in column H (FY25A) and are blank in 13_02_Logistic_input.xlsx, which goes beyond the instructed FY26-FY30 and is graded as required modifications.",
+    "fixed": true,
+    "fix": "Same answer_position change (Revenue Drivers H8:H13 excluded)."
+  },
+  {
+    "id": "F3",
+    "title": "Verifier grades FY25A Revenue Summary cells, but the instruction only asks for FY26–FY30",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The instruction says: \"In the Revenue Drivers tab, calculate Revenue Summary for FY26–FY30.\" The Revenue Drivers headers are D5:M5 = FY21A, FY22A, FY23A, FY24A, FY25A, FY26E…FY30E, so column H is FY25A. In the input, Revenue Drivers H8, H10, H11 and H12 are empty, the same as I:M. The GT fills H8 '=H21+H26' (179.98), H10 '=H29' (6.90), H11 '=H36' and H12 '=H39' as well as I:M. I tested this: I took the GT, cleared H8/H10/H11/H12 (which is exactly what a literal FY26–FY30 reading produces) and ran the spec's verifier. It returned score 0.0: 'FAILED - regression 1.0000, modification 0.9952 … Modification error at Revenue Drivers!H8 … H10 … H13'. The verifier is all-or-nothing (weight 1, and every modification cell must match), so this one gap between the prompt and the grader costs the whole score. No run outputs were available to check whether agents filled the FY25A gap anyway.",
+    "confirmation": "Same verified mismatch: the instruction covers FY26-FY30 (I:M), but the golden also fills FY25A H8:H12, and H13 then changes, so the all-or-nothing check fails a literal reading.",
+    "fixed": true,
+    "fix": "Same answer_position change (Revenue Drivers H8:H13 excluded)."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check gives false-negative 0.0 scores on all 3 units due to uninstructed FY25A cells in ground truth",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 comparison units (unit 1, unit 2, and unit 3), the agent inspected the workbook, correctly completed every requested modification (`Input Sheet!I50 = 0.9`, `Cost Drivers!I23:M23`, `Revenue Drivers!I8:M12`, `Working Capital!K28:O28`, `Assets Sch.!K42:O42`, and `Debt Schedule!K21 = 0.12`), recalculated the model via LibreOffice, and saved `/home/model/Desktop/output.xlsx`. All 3 units achieved `regression 1.0000, modification 0.9952` (matching 16,502/16,502 regression cells and 616/619 modification cells), failing solely on the 3 uninstructed `FY25A` cells: `Modification error at Revenue Drivers!H8: answer=179.982674358702, output=None; Modification error at Revenue Drivers!H10: answer=6.89983885504, output=None; Modification error at Revenue Drivers!H13: answer=186.882513213742, output=0`. Because `verify_spreadsheetbench2_cells` carries weight 1 (100% of the task score) and requires 100% modification match, all 3 compliant runs received score=0.",
+    "confirmation": "Input 'Revenue Drivers'!H8, H10, H11 and H12 (FY25A, header H5=BS!J5) are blank, but the golden fills them (=H21+H26, =H29, ...), while the prompt asks only for FY26-FY30. Runs that fill I:M correctly fail the 100%-modification rule on H8/H10/H13.",
+    "fixed": true,
+    "fix": "verifications[0].answer_position: 'Revenue Drivers'!B2:M44 split into 'Revenue Drivers'!B2:M7,'Revenue Drivers'!B8:G13,'Revenue Drivers'!I8:M13,'Revenue Drivers'!B14:M44, dropping the FY25A Revenue Summary cells H8:H13 that the prompt (FY26-FY30) never asks for; no other sheet references them. graderGuidance range text updated to match. Checked locally with the verifier code: the golden with H8:H12 left blank (a literal FY26-FY30 solution) went from mod 0.9952 (H8/H10/H13 errors) to reg 1.0 / mod 1.0; the golden still scores 1.0 and the untouched input still fails."
+  }
+]

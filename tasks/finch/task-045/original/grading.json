@@ -1,0 +1,9 @@
+{
+  "graderMode": "ai_grader",
+  "verifications": [],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

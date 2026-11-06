@@ -1,0 +1,13 @@
+[
+  {
+    "id": "F1",
+    "title": "Verifier cannot pass: the 25 cells in the WACC × terminal-growth sensitivity table (Excel TABLE()) recalculate to 0 or None in any agent output",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The answer_position includes Valuation!H60:L64. In both the input and the GT, these cells hold the Excel data-table formula `TABLE($G$59,$E$67,$G60,$E$23,H$59)` (LibreOffice-saved XML: `<f aca=\"true\">TABLE(...)</f>`). The input's cached value is 0. The GT's cached values are 146.67…90.89, and they survive only because the GT file was never re-saved. The verifier counts these cells as modification cells, because input 0 differs from GT. It needs 100% of modification cells to match, and its score is binary. I wrote exactly the GT formulas into every blank target cell (Financials E17:O17 and K62:O62, Assumptions K122:O122, Ratio_Analysis K40:O40, Valuation E45) with openpyxl, the tool the prompt recommends. Running verify_spreadsheetbench2_cells on that file returned: `FAILED - regression 1.0000, modification 0.9224. 25 cell error(s): Modification error at Valuation!H60: answer=146.672249802561, output=None; ... H64 ...`. A LibreOffice round-trip of the input also leaves H60/L64 at 0, because LibreOffice does not evaluate TABLE(). Feeding the GT file in as the output scores 1.0, which only shows the stale cached values are preserved. A correct solution scores 0. The only way to pass is to overwrite the TABLE formulas with hand-computed numbers. That goes against the instruction not to alter populated cells, and the task never mentions the sensitivity table.",
+    "confirmation": "Valuation!H60:L64 hold '=TABLE($G$59,$E$67,...)' with input caches of 0 and golden caches of 146.67-262.71, so they are graded modification cells. recalculate_xlsx freezes TABLE cells to whatever cache the output carries (libreoffice.py:344/855), so an openpyxl or LibreOffice output cannot produce t",
+    "fixed": true,
+    "fix": "verifications[0].answer_position: 'Valuation'!C3:O96 split into 'Valuation'!C3:O59,'Valuation'!C60:G64,'Valuation'!M60:O64,'Valuation'!C65:O96, dropping the 25 WACC x terminal-growth data-table cells H60:L64 (=TABLE(...)), which the grading recalculation freezes to the output's cache and so cannot reproduce. graderGuidance range text updated to match. Checked locally with the verifier code: the golden workbook re-saved with openpyxl (correct formulas, no caches) went from reg 1.0 / mod 0.9224 (25 H60:L64 errors) to reg 1.0 / mod 1.0; the golden itself still scores 1.0 and the untouched input still fails."
+  }
+]

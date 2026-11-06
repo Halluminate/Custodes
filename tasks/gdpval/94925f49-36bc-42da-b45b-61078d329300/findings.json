@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Graded values depend on live Niche.com data that is blocked and changes over time",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Every school-metric rubric item expects Niche grades, rankings (e.g. '#207 of 2,521') and proficiency percentages as of July 2025. From the container, niche.com returns HTTP 403 (curl of the homepage and of a school page). Niche data drifts over time, so live values will differ from the GT, and an agent that is blocked can only fabricate values or leave them out. Nearly all rubric points depend on this source.",
+    "confirmation": "Nearly all rubric items in grader_guidance.md score Niche grades, ratios and proficiency values, and the run log shows niche.com returning 403 through the proxy. The graded values cannot be obtained, so agents fabricated them.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F2",
+    "title": "Grader guidance and ground truth evaluate 'New Hyde Park Road School' instead of the prompt's required 'Garden City Park School'",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In problem.py:6-11, the task statement explicitly instructs the agent: 'Focus on the following five elementary schools in Floral Park and New Hyde Park: - Floral Park-Bellerose School - John Lewis Childs School - Hillside Grade School - Manor Oaks School - Garden City Park School'. However, both the ground-truth file (gt_School Reports.pdf) and the rubric in problems-metadata.json (grader_guidance) omit 'Garden City Park School' entirely and instead grade 'New Hyde Park Road School' across 10 rubric criteria totaling 14 out of 82 points (17.1% of the rubric): '[+1] The report includes overall Overall Niche.com grade for New Hyde Park Road School', '[+2] ... overall Academics grade for New Hyde Park Road School', '[+2] ... overall Diversity grade for New Hyde Park Road School', '[+1] ... overall Teacher grade for New Hyde Park Road School', '[+2] ... overall Student-teacher ratio for New Hyde Park Road School', '[+1] ... total number of students enrolled at New Hyde Park Road School', '[+2] ... official website of New Hyde Park Road School', '[+1] ... percentage of students proficient in reading at New Hyde Park Road School', '[+1] ... percentage of students proficient in math at New Hyde Park Road School', and '[+1] ... data on featured ranking (if available) for New Hyde Park Road School.' An agent that follows the prompt loses 14/82 points and scores 0.0 under the pairwise comparison rule ('Score 1.0 if the agent's work is better than the expert's, 0.5 if it is about as good, 0.0 if it is worse').",
+    "confirmation": "prompt.md lists 'Garden City Park School' as the fifth school, but grader_guidance.md has 10 'New Hyde Park Road School' rubric items and no Garden City Park items. gt_School Reports.pdf likewise has a New Hyde Park Road School row and no Garden City Park row.",
+    "fixed": true,
+    "fix": "graderGuidance: appended one sentence to the opening paragraph: \"The statement asks for Garden City Park School as the fifth school, while the expert deliverable and rubric cover New Hyde Park Road School, so apply every New Hyde Park Road School item to whichever of the two the agent reports on, and do not mark the agent down for covering Garden City Park School.\""
+  },
+  {
+    "id": "F3",
+    "title": "Rubric grades 'New Hyde Park Road School', but the prompt asks for 'Garden City Park School'",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "world_consistency",
+    "evidence": "problem.py lists the five schools ending with '- Garden City Park School'. The grader guidance never mentions Garden City Park. Instead it has 7 rubric items (Overall grade, Academics, Diversity, Teacher, Student-teacher ratio, enrollment, website, reading %, math %, featured ranking) for 'New Hyde Park Road School', worth about 13 points. The GT PDF also has a 'New Hyde Park Road School' row and no Garden City Park row. An agent that follows the prompt cannot earn any of those points.",
+    "confirmation": "Confirmed: grader_guidance.md mentions 'New Hyde Park Road School' 10 times and 'Garden City' 0 times, and the GT PDF lists New Hyde Park Road School, while the prompt asks for Garden City Park School. An agent that follows the prompt cannot earn those points.",
+    "fixed": true,
+    "fix": "graderGuidance: appended one sentence to the opening paragraph: \"The statement asks for Garden City Park School as the fifth school, while the expert deliverable and rubric cover New Hyde Park Road School, so apply every New Hyde Park Road School item to whichever of the two the agent reports on, and do not mark the agent down for covering Garden City Park School.\""
+  },
+  {
+    "id": "F4",
+    "title": "Grader substitutes New Hyde Park Road School for the required Garden City Park School",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task explicitly lists 'Garden City Park School' among the five required schools, but the grading rubric contains no checks for that school. Instead, it awards 14 of 82 listed rubric points for 'New Hyde Park Road School', including its grades, enrollment, student-teacher ratio, website, proficiency percentages and ranking. Following the requested school list therefore leaves approximately 17% of rubric points attached to an unrequested school.",
+    "confirmation": "Same mismatch: the prompt lists Garden City Park School, but the rubric and GT PDF grade New Hyde Park Road School (10 rubric lines, about 14 points) and never mention Garden City Park.",
+    "fixed": true,
+    "fix": "graderGuidance: appended one sentence to the opening paragraph: \"The statement asks for Garden City Park School as the fifth school, while the expert deliverable and rubric cover New Hyde Park Road School, so apply every New Hyde Park Road School item to whichever of the two the agent reports on, and do not mark the agent down for covering Garden City Park School.\""
+  }
+]

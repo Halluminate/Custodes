@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_14_Refinery_golden.xlsx",
+        "reference_path": "reference/untouched_input_14_03_Refinery_input.xlsx",
+        "answer_position": "'DCF_Income Approach'!B1:O50,'Peers'!B2:F16,'Reported Profit & Loss'!A1:H86,'Profit & Loss'!A1:R50,'Balance sheet'!B3:Q64,'CFS'!A1:L53,'Cash Flow'!A1:N48,'WACC'!B3:G48,'Revenue'!A2:AF36,'Refining Yield'!A2:AH52,'Product Pricing'!A2:X34,'Operating Expenses'!A1:Q126,'Other Income'!A1:R54,'Debt, Interest and Finance Cost'!B1:O46,'Debt Profile - 31st March 2019'!B1:Q58,'Fixed Asset & Depreciation'!B2:M98,'NCD'!B3:BW181,'TL'!A1:BW376,'Depreciation (Companies Act)'!B2:P185,'Depreciation (IT act)'!A3:J72,'Capex details'!B6:P54,'Depn - IT _Current'!A3:I95,'Amortization with extra payment'!B1:P369,'Debt Details'!A1:T59,'Tax ( MAT)'!A2:K8,'WC workings'!A2:M21,'Working Capital'!B2:P32,'Tax-DCF'!A1:J19,'Tax-P&L'!A1:J61,'FS Notes'!A5:F212,'PL'!B3:F51,'1 - Crude Oil  Brent (... Data'!A1:J1855,'1 - Crude Oil  Gulf Co... Data'!A1:J1855,'Tax rates'!A1:D18,'Ann 1 & 2'!B2:I85,'Ann 3'!B2:T101,'Ann 5'!B2:K30,'Ann 6'!B2:Q33,'Ann 8'!B1:D27,'Ann 9'!B1:D32,'Conversion'!B3:C16,'Crude Forecast'!A6:BQ52,'Forecasts_WPIUSD'!A1:P121",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

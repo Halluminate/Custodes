@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "In the golden workbook, the Berk-Hath dividend-rate sensitivity table has its live TABLE formulas replaced with static numbers, and those numbers contradict the model, so no correct recalculated output can match them.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden-corrupted-data-table",
+    "evidence": "Golden 'Berk-Hath Investment Package'!G10:K14 are plain values. I12 (8% dividend, 7.3% discount) = 10429.31, but the base case C44 = 11432.17 at nearly the same inputs. Row 11 (7.5%) is identical to row 12 (8%). Row 14 (9%) duplicates the term table row G20:K20 exactly. The input has =TABLE($F$9,$C$12,...) in these cells.",
+    "confirmation": "Golden 'Berk-Hath Investment Package'!G10:K14 are static values (input has =TABLE formulas) and are internally inconsistent: rows 11 and 12 (7.5% and 8%) are identical, row 10 equals row 13, and I12 = 10429 vs the base case C44 = 11432 at 8% and ~7.35%."
+  },
+  {
+    "id": "S2",
+    "title": "The golden turns every data-table cell into a hardcoded value, while the verifier runs in formula mode, so an agent that keeps the original TABLE/what-if structure fails those cells.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden-removes-formulas",
+    "evidence": "Golden DCF!V10:Z14 and Berk-Hath G18:K22 and G26:K30 have no formulas. The input has =TABLE(...) formulas there. The verification parameter is \"mode\": \"formula\".",
+    "confirmation": "Golden DCF!V10:Z14 and Berk-Hath G10:K30 hold plain numbers while the input has =TABLE(...) there, so every one of these is a modification cell in formula mode; an output keeping the what-if formulas fails all of them (and the Berk-Hath dividend values are corrupt anyway)."
+  }
+]

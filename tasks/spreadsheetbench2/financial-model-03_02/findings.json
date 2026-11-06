@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "The answer key's 'one year' ABV statistics cover about two years, and Min uses a different range from the other three",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In the golden workbook, 'Valuation Band'!S7 (one year Min) is =+MIN(D663:D1155), while S8 to S10 (Max, Median, Average) use D668:D1142. The two ranges don't match each other. Neither one is a year either: the last observation, B1142, is 2014-07-24, but row 663 is 2012-08-13 and row 668 is 2012-08-27, so both windows run about 23 months. Row 1155 is also past the end of the data. A correct trailing year (rows 898 to 1142, starting 2013-07-24) gives Min 10.597, Median 10.863 and Average 10.863. The key has Min 10.050 (5.4% off), Median 10.612 (2.4% off) and Average 10.610 (2.4% off). Using the last 250 observations instead (N = 250 in the sheet) gives the same kind of result. All of these gaps are larger than the verifier's 1% tolerance. The single verifier (weight 1) is pass/fail and needs every changed cell to match, so an agent that correctly computes 'the most recent one year' scores 0. To pass, it would have to copy the key's arbitrary, mismatched windows.",
+    "confirmation": "In gt_03_Banking_golden.xlsx, 'Valuation Band'!S7 = MIN(D663:D1155) and S8:S10 use D668:D1142. Those windows start 2012-08-13 and 2012-08-27 and run to 2014-07-24 (about 2 years, and S7 reaches past the data). A real trailing year (S9/S10 about 10.86 against keyed 10.61) misses by more than the 1% t",
+    "fixed": true,
+    "fix": "Answer key: 'Valuation Band'!S7:S10 now read =+MIN/MAX/MEDIAN/AVERAGE(D898:D1142), the trailing calendar year 2013-07-24 to 2014-07-24, the same window as Price Chart's 'One year'. Values are 10.5972 / 11.1280 / 10.8626 / 10.8626. The old key used two different ranges of about two years (D663:D1155 and D668:D1142). Nothing references these cells. Locally, the new key passes against itself, and so does an output that uses the last 250 observations (D893:D1142), which is within 0.1%."
+  },
+  {
+    "id": "F2",
+    "title": "The answer key uses almost two years for the requested one-year ABV statistics",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task requests statistics for the 'most recent one year', but the golden workbook uses =MIN(D663:D1155) in S7 and D668:D1142 in S8:S10. These observations start on 13 August and 27 August 2012, respectively, and end on 24 July 2014. A trailing-calendar-year selection contains 244 observations and gives Min 10.5993388773, Median 10.8636927453, and Average 10.8636927453; the key instead expects 10.0500984800, 10.6123933893, and 10.6096196653. These discrepancies exceed the verifier's 1% tolerance. Because the sole verifier has weight 1 and requires every modification cell to match, correctly implementing the stated period can lose the entire score.",
+    "confirmation": "In gt_03_Banking_golden.xlsx, 'Valuation Band'!S7 = MIN(D663:D1155) and S8:S10 use D668:D1142. Those windows start 2012-08-13 and 2012-08-27 and run to 2014-07-24 (about 2 years, and S7 reaches past the data). A real trailing year (S9/S10 about 10.86 against keyed 10.61) misses by more than the 1% t",
+    "fixed": true,
+    "fix": "Answer key: 'Valuation Band'!S7:S10 now read =+MIN/MAX/MEDIAN/AVERAGE(D898:D1142), the trailing calendar year 2013-07-24 to 2014-07-24, the same window as Price Chart's 'One year'. Values are 10.5972 / 11.1280 / 10.8626 / 10.8626. The old key used two different ranges of about two years (D663:D1155 and D668:D1142). Nothing references these cells. Locally, the new key passes against itself, and so does an output that uses the last 250 observations (D893:D1142), which is within 0.1%."
+  },
+  {
+    "id": "F3",
+    "title": "Golden solution has erroneous and inconsistent cell ranges for 'most recent one year' ABV statistics in Valuation Band!S7:S10",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "Requirement R4 in problem.py states: 'In the Valuation Band sheet, calculate Min, Max, Median, and Average of ABV for the full period and most recent one year'. In `Valuation Band`, the daily series runs from row 4 (`2010-01-02`) to row 1142 (`2014-07-24`, linked to `'Price Chart'!B1147`), and rows 1143–1155 are completely blank. Each annual period in the sheet uses `Count = 250` observations (`N5:N10 = 250`), so the most recent one year corresponds to rows 893:1142 (250 observations, `2013-07-17` to `2014-07-24`) or rows 898:1142 (`2013-07-24` to `2014-07-24`, matching `'Price Chart'!B1151` 'One year' and `'Price Chart'!J897:L1147` 'Rebased 1 year'). Instead, `gt_03_Banking_golden.xlsx` contains arbitrary, mutually inconsistent ranges spanning roughly two years (from August 2012) and extending into empty rows: `S7 = +MIN(D663:D1155)` (`10.0500984799999`, starting at `2012-08-13` and ending 13 rows past the table at row 1155) and `S8:S10 = MAX/MEDIAN/AVERAGE(D668:D1142)` (`11.1280466133331`, `10.6123933893332`, `10.6096196652771`, starting at `2012-08-27`). Because `verify_spreadsheetbench2_cells` (weight 1.0) requires `mod_ratio == 1.0` (100% of modification cells within 1% tolerance), every run that computes the actual 1-year ABV statistics (~10.59 for S7 and ~10.86 for S9:S10, ~5.3% and ~2.3% away from GT) fails with score 0.0 (`modification 0.9995`, 5503/5506 cells matching).",
+    "confirmation": "In gt_03_Banking_golden.xlsx, 'Valuation Band'!S7 = MIN(D663:D1155) and S8:S10 use D668:D1142. Those windows start 2012-08-13 and 2012-08-27 and run to 2014-07-24 (about 2 years, and S7 reaches past the data). A real trailing year (S9/S10 about 10.86 against keyed 10.61) misses by more than the 1% t",
+    "fixed": true,
+    "fix": "Answer key: 'Valuation Band'!S7:S10 now read =+MIN/MAX/MEDIAN/AVERAGE(D898:D1142), the trailing calendar year 2013-07-24 to 2014-07-24, the same window as Price Chart's 'One year'. Values are 10.5972 / 11.1280 / 10.8626 / 10.8626. The old key used two different ranges of about two years (D663:D1155 and D668:D1142). Nothing references these cells. Locally, the new key passes against itself, and so does an output that uses the last 250 observations (D893:D1142), which is within 0.1%."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails all three valid attempts (score 0.0) due to defective ground-truth formulas in Valuation Band!S7:S10",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (weight 1.0) scored 0.0 with `regression 1.0000, modification 0.9995` (5503 out of 5506 modification cells matched, 100% of 86,546 regression cells matched). The only 3 failing cells in every unit are `Valuation Band!S7`, `S9`, and `S10` ('one year' Min, Median, and Average of ABV). Independently inspecting the trajectories shows that all 3 units correctly completed all required formulas: Unit 1 and Unit 2 used the 250-observation 1-year window `D893:D1142` (matching `N5:N10 = 250` observations per year, producing `S7=10.5863`, `S8=11.1280`, `S9=10.8572`, `S10=10.8572`), while Unit 3 used the calendar 1-year window `D898:D1142` (`2013-07-24` to `2014-07-24`, producing `S7=10.5972`, `S8=11.1280`, `S9=10.8626`, `S10=10.8626`). In contrast, `gt_03_Banking_golden.xlsx` has broken, inconsistent formulas in `S7:S10`: `S7 = +MIN(D663:D1155)` (`10.0501`, starting in Aug 2012—nearly two years prior to Jul 2014—and extending into empty rows 1143:1155) and `S8:S10 = MAX/MEDIAN/AVERAGE(D668:D1142)` (`11.1280`, `10.6124`, `10.6096`, starting at row 668 in Aug 2012). Because `S8` (Max) happens to occur at the end of the upward-trending ABV series (`D1142 = 11.1280`), `S8` passes, while `S7`, `S9`, and `S10` fail the 1% tolerance check against the ~2-year GT numbers, causing the all-or-nothing verifier (`mod_ratio == 1.0`) to return 0.0 on every unit.",
+    "confirmation": "In gt_03_Banking_golden.xlsx, 'Valuation Band'!S7 = MIN(D663:D1155) and S8:S10 use D668:D1142. Those windows start 2012-08-13 and 2012-08-27 and run to 2014-07-24 (about 2 years, and S7 reaches past the data). A real trailing year (S9/S10 about 10.86 against keyed 10.61) misses by more than the 1% t",
+    "fixed": true,
+    "fix": "Answer key: 'Valuation Band'!S7:S10 now read =+MIN/MAX/MEDIAN/AVERAGE(D898:D1142), the trailing calendar year 2013-07-24 to 2014-07-24, the same window as Price Chart's 'One year'. Values are 10.5972 / 11.1280 / 10.8626 / 10.8626. The old key used two different ranges of about two years (D663:D1155 and D668:D1142). Nothing references these cells. Locally, the new key passes against itself, and so does an output that uses the last 250 observations (D893:D1142), which is within 0.1%."
+  }
+]

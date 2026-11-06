@@ -1,0 +1,13 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth deletes original table U25:AA56 and cell F21 despite prompt requiring preservation of all original contents",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `problem.py`, the prompt explicitly instructs: \"Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents.\" In the input workbook `assets/140_src_0.xlsx` (`Sheet1 (3)`), cell `F21` contains `=SUM(F7:F20)` (`34.75518112513435`) and cells `U25:AA56` contain a 32-row table titled `NSS Combined Cashflows` (184 non-empty cells with headers in `U27:AA28`, monthly rows `U30:AA54` for `2001-03-01` through `2003-03-01`, and `totals` in `U56:Z56`). However, in the ground-truth workbook `gt_140_ref_0.xlsx`, both `F21` and the entire `U25:AA56` table have been deleted (`None`). Because the agent modifies `/home/model/Desktop/140_src_0.xlsx` in place and the AI grader runs in a fresh container comparing `/tmp/outputs/140_src_0.xlsx` against `__GT__gt_140_ref_0.xlsx` under binary (0 or 1) scoring (`correctness` and `over_edit_avoidance`), an agent that obeys the prompt and preserves `F21` and `U25:AA56` will not match the reference workbook.",
+    "confirmation": "Confirmed with openpyxl: compared with 140_src_0.xlsx, gt_140_ref_0.xlsx has F21 and the whole U25:AA56 block blanked (191 non-empty cells removed), although the prompt requires preserving original contents. An agent that obeys the prompt diverges from the reference.",
+    "fixed": true,
+    "fix": "gt_140_ref_0.xlsx 'Sheet1 (3)': F21 (=SUM(F7:F20)) and U25:AA56 (NSS Combined Cashflows, 184 non-empty cells) copied back from 140_src_0.xlsx with formats; cached values recomputed in LibreOffice and written in. All other cells, formulas, values and the 6 comments are unchanged."
+  }
+]

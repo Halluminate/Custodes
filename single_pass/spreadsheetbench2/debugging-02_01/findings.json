@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden's hardcoded dividend-rate sensitivity values cannot be produced by the model, so a correct recalculation cannot match them.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key",
+    "evidence": "Golden 'Berk-Hath Investment Package'!G10:K14 replaces the TABLE formulas with constants. The base case I12 (dividend 8%, discount 7.3%) = 10429.31, but the model gives about 11468 at a 7.3% discount (matches golden I20 = 11468.40). The values are also non-monotonic: G10 (7%) = G13 (8.5%) = 11515.71, G11 = G12 = 11152.88, and G14 (9%) = 12241.37, which equals the term-table value G20.",
+    "confirmation": "Golden 'Berk-Hath Investment Package'!G10:K14 are constants: G11=G12=11152.88 for 7.5% and 8%, G10=G13=11515.71 for 7% and 8.5%, and G14=12241.37 equals term-table G20. Base I12=10429.31 conflicts with I20=11468.40 for the same 8%/7.3% inputs, so a correctly recalculated table cannot match."
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook fixes only a handful of cells and leaves many obvious embedded hardcodes in place, so a thorough audit that also fixes these will fail the all-cells-must-match check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "incomplete-answer-key",
+    "evidence": "Golden changes only LBO F12, F13, I32:N33, J46:N46, I54 and Valuation Bridge C4. It keeps LBO J21:N21=1.8 (should link to 'Ex 10 - Forecast Assumptions '!D39:H39), LBO C33=0.053 (should link to 'Ex 12 - Debt Schedule'!H9), LBO C40=0.073 (should link to Ex 12 H11), 'Ex 2 - Income Statement'!C16 '=(C15/784.478)-1', C18 '=303.7', and 'Ex 9 - Perf Metrics'!C19:G19 (hardcoded copies of Ex 2 row 36).",
+    "confirmation": "In formula mode the golden changes only 21 cells but keeps LBO J21:N21 = 1.8 ('Ex 10 - Forecast Assumptions '!D39:H39 = 1.8), C33 = 0.053 (Ex 12 H9 = F9+G9) and C40 = 0.073 (Ex 12 H11), plus 'Ex 2'!C16 '=(C15/784.478)-1' and C18 '=303.7'. Linking these 13+ cells exceeds the ~8-cell regression slack "
+  }
+]

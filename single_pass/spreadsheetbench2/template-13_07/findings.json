@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook drops the input note in B33. That cell is inside the graded range, so an agent that follows the instruction not to alter existing cells keeps B33 and fails.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-deletes-input",
+    "evidence": "Input B33='• Statutory tax rate for adjustment tax effects: 25%'; gt_13_07_golden.xlsx has no B33, and answer_position is 'Normalization'!B2:I35.",
+    "confirmation": "Input Normalization!B33 holds '• Statutory tax rate for adjustment tax effects: 25%' but the golden B33 is empty, inside answer_position 'Normalization'!B2:I35. That makes it a modification cell, so an agent that keeps the note, as the prompt's no-alteration rule requires, fails."
+  }
+]

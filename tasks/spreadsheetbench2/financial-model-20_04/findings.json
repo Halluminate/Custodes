@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Return on Total Assets: the prompt asks for annual FY24–FY27 only, but the answer key also requires all 42 monthly cells",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "This is an output_scope_mismatch. The instruction gives each item a scope. For EBITDA growth it says 'Jul-24 to Dec-27 monthly'. For Return on Total Assets it says only 'for FY24–FY27'. The ground truth changes 46 cells in 'Ratio Analysis' row 18: the 4 annual cells C18:F18 (e.g. C18 ='Income Statement'!C42/'Balance Sheet'!C17 = -0.1976) plus the 42 monthly cells H18:AW18 (e.g. H18 ='Income Statement'!H42/'Balance Sheet'!I17 = -0.0690; AW18 = 0.0773). In the input, H18:AW18 are all blank, so the verifier treats every one of them as a 'modification' cell. verify_spreadsheetbench2_cells is the only verifier (weight 1) and passes only when 100% of modification cells match. An agent that follows the instruction and fills only C18:F18 leaves 42 graded cells blank and scores 0 on the whole task, even if everything else is correct. The EBITDA row shows the opposite pattern: the ground truth fills only the monthly cells H10:AW10, which matches its stated scope.",
+    "confirmation": "GT changes row 10 only in monthly H10:AW10 (matching its 'monthly' scope) but changes row 18 in both annual C18:F18 and monthly H18:AW18, while the prompt states FY24–FY27 only for ROTA, so the answer key exceeds the stated scope on graded cells.",
+    "fixed": true,
+    "fix": "Same answer_position change as verifier-correctness-0."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth grades monthly Return on Total Assets (Jul-24 to Dec-27) despite prompt only asking for annual FY24–FY27",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In problem.py, the instructions state: \"When completing spreadsheet tasks, strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.\" and \"In the Ratio Analysis sheet, calculate EBITDA Growth % for Jul-24 to Dec-27 monthly, then calculate Return on Total Assets for FY24–FY27.\" In 'Ratio Analysis', columns C:F represent annual FY24–FY27 and columns H:AW represent monthly Jul-24 to Dec-27. While both C18:F18 (FY24–FY27) and H18:AW18 (Jul-24 to Dec-27 monthly) are blank in the input workbook (untouched_input_20_04_Fintech_input.xlsx), the prompt explicitly asks for \"Jul-24 to Dec-27 monthly\" for EBITDA Growth % (H10:AW10) and only \"for FY24–FY27\" for Return on Total Assets (C18:F18). However, gt_20_Fintech_golden.xlsx populates both 'Ratio Analysis'!C18:F18 and 'Ratio Analysis'!H18:AW18 (='Income Statement'!H42/'Balance Sheet'!I17 .. AX17), which also flows into 'Summary'!H106:AW106 (='Ratio Analysis'!H18 .. AW18). Because verify_spreadsheetbench2_cells (weight: 1) requires 100% of modification cells to match gt_20_Fintech_golden.xlsx (mod_ratio == 1.0) to award 1.0 and otherwise awards 0.0, following the prompt literally leaves 80 modification cells unmatched (41 in 'Ratio Analysis'!H18:AW18 and 39 in 'Summary'!H106:AW106 outside the 0.01 tolerance of 0), reducing modification accuracy to 0.9782 (3589/3669) and causing a total score of 0.0.",
+    "confirmation": "Confirmed Ratio Analysis row 18 is blank in C:AW in the untouched input and the GT fills both C18:F18 and monthly H18:AW18 (='Income Statement'!H42/'Balance Sheet'!I17 ...), although the prompt scopes this item to FY24–FY27 only.",
+    "fixed": true,
+    "fix": "Same answer_position change as verifier-correctness-0."
+  },
+  {
+    "id": "F3",
+    "title": "Grader requires monthly Return on Total Assets that the instructions request only annually",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task explicitly requests “Return on Total Assets for FY24–FY27,” but the golden workbook also fills Ratio Analysis!H18:AW18 for every month. Those cells and their Summary!H106:AW106 links are graded. A diagnostic control preserving the golden workbook except for these unrequested monthly results produced 80 modification errors and a modification ratio of 0.9782. The sole verifier, weighted 1, returns zero unless every modification cell matches, so completing the stated annual scope can lose the entire score.",
+    "confirmation": "Same verified scope mismatch: the GT populates monthly Ratio Analysis!H18:AW18 that the prompt does not request, and the sole verifier needs every modification cell to match.",
+    "fixed": true,
+    "fix": "Same answer_position change as verifier-correctness-0."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all three units (score=0) for omitting unrequested monthly Return on Total Assets cells",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 comparison units (unit 1, unit 2, and unit 3), the trajectories show that each agent correctly implemented every stated requirement in problem.py via LibreOffice UNO / XML while preserving workbook structure and data tables: (1) 'Balance Sheet Schedules'!H41:AW41 (=H42*-'Income Statement'!H30/30), (2) 'Ratio Analysis'!H10:AW10 (=IFERROR(('Income Statement'!H32/'Income Statement'!G32-1),0)) and 'Ratio Analysis'!C18:F18 (='Income Statement'!C42/'Balance Sheet'!C17 .. F17), (3) 'Revenue Driver'!I19:AW19 (=I17*I16), and (4) 'DCF'!C19:F19 (=C16*C18). Every unit followed the explicit instruction to calculate Return on Total Assets \"for FY24–FY27\" (C18:F18) and \"Modify only the cells that are required for the task\", leaving monthly cells 'Ratio Analysis'!H18:AW18 blank. Consequently, all 3 units achieved the exact same result: regression 1.0000 and modification 0.9782 (matching all 3,589 instructed modification cells, failing only on the 41 unrequested monthly cells in 'Ratio Analysis'!H18:AW18 and their 39 downstream links in 'Summary'!H106:AW106, plus 1 negligible floating-point regression difference at Cashflow!E31 of -4.95e-10 vs -5.24e-10), and received score=0 on the sole verifier (weight: 1).",
+    "confirmation": "The prompt asks for Return on Total Assets 'for FY24–FY27' (contrasting with 'Jul-24 to Dec-27 monthly' for EBITDA growth), but gt_20_Fintech_golden.xlsx also fills Ratio Analysis!H18:AW18 (blank in the input), which feed Summary row 106, so a literal-scope solution fails the all-or-nothing check.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: 'Summary'!B2:AW122 split into B2:AW105, B106:G106, B107:AW122 and 'Ratio Analysis'!B2:AW49 into B2:AW17, B18:G18, B19:AW49, so the unrequested monthly Return on Total Assets cells (Ratio Analysis H18:AW18) and their Summary H106:AW106 links are not compared; the requested FY24-FY27 cells C18:F18 (and Summary C106:F106) stay graded. Local replay: golden PASS; golden with H18:AW18 blanked PASS (was mod 0.9714 FAIL); untouched input still FAIL."
+  }
+]

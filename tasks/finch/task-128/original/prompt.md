@@ -1,0 +1,3 @@
+Prepare a stacked area chart titled "Existing and Proposed Deals with Huber", showing monthly time on the X-axis (from December 2001 to December 2006) and daily gas supply volumes (MMBtu/d) on the Y-axis in the Summary sheet. Each colored band should represent a distinct pricing benchmark or contract type (deal), illustrating how volumes vary over time
+
+Your input files are on your Desktop (/home/model/Desktop): 128_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

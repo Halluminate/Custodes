@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'RevenueBuild'!B2:F37,'RevenueBuild'!G2:G10,'RevenueBuild'!G15,'RevenueBuild'!G18:G20,'RevenueBuild'!G25:G34,'RevenueBuild'!G36, after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

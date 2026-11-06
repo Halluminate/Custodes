@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "The answer key leaves forecast Tax Provision blank, so an agent that does the requested calculation fails the only verifier",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The instruction says: \"then calculate Tax Provision for 2014F–2018F using the Effective Tax Rate.\" In gt_17_FMCG_golden.xlsx, Financials row 38 ('Tax provision') columns K–O (2014F–2018F) are still None, exactly as in the input. Because the cell is identical in the input and the ground truth, the verifier treats K38:O38 as a regression cell that must stay blank. The ground truth's cached forecasts therefore assume zero tax: K41 Profit after tax = K35 PBT = 11,588.0. Effective tax rate K39 = AVERAGE(I39:J39) = 18.3% is never applied. I took the ground-truth workbook, added only the requested formulas (Financials K38:O38 = -K39*K35), recalculated it and scored it with verify_spreadsheetbench2_cells. Result: 'regression 1.0, modification 0.7592', 359 cell errors, final score 0.0. Sample errors: 'Regression error at Financials!K38: answer=None, output=-2123.06' and 'Modification error at Financials!K41: answer=11588.05, output=9464.99'. The unmodified ground truth scores 1.0. The verifier is all-or-nothing (weight 1, every modification cell must match), so following the instruction gives a zero score, and only skipping the requested tax step can pass. The error also spreads into net income, EPS, cash flow, the balance sheet, Valuation, Ratio_Analysis and the chart data, all of which the key computes with zero forecast tax.",
+    "confirmation": "Confirmed: golden Financials!K38:O38 are None, so forecast PAT K41 equals PBT (11588.05). Filling the requested tax provision changes graded downstream cells.",
+    "fixed": true,
+    "fix": "Same GT edit as F5 (forecast tax provision added)."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth omits the explicitly required forecast tax provisions",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions require 'Tax Provision for 2014F–2018F using the Effective Tax Rate', but Financials!K38:O38 are blank in both the input and golden workbooks. The golden model consequently treats forecast tax expense as zero despite a nonzero effective tax rate. For example, golden K35 is 11588.046835332 and K39 is 0.183211160305464, implying K38 = -2123.05950637523. A controlled fixture check that added only the five required tax formulas to the golden workbook produced 320 modification-cell mismatches after recalculation, with modification ratio 0.7592. The sole verifier has weight 1 and requires every modification cell to match, so completing this instruction correctly causes the entire check to fail.",
+    "confirmation": "Same defect: K38:O38 are blank in both the input and the golden workbook, even though K39 holds an 18.32% effective tax rate and the prompt requires the tax provision.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F3",
+    "title": "Golden workbook sets EBITDA equal to EBIT (Financials!E17:O17 = E14+E10), ignoring Depreciation & Amortization in Row 21",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In problem.py:34, the prompt instructs: \"calculate EBITDA for 2008–2018F\". In the Financials sheet of 17_01_FMCG_input.xlsx, Row 10 is Gross Profit ('=E5+E8' = 19181 in 2008), Row 14 is Operating expenses (-13391 in 2008), Row 17 is EBITDA (blank in input), Row 21 is Depreciation and amortizations ('=-E106' = -956 in 2008), and Row 25 is EBIT, which is already pre-populated in the input workbook as '=E10+E14' (5790 in 2008). Furthermore, the Cash Flow Statement (Row 105:109) starts with Net income derived from EBIT ('=E10+E14') and adds back Depreciation & amortization (Row 106 = 956), confirming that Operating expenses (Row 14) already includes D&A and Row 25 is post-D&A EBIT. Consequently, EBITDA (Row 17) must add back D&A ('=E10+E14-E21', yielding 6746 in E17 and 6052 in F17). However, gt_17_FMCG_golden.xlsx sets E17:O17 to '=E14+E10' (5790 in E17 and 5020 in F17), making EBITDA identical to EBIT across all periods. Computing EBITDA with D&A added back causes 112 cell errors in 'SpreadsheetBench 2 official cell check' (weight: 1), resulting in score=0.0.",
+    "confirmation": "Golden Financials!E17 = '=E14+E10' = 5790, the same formula and value as the prefilled EBIT in E25, even though D&A in row 21 is -956. A correct EBITDA (EBIT plus D&A) therefore mismatches the key.",
+    "fixed": true,
+    "fix": "gt_17_FMCG_golden.xlsx: Financials!E17:O17 set to =E10+E14-E21 ... (EBIT plus D&A)."
+  },
+  {
+    "id": "F4",
+    "title": "The answer key equates EBITDA with EBIT despite nonzero depreciation",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook calculates Financials!E17 (EBITDA) as '=E14+E10', yielding 5790, while prefilled E25 (EBIT) uses '=E10+E14' and also yields 5790. Depreciation and amortization is separately reported as 956 in E106 and -956 in E21. The same contradiction occurs throughout 2008–2018F. Holding the prefilled EBIT row fixed, EBITDA should equal EBIT plus depreciation and amortization, or 6746 for 2008. A controlled golden-fixture check using that identity across E17:O17 produced 69 modification-cell mismatches and a modification ratio of 0.9481, failing the sole weight-1 verifier. Thus the key penalizes financially consistent EBITDA calculations.",
+    "confirmation": "Golden E17:O17 EBITDA uses the same formula as EBIT in E25:O25 (=E10+E14), ignoring the nonzero D&A in row 21 (-956 in 2008).",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F5",
+    "title": "Golden workbook omits required 2014F–2018F Tax Provision (Financials!K38:O38), penalizing agents that follow the prompt instruction",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In problem.py:34, the prompt explicitly instructs: \"then calculate Tax Provision for 2014F–2018F using the Effective Tax Rate.\" In the Financials sheet, Row 35 is Profit before Tax (PBT), Row 38 is Tax provision (populated with negative values -1844 to -1851 in historical columns E38:J38, and blank in forecast columns K38:O38), Row 39 is Effective tax rate (populated in K39:O39 with '=AVERAGE(I39:J39)' = 0.183211160305464), and Row 41 is Profit after Tax ('=K35+K38'). Downstream formulas in Financials!R38, Financials!X38:AB38, Valuation!K12:O12 ('=-Financials!K38'), Valuation!K13:O13 ('=+K12/Financials!K35'), and Valuation!E61 ('=AVERAGE(K13:O13)') also reference Financials!K38:O38. However, in gt_17_FMCG_golden.xlsx, Financials!K38:O38 is left completely blank (None), identical to untouched_input_17_01_FMCG_input.xlsx. Because verify_spreadsheetbench2_cells (weight: 1) compares against gt_17_FMCG_golden.xlsx, populating Financials!K38:O38 with '=-K35*K39' (even with golden EBITDA) triggers 359 cell errors across Financials, Valuation, Ratio_Analysis, and Graphical_representation (modification 0.7592, score=0.0).",
+    "confirmation": "The prompt says 'calculate Tax Provision for 2014F-2018F using the Effective Tax Rate', but in the golden workbook Financials!K38:O38 are None, the same as the input, while K39 = 18.3%. So K41 PAT = K35 PBT = 11588.",
+    "fixed": true,
+    "fix": "gt_17_FMCG_golden.xlsx: Financials!K38:O38 set to =-K35*K39 ... =-O35*O39."
+  },
+  {
+    "id": "F6",
+    "title": "SpreadsheetBench 2 official cell check: Verifier fails all three units (score=0.0) due to defective ground-truth workbook on Tax Provision and EBITDA",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 comparison units, the agent inspected the workbook and added the exact 52 formulas requested by problem.py: 37 in Financials (F6:O6 '=F5/E5-1' for Revenue Growth YoY, E10:O10 '=E5+E8' for Gross Profit, E17:O17 '=E10+E14-E21' for EBITDA, and K38:O38 '=-K35*K39' for 2014F–2018F Tax Provision) and 15 in Assumptions (K6:O6 '=J6*(1+K7)' for Personal Care Revenue, K66:O66 '=K67*K14' for Total Capex, and K73:O73 '=K74*K14' for COGS). All 3 units received the identical verdict: 'score=0 - FAILED - regression 1.0000, modification 0.7261. 431 cell error(s): Modification error at Financials!E17: answer=5790, output=6746; Modification error at Financials!E19: answer=0.142881820200874, output=0.166473360807443; Modification error at Financials!F17: answer=5020, output=6052; Regression error at Financials!F18: answer=-0.132987910189983, output=-0.102875778238956; Modification error at Financials!F19: answer=0.126057805790624, output=0.151972478216106'. Of the 431 cell errors, 359 stem from gt_17_FMCG_golden.xlsx leaving Financials!K38:O38 (2014F–2018F Tax Provision) blank despite the prompt explicitly requiring it, and 112 (with 40 overlapping in Ratio_Analysis/Graphical_representation) stem from gt_17_FMCG_golden.xlsx setting EBITDA (E17:O17) equal to EBIT ('=E14+E10' = 5790) without adding back D&A from Row 21 (-956). Because this verifier carries 100% of the score (weight: 1), every unit that follows the task instructions scores 0.0.",
+    "confirmation": "gt_17_FMCG_golden.xlsx leaves Financials!K38:O38 (forecast Tax provision) blank and sets E17:O17 EBITDA '=E14+E10', identical to EBIT in row 25. An agent that does the requested tax calculation changes PAT and everything downstream, so the all-or-nothing values check fails.",
+    "fixed": true,
+    "fix": "gt_17_FMCG_golden.xlsx: Financials!K38:O38 = -K35*K39 (K38 = -2123.06), Financials!E17:O17 = E10+E14-E21 (E17 = 6746). Recalculated in LibreOffice, so the downstream Financials, Valuation, Ratio_Analysis and Graphical_representation values follow. No other formulas changed."
+  }
+]

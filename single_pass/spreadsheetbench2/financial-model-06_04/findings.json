@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The hardcoded sensitivity-table values in the golden DCF do not match the golden model's own DCF mechanics, so a correct recomputation at each WACC/growth pair misses them by about 20%, far beyond the 1% tolerance.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key",
+    "evidence": "Golden DCF!P20 = 26,461,332 (WACC 18.43%, g 4%). Recomputing with the golden FCFFs (C16 2,638,651; D16–G16 5.46M/6.96M/7.41M/3.76M; H12 3,679,462), period factors C17:H17 and TV = H12/(WACC−g) gives about 32.0M. Likewise P18 (16.43%) is 30.21M in the key versus about 35.9M recomputed. The table trend also extrapolates to about 38M at the base 13.49% WACC, while golden C24 = 44.37M.",
+    "confirmation": "Golden DCF!N18:R22 are hardcoded numbers; recomputing with the golden's own mechanics (C16:G16 FCFFs, H12 + H12/(WACC-g) discounted at H17, which reproduces C24 = 44.37M at C53 = 13.49%) gives about 32.0M at 18.43%/4% vs golden P20 = 26.46M, and 35.9M vs P18 = 30.21M, far outside 1%."
+  }
+]

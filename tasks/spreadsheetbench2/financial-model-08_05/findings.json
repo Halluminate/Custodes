@@ -1,0 +1,90 @@
+[
+  {
+    "id": "F1",
+    "title": "Single-pass recalculation rejects an unchanged golden workbook after an openpyxl save",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Loading and saving the golden workbook with the explicitly recommended openpyxl workflow, without editing cell contents, then applying the verifier's forced recalculation produces 1,139 regression errors. For example, 'Capex and Debt Assumptions '!C214 changes from the expected 30,000,000 to 0 despite retaining its original formula. The resulting regression ratio is 0.9943, below the required 0.998, while the modification ratio remains 1.0. Recalculating that same file a second time yields regression 1.0 and modification 1.0. The sole verifier, weighted 1, can therefore award zero because calculation has not settled rather than because the financial model is incorrect.",
+    "confirmation": "Reproduced locally. The unchanged GT scores 1.0, but the same GT loaded and saved with openpyxl (the prompt's recommended workflow) scores 0.0 with regression 0.9943 (1141 errors, e.g. 'Capex and Debt Assumptions'!C214 30000000 vs 0) after the verifier's single recalculation.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F2",
+    "title": "Ground-truth Interest Coverage formula is wrong and inconsistent across columns",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "C21 = 'Income Statement'!C54/'Income Statement'!C62, which is EBITDA / Finance Charges. D21:H21 = ('Income Statement'!D54+'Income Statement'!D57)/'Income Statement'!D62, which is (EBITDA + Depreciation) / Finance Charges. On the Income Statement, row 59 is EBIT (= EBITDA − Depreciation), and D57 Depreciation is a positive 10,029,843.75. Adding depreciation back on top of EBITDA has no finance meaning. For D21 the result is (15,277,629 + 10,029,844) / 5,316,882 = 4.76. The standard EBIT / Interest gives 5,247,786 / 5,316,882 = 0.99, and EBITDA / Interest gives 2.87. The formula pattern also changes between column C and columns D–H. These are graded modification cells in an all-or-nothing check, so an agent that computes interest coverage correctly fails.",
+    "confirmation": "GT Ratio Analysis C21 is ='Income Statement'!C54/C62 (EBITDA/finance charges), while D21:H21 are =(D54+D57)/D62, which adds Depreciation on top of EBITDA. That is inconsistent across columns and not a standard coverage ratio, and these are graded cells.",
+    "fixed": true,
+    "fix": "Interest Coverage row 21 is no longer graded after narrowing answer_position to 'Ratio Analysis'!B2:H19, so its inconsistent key formulas no longer affect the score."
+  },
+  {
+    "id": "F3",
+    "title": "The answer key requires two additional ratios not identified in the task's specific instructions",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions identify 'Debt to Equity' as the calculation required in Ratio Analysis. However, the seed also leaves C20:H20 ('Debt to EBITDA') and C21:H21 ('Interest Coverage Ratio') blank, and the golden workbook supplies formulas for all 12 cells. The answer_position includes these cells, and the verifier requires every modification cell to match. Thus, limiting edits to the specifically requested ratio can fail the sole weight-1 check. The broad instruction to complete the model does not clearly resolve this additional scope alongside 'Modify only the cells that are required for the task.'",
+    "confirmation": "Duplicate of the confirmed scope issue: Ratio Analysis C20:H21 are blank in the input, filled in the GT and graded, though the prompt names only Debt to Equity.",
+    "fixed": true,
+    "fix": "Same answer_position narrowing to 'Ratio Analysis'!B2:H19 as F4."
+  },
+  {
+    "id": "F4",
+    "title": "Verifier grades unrequested Ratio Analysis rows (Debt to EBITDA and Interest Coverage Ratio) and ambiguous Debt to Equity definition",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The prompt instructs: 'In the Ratio Analysis tab, calculate Debt to Equity by referencing other tabs.' However, in `Ratio Analysis!B2:H21` (which is included in `answer_position` of `SpreadsheetBench 2 official cell check`, weight: 1), three rows are blank in the input workbook and populated in `gt_08_Seafood_golden.xlsx`: Row 19 (`Debt to Equity`, `C19:H19`), Row 20 (`Debt to EBITDA`, `C20:H20`), and Row 21 (`Interest Coverage Ratio`, `C21:H21`). Rows 20 and 21 (12 modification cells) are never requested in the task instructions. Furthermore, the ground truth defines Debt to Equity (`C19:H19`) as Long Term Debt only divided by Total Shareholders Equity (`='Balance Sheet'!C18/'Balance Sheet'!C9`), whereas Debt to EBITDA (`C20:H20`) defines Debt as Long Term Debt plus Working Capital Loan (`=('Balance Sheet'!C18+'Balance Sheet'!C13)/'Income Statement'!C54`), and Interest Coverage Ratio (`C21:H21`) uses `='Income Statement'!C54/'Income Statement'!C62` in 2023 (`C21`) but adds back Depreciation again (`=('Income Statement'!D54+'Income Statement'!D57)/'Income Statement'!D62`) in 2024-2028 (`D21:H21`). Because `verify_spreadsheetbench2_cells` requires 100% of modification cells (`mod_ratio == 1.0`) to pass, omitting the unrequested rows 20-21 or using Total Debt in row 19 causes a 0.0 score.",
+    "confirmation": "The prompt asks only for Debt to Equity, but Ratio Analysis C20:H21 (Debt to EBITDA, Interest Coverage) are blank in the input and filled in gt_08_Seafood_golden.xlsx inside answer_position, so they become mandatory modification cells. Row 19 also uses only LTD (C18), while row 20 adds the WC loan (",
+    "fixed": true,
+    "fix": "verifications[0].answer_position: 'Ratio Analysis'!B2:H21 -> 'Ratio Analysis'!B2:H19 (rows 20-21 are not requested and nothing else references them); prompt.md Ratio sentence now says Debt to Equity is Long Term Debt divided by Total Shareholders Equity, matching GT C19 ='Balance Sheet'!C18/'Balance Sheet'!C9. graderGuidance range text updated to match."
+  },
+  {
+    "id": "F5",
+    "title": "Grader requires two Ratio Analysis rows the task never asks for (Debt to EBITDA, Interest Coverage)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The instruction asks for only one ratio: \"In the Ratio Analysis tab, calculate Debt to Equity by referencing other tabs.\" In the input workbook, Ratio Analysis rows 19, 20 and 21 are all empty from C to H. The ground truth fills all three rows: row 20 'Debt to EBITDA' (C20 = ('Balance Sheet'!C18+'Balance Sheet'!C13)/'Income Statement'!C54 = -42.57, …) and row 21 'Interest Coverage Ratio' (C21 = -0.4895, D21 = 4.76, …). The single verifier, verify_spreadsheetbench2_cells (weight 1, all-or-nothing), treats every cell that differs between input and ground truth as a modification cell, and all of them must match. An empty cell does not match a non-zero value. I ran the ground truth through the verifier and it scores 1.0, so the only thing that can make a correct agent fail here is these extra rows. An agent that does exactly what was asked and leaves rows 20–21 empty fails on 12 modification cells and scores 0 on the whole task.",
+    "confirmation": "Confirmed: input Ratio Analysis C20:H21 are None, and the GT fills them with Debt/EBITDA and Interest Coverage formulas. An agent that only computes the requested Debt to Equity misses 12 modification cells and scores 0.",
+    "fixed": true,
+    "fix": "Same answer_position narrowing to 'Ratio Analysis'!B2:H19 as F4."
+  },
+  {
+    "id": "F6",
+    "title": "Interest-coverage answer formulas change definition and double-count depreciation",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook calculates C21 as Income Statement C54/C62, but D21:H21 as (row 54 + row 57)/row 62. Row 54 is labeled 'EBITDA' and row 57 'Depreciation', so the later years add depreciation to a measure already calculated before depreciation. For 2024, the key expects (15,277,629.375 + 10,029,843.75) / 5,316,882.04709821 = 4.75983347022191, whereas EBITDA/finance charges is 2.8734189022188406. This is internally inconsistent with the first year's formula and is neither a consistent EBITDA-based nor EBIT-based coverage ratio. These answer cells are mandatory in the sole weight-1 verifier.",
+    "confirmation": "Confirmed GT D21 = (15,277,629 EBITDA + 10,029,844 Depreciation)/5,316,882 = 4.76, while C21 uses EBITDA alone. The key switches definition and double-counts depreciation in graded cells.",
+    "fixed": true,
+    "fix": "Same as F2: row 21 removed from the graded range."
+  },
+  {
+    "id": "F7",
+    "title": "Net Cost of Equity relies on an unstated, non-standard formula that drives the whole DCF",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The task says only \"calculate Gross Cost of Equity and Net Cost of Equity.\" The inputs are C60 Adjusted risk-free rate, C61 ERP 4.75%, C62 Beta 0.61, C64 'Liquidity Premium' 0.3 and C65 'Small Cap Risk Premium' 0.05. The ground truth uses C66 = C63/(1-C64)+C65 = 0.1126. Nothing in the workbook or the prompt says the liquidity premium is a divisor, and other readings are just as defensible: (C63+C65)/(1-C64) = 0.134, C63*(1+C64)+C65 = 0.107, or simple addition = 0.394. C66 feeds every DCF discount factor (F19:K19), the PV and EV cells, and the sensitivity tables, which makes up about 36 DCF modification cells. Under the all-or-nothing verifier, any other reasonable reading zeroes the task.",
+    "confirmation": "Same confirmed ambiguity: C66 =C63/(1-C64)+C65 is undocumented, and alternatives such as (C63+C65)/(1-C64) are equally defensible but cascade through the graded DCF cells.",
+    "fixed": true,
+    "fix": "Same prompt DCF sentence change as F8."
+  },
+  {
+    "id": "F8",
+    "title": "Undisclosed non-standard Net Cost of Equity formula in DCF Valuation!C66 causes all DCF checks to fail",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The prompt instructs: 'In the DCF Valuation tab, calculate Gross Cost of Equity and Net Cost of Equity.' In the DCF Valuation sheet, rows 63-66 list: Gross Cost of Equity (C63), Liquidity Premium (C64 = 0.3), Small Cap Risk Premium (C65 = 0.05), and Net Cost of Equity (C66). No note, formula, or context anywhere in the workbook or prompt specifies how Liquidity Premium and Small Cap Risk Premium combine into Net Cost of Equity. While Gross Cost of Equity is standard CAPM (`=C60+C61*C62` = 0.043844), the ground truth (`gt_08_Seafood_golden.xlsx`) defines Net Cost of Equity (`DCF Valuation!C66`) as `=C63/(1-C64)+C65` (= 0.112634285714286), dividing Gross Cost of Equity by `(1 - Liquidity Premium)` and then adding Small Cap Risk Premium, rather than standard additive build-up (`=C63+C64+C65` = 0.393844) or multiplicative adjustment. Because `DCF Valuation!C66` drives the discount factors (`F19:K19`), Terminal Value (`K16`), Discounted FCFE (`F20:K20`), Equity NPV (`C23`, `C27`, `C41`), and Equity IRR (`C24`, `C34`, `C49`), using the standard additive formula `=C63+C64+C65` produces 35 modification errors and 3 regression errors in `DCF Valuation`, causing the sole verifier `SpreadsheetBench 2 official cell check` (weight: 1) to score 0.0 (as occurred in all 3 attempts: `answer=184768555.832126, output=-9932491.35024145`).",
+    "confirmation": "GT 'DCF Valuation'!C66 is =C63/(1-C64)+C65 (0.1126), with C64 'Liquidity Premium' 0.3 used as a divisor, and neither the prompt nor the sheet says how to combine the premiums. C66 drives the graded discount factors and NPV cells, so other reasonable readings fail the all-or-nothing check.",
+    "fixed": true,
+    "fix": "prompt.md: the DCF sentence now reads '... calculate Gross Cost of Equity (CAPM on the adjusted risk free rate) and Net Cost of Equity (Gross Cost of Equity divided by one minus the Liquidity Premium, plus the Small Cap Risk Premium).', matching GT C63 =C60+C61*C62 and C66 =C63/(1-C64)+C65."
+  }
+]

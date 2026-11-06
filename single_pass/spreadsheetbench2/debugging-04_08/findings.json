@@ -1,0 +1,29 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit and fix, but the golden workbook corrects only about three injected errors and leaves many obvious formula bugs in place. Any agent that fixes them changes compared cells well beyond the 1% tolerance and fails the all-or-nothing check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "incomplete-answer-key",
+    "evidence": "Golden changes only Income Statement E7 (MATCH type 0), J50:N50 (INDEX range M29:M31 instead of M30:M32), and DCF C16:G16 (M34:Q34 instead of N34:R34). Every other error listed below is identical in the golden and the untouched input.",
+    "confirmation": "Diffing golden vs untouched input shows only IS E7, IS J50:N50 and DCF C16:G16 changed, while real bugs such as the shifted NWC rows (PP&E,Debt,NWC C81:C83) and the shifted interest (IS J26:N26) stay in the golden, so a thorough fix moves compared cells and fails."
+  },
+  {
+    "id": "S2",
+    "title": "The NWC schedule's Inventory, AP and Accrued rows are shifted one year relative to AR, yet the golden keeps them. A correct fix changes OWC, DCF change in NWC, FCF, implied share price and LBO returns.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-expected-value",
+    "evidence": "'PP&E, Debt, NWC'!C80='Balance Sheet'!D15 (2015), but C81='Balance Sheet'!C17, C82=C29 and C83=C30 (2014). In the golden I84=45.28395 feeds DCF!C19=22.31095.",
+    "confirmation": "In the golden, 'PP&E, Debt, NWC'!C79 is 2015 and C80='Balance Sheet'!D15 (2015), but C81:C83 point to Balance Sheet column C (2014), so Inventory/AP/Accrued are a year behind AR, and fixing them changes OWC and downstream compared cells."
+  },
+  {
+    "id": "S3",
+    "title": "Projected interest expense is pulled from the wrong year in the debt summary, yet the golden keeps it. The final year's interest is zero, 2025 net income roughly doubles, and EBIT/Interest returns #DIV/0!.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-expected-value",
+    "evidence": "Income Statement J26=-'PP&E, Debt, NWC'!E73 (period 2) and N26=-I73 (blank) give 0. Golden N26=0, N37=176.44 vs M37=94.08, and 'Line Item Metrics'!M29='#DIV/0!' is retained in the golden.",
+    "confirmation": "The debt summary row 65 labels column D as 2020, but D73 holds 2021 interest (D29/L29=2021), so IS J26=-E73 takes 2022 interest and N26=-I73 is blank. The golden caches N26=0, N37=176.44 and 'Line Item Metrics'!M29=#DIV/0!."
+  }
+]

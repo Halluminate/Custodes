@@ -1,0 +1,49 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official chart checklist",
+      "function": "verify_spreadsheetbench2_chart_checklist",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "checklist": [
+          "The chart is a bubble chart",
+          "The chart title reads 'Product Portfolio Analysis'",
+          "The X-axis represents revenue",
+          "The Y-axis represents growth rate",
+          "No legend is displayed on the chart",
+          "The largest bubble is colored green",
+          "The smallest bubble is colored red",
+          "Product G bubble is positioned at approximately 30,000 on the X-axis and 15% on the Y-axis",
+          "The text label 'G' is displayed next to the Product G bubble",
+          "Product E bubble is positioned at approximately 45,000 on the X-axis and 11% on the Y-axis",
+          "The text label 'E' is displayed next to the Product E bubble",
+          "Product X bubble is positioned at approximately 25,000 on the X-axis and 3% on the Y-axis",
+          "The text label 'X' is displayed next to the Product X bubble",
+          "Product D bubble is positioned at approximately 70,000 on the X-axis and 13% on the Y-axis",
+          "The text label 'D' is displayed next to the Product D bubble",
+          "Product B bubble is positioned at approximately 70,000 on the X-axis and 8% on the Y-axis",
+          "The text label 'B' is displayed next to the Product B bubble",
+          "Product Y bubble is positioned at approximately 55,000 on the X-axis and 2% on the Y-axis",
+          "The text label 'Y' is displayed next to the Product Y bubble",
+          "Product A bubble is positioned at approximately 105,000 on the X-axis and 12% on the Y-axis",
+          "The text label 'A' is displayed next to the Product A bubble",
+          "Product F bubble is positioned at approximately 105,000 on the X-axis and 8% on the Y-axis",
+          "The text label 'F' is displayed next to the Product F bubble",
+          "Product C bubble is positioned at approximately 125,000 on the X-axis and 15% on the Y-axis",
+          "The text label 'C' is displayed next to the Product C bubble",
+          "The chart displays exactly 9 bubbles",
+          "Product C has the largest bubble size among all products",
+          "Product B has the smallest bubble size among all products"
+        ]
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

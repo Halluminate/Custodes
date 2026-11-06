@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "In the answer key's assumptions block, the 2025E column J is filled for Gross Profit Margin and Tax Rate but left blank for Revenue Growth and OpEx Margin, so no consistent solution can match every cell in the graded range.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "inconsistent-answer-key",
+    "evidence": "gt_13_06_golden.xlsx 'FinancialNormalization': J43=G43 and J45=G45 are filled, but J42 and J44 are empty, while H42:I42 and H44:I44 are filled. Header J40='2025E'. An agent that fills H:J for all four rows mismatches on J42/J44; one that leaves J blank mismatches on J43/J45. The check covers B2:K51 and requires all cells to match.",
+    "confirmation": "Golden FinancialNormalization has J43=G43 and J45=G45 but J42 and J44 empty, while H42:I42 and H44:I44 are filled under header J40='2025E'. J42/J44 are blank in the input too, so they are regression cells in a 500-cell range where a single regression miss drops the ratio below 0.998. Filling J consi"
+  }
+]

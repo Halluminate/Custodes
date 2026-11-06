@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden LBO sheet inserts a new 'Total Interest Expense' row at row 179, which pushes every row from 179 down by one. A correct fix that puts the missing total in the existing empty row 179, or anywhere else, without inserting a row leaves dozens of cells misaligned and fails the all-cells-must-match check.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "structural-row-shift",
+    "evidence": "Input LBO B181='Sponsor Equity', B187='Returns Analysis', rows 179-180 empty. Golden B179='Total Interest Expense' (=SUM(G175:G178)), B182='Sponsor Equity', B188='Returns Analysis', D213 sensitivity table shifted to rows 213-218. G67 in golden =-G179.",
+    "confirmation": "Input LBO rows 179-180 are blank and G67 =+IF(circ=0,0,-#REF!); golden inserts a new row (B179 'Total Interest Expense' =SUM(G175:G178), G67 = -G179) and shifts everything below (Sponsor Equity 181 to 182, Returns Analysis 187 to 188), so filling the existing blank row 179 gives the same model but m"
+  }
+]

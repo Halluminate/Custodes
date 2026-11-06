@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "Task prompt advertises Pandas, openpyxl, and numpy in the Python environment, but system python3 lacks those packages for the model user",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `problem.py:10-12`, the task context tells the agent: `You can complete the corresponding spreadsheet tasks using the following Python environment: Pandas, openpyxl, numpy and LibreOffice` and `1. Inspect: Inspect the data with Python (e.g. openpyxl)`. In the container, those libraries are installed only in `<tool-server dir>/.venv/bin/python`, which is inaccessible to the `model` user because `<tool-server dir>` has permissions `drwx------ 1 root root`. The system Python lacks `openpyxl`, `pandas`, and `numpy`, and network access is disabled so `pip install` fails. Across all 3 units (steps [1]–[4] in unit 1, [1]–[5] in unit 2, [1]–[5] in unit 3), the agent encountered `ModuleNotFoundError: No module named 'openpyxl'` and `ModuleNotFoundError: No module named 'pandas'` before falling back to custom `zipfile`/`xml.etree.ElementTree` and LibreOffice `uno` scripts.",
+    "confirmation": "The prompt states that Pandas, openpyxl and numpy are available, but the agent-visible python3 lacks them (ModuleNotFoundError in the runs) and pip is blocked. Duplicate of the missing-toolchain defect.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F2",
+    "title": "Ground-truth workbook fails its own verifier after the forced LibreOffice recalc (circular LBO debt schedule), so even a perfect answer scores 0",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "I copied gt_07_golden.xlsx to an output path and ran verify_spreadsheetbench2_cells with the spec.yaml parameters. I ran it twice and got the same result both times: score=0.0, 'FAILED - regression 1.0000, modification 0.9317. 17 cell error(s): Modification error at LBO & Lenders!T50: answer=-7.49437449150413, output=-7.25996975435565; ... U50: answer=-9.02735612840306, output=-8.29828677938158; ... V50: answer=-11.0419533184794, output=-9.5312270856202; Regression error at LBO & Lenders!V53: answer=115.422659476154, output=116.933385709013 ...'. Cause: the LBO debt schedule is circular. S50 '=S53-S52' (amortization) depends on S53 '=(S54*AVERAGE(S49,S51))*(7/12)' (interest), S53 depends on S51 '=SUM(S49:S50)', and S51 depends on S50. Rows 49–53 and 57–59 therefore come from an iterative solve. The cached values in the ground truth don't match what the verifier's managed_recalculated_xlsx(force_recalculation=True) produces. A plain 'soffice --convert-to xlsx' recalc of the same file scored 1.0/1.0, so the result depends on the recalc path. The verifier is all-or-nothing (every modification cell must match), so any 17-cell drift sends the only check (weight 1, 100% of the score) to 0. Even a fix identical to the ground truth's sign corrections cannot pass.",
+    "confirmation": "The circular loop S50/S51/S53 exists in the golden with iterate=true, and the cached values are not a fixed point (X53 cached 109.64 vs 113.36 from its own inputs). The verifier's forced recalculation therefore drifts and fails the golden.",
+    "fixed": true,
+    "fix": "Same answer_position change removes the unconverged circular LBO cells from the comparison."
+  },
+  {
+    "id": "F3",
+    "title": "Golden workbook gt_07_golden.xlsx has unconverged circular-reference values on LBO & Lenders, causing even the golden file itself to fail verification",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1) force-recalculates the submitted workbook in LibreOffice (`managed_recalculated_xlsx(Path(output_path), force_recalculation=True)`) and compares its cell values against the cached values stored in `gt_07_golden.xlsx`, requiring `mod_ratio == 1.0` and `reg_ratio >= 0.998` to score 1.0 (otherwise 0.0). However, `LBO & Lenders` rows 49–53 contain an iterative circular reference (`Interest Expense` in row 53 = `Rate * AVERAGE(Beginning Debt, Ending Debt)`, `Amortization` in row 50 = `Interest Expense - Debt Service`, `Ending Debt` in row 51 = `Beginning Debt + Amortization`) with `calcPr iterate=\"true\" iterateCount=\"100\" iterateDelta=\"0.0001\"`. The cached values saved in `gt_07_golden.xlsx` (`T50=-7.494374`, `U50=-9.027356`, `V50=-11.041953`, `W50=-13.613526`, `X50=-16.826373`) are not converged under LibreOffice recalculation. When `gt_07_golden.xlsx` itself (or the input workbook with the exact 11 golden formula edits applied) is evaluated by `verify_spreadsheetbench2_cells`, LibreOffice's recalculation shifts `LBO & Lenders!T50:X59` (`T50=-7.259970`, `U50=-8.298287`, `V50=-9.531227`, `W50=-11.006705`, `X50=-12.781064`), producing 17 cell errors (`regression 1.0000, modification 0.9317`) and a score of 0.0. Furthermore, `gt_07_golden.xlsx` leaves an internal sign/formula inconsistency in `Equity Returns`: it negates `D56` (`=-(D35+D34)`) and `I56` (`=-(I35+I34)`) without updating `D57` (`=D56*(1+D12)^D10-D56`, which flips `Equity Preference Return` negative and causes `Proceeds After Equity Return` in `D58` to subtract preference return from negative principal rather than from sale proceeds) or `I57` (`=I56*(1+$D$12)^$D$10-1`, which subtracts literal `1` instead of `I56`).",
+    "confirmation": "Confirmed: the LBO & Lenders rows 49-53 loop (X50=X53-X52, X51=SUM(X49:X50), X53=X54*AVERAGE(X49,X51)) carries unconverged cached values in the golden (X53 109.64 vs 113.36), so even the golden fails the sole verifier.",
+    "fixed": true,
+    "fix": "Same answer_position change removes the unconverged circular LBO cells from the comparison."
+  },
+  {
+    "id": "F4",
+    "title": "Golden workbook fails its own forced-recalculation grading",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Passing gt_07_golden.xlsx through the verifier's forced LibreOffice recalculation and comparing it against the configured golden produces regression=1.0000 and modification=0.9317: 11 of 161 modification cells fail. For example, 'LBO & Lenders'!X50 expects -16.8263732189333 but recalculates to -12.7810638582942. The circular debt/interest schedule has inconsistent cached results: X53 caches 109.6382395757, although its formula applied to the golden's own balances gives 113.35963381484534. The verifier recalculates submissions but compares them with these stale golden caches. Consequently, even the supplied answer key receives zero on the sole weight-1 verification.",
+    "confirmation": "Verified locally: 'LBO & Lenders'!X53 caches 109.6382395757, while X54*AVERAGE(X49,X51) on the golden's own cached values is 113.3596. The stale caches make the answer key fail its own recalculating verifier.",
+    "fixed": true,
+    "fix": "Same answer_position change removes the unconverged circular LBO cells from the comparison."
+  },
+  {
+    "id": "F5",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "The golden cannot score 1.0 because its stale circular caches (X53 cached 109.64 vs 113.36 recomputed) shift under the verifier's forced recalculation. The guessed 'file never reached the grader' cause is wrong, but the failure is real.",
+    "fixed": true,
+    "fix": "Same answer_position change; gt_07_golden.xlsx now passes its own verifier locally (regression 1.0, modification 1.0)."
+  },
+  {
+    "id": "F6",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells cannot pass even on the ground-truth workbook due to single-pass LibreOffice recalculation of circular references",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "All 3 units scored 0.0 on `SpreadsheetBench 2 official cell check` (weight: 1): unit 1 (`regression 0.9917, modification 0.4348`), unit 2 (`regression 0.9911, modification 0.4224`), and unit 3 (`regression 0.9922, modification 0.4348`). While the attempts also made additional edits beyond the 11 sign-convention cells in `gt_07_golden.xlsx` (such as fixing `DCF Model!D85:F85` Inventory references and `Equity Returns` preference return formulas), the verifier itself is incapable of returning 1.0 even on an exact golden submission. Specifically, `verify_spreadsheetbench2_cells` runs `managed_recalculated_xlsx(Path(output_path), force_recalculation=True, model_deliverable=True)` on the agent's output workbook and compares the resulting values against the static cached values in `gt_07_golden.xlsx`. Because `LBO & Lenders` rows 49–53 contain an iterative circular reference (`Interest Expense` <-> `Amortization` <-> `Ending Debt Balance`) whose cached values in `gt_07_golden.xlsx` are not converged under LibreOffice, passing `gt_07_golden.xlsx` (or the input workbook patched with the exact 11 golden formulas) into `verify_spreadsheetbench2_cells` yields `FAILED - regression 1.0000, modification 0.9317. 17 cell error(s): Modification error at LBO & Lenders!T50: answer=-7.49437449150413, output=-7.25996975435565; ...` and scores 0.0.",
+    "confirmation": "gt_07_golden.xlsx has iterate=true and a circular debt schedule. 'LBO & Lenders'!X53 caches 109.638, but its formula X54*AVERAGE(X49,X51) on the golden's own cached values gives 113.360, so the forced LibreOffice recalc changes rows 49-59 and the golden fails the all-or-nothing verifier.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: 'LBO & Lenders'!B2:Z65 split into ranges that skip the circular cells X46:X47, S49:X51, S53:X53, S57:X59. Golden, golden re-saved without cache, and input+golden formulas re-saved by openpyxl now all score 1.0 locally; untouched input still scores 0."
+  }
+]

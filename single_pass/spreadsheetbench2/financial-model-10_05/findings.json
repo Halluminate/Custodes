@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for Net Profit after Minority Interest only for forecast years, but the golden workbook also fills the historical columns. An agent that follows the instruction literally fails on many cells that depend on those historical values.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "prompt-answer-mismatch",
+    "evidence": "Prompt: 'calculate Net Profit after Minority Interest for forecast years'. Golden Financials!E47:J47 = E41+E44 … J41+J44 (4313.2 … 5585.9), while the input has them blank. Downstream golden cells that differ from a forecast-only fill include E48:J48, E49:J49, E54:J56, E61:J62, E65:J65, E106:J106, E110:J110, E125:J127, F129:J129 and Ratio_Analysis F9:J9. All of these fall inside the compared range Financials!B2:AG129.",
+    "confirmation": "The prompt says to calculate Net Profit after Minority Interest 'for forecast years' and to change only cells it asks for. The golden also fills historical Financials!E47:J47 (=E41+E44, 4313.2 to 5585.9), which are blank in the input. These are modification cells feeding E49, E54, E61 and K48, so an"
+  }
+]

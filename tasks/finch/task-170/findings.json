@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "GT spread averages count days with no data as zero-spread weekdays, which changes their sign",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Raw Data stops on 2002-01-18 (last row A33338 = 2002-01-18). Real-time prices end on Jan 16, and only Day-Ahead values exist for Jan 17-18. The GT still builds a 31-day month. Strips!W (DOW) is '=+'Raw Data'!S6'. For Jan 19-31 that lookup returns 5 (Friday), because the approximate VLOOKUP lands on the last data row. So Sat/Sun 19-20 and 26-27 are tagged as weekdays. GT K8:K38 cached values are 21.18 (Jan 17) and 23.88 (Jan 18), where zone 1 has DA data and zone 2 has a real-time value of 0. Jan 19-31 are all 0. K46 '=+AVERAGE(AN8:AN38)' averages 27 'weekday' values and caches 1.4696. Over the 12 weekdays where both legs have data, the average is -0.448. M46 has the same problem (B-H on Jan 17-18 = 21.18/23.88). The grader is told to check values for logical equivalence with this reference, so an agent that excludes missing days or uses the correct day-of-week gets marked wrong on the spread block.",
+    "confirmation": "Verified that Raw Data ends at 2002-01-18 and the GT counts the no-data days Jan 19-31 as DOW 5 weekdays with 0 spread plus the DA-minus-zero spreads on Jan 17-18. K46 = 1.4696 therefore flips the sign of the true weekday average (about -0.45), so a correct treatment is marked wrong.",
+    "fixed": true,
+    "fix": "Same grader_guidance.md paragraph: the judge no longer marks an output wrong for excluding no-data days or using the correct day of week in the spread block."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth gt_170_ref_0.xlsx contains corrupted DOW lookups, distorted spread averages from unmasked missing data, and #N/A errors",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `170_src_0.xlsx` and `gt_170_ref_0.xlsx`, the hourly series in `Raw Data` ends on `2002-01-18` (Real-Time LMP and Load end on `2002-01-16`; Day-Ahead LMP ends on `2002-01-18`), while `Strips` aggregates the full month `2002-01-01` to `2002-01-31` (`Rows 8:38`). Three defects in `gt_170_ref_0.xlsx` corrupt the reference values:\n1. Approximate-match VLOOKUP in `DOW` (`Strips!W8:W38`): `gt_170_ref_0.xlsx` sets `W8:W38` to `=+'Raw Data'!S6`..`S36`, where `Raw Data!S6` is `=+VLOOKUP(U6,A:O,15)` without `FALSE`. For `2002-01-19` through `2002-01-31` (`Rows 26:38`), `VLOOKUP` falls back to the last date in `Raw Data` (`2002-01-18`, Friday, `DOW=5`), assigning `W=5` (weekday) to all 13 dates including four weekend days (`2002-01-19`, `2002-01-20`, `2002-01-26`, `2002-01-27`).\n2. Unmasked missing-data rows in `Diff 1/2/3` (`K8:M38`, `AN8:AV38`, `K46:M46`, `K49:M49`): Unlike `B45:H49` and `N45:N49` (which filter `>0`), `K8:M38` (`=IF($B$63=1,B8-E8,C8-F8)`) and `AN8:AV38` (`=+IF($W8<6,K8,\"\")`) do not mask dates where data is missing. On `2002-01-17` and `2002-01-18`, Day-Ahead Western Hub (`B24:B25`) is `21.18` and `23.88` while Real-Time Western Hub (`E24:E25`) is `0`, producing artificial spreads of `+21.18` and `+23.88`. On `2002-01-19`..`2002-01-31`, `K26:M38` evaluate to `0`, and because `W26:W38` is `5`, all 13 zeros (including 4 weekend days) are included in `AVERAGE(AN8:AN38)`. As a result, `gt_170_ref_0.xlsx` computes `K46 = 1.469560`, `L46 = -4.901944`, `M46 = -3.432384` (n=27), whereas over the valid data range (`2002-01-01`..`2002-01-16`, n=12) the weekday averages are `-0.447969`, `-11.029375`, `-11.477344`, and using `=WEEKDAY(A8,2)` in `W8:W38` yields `1.725136`, `-5.754457`, `-4.029321` (n=23) for `K46:M46` and halves `K49:M49` from `-0.078281, -17.179844, -17.258125` (n=4) to `-0.039141, -8.589922, -8.629063` (n=8).\n3. `#N/A` errors in `R8:U38`, `AW8:AX38`, `R39:S39`, `R45:R46`, `T45`, `T47`: `Temp` data ends on `2001-10-18`, so every Philly-Temp, Gas Non NY, and PJM Heat Rate formula in `gt_170_ref_0.xlsx` evaluates to `#N/A`.\nBecause `grader_guidance` emits a binary `0` or `1` score requiring `correctness: 1 if all values, formulas, charts, and text are logically equivalent to the reference answer; 0 otherwise`, an agent that computes true weekdays via `WEEKDAY(A8,2)`, masks missing dates in spreads, or suppresses `#N/A` errors can receive a `0` score.",
+    "confirmation": "In gt_170_ref_0.xlsx, Strips!W26:W38 (Jan 19-31) all equal 5 via approximate VLOOKUP ('Raw Data'!S6 =+VLOOKUP(U6,A:O,15)) past the last data date 2002-01-18. K24:K25 = 21.18/23.88 come from RT=0 and K26:K38 = 0, so K46 caches 1.4696, and the temperature cells (R8, R39) are #N/A. The reference values",
+    "fixed": true,
+    "fix": "grader_guidance.md: added one task-specific paragraph after the opening paragraph. It tells the judge that Raw Data ends 2002-01-18 and Temp has no January rows, describes the reference's defects (approximate-VLOOKUP DOW 5 for Jan 19-31, no-data and DA-minus-zero days counted as spreads, #N/A temperature/gas/heat-rate cells), and says not to fail outputs that handle missing days another consistent way or leave temperature/gas/heat-rate stats blank or #N/A, while all complete-data cells are still judged against the reference."
+  },
+  {
+    "id": "F3",
+    "title": "The selected month lacks required fundamental data",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "data_presence",
+    "evidence": "Strips!B1 selects 2002-01-01 and A8:A38 spans January, but the inputs do not cover that month. Raw Data contains dates only through January 18; real-time prices in C:E end January 16 and load in M ends January 15. Temperature and gas source tables in Temp end on 2001-10-18, leaving no January observations at all. Consequently, existing January lookups such as Temp!J5, K5 and Q5 return '#N/A'. The requested temperature, gas and heat-rate statistics cannot be calculated, and full-month price/load statistics require an unstated partial-period convention. Initialization stages only this workbook and supplies no supplemental data.",
+    "confirmation": "Strips!B1 selects January 2002, but the Temp sheet's last row is 2001-10-18 and Raw Data ends 2002-01-18 (RT through Jan 16). The temperature/gas/heat-rate statistics cannot be computed (GT R8/R39 are #N/A) and full-month price stats rest on missing days.",
+    "fixed": true,
+    "fix": "Same grader_guidance.md paragraph: an output that leaves the temperature, gas and heat-rate statistics blank or #N/A, or applies a stated partial-period convention, is not failed. The missing January data itself cannot be supplied without inventing it."
+  }
+]

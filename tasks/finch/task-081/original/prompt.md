@@ -1,0 +1,3 @@
+Key the table into Excel on an "ETS" spreadsheet and reinstate the missing formulas on the ETS sheet. Also update the I1 header to “Other” and ensure the totals and Net Income roll-ups (columns J-L around row 225 and the Net Income row at 228) calculate correctly.
+
+Your input files are on your Desktop (/home/model/Desktop): 81_src_0.jpeg, 81_src_1.pdf. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

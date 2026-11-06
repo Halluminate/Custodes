@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden's cached values for the circular interest/revolver loop were never converged, so they are internally inconsistent; a correct output fully recalculated in LibreOffice will differ from them by well over 1% in sensitive cells.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "nonconverged-golden",
+    "evidence": "gt LBO: G124=302.331 but G133=302.547 (G124 is =+G133); H132=302.331 but G135=302.547 (H132 is =G135); L132=1189.49 but K135=1193.82; L103=1367.25 but L135=1373.24 (L103 is =+L135); G125 shows 0 but G123+G124=-0.216. A net-debt shift of about 6 moves L199 (22.27) by about 25%, and with it L200 and L201.",
+    "confirmation": "Golden LBO caches are internally inconsistent: G124 (=+G133) caches 302.331 while G133 caches 302.547, and L103 (=+L135) caches 1367.25 vs L135 1373.24. Recalculating the golden itself in LibreOffice and scoring it with the live SB2 logic fails 34 of 279 modification cells (e.g. LBO I138 1034.97 vs "
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth deletes pre-existing input label in F35 ('Starting Rate:'), causing compliant agents to fail",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `problem.py`, the agent is explicitly instructed: \"When completing spreadsheet tasks, strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.\" In the input file (`assets/11_03_input.xlsx` and `untouched_input_11_03_input.xlsx`), cell `MergerPremium!F35` contains the string `'Starting Rate:'` next to `G35 = 0.095`. However, in the ground truth (`gt_11_03_golden.xlsx`), `MergerPremium!F35` is `None` (cleared), while `G35` remains `0.095`. Because `verify_spreadsheetbench2_cells` (weight 1.0) treats any cell that differs between `untouched_input_11_03_input.xlsx` and `gt_11_03_golden.xlsx` as a required modification cell and requires `mod_ratio == 1.0` to pass, any agent that obeys the prompt and preserves `F35 = 'Starting Rate:'` gets `Modification error at MergerPremium!F35: answer=None, output=Starting Rate:` (seen in Unit 2, which achieved 0.9118 modification accuracy) and receives a score of 0.0.",
+    "confirmation": "Confirmed: the golden clears the pre-existing label in F35 (G35=0.095 is kept), while the prompt says not to alter populated cells. A compliant agent mismatches on F35 and scores 0.",
+    "fixed": true,
+    "fix": "files/gt/gt_11_03_golden.xlsx: restored 'MergerPremium'!F35 = 'Starting Rate:' (the input's label, which the GT had cleared). Nothing else changed. F35 is now a regression cell, so keeping the label passes. Local check: patched GT and input+GT edits both PASS"
+  },
+  {
+    "id": "F2",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells enforces an erroneous deletion of pre-existing input cell MergerPremium!F35",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "In `verify_spreadsheetbench2_cells` (weight 1.0), modification cells are computed by diffing `untouched_input_11_03_input.xlsx` against `gt_11_03_golden.xlsx`, and passing requires `mod_ratio == 1.0` (100% of modification cells matching). Because `MergerPremium!F35` is `'Starting Rate:'` in the input workbook but `None` in `gt_11_03_golden.xlsx`, `F35` is classified as a modification cell whose expected value is `None`. All three units preserved `F35 = 'Starting Rate:'` as required by the prompt instruction (`strictly avoid altering any cells that already contain values unless explicitly instructed`), and in Unit 2 the verifier explicitly reports `Modification error at MergerPremium!F35: answer=None, output=Starting Rate:`. Even if an agent computes every financial model cell in `MergerPremium` accurately, preserving the input label in `F35` caps `mod_ratio` at 33/34 (0.9706) and forces a 0.0 score.",
+    "confirmation": "MergerPremium!F35 is 'Starting Rate:' in the input and the untouched copy but None in gt_11_03_golden.xlsx, inside the graded B2:G39 range. Under the every-cell-must-match rule, an agent that keeps the existing label fails.",
+    "fixed": true,
+    "fix": "files/gt/gt_11_03_golden.xlsx: restored 'MergerPremium'!F35 = 'Starting Rate:' (the input's label, which the GT had cleared). Nothing else changed. F35 is now a regression cell, so keeping the label passes. Local check: patched GT and input+GT edits both PASS"
+  }
+]

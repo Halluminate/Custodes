@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_06_11_golden.xlsx",
+        "reference_path": "reference/untouched_input_06_11_input.xlsx",
+        "answer_position": "'WC_Forecast'!B2:G12,'WC_Forecast'!B13:E13,'WC_Forecast'!B14:G32,'WC_Forecast'!H2:H8",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook has Year-0 EBITDA C8=55, but the input leaves C8 blank and gives no assumption from which 55 could be derived. C8 sits inside the graded range, so no correct solution can match it and the task is unpassable.",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "answer-key-unsupported-value",
+    "evidence": "gt_09_01_golden.xlsx DebtSchedule!C8=55; the input 09_01_input.xlsx row 8 only has D8, E8, G8, I8, K8, M8; answer_position 'DebtSchedule'!B2:M39 includes C8.",
+    "confirmation": "Golden DebtSchedule!C8 (Year-0 EBITDA) = 55, but the input leaves C8 blank and only gives EBITDA for D/E/G/I/K/M. No formula references C8, and 55 is just the Junior debt Year-0 value in C29, so C8 is an underivable modification cell inside B2:M39."
+  }
+]

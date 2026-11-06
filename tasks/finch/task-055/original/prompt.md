@@ -1,0 +1,3 @@
+On the correl_graph sheet, create a time-series line chart comparing BSCTMP, NBSK, and SBSK prices to show how they move relative to each other. Use time on the x-axis to make their correlation visible.
+
+Your input files are on your Desktop (/home/model/Desktop): 55_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

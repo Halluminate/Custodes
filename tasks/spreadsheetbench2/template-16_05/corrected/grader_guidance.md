@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'DirectCap'!B2:P49 (except the column-H revenue $/SF metrics H11:H27 and H45, whose time basis and measure the workbook does not state),'RentRoll'!A1:P12, after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The verifier mode is \"formula\" while the grader guidance describes a value comparison with 1% tolerance; if formulas are compared, arbitrary golden formula choices must be reproduced exactly.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "grader-mode-mismatch",
+    "evidence": "Config: \"mode\": \"formula\". Guidance: \"after LibreOffice recalculation; 1% numeric tolerance\". Exact formulas the agent would have to match: Model J91 ='3-month Term SOFR'!P21 (likewise P33/P45/P57/P69); J45 =-J46*J44 (=-J44*J46 or =-J$46*J44 would fail); Transaction Overview L15 =(((Model!I104+Model!J91)*Model!I103)+(Model!I111*Model!I110))/SUM(Model!I103,Model!I110).",
+    "confirmation": "Config uses \"mode\": \"formula\" while grader_guidance.md describes a recalculated value comparison with 1% tolerance. In formula mode _formulas_match requires the exact normalized string, so equivalent fixes such as =-J44*J46 for J45 or a different form of the long Transaction Overview L15 weighted-ra"
+  }
+]

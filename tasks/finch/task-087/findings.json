@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "GT 'Daily Trading Intensity' does not follow the formula the prompt states (it divides by company count)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The prompt defines 'Daily Trading Intensity = Average Daily Trading Value (2 decimals)'. In the GT, Sheet2_KPIs column E is Average Daily Trading Value divided by Total Number of Listed Companies instead. NASDAQ Jan 2025: RawData!G2 = 123581 and RawData!D2 = 3291, so the GT shows 37.55 (123581/3291) where the formula gives 123581.00. NYSE Jan: 124538.6 vs GT 57.15 (124538.6/2179). HKEX Jan: 13404 vs GT 5.09. All 25 rows of the column break the stated definition, off by a factor of 2,000–3,300. The grader compares the output cell by cell against the reference and scores 0/1 overall. An agent that follows the instruction exactly gets values ~3,000x the GT on a whole graded column, which fails 'correctness' and the overall score.",
+    "confirmation": "Confirmed: Sheet2_KPIs E2=37.55 (123581/3291), E3=40.66 (132660.2/3263), where the prompt formula gives 123581.00 and 132660.20. The graded column contradicts the instruction.",
+    "fixed": true,
+    "fix": "gt_87_ref_0.xlsx, Sheet2_KPIs!E2:E26 (Daily Trading Intensity): each value replaced with the same exchange-month's RawData Average Daily Trading Value rounded to 2 decimals, as the prompt defines (e.g. NASDAQ January 2025 37.55 -> 123581.00). No other cell changed."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth Sheet2_KPIs 'Daily Trading Intensity' divides Average Daily Trading Value by Total Number of Listed Companies, contradicting the prompt formula",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `problem.py` (Subtask 1 - Sheet2_KPIs), the prompt explicitly defines the formula for the fifth column as: `Daily Trading Intensity = Average Daily Trading Value (2 decimals).` In `RawData` (Column G), `Average Daily Trading Value (USD millions)` for NASDAQ (Jan–May 2025) is `123581`, `132660.2`, `144910.9`, `161912.3`, `138406.7`. However, in the ground-truth file `gt_87_ref_0.xlsx` (`Sheet2_KPIs`, Column E, rows 2–26), every cell in `Daily Trading Intensity (USD millions)` is instead computed as `Average Daily Trading Value / Total Number of Listed Companies` (e.g., for NASDAQ Jan 2025: `123581 / 3291 = 37.55`; Feb 2025: `132660.2 / 3263 = 40.66`; NYSE Jan 2025: `124538.6 / 2179 = 57.15`; HKEX Jan 2025: `13404 / 2633 = 5.09`). Because the binary (0/1) AI grader rubric (`grader_guidance` -> `2. Data Accuracy`) instructs the judge to verify whether every cell in the model's output is logically equivalent to the reference answer (`gt_87_ref_0.xlsx`), a competent agent following the explicit prompt formula will produce values ~2,000–3,000x larger than the ground truth across all 25 rows and fail the `correctness` and overall `score` checks.",
+    "confirmation": "The prompt says 'Daily Trading Intensity = Average Daily Trading Value (2 decimals)', but gt_87_ref_0.xlsx Sheet2_KPIs!E2 is 37.55 = RawData G2 123581 / D2 3291, and the rest of the column follows the same division. An agent that follows the stated formula diverges on the whole column.",
+    "fixed": true,
+    "fix": "gt_87_ref_0.xlsx, Sheet2_KPIs!E2:E26 (Daily Trading Intensity): each value replaced with the same exchange-month's RawData Average Daily Trading Value rounded to 2 decimals, as the prompt defines (e.g. NASDAQ January 2025 37.55 -> 123581.00). No other cell changed."
+  },
+  {
+    "id": "F3",
+    "title": "Reference workbook calculates Daily Trading Intensity contrary to the task",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task explicitly defines \"Daily Trading Intensity = Average Daily Trading Value (2 decimals)\", but all 25 reference cells in Sheet2_KPIs!E2:E26 instead divide Average Daily Trading Value by Total Number of Listed Companies. For example, NASDAQ January has RawData!G2 = 123581 and RawData!D2 = 3291, while Sheet2_KPIs!E2 = 37.55, which equals 123581 / 3291 rather than the required 123581.00. Recalculation confirms the same incorrect operation throughout the column. The grader guidance requires comparison of every value with the reference and uses a binary overall score, so following the explicit task definition can cause an otherwise correct submission to fail.",
+    "confirmation": "Same defect: the reference Sheet2_KPIs column E divides average daily trading value by listed-company count (E2=37.55 vs RawData!G2=123581), contrary to the prompt's definition.",
+    "fixed": true,
+    "fix": "gt_87_ref_0.xlsx, Sheet2_KPIs!E2:E26 (Daily Trading Intensity): each value replaced with the same exchange-month's RawData Average Daily Trading Value rounded to 2 decimals, as the prompt defines (e.g. NASDAQ January 2025 37.55 -> 123581.00). No other cell changed."
+  }
+]

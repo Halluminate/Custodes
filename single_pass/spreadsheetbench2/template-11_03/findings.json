@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook has no value in MergerPremium!F35, but the input file has the label 'Starting Rate:' there, and F35 lies inside the compared range B2:G39. An agent that preserves existing cells, as the prompt requires, will mismatch on F35 and fail the all-cells-must-match check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-missing-input-cell",
+    "evidence": "Input MergerPremium: F35='Starting Rate:' | G35=0.095. Golden MergerPremium row 35: C35=0.095 | D35=68.803... | G35=0.095, with no F35. answer_position 'MergerPremium'!B2:G39 includes F35.",
+    "confirmation": "Input MergerPremium!F35='Starting Rate:' (next to G35=0.095), but golden F35 is empty. Because F35 changed between input and golden, it is a modification cell that must match exactly. An output that keeps the existing label, as the prompt's 'do not alter existing cells' rule requires, fails on F35."
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Input workbook destroyed hardcoded historical constants in Financial Overview!D16:F16 that the verifier requires to match gt_05_golden.xlsx",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1) compares `/home/model/Desktop/output.xlsx` against `gt_05_golden.xlsx` and requires 100% of modification cells (`mod_ratio == 1.0`) to pass. In `gt_05_golden.xlsx`, `Financial Overview!C16:F16` (historical Gross Profit for 2018A-2021A) contain four distinct hardcoded cost-of-revenue subtrahends: `C16` = `=C8-179.281` (`92.971`), `D16` = `=D8-308.126` (`134.973`), `E16` = `=E8-261.587` (`129.393`), and `F16` = `=F8-217.881` (`135.874`). However, when `untouched_input_Incorrect Sign Conventions_input.xlsx` was created, `=C8+179.281` was copied across `C16:F16` (`C16` = `=C8+179.281`, `D16` = `=D8+179.281`, `E16` = `=E8+179.281`, `F16` = `=F8+179.281`), completely overwriting the hardcoded subtrahends `308.126`, `261.587`, and `217.881`. While 2021A Gross Profit (`F16` = `135.874`) can be cross-referenced from `Model!E31` (`=E26+E29` = `135.874`), the 2019A (`D16` = `134.973`) and 2020A (`E16` = `129.393`) Gross Profit values and their subtrahends (`308.126` and `261.587`) do not exist anywhere in the input workbook or task prompt (`Model!C31` and `Model!D31` pull directly from `'Financial Overview'!D16` and `'Financial Overview'!E16`, and `Model!C29:D29` and `Model!C33:D33` back-solve COGS and OpEx from `C31:D31`). This makes 22 modification cells (`Financial Overview!D16:E18`, `Financial Overview!K16`, `Model!C29:C34`, `Model!D29:D34`, and `Model!P29, P31, P33`) impossible to recover deterministically, causing every run to score 0.0.",
+    "confirmation": "A zip-wide search of the input finds none of 308.126, 261.587, 134.973 or 129.393, and Model!C31/D31 just pull from Financial Overview D16/E16. The GT 2019A/2020A gross profit therefore cannot be recovered.",
+    "fixed": true,
+    "fix": "Same input fix: D16 =D8+308.126, E16 =E8+261.587, F16 =F8+217.881 in the data file and in the untouched reference input."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth uses per-year Gross Profit constants for 2019 and 2020 that cannot be derived from anything in the input, so the binary verifier cannot be passed",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The input 'Financial Overview' row 16 has the same corrupted formula in every year column: C16..F16 = '=C8+179.281', '=D8+179.281', '=E8+179.281', '=F8+179.281'. The golden file instead uses a different hardcoded constant in each column: '=C8-179.281', '=D8-308.126', '=E8-261.587', '=F8-217.881'. That gives GP of 92.971, 134.973, 129.393 and 135.874. Only two of these can be recovered from the input. C16 (2018) just needs the sign flipped. F16 (2021) can be rebuilt from Model E26+E29 (201.522-65.648=135.874). The 2019 and 2020 constants (308.126 and 261.587) and the resulting GP (134.973 and 129.393) appear nowhere in the input: a zip-wide search of the input workbook, chart caches included, finds no hits. Model C29/D29 (COGS salaries 2019/2020) are themselves computed as GP minus Net Revenue, so there is no independent source. The verifier verify_spreadsheetbench2_cells (weight 1, the only check) returns 1.0 only if 100% of modification cells match. Modification cells include FO D16, E16, D17, E17, D18, E18 and Model C29:D34. A sign-only repair (=D8-179.281) gives D16=263.818 against GT 134.973, so it fails. The task can only be passed by guessing hidden constants.",
+    "confirmation": "Verified GT row 16 uses per-year constants 179.281/308.126/261.587/217.881 while the input has +179.281 in every column, with the 2019/2020 constants absent from the input. Under the all-or-nothing verifier, a sign-only fix fails.",
+    "fixed": true,
+    "fix": "Same input fix: the per-year constants are now in the input with flipped signs, so the GT's =D8-308.126 etc. is a pure sign correction."
+  },
+  {
+    "id": "F3",
+    "title": "Historical cost data needed for two graded corrections is missing",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "data_presence",
+    "evidence": "The sole staged input does not contain the 2019 and 2020 cost figures required by the answer key. Financial Overview!D16 and E16 both use the copied constant 179.281 in '=D8+179.281' and '=E8+179.281'. The golden workbook instead requires '=D8-308.126' and '=E8-261.587', producing 134.973 and 129.393. Neither those year-specific costs nor the corresponding gross profits appear elsewhere in the input workbook, and initialization supplies no supporting financial statements, emails, or other sources. Correcting the visible signs alone cannot recover these missing amounts. The sole verifier has weight 1 and requires every modification cell to match, so these unsupported expectations can prevent an otherwise competent repair from earning any credit.",
+    "confirmation": "The only input file lacks the 2019/2020 cost figures (308.126, 261.587) that gt_05_golden.xlsx D16/E16 require, and no other source is provided. Every run scored 0 on these cells.",
+    "fixed": true,
+    "fix": "Same input fix: the 2019/2020/2021 cost figures 308.126, 261.587 and 217.881 are now present in the input."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check trivially fails all runs (0.0) because 22 modification cells depend on historical constants destroyed in the input file",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (weight: 1) returns `score=0`. From the trajectories, all 3 units correctly identified and fixed the model's sign convention bugs in `Model!J43:N43` (`=-J125` to `=-N125`), `Model!J86:N86` (`=-J71` to `=-N71`), and `Model!J95:N95` (`=IF($I98=1,-MIN(J94,J88),0)`), as well as `Financial Overview!C16` (`=C8-179.281`). However, in `Financial Overview!D16:F16`, the input file contains `=D8+179.281`, `=E8+179.281`, and `=F8+179.281`, whereas `gt_05_golden.xlsx` expects `=D8-308.126` (`134.973`), `=E8-261.587` (`129.393`), and `=F8-217.881` (`135.874`). Units 2 and 3 flipped `+` to `-` in `C16:F16` (`=D8-179.281`, etc.), matching 134/159 modification cells (`modification 0.8428`) and failing on the 25 cells tied to `D16:F16`. Unit 1 recovered `F16` from `Model!E31` (`135.874`) and estimated `D16:E16` using the 2021A gross margin (`0.674239`), matching 148/159 modification cells (`modification 0.9308`) and failing by ~1.35%-2.7% on 11 cells tied to 2020A Gross Profit (`Model!D29:D34`, `Financial Overview!E16:E18`, `Model!P29, P33`). Because `verify_spreadsheetbench2_cells` is all-or-nothing on modification cells (`reg_ratio == 1.0 and mod_ratio == 1.0`), it scores `0.0` on every unit.",
+    "confirmation": "Input Financial Overview!D16:F16 all read '=X8+179.281', but GT expects '=D8-308.126', '=E8-261.587' and '=F8-217.881'. All 3 trials in rollout <id> fail (modification 0.8428/0.9308) on cells downstream of D16/E16.",
+    "fixed": true,
+    "fix": "Input 'Financial Overview'!D16:F16 restored to the original per-year cost constants with the injected sign error kept: D16 =D8+308.126, E16 =E8+261.587, F16 =F8+217.881 (they had been overwritten with =X8+179.281 copied from C16). The cached values of these cells and their 22 dependents (Financial Overview D17:F18, K16 and Model C29:D34, P29, P31, P33) are set from a forced LibreOffice recalculation. The change is made in both 'Incorrect Sign Conventions_input.xlsx' (agent data) and 'untouched_input_Incorrect Sign Conventions_input.xlsx' (verifier reference). Nothing else changed. The GT is unchanged and still scores reg 1.0 / mod 1.0 against the new reference."
+  }
+]

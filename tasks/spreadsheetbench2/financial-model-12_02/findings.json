@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Ambiguous and contradictory Depreciation instruction ('at 5%') causes valid interpretations to fail the verifier",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `problem.py:34`, the task states: `In the Assets Sch. sheet, calculate Depreciation of Consolidated PP&E for Mar-26 to Mar-30 at 5%.` However, in `untouched_input_12_02_Infra_input.xlsx` and `gt_12_Infra_golden.xlsx`, row 12 of `Assets Sch.` ('Depreciation %') already contains formulas `I12:M12 = H12` evaluating to `0.0481540939898999` (4.82%, which only displays as `5%` due to a `0%` number format), where historical `C12:H12` are defined as `='P&L'!C20/'Assets Sch.'!C10` (Depreciation / Closing PP&E). The ground truth uses `I9:M9 = (I7+I8)*I12` (applying the unrounded 4.8154% rate in row 12 to `Opening Bal. + Capex`). Because the prompt explicitly says `at 5%` without specifying the depreciation base (`Opening Bal. + Capex` vs `Opening Bal.` vs `Closing PP&E` as defined in `C12:H12`) or whether to use the existing row 12 cells (`~4.8154%`) versus `5%` (`0.05`), multiple reasonable interpretations fail `verify_spreadsheetbench2_cells` (weight: 1): (1) using literal `5%` (`0.05`) on `(Opening + Capex)` scores 0.0 (`modification 0.8074, 57 cell errors`); (2) solving algebraically for Closing PP&E *I12 (`=(I7+I8)*I12/(1+I12)`, as Unit 3 did) scores 0.0 (`modification 0.8007, 59 cell errors`); and (3) applying the rate to Opening PP&E (`=I7*I12`, as Units 1 and 2 did) scores 0.0 (`modification 0.2635, 218 cell errors`).",
+    "confirmation": "Prompt line 33 says 'at 5%', but golden 'Assets Sch.'!I9 is '=(I7+I8)*I12' with I12=H12=0.048154 (shown as 5% by the '0%' format), giving 1.5127. A literal 0.05 gives 1.5707 (3.8% off), and the depreciation base is unspecified, so reasonable readings fail the 1% all-or-nothing check.",
+    "fixed": true,
+    "fix": "prompt.md: replaced 'calculate Depreciation of Consolidated PP&E for Mar-26 to Mar-30 at 5%.' with '... by applying the Depreciation % in row 12 (shown as 5%) to Opening Bal. plus Capex.', which matches GT 'Assets Sch.'!I9:M9 =(I7+I8)*I12"
+  },
+  {
+    "id": "F2",
+    "title": "Instruction says 5% depreciation, but the answer key uses the model's 4.815% rate",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The instruction says to \"calculate Depreciation of Consolidated PP&E for Mar-26 to Mar-30 at 5%\". The ground truth puts 'Assets Sch.'!I9:M9 = (Opening+Capex)*I12. In the seed file, I12:M12 is =H12, and H12 = 'P&L'!H20/'Assets Sch.'!H10 = 0.0481540939898999. That cell has number format '0%', so it shows as \"5%\". The author seems to have copied the displayed value into the instruction. GT I9 = 1.5127, which is (24.663+6.751)*0.048154. At a literal 5% you get 31.414*0.05 = 1.5707, which is 3.8% off. The verifier allows only 1% relative difference (TOLERANCE = 0.01), so I9:M9 fail. The error also flows through the whole model: P&L rows 20/24/26/30/32/33/36, BS cash/PP&E/equity/total assets, CF, Debt Schedule interest, the DCF EV and equity value, the Valuation multiples and most Ratio Analysis rows. About 300 cells change value between the input and the GT, and all of them sit in the 'modification' bucket of the single weight-1 verifier. An agent that follows the instruction exactly will fail most of the graded modification cells.",
+    "confirmation": "Verified that GT I9:M9 apply I12 = 0.0481540939898999, not 5%. (24.663+6.751)*0.05 = 1.5707 vs GT 1.5127, beyond the 1% tolerance, and it propagates through the P&L/BS/CF/DCF modification cells.",
+    "fixed": true,
+    "fix": "same prompt sentence change: the rate is now the row-12 Depreciation % the answer key uses, not a literal 5%"
+  },
+  {
+    "id": "F3",
+    "title": "The instructed 5% depreciation rate conflicts with the answer key",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task explicitly requests depreciation for Mar-26–Mar-30 \"at 5%\", but Assets Sch.!I12:M12 inherit 0.0481540939898999 (4.8154094%), displayed as 5% because of the '0%' number format. The golden workbook uses this unrounded rate: I9 is '=(I7+I8)*I12', yielding 1.51270982091993. Applying the instructed 5% to the same base yields 1.570697001626912, a 3.69% difference, exceeding the verifier's 1% tolerance. The sole verifier has weight 1 and awards zero unless every modification cell matches, so following the explicit rate can lose the entire score.",
+    "confirmation": "Duplicate. The instruction's explicit 5% conflicts with the golden use of the 4.8154% rate in I12 (format '0%'), and following the stated rate misses golden I9 by about 3.7%.",
+    "fixed": false,
+    "fix": null
+  }
+]

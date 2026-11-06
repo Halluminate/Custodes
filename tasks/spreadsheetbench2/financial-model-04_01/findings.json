@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "The grader requires the WACC × terminal-growth sensitivity table (Valuation!H60:L64), which the instruction never asks for and the 'do not alter cells with values' rule forbids",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "In the input, Valuation!H60:L64 hold literal 0 values (XML: <c r=\"H60\" t=\"n\"><v>0</v></c> …). In the GT the same 25 cells are hardcoded numbers (H60=217.66, J62=141.59, L60=3612.48, …), i.e. the pasted output of an Excel data table. All 25 are modification cells, and the all-or-nothing rule needs every one to match. The instruction's Valuation ask covers only \"Discounted FCFF for each forecast year, then calculate Present Value of Equity and Value per Share\". The statement also says: \"strictly avoid altering any cells that already contain values unless explicitly instructed.\" An agent that follows the instructions exactly leaves the zeros in place and gets 0. LibreOffice recalculation does not evaluate Excel data tables either, so the agent must spot an unrequested grid and build or hardcode 25 sensitivity values itself.",
+    "confirmation": "Valuation!H60:L64 hold 0s in input versus pasted data-table values in the golden; the instruction's Valuation items exclude the sensitivity grid and the prompt says not to alter populated cells, so faithful agents fail.",
+    "fixed": true,
+    "fix": "answer_position: 'Valuation'!B2:O99 split to leave out the pasted WACC x terminal-growth grid Valuation!H60:L64 (nothing depends on it). The instruction never asks for it and the prompt forbids changing populated cells, so it is no longer graded."
+  },
+  {
+    "id": "F2",
+    "title": "Undisclosed requirement to populate hardcoded DCF sensitivity table values (Valuation!H60:L64)",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The task prompt states: 'In the Valuation sheet, calculate Discounted FCFF for each forecast year, then calculate Present Value of Equity and Value per Share.' It makes no mention of the WACC vs. Terminal Growth Rate Sensitivity Analysis table in `Valuation!H60:L64`. Furthermore, in the input workbook (`04_01_Consumer_input.xlsx`), cells `Valuation!H60:L64` already contain hardcoded numeric `0` values (`<c r=\"H60\"><v>0</v></c>` with no formula or data-table XML tags), and the prompt explicitly warns: 'strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.' In the ground truth (`gt_04_Consumer_golden.xlsx`), `Valuation!H60:L64` also have no formulas (`<f>`) and instead contain 25 hardcoded float values (`217.662350253063` to `102.668052601258`) from an Excel Data Table evaluation. Because `Valuation!B2:O99` is in `answer_position` of `verify_spreadsheetbench2_cells` (weight: 1), those 25 cells are graded as modification cells (`in=0` vs. `gt=141.59...`). Even if an agent enters the exact golden formulas for every formula cell in the entire workbook, LibreOffice recalculation leaves `Valuation!H60:L64` at `0`, resulting in 25 modification errors (`mod_ratio = 0.9097`) and a total verifier score of 0.0.",
+    "confirmation": "Valuation!H60:L64 are literal 0s in the input and hardcoded floats in the golden (H60=217.66, L64=102.67), inside graded range B2:O99, yet the instruction never asks for the sensitivity table; an agent following the prompt fails.",
+    "fixed": true,
+    "fix": "answer_position: 'Valuation'!B2:O99 split to leave out the pasted WACC x terminal-growth grid Valuation!H60:L64 (nothing depends on it). The instruction never asks for it and the prompt forbids changing populated cells, so it is no longer graded."
+  },
+  {
+    "id": "F3",
+    "title": "Forecast inventory days use hardcoded plugs (-1, -1, -1, -2, -2) that no source discloses, and only that exact sequence passes",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The instruction only says \"In the Assumptions sheet, calculate Average Days Inventory and derive forecast inventory balances.\" In the GT, Assumptions!K141:M141 are '=AVERAGE(I141:J141)-1' … '=AVERAGE(K141:L141)-1', and N141:O141 are '=AVERAGE(L141:M141)-2' and '=AVERAGE(M141:N141)-2'. The plugs on the neighbouring rows differ: K138:O138 and K144:O144 are -1 every year, K147:O147 are +3,+1,+1,+1,+1, and K150:O150 have no plug. Nothing visible to the agent (statement, cell notes or labels) gives the inventory sequence. The verifier allows 1% relative tolerance and needs every one of the 277 modification cells to match (all-or-nothing, weight 1). A plain 2-year average gives K141≈59.56 vs GT 58.56 (1.7% off). Using -1 in every year (copying the receivables row) gives N141 about 1 day (≈1.8%) off GT 55.65. Either way the error carries through Assumptions K140:O140, Financials K76:O76, K113:O113, cash K73:O73/K131:O131, Valuation K19:O19, K36:O36, E37–E48 and value per share D95, and then into Final Output, Ratio_Analysis and BB. A competent agent that builds a sound days-inventory forecast scores 0.",
+    "confirmation": "Confirmed golden Assumptions!K141:O141 plugs -1,-1,-1,-2,-2 with no source disclosing them (rows 138/144 -1, 147 +3/+1, 150 none); downstream cells are all graded under the all-or-nothing rule.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence after 'In the Assumptions sheet, calculate Average Days Inventory and derive forecast inventory balances.' stating the forecast rule the key uses (prior-two-year average less 1 day for the first three forecast years, less 2 days for the last two), matching GT Assumptions!K141:O141."
+  },
+  {
+    "id": "F4",
+    "title": "Grader requires overwriting a populated sensitivity table outside the requested edits",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Valuation!H60:L64 contains 25 literal numeric zeros, not formulas or Excel data-table definitions. The golden workbook replaces these with sensitivity results, including H60=217.662350253063 and J62=141.590119215086. The instructions never request sensitivity analysis and explicitly say to avoid altering populated cells unless instructed. These 25 cells are mandatory modification checks: the sole verifier, weighted 1.0, returns zero unless every modification matches. Preserving these populated cells therefore prevents a passing result.",
+    "confirmation": "Same verified issue: 25 literal zeros in Valuation!H60:L64 must become golden sensitivity numbers (H60=217.66, J62=141.59) though never requested, inside the graded range.",
+    "fixed": true,
+    "fix": "answer_position: 'Valuation'!B2:O99 split to leave out the pasted WACC x terminal-growth grid Valuation!H60:L64 (nothing depends on it). The instruction never asks for it and the prompt forbids changing populated cells, so it is no longer graded."
+  },
+  {
+    "id": "F5",
+    "title": "Undisclosed forecast step-down assumptions (-1 vs. -2 days) in Average Days Inventory (Assumptions!K141:O141)",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The task prompt instructs: 'In the Assumptions sheet, calculate Average Days Inventory and derive forecast inventory balances.' In the input workbook (`04_01_Consumer_input.xlsx`), `Assumptions!K141:O141` (Average days inventory for forecast years 2014F-2018F) and `Assumptions!K140:O140` (Inventories for 2014F-2018F) are completely blank, with no notes, comments, or text anywhere in the workbook specifying the forecast assumptions for Average Days Inventory. Surrounding working capital rows use different arbitrary constants across forecast years: row 138 (Receivables days) and row 144 (Other current assets days) use `=AVERAGE(prev2)-1` for all five years K..O; row 147 (Payables days) uses `+3` in K and `+1` in L..O; row 150 (Other ST liabilities days) uses `=AVERAGE(prev2)` with `+0` for all five years. However, the ground truth (`gt_04_Consumer_golden.xlsx`) uses `-1` in `K141:M141` (`=AVERAGE(I141:J141)-1`, `=AVERAGE(J141:K141)-1`, `=AVERAGE(K141:L141)-1`) and switches to `-2` in `N141:O141` (`=AVERAGE(L141:M141)-2`, `=AVERAGE(M141:N141)-2`). Because `verify_spreadsheetbench2_cells` (weight: 1) requires 100% of modification cells (`mod_ratio == 1.0`) to pass and otherwise awards a binary score of 0.0, any agent that reasonably applies `-1` across all forecast years `K141:O141` (as both unit 1 and unit 3 did, producing `N141=56.6467` vs. GT `55.6467` and `O141=55.9651` vs. GT `54.4651`) fails `N141`, `O141`, `N140`, `O140`, and cascading Balance Sheet/Cash Flow cells (`Financials!N76`, `O76`, `N113`, `N129`, `O113`), receiving score 0.0.",
+    "confirmation": "Assumptions!K141:O141 are blank in the input and the golden uses =AVERAGE(..)-1 for K:M but -2 for N:O, while neighbouring rows 138/144 use -1 every year; nothing discloses the -2 step, and the ~1.8% gap breaks the all-cells 1% check.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence after 'In the Assumptions sheet, calculate Average Days Inventory and derive forecast inventory balances.' stating the forecast rule the key uses (prior-two-year average less 1 day for the first three forecast years, less 2 days for the last two), matching GT Assumptions!K141:O141."
+  },
+  {
+    "id": "F6",
+    "title": "Required inventory forecast reductions are not provided",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden Assumptions!K141:O141 formulas require trailing two-period average inventory days minus 1 day for the first three forecast years and minus 2 days for the final two years: '=AVERAGE(I141:J141)-1' through '=AVERAGE(M141:N141)-2'. The input leaves all five cells blank and supplies no instruction, comment, or separate assumption specifying these reductions. Historical observations cannot uniquely determine that particular forecast policy. Reasonable alternatives can fail the verifier's 1% comparisons and propagate into inventory balances, cash flows, discounted FCFF, and equity value.",
+    "confirmation": "Same verified issue: golden K141:O141 uses undisclosed -1/-1/-1/-2/-2 day reductions, with no comment or text in the input specifying them.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence after 'In the Assumptions sheet, calculate Average Days Inventory and derive forecast inventory balances.' stating the forecast rule the key uses (prior-two-year average less 1 day for the first three forecast years, less 2 days for the last two), matching GT Assumptions!K141:O141."
+  }
+]

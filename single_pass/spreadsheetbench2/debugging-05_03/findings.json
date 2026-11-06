@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden restores a deleted 'SOFR' row whose content cannot be inferred from the input. It pulls the 3-month Term SOFR December value for each year. Other reasonable choices (January or start-of-year points, annual averages, Fed Projections medians, the combined 'SOFR' sheet) change term-loan interest by more than 1%, and that change cascades through net income, FCF, debt balances, IRR/MOIC and Transaction Overview L15, so the all-or-nothing check fails.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "unrecoverable-deleted-content",
+    "evidence": "Golden Model!B91='SOFR', J91='3-month Term SOFR'!P21, K91=P33, L91=P45, M91=P57, N91=P69. Input Model!J96/J103 contain only SUM($I96,#REF!) and Transaction Overview!L15 contains model!#ref!; nothing identifies which sheet, column or date rows were referenced. Example: January 2026 3M SOFR (P10=0.0365609) vs golden 0.0308573 gives total rate 0.0766 vs 0.0709, about 8% off in J104.",
+    "confirmation": "Golden restores Model row 91 'SOFR' = '3-month Term SOFR'!P21/P33/P45/P57/P69 (December points), while the input only leaves SUM($I96,#REF!) and model!#ref!; the 1-month curve, January points (P10=0.03656 vs 0.03086) or annual averages are equally plausible and move term-loan interest by well over 1"
+  }
+]

@@ -1,0 +1,13 @@
+[
+  {
+    "id": "F1",
+    "title": "Golden workbook requires retaining dimensionally invalid balance-sheet totals",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instruction says to audit and fix the file 'thoroughly,' including formula logic errors and unit inconsistencies, but the golden workbook preserves erroneous totals from the input. Model!E59 is '=SUM(E51:E53,E55,E57)', which adds E52 ('Days Unbilled Outstanding') to monetary balances. Its expected value is 245.121412232908, although the monetary components total 137.738; the excess is exactly 107.383412232908 days. This error repeats through N59. Likewise, E67:N67 include the percentage on row 62 in monetary liability totals. Correcting these total formulas while retaining the golden workbook's other fixes produces a modification ratio of 0.9667, including mismatches in I68:N68. The sole verifier has weight 1 and requires a modification ratio of 1.0, so this legitimate thorough-audit correction receives zero credit.",
+    "confirmation": "Golden Model!E59 is '=SUM(E51:E53,E55,E57)', which adds row 52 'Days Unbilled Outstanding' (107.38 days) into Total Current Assets. E67 '=SUM(E61:E63,E65)' likewise includes the row 62 percentage. The GT keeps these unit-mismatch errors while fixing others (I63:N63 /12->/365), so correcting them, as",
+    "fixed": true,
+    "fix": "gt_05_golden.xlsx, Model: Total Current Assets E59:N59 changed from =SUM(x51:x53,x55,x57) to =SUM(x51,x53,x55,x57), dropping row 52 'Days Unbilled Outstanding' (days). Total Current Liabilities E67:N67 changed from =SUM(x61:x63,x65) to =SUM(x61,x63,x65), dropping row 62 'Net Revenue %'. Cached values recomputed with the verifier's LibreOffice recalc: 33 cells change (rows 59, 67, 68 Working Capital, 69 Change, e.g. E59 245.12 -> 137.74). Rows 87 onward are unchanged because the forecast-year change in working capital is the same with or without the stray items. Only these formulas and <v> caches were patched. The patched GT and a cache-free copy both score 1.0 locally. Rechecked in the audit rework (no further key change needed, the finding names only these two totals): new key vs itself 1.0, input plus all key fixes 1.0, untouched input 0.0, planted-only fixes (original key) 0.0 (expected)."
+  }
+]

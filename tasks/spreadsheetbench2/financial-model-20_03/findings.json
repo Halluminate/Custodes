@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "The ground-truth workbook fails its own verifier because of floating-point noise in a balance check cell",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "I copied gt_20_Fintech_golden.xlsx to output.xlsx and ran verify_spreadsheetbench2_cells with the spec parameters. Result: \"FAILED - regression 1.0000, modification 0.9993. 1 cell error(s): Modification error at Cashflow!E31: answer=-4.94765117764473e-10, output=-5.23868948221207e-10\". Cashflow!E31 is the 'Check' row (=E29-'Balance Sheet'!E9), so its true value is 0. The verifier recalculates the output in LibreOffice. When both values are non-zero it uses a relative tolerance: abs(v1-v2)/max(|v1|,|v2|) <= 0.01. Here two values of about 5e-10 differ by about 5.6% relative, so the cell fails. Scoring is all-or-nothing (1.0 only if the modification ratio is exactly 1.0), and this is the only verifier (weight 1). So even the answer key scores 0, and a perfect agent output scores 0 unless LibreOffice happens to produce exactly 0 or the same rounding noise.",
+    "confirmation": "Same confirmed defect: the only mismatch in every trial is Cashflow!E31, ~5e-10 noise in a balance check cell, which fails the relative tolerance and zeroes the all-or-nothing score.",
+    "fixed": true,
+    "fix": "Same GT edit (Cashflow!E31 cached 0)."
+  },
+  {
+    "id": "F2",
+    "title": "Cashflow!E31 in golden workbook holds floating-point residue (-4.95e-10) instead of 0, causing relative-tolerance check to fail on LibreOffice-recalculated outputs",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `gt_20_Fintech_golden.xlsx`, the cash balance check row `Cashflow!C31:F31` (`=C29-'Balance Sheet'!C9`, etc.) has cached values `0` in C31, D31, and F31, but `E31` holds Excel's IEEE-754 floating-point subtraction residue `-4.94765117764473e-10` (where `E29` and `'Balance Sheet'!E9` both equal `1083416.82405479`). In `verify_spreadsheetbench2_cells` (`spreadsheetbench2.py:101-106`), `_values_match` checks `isinstance(v1, (int, float)) and isinstance(v2, (int, float))` BEFORE calling `_transform_value` (which rounds floats to 2 decimal places at line 79), and `_within_tolerance` (`spreadsheetbench2.py:92-98`) only uses absolute tolerance (`abs(v1 - v2) <= 0.01`) when `v1 == 0 or v2 == 0`; otherwise it computes relative difference `abs(v1 - v2) / max(abs(v1), abs(v2)) <= 0.01`. Because the verifier forces LibreOffice recalculation on the submitted workbook (`managed_recalculated_xlsx(..., force_recalculation=True)`), LibreOffice evaluates `Cashflow!E31` (`=E29-'Balance Sheet'!E9`) to `-5.23868948221207e-10`. Comparing `-4.94765117764473e-10` to `-5.23868948221207e-10` yields a relative difference of 5.56% (> 1% tolerance), even though their absolute difference is `2.91e-11`. Consequently, even passing `gt_20_Fintech_golden.xlsx` itself as `output_path` to `verify_spreadsheetbench2_cells` fails with `score=0.0` (weight 1.0).",
+    "confirmation": "Golden Cashflow!E31 (=E29-'Balance Sheet'!E9) caches -4.94765e-10 while C31, D31 and F31 are 0. This residue alone is the single failing cell in all 3 trial grades.",
+    "fixed": true,
+    "fix": "Same GT edit (Cashflow!E31 cached 0)."
+  },
+  {
+    "id": "F3",
+    "title": "Verifier rejects its own golden workbook because of floating-point noise",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Recalculating gt_20_Fintech_golden.xlsx through the verifier's managed_recalculated_xlsx routine and scoring it against the golden produces regression=1.0, modification=0.9993. The sole failure is Cashflow!E31: expected -4.94765117764473e-10, recalculated -5.23868948221207e-10, with the identical formula =E29-'Balance Sheet'!E9. These are effectively zero and differ by only 2.9103830456734014e-11, but _within_tolerance applies relative tolerance whenever both numbers are nonzero, treating this as a 5.56% discrepancy. The sole verifier has weight 1 and requires modification=1.0, so even the recalculated answer key receives zero credit. A correct completed model can therefore fail the entire task on numerical noise in an existing reconciliation cell.",
+    "confirmation": "Confirmed by the trial grades: the sole failure is Cashflow!E31, with a 2.9e-11 absolute difference judged as a 5.6% relative error, so even a correct model gets 0.",
+    "fixed": true,
+    "fix": "Same GT edit (Cashflow!E31 cached 0)."
+  },
+  {
+    "id": "F4",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "The GT stores Cashflow!E31 = -4.94765e-10 (float residue in a check row), and the values verifier's relative tolerance rejects LibreOffice's -5.2387e-10, so the GT cannot score 1.0. The 'never reached the grader' explanation is wrong, but the shortfall is real.",
+    "fixed": true,
+    "fix": "gt_20_Fintech_golden.xlsx Cashflow!E31: cached value -4.94765117764473e-10 set to 0, formula =E29-'Balance Sheet'!E9 kept, no other cell changed. Local grade: golden 1.0/1.0, simulated output with E31=-5.2387e-10 now passes (was mod 0.9993)."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all 3 correct runs (and fails the golden workbook itself) due to floating-point residue at Cashflow!E31",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "All 3 units correctly implemented every required formula matching `gt_20_Fintech_golden.xlsx`: `Cashflow!C14:F14` (`=SUM(C8:C13)`..`=SUM(F8:F13)`), `Balance Sheet Schedules!C44:F44` (`=C32-C35+C38-C41`..`=F32-F35+F38-F41`), `Cost Drivers!D42:F42` and `D45:F45` (`=D41/C41-1`, etc.), and `Manpower Expenses!D117:G117` (`=SUMIF($I$5:$AX$5,D$5,$I117:$AX117)`, etc.), achieving `regression 1.0000` and matching 1,483 of 1,484 modification cells (`modification 0.9993`). Every unit scored `0.0` solely because of `Modification error at Cashflow!E31: answer=-4.94765117764473e-10, output=-5.23868948221207e-10`. Because `verify_spreadsheetbench2_cells` forces LibreOffice recalculation on `output_path` (`managed_recalculated_xlsx(..., force_recalculation=True)`) and LibreOffice evaluates `=E29-'Balance Sheet'!E9` to `-5.23868948221207e-10` while the un-recalculated Excel golden stores `-4.94765117764473e-10`, relative tolerance (`abs(v1 - v2) / max(abs(v1), abs(v2)) <= 0.01`) rejects the 2.91e-11 difference as a 5.56% relative error. Running `verify_spreadsheetbench2_cells` directly on `gt_20_Fintech_golden.xlsx` produces the exact same `score=0.0` failure.",
+    "confirmation": "In run <id>, all 3 trials report 'regression 1.0000, modification 0.9993. 1 cell error(s): Modification error at Cashflow!E31: answer=-4.94765117764473e-10, output=-5.23868948221207e-10', so correct work scores 0 on float noise alone.",
+    "fixed": true,
+    "fix": "Same GT edit (Cashflow!E31 cached 0), which removes the only failing cell in all 3 trial grades."
+  }
+]

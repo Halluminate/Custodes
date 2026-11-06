@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_03_Banking_golden.xlsx",
+        "reference_path": "reference/untouched_input_03_01_Banking_input.xlsx",
+        "answer_position": "'Cover Page'!C4:C4,'Index'!B2:D26,'Final Output'!C4:M103,'Introduction'!C2:T28,'Industry Benchmark'!D2:AD62,'Equity_Table'!C2:W47,'Macro sheet'!B2:AA103,'Graphical_Representation'!C3:W87,'Balance Sheet'!B2:AL53,'BS-QTR'!B2:W53,'Assumptions-BS'!B2:Q260,'Income Statement'!B2:AA66,'IS-QTR'!B2:AH34,'Assumptions-IS'!B2:M131,'CF'!B2:M40,'Valuation'!B2:O95,'Ratios'!B2:M57,'Dupont Analysis'!B2:L31,'Du Pont'!B2:Q47,'PB - Sector'!B2:G858,'Price Chart'!B1:AL1151,'Valuation Band'!B2:S1142",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

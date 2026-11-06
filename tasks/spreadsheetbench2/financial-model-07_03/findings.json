@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground-truth workbook has stale #NAME? cached values from un-evaluated _xlfn.xlookup formulas and fails its own verifier after LibreOffice recalculation",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1) recalculates `output_path` in LibreOffice (`managed_recalculated_xlsx(Path(output_path), force_recalculation=True, model_deliverable=True)`) and compares the recalculated values against the un-recalculated cached values in `gt_07_RealEstate_golden.xlsx` and `untouched_input_07_03_RealEstate_input.xlsx`. In both reference files, `Sales Schedule!D18:D102` (`=_xlfn.xlookup(C18,Inputs!$E$58:$E$68,Inputs!$C$58:$C$68,,-1)`) was saved with cached `#NAME?` errors, which caused `Sales Schedule!E19:E102`, all sales inflows (`Sales Schedule!N21:S102`, `D11`), all revenue rows in `Cashflow (Monthly)!N60:CP63` and `Cashflow (Quaterly)!K60:U63`, and downstream metrics across `Executive Summary` and `Cashflow (Monthly)` to cache `0` or zero-revenue values. When recalculated in the container's LibreOffice 24.8, `_xlfn.xlookup` evaluates properly (`'Approval'`, `'Structure 1'`, `'Structure 2'`, etc.), changing 1,177 cells in `answer_position` (781 regression cells and 396 modification cells). Moreover, because `Cashflow (Monthly)!D80` (Requirement R5: Project Performance EQx) is `None` in the input workbook and cached as `0` in `gt_07_RealEstate_golden.xlsx` (due to zero cached revenue), `_values_match(None, 0)` returns `True`, so `score_workbooks` misclassifies `Cashflow (Monthly)!D80` and `Cashflow (Quaterly)!D80` as unchanged regression cells expecting `0` instead of their recalculated value `1.55211879786911`. Passing `gt_07_RealEstate_golden.xlsx` itself to `verify_spreadsheetbench2_cells` yields `score=0.0` (`FAILED - regression 0.9789, modification 0.6278. 1177 cell error(s)`).",
+    "confirmation": "Same verified stale-cache defect: XLOOKUP cells cached as #NAME? from LibreOffice 7.3.7.2, and the golden D80 EQx cached as 0 while blank in the input, so a correct recalculated output mismatches throughout.",
+    "fixed": true,
+    "fix": "Replaced gt_07_RealEstate_golden.xlsx and untouched_input_07_03_RealEstate_input.xlsx with copies recalculated in LibreOffice through the verifier's own recalc pipeline, so the cached #NAME? XLOOKUP results in Sales Schedule!D18:D102 and every downstream zero are replaced by real values (1,349 cached values change in the GT, formulas unchanged apart from D80 below). Local grade: the GT formulas as output now pass (reg 1.0, mod 1.0), untouched input fails."
+  },
+  {
+    "id": "F2",
+    "title": "The golden workbook fails its own verifier after recalculation",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The verifier forcibly recalculates the submitted workbook but compares it with unrecalculated golden caches. The golden workbook contains 170 cached '#NAME?' errors in Sales Schedule, including D18's XLOOKUP; the installed recalculation engine successfully evaluates these formulas and changes downstream collections and cashflows. Recalculating the golden workbook itself produces 781 regression mismatches and 396 modification mismatches: regression ratio 0.9789 and modification ratio 0.6278. This fails the sole verifier, weighted 1, and receives zero despite using the supplied golden workbook.",
+    "confirmation": "Same verified defect: the golden caches #NAME? for the Sales Schedule XLOOKUP formulas, and these change on recalculation, so the golden fails its own recalculate-then-compare verifier.",
+    "fixed": true,
+    "fix": "Replaced gt_07_RealEstate_golden.xlsx and untouched_input_07_03_RealEstate_input.xlsx with copies recalculated in LibreOffice through the verifier's own recalc pipeline, so the cached #NAME? XLOOKUP results in Sales Schedule!D18:D102 and every downstream zero are replaced by real values (1,349 cached values change in the GT, formulas unchanged apart from D80 below). Local grade: the GT formulas as output now pass (reg 1.0, mod 1.0), untouched input fails."
+  },
+  {
+    "id": "F3",
+    "title": "The expected EQx formula uses cashflows before financing",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions require EQx from 'Net Cashflows After Financing', which is row 74. However, the golden formula in Cashflow (Monthly)!D80 is '=SUMIF(J66:BG66,\">0\")/-SUMIF(J66:BG66,\"<0\")', referencing row 66, labeled 'Net Cashflows'. In the recalculated golden fixture, the row-66 ratio is 1.55211879786911, whereas the instructed row-74 ratio is 1.37924400023537. These differ well beyond the verifier's 1% tolerance. Independently of the stale-cache defect, the answer formula contradicts the task and can cause the sole all-or-nothing verifier to reject the instructed calculation.",
+    "confirmation": "Confirmed: golden Cashflow (Monthly)!D80 references row 66 ('Net Cashflows') rather than row 74 ('Net Cashflows After Financing') as the instruction states.",
+    "fixed": true,
+    "fix": "Answer key fixed to match the instruction: gt_07_RealEstate_golden.xlsx 'Cashflow (Monthly)'!D80 changed from =SUMIF(J66:BG66,\">0\")/-SUMIF(J66:BG66,\"<0\") (Net Cashflows) to =SUMIF(J74:BG74,\">0\")/-SUMIF(J74:BG74,\"<0\") (row 74, Net Cashflows After Financing), recalculated: D80 and 'Cashflow (Quaterly)'!D80 now 1.379244 instead of 1.552119."
+  },
+  {
+    "id": "F4",
+    "title": "Prompt instruction for Project Performance EQx specifies 'Net Cashflows After Financing' (row 74) but ground truth uses 'Net Cashflows' before financing (row 66)",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `problem.py:42`, the prompt instructs: 'Then calculate EQx in Project Performance by dividing total positive Net Cashflows After Financing by total negative Net Cashflows After Financing.' In `Cashflow (Monthly)`, row 74 (`B74`) is explicitly labeled `Net Cashflows After Financing` (`J74:BG74`), whereas row 66 (`B66`) is labeled `Net Cashflows` (`J66:BG66`, before financing). However, `gt_07_RealEstate_golden.xlsx` defines `Cashflow (Monthly)!D80` as `=SUMIF(J66:BG66,\">0\")/-SUMIF(J66:BG66,\"<0\")` (referencing row 66 `Net Cashflows` rather than row 74 `Net Cashflows After Financing`, and negating the denominator). When recalculated in LibreOffice, the golden formula using row 66 evaluates to `139.4741585 / 89.8604918 = 1.5521188` (which also flows into `Cashflow (Quaterly)!D80`), whereas following the literal prompt instruction using row 74 (`=SUMIF(J74:BG74,\">0\")/-SUMIF(J74:BG74,\"<0\")`) evaluates to `71.3314703 / 51.7178036 = 1.3792440` (a 12.5% discrepancy, well outside the 1% tolerance of `verify_spreadsheetbench2_cells`, weight: 1).",
+    "confirmation": "The prompt says EQx uses 'Net Cashflows After Financing', which is row 74 (B74) of Cashflow (Monthly). The golden D80 is =SUMIF(J66:BG66,\">0\")/-SUMIF(J66:BG66,\"<0\") on row 66 'Net Cashflows', so following the instruction produces a different graded value.",
+    "fixed": true,
+    "fix": "Answer key fixed to match the instruction: gt_07_RealEstate_golden.xlsx 'Cashflow (Monthly)'!D80 changed from =SUMIF(J66:BG66,\">0\")/-SUMIF(J66:BG66,\"<0\") (Net Cashflows) to =SUMIF(J74:BG74,\">0\")/-SUMIF(J74:BG74,\"<0\") (row 74, Net Cashflows After Financing), recalculated: D80 and 'Cashflow (Quaterly)'!D80 now 1.379244 instead of 1.552119."
+  },
+  {
+    "id": "F5",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "The GT does fail the real grader. The cause is not a missing file but the golden's stale caches: it was saved by LibreOffice 7.3.7.2 with 'Sales Schedule'!D18 (=_xlfn.xlookup) cached as #NAME?, so a recalculated output cannot match.",
+    "fixed": true,
+    "fix": "Replaced gt_07_RealEstate_golden.xlsx and untouched_input_07_03_RealEstate_input.xlsx with copies recalculated in LibreOffice through the verifier's own recalc pipeline, so the cached #NAME? XLOOKUP results in Sales Schedule!D18:D102 and every downstream zero are replaced by real values (1,349 cached values change in the GT, formulas unchanged apart from D80 below). Local grade: the GT formulas as output now pass (reg 1.0, mod 1.0), untouched input fails."
+  },
+  {
+    "id": "F6",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check trivially fails all runs (including exact golden solutions) because it recalculates only output.xlsx while comparing against stale #NAME? cached values in gt_path and reference_path",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 comparison units, `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1) returned the exact same verdict and error string: `score=0 - FAILED - regression 0.9789, modification 0.6278. 1177 cell error(s): Regression error at Executive Summary!D26: answer=0, output=274.493518728221; Modification error at Executive Summary!D27: answer=-224.879852019083, output=49.6136667091384; Modification error at Executive Summary!D30: answer=254.879852019083, output=22.7720755848716; Regression error at Executive Summary!D32: answer=0, output=-42.38574229401; Modification error at Executive Summary!D37: answer=-154.875892093128, output=20.9629022515383`. From the trajectories, all 3 units completed `/home/model/Desktop/output.xlsx` (at step [31] in unit 1, step [52] in unit 2, and step [31] in unit 3) with the exact golden formulas (`Sales Schedule!D8 = D7/D6`, `D10 = D7/D9`, `Cashflow (Monthly)!D8:D10` linked to `Inputs!D10`, `D12`, `D13`, `K25:CP25` running total, `F28:F34` linked to `Inputs!G32:G38`, and `D80 = SUMIF(J66:BG66,\">0\")/-SUMIF(J66:BG66,\"<0\")`). When `gt_07_RealEstate_golden.xlsx` itself is passed through `managed_recalculated_xlsx(gt, force_recalculation=True, model_deliverable=True)` and scored by `score_workbooks(ref, gt, recalc_gt, ans_pos, 'values')`, it produces the exact same failure (`regression 0.9789, modification 0.6278, 1177 cell errors`) because LibreOffice 24.8 evaluates `_xlfn.xlookup` in `Sales Schedule!D18:D102` whereas `gt_07_RealEstate_golden.xlsx` has `#NAME?` cached in those cells. When `gt` and `ref` are also recalculated in LibreOffice 24.8, `score_workbooks` scores all 3 units at `(1.0, 1.0)` with 0 errors.",
+    "confirmation": "Confirmed in gt_07_RealEstate_golden.xlsx: 'Sales Schedule'!D18 is =_xlfn.xlookup(...) cached as #NAME?, and downstream revenue caches 0 (Cashflow (Monthly) D80 cached 0). The verifier recalculates only the output, so even the exact golden formulas fail.",
+    "fixed": true,
+    "fix": "Replaced gt_07_RealEstate_golden.xlsx and untouched_input_07_03_RealEstate_input.xlsx with copies recalculated in LibreOffice through the verifier's own recalc pipeline, so the cached #NAME? XLOOKUP results in Sales Schedule!D18:D102 and every downstream zero are replaced by real values (1,349 cached values change in the GT, formulas unchanged apart from D80 below). Local grade: the GT formulas as output now pass (reg 1.0, mod 1.0), untouched input fails."
+  }
+]

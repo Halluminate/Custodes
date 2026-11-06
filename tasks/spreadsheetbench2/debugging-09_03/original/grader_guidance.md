@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'LBO'!A2:X218,'Financials'!A2:Q29,'Operating Cases'!A2:Q47, after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

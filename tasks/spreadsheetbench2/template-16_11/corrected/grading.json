@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_16_11_golden.xlsx",
+        "reference_path": "reference/untouched_input_16_11_input.xlsx",
+        "answer_position": "'RentRoll'!A2:P10,'RentRoll'!A11:C11,'RentRoll'!E11:P11,'RentRoll'!A12:P13,'DCF'!B2:F35,'DCF'!B36:C37,'DCF'!E36:F37,'DCF'!B38:F40,'DCF'!B41:C41,'DCF'!E41:F41,'DCF'!B42:F45",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

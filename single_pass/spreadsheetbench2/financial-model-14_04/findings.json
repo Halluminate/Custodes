@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden Sensitivity Analysis grid holds the same value (28810.17, equal to base-case D29) in all 25 cells, so it does not vary with Terminal Growth Rate or WACC; a correct table fails while an inert one passes.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "degenerate-answer-key",
+    "evidence": "gt 'DCF_Income Approach'!K27:O31 all = 28810.1725164556 even though J27:J31 runs 0.01–0.03 and K26:O26 runs 0.1175–0.1375; J26 = D29 = 28810.17.",
+    "confirmation": "Golden 'DCF_Income Approach'!K27:O31 all cache 28810.1725 (the base case J26=D29), although the grid runs growth 0.01-0.03 and WACC 0.1175-0.1375. These are modification cells (blank in input), and the production recalc freezes data-table cells to their cached values, so only an inert grid that copi"
+  }
+]

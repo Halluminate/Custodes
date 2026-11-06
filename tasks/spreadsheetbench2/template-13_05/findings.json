@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Q3 nonrecurring note says opex 'excludes' the gain, yet the ground truth adds $18 back (contradictory requirement)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "world_consistency",
+    "evidence": "The note in B29 says: 'Q3 2024: Operating Expenses excludes $18 insurance settlement gain'. Read literally, the reported opex of 55 already excludes the gain, so no adjustment is needed (normalized opex = 55). The ground truth uses E10 '=E34+18' = 73, which only makes sense if reported opex *included* (was netted by) the gain. This $18 difference changes E9:E15, E17, E23, E24 and every projection through the averages (F7:H24). Because grading is all-or-nothing, an agent that follows the literal wording gets 0.",
+    "confirmation": "Input Normalize!B29 says Q3 opex 'excludes $18 insurance settlement gain' (E34=55), yet golden E10 is '=E34+18' (73), flowing into E11:E24 and all projections. The sibling template 13_04 words the same case as 'OpEx includes $15 ... (gain)', so the 'excludes' wording here contradicts the all-or-noth",
+    "fixed": true,
+    "fix": "Normalize!B29 note changed from 'Q3 2024: Operating Expenses excludes $18 insurance settlement gain' to '... includes $18 insurance settlement gain' (same wording as the sibling 13_04 task), so the answer key's add-back E10 = E34+18 follows from the note. Edited the shared string only, identically in the input (13_05_input.xlsx), the verifier reference (untouched_input_13_05_input.xlsx) and the golden (gt_13_05_golden.xlsx), so B29 stays an unchanged regression cell."
+  },
+  {
+    "id": "F2",
+    "title": "Q3 normalization note contradicts the graded adjustment",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input's Normalize!B29 says \"Q3 2024: Operating Expenses excludes $18 insurance settlement gain\", and reported operating expenses in E34 are 55. Taken literally, the gain is already excluded, so no add-back is required. However, the golden workbook requires E10 = E34+18, yielding 73, as though reported expenses included the gain as an expense reduction. This also changes operating profit, pretax income, EPS and forecast assumptions. The sole verifier has weight 1 and requires every modification cell to match, so following the supplied note literally can fail the entire check.",
+    "confirmation": "Duplicate of the B29 'excludes $18 gain' note versus golden E10 '=E34+18'. The literal note implies no add-back while the sole weight-1 verifier requires 73.",
+    "fixed": false,
+    "fix": null
+  }
+]

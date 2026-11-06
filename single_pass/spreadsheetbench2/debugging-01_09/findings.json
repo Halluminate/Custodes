@@ -1,0 +1,38 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden 'Ex 1 - LBO' sheet holds stale cached values from a data-table substitution pass, so its cells contradict their own formulas and cannot be reproduced by a correct recalculated output.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "stale-golden-values",
+    "evidence": "Golden C11=18.2034 with formula =+C20, but C20=14.2034. C32=109.5182 with formula =C30*(1+C31), but 81.73*1.24=101.35. C38=14.2034 with formula =C37/C17, but 12289.94/802.4=15.32. F31=8301.17 with formula SUM(F20:F21), but 215.42+8987.82=9203.24.",
+    "confirmation": "Golden 'Ex 1 - LBO'!C11=18.2034 while its source C20=14.2034, and C32=109.52 vs 81.73*1.24=101.35. Running the golden itself through the production recalc (data tables frozen) gives C11=14.20, C32=101.35, F21=8101.8, so the golden fails its own check (mod 0.744)."
+  },
+  {
+    "id": "S2",
+    "title": "Golden forecast cells for 2030 use driver values that differ from the referenced cells, so a recalculated output will diverge by more than the 1% tolerance.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "stale-golden-values",
+    "evidence": "Golden U41=0.137 (=+M17) but M17=0.092. U43=0.264 (=+M27) but M27=0.2215. U17=6467.79 and U23=1707.50 are built on these values, while 'Ex 3 - PF P&L'!G15=6211.81 and 'Ex 4'!K40=1375.96.",
+    "confirmation": "Golden U41=0.137 and U43=0.264 while M17/M27 give 0.092/0.2215. The production-recalculated golden yields U41=0.092, U17=6211.8 and U23=1375.96, which miss the golden values by far more than 1%."
+  },
+  {
+    "id": "S3",
+    "title": "Golden returns-analysis equity contributions are inconsistent: X24 and Y24:AC24 use the same formula but hold different values.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "stale-golden-values",
+    "evidence": "Golden X24=8987.82 (=$F$21) but Y24:AC24=8101.82 (=$F$21). Cascading values X23:AC26=8987.82 also fall inside the compared range B1:AK95.",
+    "confirmation": "Golden X23:AC26 hold 8987.82 while the same =$F$21 formula recalculates to 8101.82. The recalculated golden fails on X23, X24, X26 and Y23:AC26."
+  },
+  {
+    "id": "S4",
+    "title": "All Excel TABLE() sensitivity cells in the golden show the same string, which is a degenerate data-table result, and LibreOffice cannot evaluate Excel TABLE formulas, so these compared cells cannot be matched reliably.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "data-table-unrecalculable",
+    "evidence": "Golden 'Ex 1 - LBO'!AG18:AK22, AG27:AK31, AG36:AK40 and AG45:AK49 all equal '2.4x/19%' (=TABLE(...)), and these ranges sit inside the answer_position B1:AK95.",
+    "confirmation": "Every golden TABLE cell in AG18:AK49 is the base-case string '2.4x/19%', while the input holds #VALUE!, so these are modification cells. The production recalc freezes data tables to their cached values, so only an output that hardcodes the degenerate string matches. A real sensitivity grid cannot ma"
+  }
+]

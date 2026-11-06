@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_10_McDonalds_golden.xlsx",
+        "reference_path": "reference/untouched_input_10_02_McDonalds_input.xlsx",
+        "answer_position": "'Cover Page'!D15:D15,'Valuation'!C3:O95,'Financials'!B2:AG129,'Assumptions'!B3:O119,'Ratio_Analysis '!B3:O41,'Graphical_representation'!C4:W69,'Technical Analysis'!B2:AW3956,'BB'!C3:G23",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

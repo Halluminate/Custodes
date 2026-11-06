@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Hidden extra modification cells: the grader requires the literal RRI formula text in Revenue Build!AC41/AC43, and the ground-truth cached value there is #NAME?",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The input workbook has '=_xludf.rri(5,W41,AA41)' and '=_xludf.rri(5,W43,AA43)', and their cached values are #NAME?. The golden workbook has '=rri(5,W41,AA41)', but its cached value is still #NAME?. It was never recalculated. When either side is an error, the verifier compares formula text instead of values. That makes AC41/AC43 'modification' cells, and the check is all-or-nothing: every modification cell must match. I ran the verifier on three outputs. (a) All three AVERAGE/MEDIAN bugs fixed (Supporting Schedules J27:S27, Comps + Beta H15, Comps + Beta C30) and AC41/AC43 left alone: score 0.0, 'modification 0.9545 … Revenue Build!AC41: answer=#NAME?, output=#NAME?'. (b) The same fixes plus '=RRI(5,W41,AA41)': score 1.0. (c) The same fixes plus the mathematically identical CAGR '=(AA41/W41)^(1/5)-1': score 0.0, 'answer=#NAME?, output=0.3797'. A correct numeric CAGR is rejected, and passing depends on matching the exact function spelling. Nothing in the task or the filename ('Incorrect Average') points to the RRI cells.",
+    "confirmation": "Verified: GT AC41 '=rri(5,W41,AA41)' caches #NAME? while the input has '=_xludf.rri'. The error-value fallback compares formula text, so only a literal RRI formula passes. The run's trial 1 correct CAGR 0.3797 and trial 3's untouched cell both failed on AC41/AC43.",
+    "fixed": true,
+    "fix": "Same GT edit as verifier-correctness-0."
+  },
+  {
+    "id": "F2",
+    "title": "Answer key requires two CAGR formulas to remain broken",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook contains '=rri(5,W41,AA41)' in Revenue Build!AC41 and '=rri(5,W43,AA43)' in AC43. Both evaluate to '#NAME?' after LibreOffice recalculation. The verifier's _match function switches to formula-text comparison whenever the golden value is an Excel error, so valid repairs are rejected. Replacing only these golden formulas with equivalent CAGR expressions produced 0.379729661461215 and 0.718771927587479, but yielded modification ratio 0.9545 and failed both cells. Because the sole verifier has weight 1 and requires every modification cell to match, correctly fixing these errors loses the entire score.",
+    "confirmation": "GT AC41/AC43 hold #NAME? (=rri) values, so the verifier switches to formula-text comparison. A valid CAGR repair (0.379729661 in trial 1 of run <id>) is rejected as a modification error and the weight-1 verifier scores 0.",
+    "fixed": true,
+    "fix": "Same GT edit as verifier-correctness-0."
+  },
+  {
+    "id": "F3",
+    "title": "Invalid ground-truth formulas in Revenue Build!AC41 and AC43 (#NAME? with =rri vs =_xludf.rri in input) make the task impossible to pass",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `problem.py:32`, the task instructs: `Please audit and fix this file thoroughly. Errors may include but are not limited to: formula logic errors or inconsistencies, hardcoded values that should be formulas, broken cell references, data validation issues, potential calculation errors...`. The sole verifier in `spec.yaml` (`SpreadsheetBench 2 official cell check`, function `verify_spreadsheetbench2_cells`, weight `1`, `mode: values`) checks `'Revenue Build'!A2:AC47` and requires 100% of modification cells (`mod_ratio == 1.0`) to match `gt_06_golden.xlsx` to award a non-zero score. However, in `gt_06_golden.xlsx`, `Revenue Build!AC41` and `Revenue Build!AC43` contain the unprefixed formulas `=rri(5,W41,AA41)` and `=rri(5,W43,AA43)` with cached error value `#NAME?`, whereas in `untouched_input_Incorrect Average_input.xlsx` (and `assets/Incorrect Average_input.xlsx`, saved by Excel) those cells contain `=_xludf.rri(5,W41,AA41)` and `=_xludf.rri(5,W43,AA43)` with cached value `#NAME?`. In `verifiers/spreadsheetbench2.py:194-200`, `_match()` falls back to `_formulas_match()` whenever either compared cell has an Excel error (`_has_excel_error(a) or _has_excel_error(b)`). Because `=_XLUDF.RRI(...) != =RRI(...)`, `score_workbooks()` falsely classifies `Revenue Build!AC41` and `AC43` as required modification cells (`mod`). Worse, because `ws_gt['AC41'].value` and `ws_gt['AC43'].value` are `#NAME?`, `_has_excel_error(ws_gt[n])` is always True when grading `output.xlsx`, forcing `_formulas_match()` against `=RRI(5,W41,AA41)` and `=RRI(5,W43,AA43)`. If the agent leaves `AC41` and `AC43` untouched (`=_xludf.rri(...)`), grading fails (`answer=#NAME?, output=#NAME?`); if the agent fixes the `#NAME?` error using valid OOXML `=_xlfn.RRI(5,W41,AA41)` or `=(AA41/W41)^(1/5)-1` (which both evaluate in LibreOffice/Excel to `0.379729661461215` and `0.718771927587479`), grading still fails because the formula string does not match the broken `=rri(...)` string in `gt_06_golden.xlsx`.",
+    "confirmation": "GT Revenue Build!AC41/AC43 are '=rri(...)' cached as #NAME?, unlike the input's '=_xludf.rri(...)'. This creates hidden modification cells that fail both untouched and numerically repaired outputs (grade.json in all 3 trials). Only the literal text '=RRI(5,W41,AA41)' would pass, so 'impossible' is s",
+    "fixed": true,
+    "fix": "Same GT edit as verifier-correctness-0."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails both untouched and properly fixed Revenue Build!AC41 and AC43 cells due to #NAME? formula prefix mismatch in ground truth",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (weight `1`) scores `0` and flags modification errors on `Revenue Build!AC41` and `Revenue Build!AC43` regardless of whether the agent leaves them untouched or fixes them:\n- In unit 1 (steps `[66]`-`[78]`) and unit 2 (steps `[40]`-`[49]`), the agent left `Revenue Build!AC41` and `AC43` untouched as `=_xludf.rri(5,W41,AA41)` and `=_xludf.rri(5,W43,AA43)` (evaluating to `#NAME?`), and the verifier failed them with `Modification error at Revenue Build!AC41: answer=#NAME?, output=#NAME?; Modification error at Revenue Build!AC43: answer=#NAME?, output=#NAME?`.\n- In unit 3 (steps `[37]`-`[40]`), the agent repaired the broken `#NAME?` RRI formulas in `Revenue Build!AC41` and `AC43` to valid 5-year CAGR formulas evaluating to `0.379729661461215` and `0.718771927587479` (the exact values of `RRI(5, 10, 50)` and `RRI(5, 40, 600)`), and the verifier still failed them with `Modification error at Revenue Build!AC41: answer=#NAME?, output=0.379729661461215; Modification error at Revenue Build!AC43: answer=#NAME?, output=0.718771927587479`.\nBecause `gt_06_golden.xlsx` stores `=rri(5,W41,AA41)` with `<v>#NAME?</v>` while `untouched_input_Incorrect Average_input.xlsx` stores `=_xludf.rri(5,W41,AA41)` with `<v>#NAME?</v>`, `_match()` in `spreadsheetbench2.py` classifies both cells as modification cells and forces exact formula-string matching against the broken `=rri(...)` formula (which even valid OOXML `=_xlfn.RRI(...)` fails). Because `verify_spreadsheetbench2_cells` requires `mod_ratio == 1.0` to return `1.0`, no normal solution can pass.",
+    "confirmation": "The GT has '=rri(5,W41,AA41)' with cached #NAME?, the input has '=_xludf.rri(...)'. Because the GT value is an error, _match compares formula text, so AC41/AC43 fail both when left untouched (trials 2-3: 'answer=#NAME?, output=#NAME?') and when correctly repaired (trial 1: output 0.3797).",
+    "fixed": true,
+    "fix": "ground_truth/gt_06_golden.xlsx: 'Revenue Build'!AC41 and AC43 changed from =rri(5,W41,AA41) / =rri(5,W43,AA43) cached #NAME? to =_xlfn.RRI(5,W41,AA41) / =_xlfn.RRI(5,W43,AA43) with cached values 0.37973 and 0.71877 (the 5-year CAGRs of 10->50 and 40->600); only those two cells' XML changed. A repaired CAGR (RRI or (AA/W)^(1/5)-1) now matches by value; leaving the #NAME? cell still fails. Local replay: golden PASS, openpyxl fix with RRI PASS, fix with explicit CAGR formula PASS."
+  }
+]

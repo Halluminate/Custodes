@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Instruction says to calculate Net Profit after Minority Interest for forecast years only, but the answer key also fills the historical years, so following the instruction exactly scores 0",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "problem.py says: \"then calculate Net Profit after Minority Interest for forecast years.\" In Financials, row 4 labels E:J as 'Historicals' (2008–2013) and K:O as 'Forecasts' (2014F–2018F). The input has E47:O47 all blank. The ground truth fills every period: E47 '=E41+E44' (4313.2) through J47 (5585.9), plus K47:O47. The only verifier is verify_spreadsheetbench2_cells (weight 1). It is all-or-nothing: every modification cell must match. I built an output that does every other step correctly and fills only K47:O47 as instructed. It failed with modification ratio 0.5456 and 276 cell errors. These include Financials!E47:J47 and the cells that depend on them (rows 48, 49, 54–62, 106, 110, 125, 126, …). Filling E47:O47 instead brought the errors down to the 25 data-table cells described in the next finding. The wording for Assumptions (\"forecast years\") does match its ground truth, which is K67:O67 only. So the scope words are used inconsistently within the same sentence.",
+    "confirmation": "Same contradiction confirmed in the files: golden E47:J47 =E41+E44..=J41+J44 for 2008-2013, while the prompt scopes Net Profit after MI to forecast years. Filling only K47:O47 leaves the historical cells and their dependents mismatched.",
+    "fixed": true,
+    "fix": "Same prompt sentence change as verifier-correctness-0."
+  },
+  {
+    "id": "F2",
+    "title": "Using openpyxl, the workflow the prompt recommends, breaks the Excel data table on the Valuation sheet, so a fully correct answer still scores 0",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "planted_trick",
+    "evidence": "The Valuation!H60:L64 WACC × terminal-growth sensitivity grid is an Excel What-If data table (openpyxl reads it as '=TABLE($G$59,$E$67,$G60,$E$23,H$59)'). Its values depend on the edited cells, so the grader counts 24 of them as modification cells. The prompt says to \"Create a python script … using openpyxl\". I loaded the input with openpyxl, entered exactly the ground-truth formulas for every requested cell (including E47:O47) and saved. After the verifier recalculated the file in LibreOffice, it returned score 0.0: \"modification 0.9668. 25 cell error(s): Regression error at Valuation!H60: answer=248.18…, output=None; Modification error at Valuation!H61: answer=178.82…, output=None; …\". The ground-truth file alone passes (score 1.0), so the only failures come from the tool. Difficulty here comes from a known tool limitation, not from finance.",
+    "confirmation": "Valuation!H60:L64 is an Excel data table (=TABLE($G$59,...)). The judge showed the golden file itself, merely re-saved with openpyxl (the prompt's recommended tool), scores 0 with 25 H60:L64 errors, so the verifier fails a formula-correct solution depending on save tool.",
+    "fixed": true,
+    "fix": "verify_spreadsheetbench2_cells answer_position: 'Valuation'!C3:O95 split into 'Valuation'!C3:O59,'Valuation'!C60:G64,'Valuation'!M60:O64,'Valuation'!C65:O95, which skips only the data-table grid H60:L64. graderGuidance updated to list the same ranges and say why the grid is skipped."
+  },
+  {
+    "id": "F3",
+    "title": "Contradiction between task instruction ('for forecast years') and ground truth ('for all periods') on Net Profit after Minority Interest",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `problem.py`, the task instruction explicitly states: 'In the Financials sheet, calculate EBITDA Margin for all periods, then calculate Net Profit after Minority Interest for forecast years.' Furthermore, the prompt warns: 'When completing spreadsheet tasks, strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.' In the `Financials` sheet, historical years are in columns E:J (2008-2013, labeled 'Historicals' in E3) and forecast years are in columns K:O (2014F-2018F, labeled 'Forecasts' in K3). In `untouched_input_10_05_McDonalds_input.xlsx`, `Financials` row 47 ('Net Profit after Minority Interest') is blank across all columns E47:O47. However, the ground truth `gt_10_McDonalds_golden.xlsx` populates `=E41+E44` through `=O41+O44` across BOTH historical years (`E47:J47`) and forecast years (`K47:O47`). Because `E47:J47` feed 251 downstream cells across `Financials`, `Ratio_Analysis `, `Valuation`, and `Graphical_representation` (out of 482 total modification cells), following the literal instruction to populate `Net Profit after Minority Interest` only for forecast years (`K47:O47`) leaves 251 modification cells mismatched, reducing the modification ratio to 0.5788 and causing the sole verifier (`SpreadsheetBench 2 official cell check`, weight 1.0) to score 0.0.",
+    "confirmation": "Verified: input Financials!E47:O47 are all blank, and the golden fills E47:O47 although E3 labels E:J 'Historicals' and the instruction restricts this step to forecast years. That direct contradiction fails the all-or-nothing verifier.",
+    "fixed": true,
+    "fix": "Same prompt sentence change as verifier-correctness-0."
+  },
+  {
+    "id": "F4",
+    "title": "Forecast-only net-profit instruction conflicts with required historical answers",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task says to calculate 'Net Profit after Minority Interest for forecast years', but the input also erases Financials!E47:J47, covering historical years 2008–2013. The golden workbook requires those six cells to contain 4313.2, 4551, 4946.3, 5503.1, 5464.8 and 5585.9. These are modification cells in the sole, 100%-weighted verifier, which requires every modification cell to match. Completing only the stated forecast years therefore cannot earn a passing score; historical omissions also propagate into cash-flow and ratio calculations.",
+    "confirmation": "Golden Financials!E47:J47 cache 4313.2, 4551, 4946.3, 5503.1, 5464.8, 5585.9 for historical years, while input has them blank and the prompt asks only for forecast years, so the stated scope cannot pass.",
+    "fixed": true,
+    "fix": "Same prompt sentence change as verifier-correctness-0."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails all 3 valid attempts due to prompt vs. ground-truth contradiction on historical Net Profit after Minority Interest (E47:J47)",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": null,
+    "evidence": "All 3 units (unit 1, unit 2, and unit 3) carefully followed the prompt instructions ('In the Financials sheet, calculate EBITDA Margin for all periods, then calculate Net Profit after Minority Interest for forecast years. In the Assumptions sheet, calculate Accounts & Notes Receivable for forecast years. In the Ratio Analysis sheet, calculate Revenue Growth for all periods. In the Valuation sheet, link Current Price.' and 'Modify only the cells that are required for the task'). Every unit populated `Financials!E19:O19` (EBITDA margin for all periods), `Financials!K47:O47` (Net Profit after Minority Interest for forecast years 2014F-2018F), `Assumptions!K67:O67` (Accounts & Notes Receivable for forecast years), `Ratio_Analysis !F6:O6` (Revenue Growth for all periods), and `Valuation!E50` (Current Price linked to `'Technical Analysis'!P3953`) using LibreOffice UNO so that data tables and formatting were preserved. Every unit scored 0.0 (weight 1.0) with the identical verifier error: `FAILED - regression 1.0000, modification 0.5788. 251 cell error(s): Modification error at Financials!E47: answer=4313.2, output=None; Modification error at Financials!E49: answer=0.183365642961603, output=0; ...`. Removing only the 6 historical cells `Financials!E47:J47` from `gt_10_McDonalds_golden.xlsx` reproduces this exact `regression 1.0000, modification 0.5788. 251 cell error(s)` result, confirming that all 3 attempts matched the golden workbook on every instructed calculation and failed solely because the golden workbook also requires `Financials!E47:J47` (historical years 2008-2013) to be filled.",
+    "confirmation": "Prompt says 'calculate Net Profit after Minority Interest for forecast years' (K:O under 'Forecasts'), but gt_10_McDonalds_golden.xlsx also fills historical Financials!E47:J47 (=E41+E44...), which are blank in the input. Agents following the instruction miss 251 dependent modification cells and scor",
+    "fixed": true,
+    "fix": "Prompt: 'then calculate Net Profit after Minority Interest for forecast years.' -> 'then calculate Net Profit after Minority Interest for all periods.' (the key fills Financials!E47:O47)."
+  }
+]

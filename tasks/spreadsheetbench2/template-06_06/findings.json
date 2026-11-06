@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Golden solution uses mathematically flawed current-revenue-weighted average for subtotal and portfolio Y/Y Growth % instead of prior-year revenue weighting, causing cell C22 to fail under the 1% relative tolerance",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In the input workbook (`06_06_input.xlsx`, cells `H11:H12`), the instructions state: 'Then calculate Q/Q Growth %, Y/Y Growth %, subtotals, and FY totals.' For each therapeutic area, 2026 quarterly revenues (`r_i`) and Y/Y Growth % (`g_i`) are provided, while subtotal and portfolio Y/Y Growth % rows (`C22:F22`, `C37:F37`, `C42:F42`) must be calculated. By mathematical definition, aggregate Y/Y revenue growth is `(Sum(r_i) - Sum(r_{i,prior})) / Sum(r_{i,prior}) = Sum(r_i) / Sum(r_i / (1 + g_i)) - 1` (i.e. weighted by prior-year revenue `r_i / (1 + g_i)`). However, `gt_06_06_golden.xlsx` (which contains only hardcoded literal values and no formulas) computes rows 22, 37, and 42 using current-period revenue weights: `Sum(r_i * g_i) / Sum(r_i)`. In `Revenue_Forecast!C22` (1Q26 Product A Total Y/Y Growth %), the true aggregate Y/Y growth from implied 1Q25 revenues (`1450/1.185 + 875/1.123 + 620/1.082 = 2575.8055`) to 1Q26 revenue (`2945`) is `0.143332073582383` (14.33%), whereas the golden file stores `(1450*0.185 + 875*0.123 + 620*0.082) / 2945 = 0.144894736842105` (14.49%). The relative discrepancy between the two is `|0.1448947 - 0.1433321| / 0.1448947 = 1.0785%`, which exceeds `TOLERANCE = 0.01` (1.0%) in `verify_spreadsheetbench2_cells` (weight: 1). Because `verify_spreadsheetbench2_cells` requires `mod_ratio == 1.0` (100% of modification cells matching) to return score 1.0 and otherwise returns 0.0, all 3 units (which all computed the mathematically exact aggregate Y/Y growth `0.143332073582383`) failed `C22` and scored 0.0 (in unit 3, `C22` was the sole cell error in the entire workbook: `regression 1.0000, modification 0.9836. 1 cell error(s): Modification error at Revenue_Forecast!C22: answer=0.144894736842105, output=0.143332073582383`).",
+    "confirmation": "Verified from the golden values: C22 0.1449 is the current-revenue-weighted average of segment Y/Y rates, not total current over implied prior-year revenue (0.1433). The 1.08% relative gap exceeds the verifier tolerance.",
+    "fixed": true,
+    "fix": "files/gt/gt_06_06_golden.xlsx 'Revenue_Forecast'!C22:F22, C37:F37, C42:F42 (hardcoded values): replaced the current-revenue-weighted average of segment Y/Y rates with true aggregate Y/Y growth = total revenue / sum(segment revenue/(1+segment Y/Y)) - 1 (e.g. C22 0.144895 -> 0.143332, C37 0.137219 -> 0.136652, C42 0.140743 -> 0.139709). No other cell changed. Local check: patched GT and input+GT edits both PASS"
+  },
+  {
+    "id": "F2",
+    "title": "Incorrect aggregate year-over-year growth in the answer key rejects correct financial calculations",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook calculates aggregate Y/Y growth using current-quarter revenue weights rather than deriving prior-year revenue. For Product A in C22, the supplied inputs imply 2945 / (1450/1.185 + 875/1.123 + 620/1.082) - 1 = 0.1433320735823833. The key instead expects 0.144894736842105. Replacing only C22 in a copy of the key with the mathematically correct result produces a verifier modification ratio of 0.9836 and a 'Modification error at Revenue_Forecast!C22'. This exceeds the verifier's 1% relative tolerance. Because the sole verification has weight 1 and requires every modification cell to match, a financially correct model can receive zero credit. The same incorrect aggregation method appears throughout C22:F22, C37:F37 and C42:F42.",
+    "confirmation": "Same verified answer-key error in the golden total Y/Y rows (row 22 shown: C22 0.14489 vs correct 0.14333), which exceeds the 1% tolerance at C22.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F3",
+    "title": "Answer key gets total-row Y/Y growth wrong: it weights segment Y/Y by current-period revenue, so the correct method fails the pass/fail check",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "GT Revenue_Forecast!C22 (Product A Total Y/Y, 1Q26) = 0.144895. That equals (1450*0.185 + 875*0.123 + 620*0.082)/2945, an average of segment Y/Y rates weighted by CURRENT-period revenue. Correct Y/Y growth is current/prior − 1. Prior-year revenue is implied as Rev/(1+g): 1450/1.185 + 875/1.123 + 620/1.082 = 2575.8, so Y/Y = 2945/2575.8 − 1 = 0.14333. The relative difference is 1.08%, above the verifier's TOLERANCE = 0.01. All the other total-row Y/Y cells (D22:F22, C37:F37, C42:F42) use the same wrong weighting but fall within 1% (0.24%–0.84%), so only C22 trips the check. verify_spreadsheetbench2_cells is all-or-nothing (score 1.0 only if every cell in B2:G42 matches) and is the only verifier (weight 1). An agent that computes total Y/Y correctly from implied prior-year revenue scores 0.",
+    "confirmation": "Same verified answer-key error: golden C22=0.144895 against a correct 2945/2575.8-1=0.14333 from the input revenues (C8, C12, C16) and Y/Y rates (C10, C14, C18). This fails the all-or-nothing check.",
+    "fixed": true,
+    "fix": "files/gt/gt_06_06_golden.xlsx 'Revenue_Forecast'!C22:F22, C37:F37, C42:F42 (hardcoded values): replaced the current-revenue-weighted average of segment Y/Y rates with true aggregate Y/Y growth = total revenue / sum(segment revenue/(1+segment Y/Y)) - 1 (e.g. C22 0.144895 -> 0.143332, C37 0.137219 -> 0.136652, C42 0.140743 -> 0.139709). No other cell changed. Local check: patched GT and input+GT edits both PASS"
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails mathematically correct aggregate Y/Y Growth % at Revenue_Forecast!C22 due to flawed ground truth",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, the agents computed the 1Q26 Product A Total Y/Y Growth % in `Revenue_Forecast!C22` using the mathematically exact aggregate Y/Y growth formula from implied 1Q25 revenues: `C20 / (C8/(1+C10) + C12/(1+C14) + C16/(1+C18)) - 1 = 2945 / (1450/1.185 + 875/1.123 + 620/1.082) - 1 = 0.143332073582383`. In unit 3 (steps [33]-[39]), the agent also left `G22`, `G37`, and `G42` blank, achieving `regression 1.0000, modification 0.9836` (60/61 modification cells matched) with `Revenue_Forecast!C22` as the only error in the entire workbook (`Modification error at Revenue_Forecast!C22: answer=0.144894736842105, output=0.143332073582383`), yet received `score=0` (weight: 1) because `gt_06_06_golden.xlsx` uses the mathematically incorrect current-revenue-weighted average `(1450*0.185 + 875*0.123 + 620*0.082) / 2945 = 0.144894736842105` (a 1.0785% relative difference, just above the verifier's 1.0% tolerance).",
+    "confirmation": "Golden Revenue_Forecast!C22=0.144894736842105, which equals (1450*0.185+875*0.123+620*0.082)/2945, a current-revenue-weighted average. The true aggregate Y/Y from rows 8/10, 12/14 and 16/18 is 2945/(1450/1.185+875/1.123+620/1.082)-1=0.14333, 1.08% off, beyond the 1% tolerance, so correct work fails.",
+    "fixed": true,
+    "fix": "files/gt/gt_06_06_golden.xlsx 'Revenue_Forecast'!C22:F22, C37:F37, C42:F42 (hardcoded values): replaced the current-revenue-weighted average of segment Y/Y rates with true aggregate Y/Y growth = total revenue / sum(segment revenue/(1+segment Y/Y)) - 1 (e.g. C22 0.144895 -> 0.143332, C37 0.137219 -> 0.136652, C42 0.140743 -> 0.139709). No other cell changed. Local check: patched GT and input+GT edits both PASS"
+  }
+]

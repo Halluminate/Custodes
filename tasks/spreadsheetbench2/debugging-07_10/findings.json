@@ -1,0 +1,112 @@
+[
+  {
+    "id": "F1",
+    "title": "The golden workbook fails its own recalculating verifier",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Recalculating gt_07_golden.xlsx through the verifier's managed_recalculated_xlsx routine and scoring it against the supplied reference and golden files produces regression 1.0000, modification 0.7826, and 17 cell mismatches. The sole verifier, weighted 1, therefore rejects its own expected workbook. The golden debt schedule contains cached values inconsistent with its formulas: 'LBO & Lenders'!X53 caches 109.6382395757, but its formula =X54*AVERAGE(X49,X51) evaluates to 113.35963381484534 using the golden inputs themselves. LibreOffice recalculation produces 113.683548936339 after updating the circular schedule, still outside the verifier's 1% tolerance.",
+    "confirmation": "Reproduced locally: golden scored against itself gives regression 1.0, modification 0.7826, 17 mismatches, so the sole verifier rejects its own expected workbook.",
+    "fixed": true,
+    "fix": "Removed the circular debt-schedule cells from answer_position: 'LBO & Lenders' U49:X49, T50:X51, T53:X53, T57:X59 and X46 (the range is now split into row runs). Their iterative values depend on the recalculation start point. The year-1 fix stays graded through S40:S59, S44:S47, T49, X47, R62 and R63. Locally, the new key graded against itself passes, and so does the input with only the three LBO edits written by openpyxl (no cached values). The original golden also passes."
+  },
+  {
+    "id": "F2",
+    "title": "Golden applies a 7/12 partial-year factor to year 1 of the Equity Returns debt schedule with no cue, and only on one of two parallel schedules",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Equity Returns is a separate search-fund model in dollars. Holding period D10 = 5 years, and it has no dates and no 'Partial' column. The golden changes B97 to '=IF(A97<=$D$10, PPMT(...)*7/12, 0)' and C97 to 'IPMT(...)*7/12'. It leaves the parallel Fundless schedule G97/H97 at full-year PPMT/IPMT. Cutting only period-1 PPMT/IPMT while periods 2-25 still assume a full year-1 payment breaks the amortization logic: the principal paid no longer reconciles to the loan. These changes flow into B122, C122, D47, D48 and D58 (7 graded modification cells). A competent auditor would see the input's Traditional and Fundless schedules as consistent and would not invent this change. Missing any of these cells scores the task 0.",
+    "confirmation": "Golden adds *7/12 to Equity Returns B97/C97 only, while the parallel G97/H97 schedule stays full-year and the sheet has no dates or partial-period cue (holding period D10=5), so the expected change is not inferable.",
+    "fixed": true,
+    "fix": "Changed the answer key so Equity Returns B97 and C97 keep the input full-year PPMT/IPMT formulas (no *7/12), with the dependent cached values (B122, C122, D47:D49, D54:D55, D58, D60, C68:D69) restored to the input values. These 15 cells are now regression cells, so an agent that prorates them anyway still passes inside the 0.2% regression tolerance."
+  },
+  {
+    "id": "F3",
+    "title": "Open-ended 'audit everything' prompt graded all-or-nothing on one exact set of 46 changed cells, so other valid fixes are rejected",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The instruction is 'Please audit and fix this file thoroughly. Errors may include but are not limited to...'. The file has other real defects that the golden leaves alone: Margin Analysis C22 Vitamins 2022 = 5,682,000 vs DCF Model D10 = 5,862 ($000s), which is why C25 (6.14M) ≠ C11 (6.32M); Equity Returns H97 uses A97 instead of F97; LBO S59 prorates a debt balance by 7/12. Fixing any of these changes graded values and either breaks a modification cell (C22 feeds C25/D26) or uses up the 0.2% regression tolerance. The only verifier (weight 1) returns 0 unless all 46 modification cells match the golden exactly. This is a multiple_valid_answers_rejected / prompt_ambiguity problem: the agent cannot tell which subset of 'errors' counts.",
+    "confirmation": "Open 'audit and fix thoroughly' prompt but golden leaves genuine defects (Equity Returns H97 IPMT uses A97 not F97, DCF D85 wrong row, I57 '-1') as regression cells, and the all-or-nothing verifier rejects other valid fixes.",
+    "fixed": true,
+    "fix": "The scope sentence added to the prompt earlier is removed. gt_07_golden.xlsx now also fixes: 'Margin Analysis'!C22 5,682,000 -> 5,862,000 (transposed digits; C25 now 6,320,000 = C11 and 'DCF Model'!D10 5,862) and 'Equity Returns'!H97 IPMT period A97 -> F97 (same value). 'LBO & Lenders'!S59 =(S51*(7/12))/S56 leaves answer_position: since S56 is already 7/12 of EBITDA, the formula equals debt / full-year EBITDA, and =S51/S56 (like T59) is an equally defensible reading; nothing references S59. Checked with the real SB2 scorer: new key vs itself 1.0; untouched input plus all key fixes 1.0; untouched input 0.0 (mod 0.0071); planted-only fixes (the previous key) now fail (mod 0.0638), as expected."
+  },
+  {
+    "id": "F4",
+    "title": "Golden file makes Margin Analysis Total Revenues 1,000x too large, so it adds the unit error instead of fixing it",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Margin Analysis is in whole dollars. C11 Revenue is 6,320,000, C7 EBITDA is 293,000, and C22:C24 (Vitamins, VEC, Misc) are 5,682,000 / 450,000 / 8,000. DCF Model D17 shows the same total as 6,320 in $000s. The input has C25 '=(SUM(C22:C24))' = 6,140,000, which is in the same units as C11. The golden changes C25:E25 to '=(SUM(C22:C24))*1000', giving 6,140,000,000 / 6,394,000,000 / 6,394,000,000. That puts Total Revenues 1,000x above the Revenue line (C11) right above it. An agent that correctly leaves C25:E25 alone, or fixes the unit mismatch the right way, fails three modification cells. The verifier requires every modification cell to match (mod ratio = 1.0) and is the only check (weight 1), so the whole task scores 0.",
+    "confirmation": "Confirmed golden Margin Analysis C25:E25 = SUM*1000 (6.14B/6.394B) versus Revenue C11:E11 of 6.32M/6.394M on the same sheet, so the key adds rather than fixes a unit error.",
+    "fixed": true,
+    "fix": "Changed the answer key so Margin Analysis C25:E25 are back to =(SUM(C22:C24)) etc. (6,140,000 / 6,394,000 / 6,394,000) instead of SUM*1000; the key now matches the whole-dollar revenue lines."
+  },
+  {
+    "id": "F5",
+    "title": "Generic audit instruction heavily under-specifies the task while golden solution requires only 8 unit/stub-period edits and leaves blatant broken cell references and formula errors unfixed",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The prompt in `problem.py` instructs: 'Please audit and fix this file thoroughly. Errors may include but are not limited to: formula logic errors or inconsistencies, hardcoded values that should be formulas, broken cell references, data validation issues, potential calculation errors, inconsistent formatting or naming conventions, best practice violations, and any other issues that could affect accuracy or maintainability.' However, comparing `untouched_input_Unit Mismatch_input.xlsx` against `gt_07_golden.xlsx` shows that the golden workbook changes only 8 formulas across the entire 9-sheet workbook: (1) multiplying 2025 Year-1 partial-period (May-Dec, 7/12 year) rows by `7/12` in `LBO & Lenders!S40`, `S52`, `S53` and `Equity Returns!B97`, `C97`, and (2) multiplying `Margin Analysis!C25:E25` (`=(SUM(C22:C24))*1000`) by 1000. Meanwhile, the golden workbook leaves numerous obvious broken references and formula bugs untouched as regression cells (weight 1.0, requiring >=99.8% regression match): e.g., `DCF Model!D85:F85` (Inventory) links to `'BS & CF'!E10:G10` (Property and Equipment, Net: 120, 120, 152) instead of `'BS & CF'!E9:G9` (Inventory: 480, 534, 568); `DCF Model!O32` uses `=(8/12)` while `O30` uses `*(7/12)`; `Equity Returns!I57` and `H82:I82` subtract `1` instead of principal (`=I56*(1+$D$12)^$D$10-1`); `Equity Returns!H63` divides by `SUM($D$34:$D$36)` instead of `SUM($I$34:$I$36)`; and `Equity Returns!H70:I70` and `H86:I86` reference Scenario 1's `-$D$36` and `-$D$35` instead of Scenario 2's `-$I$36` and `-$I$35`. All three attempts found and fixed these genuine errors along with the 7/12 and *1000 unit issues, and consequently failed the regression check (`Regression error at DCF Model!D85: answer=120, output=480`, etc., with 148-169 cell errors).",
+    "confirmation": "Golden changes only 8 formulas yet leaves real bugs as regression cells, e.g. DCF Model D85:F85 Inventory ='BS & CF'!E10 (PP&E 120) instead of E9 (480) and Equity Returns I57/H82:I82 subtracting 1; run 4NxYDtY fixed D85 and failed with 148 regression errors.",
+    "fixed": true,
+    "fix": "The scope sentence added to the prompt earlier is removed (prompt back to the original). gt_07_golden.xlsx now also fixes the errors this finding names, every other cell unchanged and 143 dependent cached values rewritten from the verifier's LibreOffice recalc: 'DCF Model'!D85:F85 ='BS & CF'!E10:G10 (PP&E) -> ='BS & CF'!E9:G9 (Inventory 480/534/568); 'DCF Model'!O32 =(8/12) -> =(7/12), the stub length O30 uses; 'Equity Returns'!I57 and H82:I82 subtract the principal instead of 1 (=I56*(1+$D$12)^$D$10-I56, =H81*(1+$D$12)^$D$10-H81), like D57 and C82; H63 divides by the Fundless total $I$34:$I$36 like H64:H65; H70:I70 use the Fundless searcher equity -$I$36 and H86:I86 the Fundless outside equity -$I$35 (were the Traditional $D$36/$D$35). Checked with the real SB2 scorer: new key vs itself 1.0; untouched input plus all key fixes 1.0; untouched input 0.0 (mod 0.0071); planted-only fixes (the previous key) now fail (mod 0.0638), as expected."
+  },
+  {
+    "id": "F6",
+    "title": "Margin Analysis!C25:E25 golden solution introduces a 1000x unit error rather than fixing a unit mismatch",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `Margin Analysis`, the top table (`C3:E11`, in `$`) reports `Revenue` in `C11:E11` as `6,320,000`, `6,394,000`, and `6,394,000`. The bottom table (`C22:E25`, also in `$`) lists `Vitamins` (`5,682,000`, `5,950,000`, `5,901,000`), `VEC (Exercise Clothes)` (`450,000`, `438,000`, `486,000`), and `Miscellaneous Revenues` (`8,000`, `6,000`, `7,000`), whose sums in `C25:E25` (`=SUM(C22:C24)`) are `6,140,000`, `6,394,000`, and `6,394,000` — already in exact dollars matching `D11:E11` (`6,394,000`) and `F33` (`6,394,000`). However, `gt_07_golden.xlsx` changes `Margin Analysis!C25:E25` to `=(SUM(C22:C24))*1000`, producing `6,140,000,000` and `6,394,000,000` ($6.394 billion), which is 1000x larger than every other cell on `Margin Analysis` (while leaving `DCF Model!D10` = `5862` vs `Margin Analysis!C22` = `5682000` unfixed).",
+    "confirmation": "Margin Analysis C22:E24 are in whole dollars (sums 6.14M/6.394M match C11:E11 and F33), but golden C25:E25 is =(SUM(C22:C24))*1000 giving 6,140,000,000, introducing a 1000x error that the agent must reproduce.",
+    "fixed": true,
+    "fix": "Changed the answer key so Margin Analysis C25:E25 are back to =(SUM(C22:C24)) etc. (6,140,000 / 6,394,000 / 6,394,000) instead of SUM*1000; the key now matches the whole-dollar revenue lines."
+  },
+  {
+    "id": "F7",
+    "title": "Golden workbook contains unconverged circular-reference cached values in LBO & Lenders, and the verifier's single-pass LibreOffice recalculation cannot reproduce the golden values even on the golden workbook itself",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "`gt_07_golden.xlsx` has iterative calculation enabled (`<calcPr iterateCount=\"100\" refMode=\"A1\" iterate=\"true\" iterateDelta=\"0.0001\"/>`) and contains a circular reference in `LBO & Lenders` columns `S:X` where Amortization (`Row 50` = `Row 53 - Row 52`), Ending Debt (`Row 51` = `SUM(Row 49:Row 50)`), and Interest Expense (`Row 53` = `Row 54 * AVERAGE(Row 49, Row 51)`) depend cyclically on one another across 6 sequential columns. In `gt_07_golden.xlsx`, the cached values in `T50:X59` are mid-iteration unconverged artifacts (e.g., in column X, `X49=897.508354`, `X51=880.681981`, `X54=0.1275`, so `X54*AVERAGE(X49,X51)` is `113.359634`, whereas `gt_07_golden.xlsx` caches `X53=109.638240`, a 3.72 discrepancy; the true algebraic fixed point is `X53=114.392871`, `X50=-12.071742`). Furthermore, `verify_spreadsheetbench2_cells` runs a single-pass `managed_recalculated_xlsx(..., force_recalculation=True)` on the submitted output file and compares the result against the raw cached values of `gt_07_golden.xlsx`. Because LibreOffice stops after one pass of delta checks across the 6 chained circular columns, passing `gt_07_golden.xlsx` itself into `verify_spreadsheetbench2_cells` scores `0.0` (`FAILED - regression 1.0000, modification 0.7826. 17 cell error(s): Modification error at LBO & Lenders!T50: answer=-7.49437449150413, output=-7.25996975435565...`), and applying the exact 8 golden formula edits to the input workbook via `openpyxl`, raw XML, or LibreOffice UNO also scores `0.0` (with 10 to 19 cell errors in `LBO & Lenders!T50:X59`).",
+    "confirmation": "Golden has iterate=true calcPr and a circular schedule in LBO & Lenders S50:X53; local verifier run on the golden itself fails with 17 mismatches (e.g. T50 answer -7.494 vs output -7.260).",
+    "fixed": true,
+    "fix": "Removed the circular debt-schedule cells from answer_position: 'LBO & Lenders' U49:X49, T50:X51, T53:X53, T57:X59 and X46 (the range is now split into row runs). Their iterative values depend on the recalculation start point. The year-1 fix stays graded through S40:S59, S44:S47, T49, X47, R62 and R63. Locally, the new key graded against itself passes, and so does the input with only the three LBO edits written by openpyxl (no cached values). The original golden also passes."
+  },
+  {
+    "id": "F8",
+    "title": "The answer key requires multiplying already dollar-denominated revenue by 1,000",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "In 'Margin Analysis', the source revenue components are already in dollars. For 2024, E22:E24 contain 5,901,000, 486,000, and 7,000, which sum to 6,394,000 and agree with both E11 and the customer-segment total F33. Nevertheless, the golden workbook changes E25 from =SUM(E22:E24) to =(SUM(E22:E24))*1000 and expects 6,394,000,000. The same erroneous multiplication is required in C25 and D25. These are all three modification cells on this sheet; retaining internally consistent totals fails the modification requirement and therefore the sole weight-1 verifier.",
+    "confirmation": "Margin Analysis E22:E24 sum to 6,394,000 matching E11 and F33, but golden E25 is =(SUM(E22:E24))*1000 = 6,394,000,000; same for C25/D25.",
+    "fixed": true,
+    "fix": "Changed the answer key so Margin Analysis C25:E25 are back to =(SUM(C22:C24)) etc. (6,140,000 / 6,394,000 / 6,394,000) instead of SUM*1000; the key now matches the whole-dollar revenue lines."
+  },
+  {
+    "id": "F9",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "Reproduced: the golden workbook graded by the real verifier scores 0.0 (modification 0.7826, 17 cell errors in LBO & Lenders), so a correct deliverable cannot get full reward.",
+    "fixed": true,
+    "fix": "Removed the circular debt-schedule cells from answer_position: 'LBO & Lenders' U49:X49, T50:X51, T53:X53, T57:X59 and X46 (the range is now split into row runs). Their iterative values depend on the recalculation start point. The year-1 fix stays graded through S40:S59, S44:S47, T49, X47, R62 and R63. Locally, the new key graded against itself passes, and so does the input with only the three LBO edits written by openpyxl (no cached values). The original golden also passes."
+  },
+  {
+    "id": "F10",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is impossible to pass in values mode because single-pass LibreOffice recalculation of the circular reference in LBO & Lenders does not match gt_07_golden.xlsx (even when grading gt_07_golden.xlsx against itself)",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (weight: 1) runs `managed_recalculated_xlsx(Path(output_path), force_recalculation=True)` and compares the recalculated output workbook against the un-recalculated cached values in `gt_07_golden.xlsx` with `mode: values` (requiring `mod_ratio == 1.0` and `reg_ratio >= 0.998`). Because `LBO & Lenders!S50:X53` contains an iterative circular loop across 6 columns (`iterateCount=100, iterateDelta=0.0001`), LibreOffice's single-pass recalculation converges to different values depending on the pre-existing cached values in the file and never matches the unconverged cached values saved in `gt_07_golden.xlsx`. Specifically: (1) running `verify_spreadsheetbench2_cells` on `gt_07_golden.xlsx` itself fails with `score=0.0` (`regression 1.0000, modification 0.7826, 17 cell errors` in `LBO & Lenders!T50:X59`); (2) applying the exact 8 golden formula edits to the input file via `openpyxl` (which strips cached values) and running the verifier fails with `score=0.0` (`modification 0.5870, 19 cell errors`); (3) applying the exact 8 golden formula edits via raw XML or LibreOffice UNO and running the verifier fails with `score=0.0` (`modification 0.8696` or `0.7826`, `10` to `17 cell errors`). In the production runs, units 1, 2, and 3 all identified the `7/12` partial-year scaling and `*1000` unit scaling issues (along with other real broken references in the workbook) and all scored `0.0`.",
+    "confirmation": "Running verify_spreadsheetbench2_cells locally with gt_07_golden.xlsx as the output returns score 0.0 (modification 0.7826, 17 errors in LBO & Lenders T50:X59), because the circular debt schedule recalculates away from the golden cached values.",
+    "fixed": true,
+    "fix": "Removed the circular debt-schedule cells from answer_position: 'LBO & Lenders' U49:X49, T50:X51, T53:X53, T57:X59 and X46 (the range is now split into row runs). Their iterative values depend on the recalculation start point. The year-1 fix stays graded through S40:S59, S44:S47, T49, X47, R62 and R63. Locally, the new key graded against itself passes, and so does the input with only the three LBO edits written by openpyxl (no cached values). The original golden also passes."
+  }
+]

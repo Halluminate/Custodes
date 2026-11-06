@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Grader requires an unrequested 2031 date header",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions request calculations through 2030E, but Working Capital Schedule!M3 is blank in the input and contains '=EOMONTH(L3,12)' (2031-03-31) in the golden workbook. This header is not a dependency of the requested calculations. The verifier nevertheless treats it as a mandatory modification. A diagnostic using the golden workbook with only M3 restored to its original blank returned regression 1.0000 and modification 0.9976. Because the sole verifier has weight 1 and requires every modification to match, this unrequested header can turn otherwise correct work into a zero score.",
+    "confirmation": "Golden adds Working Capital Schedule!M3 '=EOMONTH(L3,12)' (2031-03-31) where the input is blank and the prompt only covers through 2030E; the verifier needs all modification cells to match, so this unrequested header can zero otherwise correct work.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: 'Working Capital Schedule'!B2:M24 split so it skips M3 (the unrequested 2031 header =EOMONTH(L3,12)); nothing depends on M3. Locally the golden scores 1.0 and the input with every golden change except M3 also scores 1.0 (before: modification 0.9976, fail)."
+  },
+  {
+    "id": "F2",
+    "title": "Undisclosed ground-truth modifications on Working Capital Schedule (historical Receivables C4:G4 and terminal header M3) contradict the prompt's explicit scope and non-alteration rule",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `problem.py`, the prompt explicitly instructs: 'When completing spreadsheet tasks, strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.' and 'In the Working Capital Schedule sheet, calculate Receivables for 2026E–2030E using Revenue and Receivable Days, then calculate Current Assets, then calculate Total Working Capital for all years.' However, comparing `untouched_input_01_03_Education_input.xlsx` against `gt_01_Education_golden.xlsx` shows that in `Working Capital Schedule`, the ground truth also populates historical 2021A–2025A Receivables in `C4:G4` (`='Consolidated BS'!C15` .. `G15`, which are blank in the input workbook) and the terminal year date header in `M3` (`=EOMONTH(L3,12)`, also blank in the input workbook). Because `G6` (`=G4/G5*365`) and `H6:L6` (`=G6` .. `=K6`) depend on `G4`, an agent that follows the prompt literally and only populates `H4:L4` (2026E–2030E) leaves `C4:G4` and `M3` blank, causing `G6:L6` and `H4:L4` to evaluate to 0 and cascading across 159 modification cells (`modification 0.6292`, verifier score 0.0 on weight 1.0). Even if `C4:G4` is inferred, leaving the unrequested header cell `M3` blank still causes `Working Capital Schedule!M3` (`answer=2031-03-31 00:00:00, output=None`) to fail `verify_spreadsheetbench2_cells` (`modification 0.9976`, score 0.0 because `mod_ratio == 1.0` is required).",
+    "confirmation": "Working Capital Schedule!M3 is blank in the untouched input and '=EOMONTH(L3,12)' (2031) in the golden, yet the instruction stops at 2030E; it is graded as a modification cell, so omitting this unrequested header alone fails the all-or-nothing check (the C4:G4 part is inferable, but the M3 part stan",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: 'Working Capital Schedule'!B2:M24 split so it skips M3 (the unrequested 2031 header =EOMONTH(L3,12)); nothing depends on M3. Locally the golden scores 1.0 and the input with every golden change except M3 also scores 1.0 (before: modification 0.9976, fail). The C4:G4 historical receivables part is not changed: the prompt's 'Total Working Capital for all years' requires them, and they link to 'Consolidated BS' row 15."
+  },
+  {
+    "id": "F3",
+    "title": "An unrequested 2031 date header (Working Capital Schedule!M3) is graded, and leaving it out fails the whole task",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "In the reference input, Working Capital Schedule!M3 is empty. The ground truth puts '=EOMONTH(L3,12)' there (2031-03-31), so the verifier treats M3 as a modification cell. The instruction never asks for a new header. It only asks for Receivables 2026E–2030E, Current Assets, Total Working Capital, Capex, Term Loan closing and PBT Margin. The verifier is binary: it passes only if every modification cell matches. I copied every ground-truth change into the input except M3 and ran the real verifier. Result: 'FAILED - regression 1.0000, modification 0.9976. 1 cell error(s): Modification error at Working Capital Schedule!M3: answer=2031-03-31, output=None' → score 0 on the problem's only verifier (weight 1). The same build with M3 included scores 1.0.",
+    "confirmation": "Confirmed: input M3 empty, golden M3 '=EOMONTH(L3,12)', and no instruction asks for a 2031 column; since every modification cell must match, leaving M3 blank scores 0.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: 'Working Capital Schedule'!B2:M24 split so it skips M3 (the unrequested 2031 header =EOMONTH(L3,12)); nothing depends on M3. Locally the golden scores 1.0 and the input with every golden change except M3 also scores 1.0 (before: modification 0.9976, fail)."
+  }
+]

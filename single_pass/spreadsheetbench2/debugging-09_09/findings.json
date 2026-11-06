@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook's stored values come from a non-converged circular calculation: cells defined as direct links do not equal their sources, so a correctly recalculated output cannot match the golden on sensitive cells.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "inconsistent-golden-values",
+    "evidence": "Golden LBO G124 (=+G133) = 302.3311 but G133 = 302.5469. H132 (=G135) = 302.3311 but G135 = 302.5469. L103 (=+L135) = 1367.254 but L135 = 1373.241. Because L199 = L197 + L198 = 22.27 is small, a ~6 difference in L110 moves L199, L200 and L201 by about 25–30%, far outside the 1% tolerance.",
+    "confirmation": "Golden LBO G124 (=+G133) caches 302.331 against G133=302.547, and L103 (=+L135) caches 1367.25 against L135=1373.24. Put through the production LibreOffice recalc, the golden itself scores regression 0.9947, below the 0.998 bar, with 34 mismatches (e.g. L199 22.27 becomes 6.14, K138 698.7 becomes 60"
+  }
+]

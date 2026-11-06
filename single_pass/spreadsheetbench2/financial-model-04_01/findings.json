@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden forecast Average Days Inventory applies arbitrary adjustments that neither the prompt nor the file specifies: -1 day for 2014F–2016F and -2 days for 2017F–2018F. A natural rolling-average approach therefore misses tolerance on inventory and on everything downstream of it.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "hidden-assumption",
+    "evidence": "Golden Assumptions!K141 =AVERAGE(I141:J141)-1, L141 and M141 use -1, N141 =AVERAGE(L141:M141)-2, O141 =AVERAGE(M141:N141)-2. These feed K140:O140 (e.g. 6803.77 vs ≈6920 without the -1, about 1.7% off), then Financials K76:O76, K113, K73, and Valuation K19:O20, E37–E52, D95 and Final Output D9.",
+    "confirmation": "The -1 day in golden Assumptions K141:M141 copies the input's sibling rows 138 and 144, which use AVERAGE(...)-1. But N141 and O141 use -2, which nothing in the prompt or file signals, and following the -1 pattern puts N141 at about 56.65 against the golden's 55.65 (roughly 1.8%), so N140/O140 and t"
+  },
+  {
+    "id": "S2",
+    "title": "The Valuation sensitivity table is not mentioned in the prompt but is graded, and the golden holds populated values there. It appears to be an Excel data table that will not repopulate after an openpyxl edit plus LibreOffice recalculation, so an output that does everything the prompt asks still fails on these cells.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "unrequested-checked-cells",
+    "evidence": "Input Valuation!H60:L64 = 0 with no formulas. Golden has H60=217.66, J62=141.59 (equal to E48), L60=3612.48, etc. These cells fall inside the checked range 'Valuation'!B2:O99.",
+    "confirmation": "Input Valuation H60:L64 are 0. The golden stores static numbers there (H60=217.66, L60=3612.48, J62=141.59), with no data-table formula, inside the graded B2:O99 range. The prompt's step list never mentions the sensitivity table, so an output that does every requested step still fails these modifica"
+  }
+]

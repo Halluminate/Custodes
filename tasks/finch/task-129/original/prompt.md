@@ -1,0 +1,3 @@
+Create a stacked area chart titled “Rolling 55 Day Payables (as of the 25th of the Month)” to visualize rolling payable amounts across multiple natural gas price indices from December 2001 to December 2006 in the Summary sheet. The Y-axis should be dollars and the X-axis monthly time, with each data point representing the rolling 55-day payables total as of the 25th of that month.
+
+Your input files are on your Desktop (/home/model/Desktop): 129_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

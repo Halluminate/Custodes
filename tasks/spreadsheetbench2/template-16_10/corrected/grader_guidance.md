@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'DCF'!B2:P46 (except G42),'SharedData'!A1:Q12 (except A3:A4, which hold =TODAY()), after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

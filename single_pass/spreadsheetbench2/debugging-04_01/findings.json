@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks the agent to 'audit and fix this file thoroughly', but the golden workbook fixes only the double-counting items and leaves several clear formula errors inside the graded ranges, so an agent that fixes them fails the all-cells-must-match check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden-leaves-errors-unfixed",
+    "evidence": "Line Item Metrics!H24 golden '=H14/AVERAGE('Balance Sheet'!H27:J27)' (skips column I; the correct H27:I27 gives about 0.0290 vs the golden 0.0243). Line Item Metrics!H35 '='Balance Sheet'!J22/...H12' and I35 '=K22' are column-offset references. Income Statement!J26 '=-'PP&E, Debt, NWC'!E73' pulls 2022 interest into 2021 (D73 is 2021); fixing it changes J26:J39, BS J14/J53, CFS D-column and more. PP&E!C81:M81 ('='Balance Sheet'!C17' under a 2015 header, while C80 uses D15) are offset; fixing them changes I84 → DCF C19 → DCF C32 → Summary H12. All of these are kept unchanged in gt_04_golden.xlsx.",
+    "confirmation": "Golden keeps clear offset errors in graded ranges: 'Line Item Metrics'!H24 =H14/AVERAGE('Balance Sheet'!H27:J27) (G24 uses G27:H27), H35 uses BS J22 over H12, 'Income Statement'!J26 (2021) =-'PP&E, Debt, NWC'!E73 (2022 interest, D73 is 2021), and PP&E C81 ='Balance Sheet'!C17 beside C80 = D15; fixin"
+  }
+]

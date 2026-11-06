@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer key keeps the obviously broken reference in 'Change in NWC' (R84 =R847-M83, which points at an empty cell). An agent that fixes it to =R83-M83, as the prompt's 'broken cell references' item requires, changes R84, D94, D95, C102 and every DCF output, and so fails the exact-match check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden-retains-broken-reference",
+    "evidence": "gt_08_golden.xlsx 'Operating Model + DCF'!R84 = '=R847-M83' (-29.613); the correct value is R83-M83 ≈ -113.9. R84, C95:H100, C102 and C107:C145 all fall inside the compared range A2:X145.",
+    "confirmation": "Golden 'Operating Model + DCF'!R84 is still '=R847-M83', which points at an empty R847 (value -29.61), while M84 follows the pattern =M83-H83. The fix =R83-M83 gives about -113.9 and flows through D94/D95 into C102, a modified cell (golden 2725.73). An agent that repairs this broken reference, as th"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer key's 'All Natural Gas' sheet comes from a different version of the workbook than the agent's input, so no correct edit of the source can match it.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "reference-source-mismatch",
+    "evidence": "The reference adds column A 'Sitara GCP ID' (A3), shifting every column right (B3='ERMS GCP ID'). It has data through row 143, while the source ends at row 107. It includes PB-HDG-CENT/EAST/TEXAS/WEST and PB-HDG-CENT*-CAD rows (e.g. C25='PB-HDG-CENT1', C65='PB-HDG-EAST1') that do not exist on the source sheet.",
+    "confirmation": "gt 'All Natural Gas' starts with an extra column A3='Sitara GCP ID' (B3='ERMS GCP ID') and runs to row 143, while source data/60_src_0.xlsx is A1:S107 with no such column. The reference also has rows such as C25='PB-HDG-CENT1' and C65='PB-HDG-EAST1' that do not exist in the source, so it was built f"
+  },
+  {
+    "id": "S2",
+    "title": "Row ordering and content in the reference differ from the source (rows inserted and reordered), so a cell-by-cell comparison will flag a correct output as wrong.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "row-order-and-content-mismatch",
+    "evidence": "Source A25=166860 'FB-CENT1-CAD-GD', but in the reference that entry is at row 31. Source A94=167126 'CPR Only' becomes reference row 129, with A129=167126 filled in. The reference also has PB-HDG-WEST10 at row 130, which is absent from the source sheet.",
+    "confirmation": "Source row 25 (166860 FB-CENT1-CAD-GD) is row 31 in the reference, and source row 94 (167126 PB-WEST10, CPR Only) is reference row 129 with A129=167126 added. The reference also has PB-HDG-WEST10 at row 130, which is absent from the source, so a correct filter on the source cannot line up with the r"
+  }
+]

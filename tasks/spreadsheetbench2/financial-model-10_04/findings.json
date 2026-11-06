@@ -1,0 +1,13 @@
+[
+  {
+    "id": "F1",
+    "title": "Any solution saved with openpyxl, the tool the prompt recommends, scores 0 because its 25 sensitivity-table cells come back empty",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The input and the GT both hold 25 data-table cells in Valuation, for example H60: `<f aca=\"true\">TABLE($G$59,$E$67,$G60,$E$23,H$59)</f><v>47.04…</v>`. When openpyxl loads and saves the file it rewrites the cell as `<f>TABLE($G$59,$E$67,$G60,$E$23,H$59)</f><v></v>`. The verifier always recalculates in LibreOffice first (`managed_recalculated_xlsx(force_recalculation=True)`), and after that these cells evaluate to None. Because the input cached values differ from the GT (input H60=47.04, GT=248.18), these are 'modification' cells. I loaded the GT with openpyxl and saved it with no edits, which is the exact correct answer: verify_spreadsheetbench2_cells returned 'FAILED - regression 1.0000, modification 0.9729. 25 cell error(s): Modification error at Valuation!H60: answer=248.184442912259, output=None; …'. The verifier is all-or-nothing (score 1.0 only if both ratios equal 1.0, else 0.0) and is the only check (weight 1). So a fully correct solution built with the recommended workflow ('Decide how to manipulate the data using `openpyxl`…', 'Create a python script') scores 0. The unmodified GT file does pass (1.0).",
+    "confirmation": "Reproduced: golden Valuation!H60 is <f aca=\"true\">TABLE(...)</f><v>248.18</v>, and an openpyxl load/save writes <v/>. freeze_datatable_formulas in libreoffice.py strips TABLE formulas and keeps the (now empty) cached value. The graded H60:L64 modification cells then read None, so a",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: 'Valuation'!C3:O95 -> 'Valuation'!C3:O59,'Valuation'!C60:G64,'Valuation'!M60:O64,'Valuation'!C65:O95 (skips the 25 TABLE cells H60:L64). Locally the golden re-saved by openpyxl now scores 1.0 (was 0.0), the golden still scores 1.0 and the untouched input still scores 0.0. Grader guidance range text updated."
+  }
+]

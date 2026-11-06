@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "C42 NOI per-unit cell is pre-formatted as a percentage, but the answer key puts $/SF/month there; under all-or-nothing grading one cell decides pass or fail",
+    "bucket": "Style",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "In the input file assets/16_01_input.xlsx, DirectCap!C42 (NET OPERATING INCOME, column C) has number_format '0.00%'. Other '0.00%' cells in the sheet hold true percentages: C21 vacancy 6%, C38 management fee 3.5%, C44 cap rate 5.25%. The answer key gt_16_01_golden.xlsx has C42 '=(D23-D40)/($C$5*$C$6*12)' = 2.0748, which is NOI per SF per month. That value shows as '207.48%' in the cell's own format. A competent analyst reading the format would likely enter an NOI margin (NOI/EGR = 9,243,202/14,573,525 = 63.4%) or leave it blank. verify_spreadsheetbench2_cells (weight 1, the only verifier) passes only if EVERY changed cell matches within 1%, so any other reading of C42 scores 0 on the whole task.",
+    "confirmation": "Other 0.00% cells (C21 6%, C38 3.5%, C44 5.25%) are true percentages, but GT C42 = 2.0748, which displays as 207.48%. Under all-or-nothing verify_spreadsheetbench2_cells, the reasonable NOI-margin reading fails, as all 3 runs did.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence after the instruction: 'In column C, show Net Operating Income per SF per month, the same basis as Effective Gross Revenue in C23.' This discloses the unit the key uses in DirectCap!C42 (=(D23-D40)/($C$5*$C$6*12) = 2.0748), overriding the misleading 0.00% format and the 'Per Unit' header above it."
+  },
+  {
+    "id": "F2",
+    "title": "Undisclosed metric in DirectCap!C42 (NOI Per SF/Month) contradicts cell's percentage format (0.00%)",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In the input workbook (untouched_input_16_01_input.xlsx), row 42 is 'NET OPERATING INCOME'. Cell DirectCap!C42 is blank and pre-formatted with number_format='0.00%' (a percentage format, matching C21 'General Vacancy %' = 0.00%, C38 'Management Fee % (of EGR)' = 0.00%, and C44 'Cap Rate' = 0.00%), while situated under theOperating Expenses section where Column C is 'Per Unit' (C25) formatted as '#,##0.00'. No instruction or calculation note in the prompt or workbook specifies what C42 should compute (whereas explicit calculation notes are provided for Revenue in B22, Operating Expenses in B24, and Management Fee in B41). However, the ground truth (gt_16_01_golden.xlsx) sets DirectCap!C42 to the formula '=(D23-D40)/($C$5*$C$6*12)' = 2.0747927328844 ($/SF/Month, which displays as '207.48%' under C42's preserved '0.00%' format). Across all 3 attempts (units 1, 2, and 3), the agent got 34 of 35 modification cells right (modification ratio 0.9714, regression ratio 1.0000) and failed solely on DirectCap!C42 because it computed NOI margin = D42/D23 = 0.63424611581618 (63.42%) to match the 0.00% cell format, receiving score=0 on the sole verifier (weight: 1).",
+    "confirmation": "Verified C42 is pre-formatted 0.00% under the 'Per Unit' header (C25) with no calculation note, while the GT expects $/SF/month 2.0748. This single undisclosed metric zeroed all three runs.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence after the instruction: 'In column C, show Net Operating Income per SF per month, the same basis as Effective Gross Revenue in C23.' This discloses the unit the key uses in DirectCap!C42 (=(D23-D40)/($C$5*$C$6*12) = 2.0748), overriding the misleading 0.00% format and the 'Per Unit' header above it."
+  },
+  {
+    "id": "F3",
+    "title": "Units of the per-unit column change silently (per-unit cells next to a per-SF NOI cell), and which column-C cells to fill is never stated",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The operating-expense block header C25 reads 'Per Unit', and the GT fills C34/C36/C37/C39/C40 as $/unit (C40 = 11,845.16). C42 (NOI) sits right below, still under the 'Per Unit' header, but the GT uses $/SF/month there (2.07) instead of NOI per unit (20,540). The GT also expects C23 (EGR per SF/month = 3.27) and C13/C19/C20 per-SF subtotals filled, but no C-column value for vacancy (C21 holds the %) or for management fee per unit (C38 holds the %). Meanwhile C39 silently adds D38/$C$5. The only instruction is 'Complete the financial model'. Nothing tells the agent which C-column cells to fill or in what unit, and every changed cell must match for the task to pass.",
+    "confirmation": "C25 header 'Per Unit' governs C34/C36/C37/C39/C40 (GT $/unit), yet GT C42 directly beneath uses per-SF/month (/($C$5*$C$6*12)) with no header or note. That silent unit switch is exactly the cell every run failed.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence after the instruction: 'In column C, show Net Operating Income per SF per month, the same basis as Effective Gross Revenue in C23.' This discloses the unit the key uses in DirectCap!C42 (=(D23-D40)/($C$5*$C$6*12) = 2.0748), overriding the misleading 0.00% format and the 'Per Unit' header above it."
+  },
+  {
+    "id": "F4",
+    "title": "NOI cell is formatted as a percentage but graded as dollars per square foot per month",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input workbook's DirectCap!C42 is formatted '0.00%' beside 'NET OPERATING INCOME', but the golden workbook expects =(D23-D40)/($C$5*$C$6*12), or 2.0747927328844. Preserving that formatting displays 207.48%, although the actual NOI margin is D42/D23 = 63.42%. Neither the task instructions nor the workbook notes specify that C42 should switch to dollars per SF/month. A competent agent following the percentage format can therefore produce a reasonable calculation that fails grading. A synthetic fixture check changing only C42 to the NOI margin produced modification ratio 0.9714; the sole verifier, weighted 1, requires every modification cell to match and consequently awards zero.",
+    "confirmation": "Verified input C42 is '0.00%' and GT expects 2.0748 $/SF/month. Rollout <id> shows the 63.42% margin answer failing with modification 0.9714 and score 0 in all 3 trials.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence after the instruction: 'In column C, show Net Operating Income per SF per month, the same basis as Effective Gross Revenue in C23.' This discloses the unit the key uses in DirectCap!C42 (=(D23-D40)/($C$5*$C$6*12) = 2.0748), overriding the misleading 0.00% format and the 'Per Unit' header above it."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: Verifier fails valid NOI margin in DirectCap!C42 due to conflicting cell percentage format and undisclosed ground-truth formula",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": null,
+    "evidence": "In all 3 units (unit 1, unit 2, unit 3), the agent accurately computed 34 out of 35 modification cells and 100% of regression cells (regression 1.0000, modification 0.9714), failing with score=0 (weight: 1) solely on DirectCap!C42: 'Modification error at DirectCap!C42: answer=2.0747927328844, output=0.63424611581618'. In the input template, DirectCap!C42 has number_format='0.00%' and no label or calculation note specifying whether it represents NOI margin (%) or NOI per SF/month ($). Because the prompt instructs the agent to preserve original formatting, all 3 units computed NOI / Effective Gross Revenue = 9,243,201.625 / 14,573,525 = 0.63424611581618 (63.42%), whereas the ground truth computes NOI per SF/month = (D23-D40)/($C$5*$C$6*12) = 2.0747927328844 (which renders as a nonsensical '207.48%' under the 0.00% number format). Because verify_spreadsheetbench2_cells requires 100% of modification cells to match to award 1.0 (and otherwise awards 0.0), this single ambiguity causes a total false-negative failure across all runs.",
+    "confirmation": "Input DirectCap!C42 is blank with number_format '0.00%', and GT C42 is '=(D23-D40)/($C$5*$C$6*12)' = 2.0748 ($/SF/month). All 3 trials in rollout <id> fail only on C42 (output 0.634 NOI margin, modification 0.9714) and score 0.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence after the instruction: 'In column C, show Net Operating Income per SF per month, the same basis as Effective Gross Revenue in C23.' This discloses the unit the key uses in DirectCap!C42 (=(D23-D40)/($C$5*$C$6*12) = 2.0748), overriding the misleading 0.00% format and the 'Per Unit' header above it."
+  }
+]

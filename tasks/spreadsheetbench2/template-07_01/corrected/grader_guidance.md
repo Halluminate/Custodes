@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'EquityDRD'!B2:G47,'EquityDRD'!B48,'EquityDRD'!D48:G48,'EquityDRD'!B49:G61, after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

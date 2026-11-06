@@ -1,0 +1,29 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook inserts a new EBIT row at Operating Model row 23 and shifts every row below it down by one, but the input already has an empty row 23 that existing formulas expect EBIT to fill. An agent that correctly fills row 23 in place would mismatch on every compared cell from row 24 to 46.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "row-insertion-required",
+    "evidence": "Input: B24='(-) Income Taxes', B26='NOPAT' with J26=SUM(J23:J24), row 23 empty. Golden: B23='EBIT', B25='(-) Income Taxes', B26/D26 tax rate, B27='NOPAT', UFCF at row 32, PV at row 35. Compared range is 'Operating Model'!A2:W46.",
+    "confirmation": "Input Operating Model row 23 is blank and J26=SUM(J23:J24), but the golden puts EBIT in B23 and shifts taxes/NOPAT to rows 25/27 (D26 tax rate), so an in-place fix of row 23 mismatches every compared cell below it."
+  },
+  {
+    "id": "S2",
+    "title": "The golden inserts a 'Depreciation' row at Supporting Schedules row 52 and shifts all rows from 52 to 118 down by one. The prompt does not ask for this, and it contradicts the instruction to modify only required cells, so in-place fixes fail almost the entire lower half of the sheet.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "row-insertion-required",
+    "evidence": "Input: B52='% of Revenue' (#REF), useful-life block at rows 54-69, COGS at row 102, SGA at row 117. Golden: B52='Depreciation', B53='% of Revenue', rows 56-70, COGS at row 103, SGA at row 118. Operating Model J7 references N103 and J14 references J118.",
+    "confirmation": "Golden Supporting Schedules inserts B52 'Depreciation' (F52='CFS Ann'!B19) and also a new B100 '(+) Underutilization' row, shifting COGS to 103 and SGA to 118, while input has COGS at 102 and SGA at 117. Cell-by-cell comparison over A7:AF118 fails any in-place repair, and the Underutilization row ca"
+  },
+  {
+    "id": "S3",
+    "title": "The golden inserts a 'Total Revenue' row at Revenue Build row 33 and shifts the notes and CAGR block down by one. An agent that adds the total anywhere else, or does not shift the notes, fails these cells.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "row-insertion-required",
+    "evidence": "Input: W33='WOLF ', W39:AA39 headers, AC40 formula. Golden: B33='Total Revenue', W34='WOLF ', W40:AA40 headers, AC41 formula.",
+    "confirmation": "Golden Revenue Build adds B33 'Total Revenue' (=F9+F25…) and shifts the notes and CAGR block down one row (W34 'WOLF ', W40:AA40, AC41). It also adds note text no agent could know ('Given time tmr: go to bloomberg' at W33, W38), so exact matching of A2:AC47 is unattainable."
+  }
+]

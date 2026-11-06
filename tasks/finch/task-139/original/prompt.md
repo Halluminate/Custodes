@@ -1,0 +1,5 @@
+Using the Cleburne Plant Damage Sensitivities, evaluate the financial impact at plant capacities of 240MW, 245MW, 258MW, and 263MW. For Q1–Q4, compute and compare the implied equity value at the contract effective date and subsequent dates, determine damages per Section 11.02(i)(a) under current conditions, assess the impact of modifying the interest rate adjustment on the capacity payment, and the result if the interest rate adjustment is fully removed, then quantify the deltas versus the 263MW baseline to show sensitivity of equity value and damages.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 139_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

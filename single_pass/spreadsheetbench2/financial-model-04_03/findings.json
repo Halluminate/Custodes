@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden 'Debt/Equity' values are actually total debt divided by total assets (or total liabilities + equity), not by equity, so an agent that computes Debt/Equity as the prompt asks will fail the cell check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key",
+    "evidence": "Golden Final Output L37=0.226499500944257 ('Ratio_Analysis '!J25). Total debt 31543 (Financials J90+J95) / total assets 139263 (J87/J105) = 0.2265, while 31543 / equity 68709 (J103) = 0.459. Same pattern for M37=0.2176 = 31542.997/144959.47.",
+    "confirmation": "Golden 'Ratio_Analysis '!J25 (Debt / Equity) is =+(Financials!J95+Financials!J90)/Financials!J87, i.e. debt 31,543 over Total Assets 139,263 = 0.2265, not over Total Equity J103 = 68,709 (0.459); Final Output L37 links to it, so a true Debt/Equity fails."
+  }
+]

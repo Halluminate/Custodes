@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_17_FMCG_golden.xlsx",
+        "reference_path": "reference/untouched_input_17_04_FMCG_input.xlsx",
+        "answer_position": "'Index'!B2:D12,'Financials'!B1:AH128,'Assumptions'!B1:O105,'Valuation'!B2:O97,'Ratio_Analysis'!B2:O41,'Graphical_representation'!C4:W69,'Technical Analysis'!B2:BB4028",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

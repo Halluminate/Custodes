@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook's cached values for the circular revolver/interest block are not converged and contradict their own formulas, so a correctly recalculated output cannot match them within 1%.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "stale-circular-golden-values",
+    "evidence": "Golden LBO N124 (=+N133) = 156.04 but N133 = 162.85, a 4.2% gap. M124 = 168.07 vs M133 = 174.48. L124 = 177.76 vs L133 = 183.75. K124 = 191.21 vs K133 = 195.54. N125 (=SUM(N123:N124)) is stored as 0 but the stored inputs give -6.8. LibreOffice recalculation of output.xlsx will give self-consistent values for these cells.",
+    "confirmation": "Golden LBO N124 (=+N133) is cached at 156.04 while N133 = 162.85, and similarly K-M124. A local LibreOffice recalculation of the golden itself gives N124=162.85, M124=174.48, L124=183.75 and K124=195.54, more than 1% off the stored values in these modification cells, so even a perfect output fails a"
+  }
+]

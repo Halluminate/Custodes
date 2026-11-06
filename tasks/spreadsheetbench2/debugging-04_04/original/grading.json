@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_04_golden.xlsx",
+        "reference_path": "reference/untouched_input_Inconsistent Color Coding_input.xlsx",
+        "answer_position": "'Control'!B2:G9,'Summary'!D2:H17,'Assumptions'!B2:L36,'Income Statement'!B2:J57,'Balance Sheet'!B2:J74,'Cash Flow Statement'!B2:H43,'PP&E, Debt, NWC'!B2:L91,'Line Item Metrics'!A2:I35,'WACC'!B2:N65,'DCF'!B2:P34,'Sources & Uses'!B3:M32,'LBO Analysis'!B2:J51,'Returns'!B2:J13",
+        "mode": "font_color"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

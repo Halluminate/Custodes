@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer key's 'Peoples Baseload Sale' sheet contains different data from the input file, so its Peoples Deal Value figures cannot be reproduced from the workbook the agent receives.",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "answer-key-source-mismatch",
+    "evidence": "Input 'Peoples Baseload Sale'!F1 = 67,893,031.82 with data to row 743; reference F1 = 58,280,540.23 with data to row 733. Input row 397 is V59258.5, E=0, F=378820 (part of a duplicated V59258.5–.8 block, rows 397–436). Reference row 397 is V59258.5, E=-155000, F=-12787.5, and that block covers only rows 397–426 (.5/.6/.8). As a result, Sheet4 B7:B39 (e.g. B39 = 58,306,702.45) will not match a correct computation from the input.",
+    "confirmation": "Input 'Peoples Baseload Sale' Mid Value sums to 67,893,031.82 (F1), while the reference copy of the sheet holds different rows summing to 58,280,540.23 (e.g. row 397: input E=0, F=378,820, reference E=-155,000, F=-12,787.5). Reference Sheet4 grand total B39 = 58,306,702.45 follows the altered data a"
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key omits State 8 from FY25 group totals",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task requires all group totals from bed capacity through EBITDA %. State 8 already has 300 capacity beds, 150 operational beds and 120 census beds in FY25, but the golden formulas in AB40:AF44 omit that state's rows. For example, AB40 expects 4702 although the eight seeded states sum to 5002. AB47:AF49 also omit State 8 revenue and EBITDA. These discrepancies exceed the verifier's tolerance on multiple required cells. The sole verifier has weight 1 and requires every modification cell to match, so correctly including State 8 causes the entire check to fail.",
+    "confirmation": "Duplicate of the confirmed key error: the FY25+ group totals in GT rows 40-49 (e.g. AB40, AB47, AB49) leave out State 8's seeded rows 178-187, a gap beyond the 1% tolerance in the all-or-nothing check.",
+    "fixed": true,
+    "fix": "Golden gt_15_KIMS_golden.xlsx: added State 8 (rows 178-187) to the seven-state group-total formulas in 'Work Sheet' rows 40-44, 47 and 49 for columns Z:AF, e.g. AB40 '=AB59+...+AB161+AB178'. AG:AP already had it. Cached values come from a LibreOffice recalculation and were written into only the affected Work Sheet cells: AB40 4702 -> 5002, AB47 6819.80 -> 6884.60 (now equal to AB7), AB49 1856.63 -> 1859.87 (now equal to AB9), with dependents in rows 45, 46, 48 and 50. The volatile TODAY() cells in Formats keep their original caches. The golden grades 1.0 locally."
+  },
+  {
+    "id": "F2",
+    "title": "Answer key leaves State 8 out of the group totals in rows 40-50 from 1QFY25 onwards",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The instruction asks the agent, for every quarter and year from 4QFY24 onwards, to 'calculate all totals from bed capacity to EBITDA %'. Work Sheet has an 8th state block (rows 173-188) that has data from 1QFY25 (column AB): Bed Capacity AB178=300, Total Revenue AB185=64.8, EBITDA AB187=3.24. In the ground truth, every group-total formula in rows 40-50 only adds the first seven states, e.g. AB40 '=AB59+AB76+AB93+AB110+AB127+AB144+AB161' (=4702), AB47 '=AB66+...+AB168' (=6819.80) and AB49 '=AB68+...+AB170' (=1856.63). The same ground truth does include State 8 elsewhere: AB7 '=SUM(AB15:AB22)' gives 6884.60, and AB9 (EBITDA calc) '=AB68+...+AB170+AB187' gives 1859.87. So within the answer key, group revenue in row 47 (6819.8) does not match row 7 (6884.6), and group EBITDA in row 49 (1856.6) does not match row 9 (1859.9). An agent that correctly sums all 8 states gets Bed Capacity of 5002 instead of 4702 (6%), revenue about 1% higher and occupied beds higher. Rows 40-41, 44 and 47 then miss the 1% tolerance in columns AB:AP. These are modification cells, and the only verifier (weight 1) scores pass/fail and needs 100% of modification cells to match, so a correct answer scores 0.",
+    "confirmation": "GT Work Sheet!AB40 is =AB59+...+AB161 (4702) and AB47/AB49 likewise sum only States 1-7, though State 8 (rows 173-188) has AB178=300 and AB185=64.8. The same GT's AB7 and AB9 include State 8, so an agent that correctly totals all states misses modification cells (5002 vs 4702).",
+    "fixed": true,
+    "fix": "Golden gt_15_KIMS_golden.xlsx: added State 8 (rows 178-187) to the seven-state group-total formulas in 'Work Sheet' rows 40-44, 47 and 49 for columns Z:AF, e.g. AB40 '=AB59+...+AB161+AB178'. AG:AP already had it. Cached values come from a LibreOffice recalculation and were written into only the affected Work Sheet cells: AB40 4702 -> 5002, AB47 6819.80 -> 6884.60 (now equal to AB7), AB49 1856.63 -> 1859.87 (now equal to AB9), with dependents in rows 45, 46, 48 and 50. The volatile TODAY() cells in Formats keep their original caches. The golden grades 1.0 locally."
+  }
+]

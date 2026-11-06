@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The rubric requires a GL 6200 Legal/Audit expense balance of 870,569.38, but that figure is exactly double the true balance (435,284.69) because the source dump's total row double-counts its own subtotal, so an agent that reconciles to the TB is penalized.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key-value",
+    "evidence": "Legal_Dump-1.xlsx: L60=SUM(L3:L59), then L62=SUM(L3:L61), which includes L60 (likewise M62 includes M60); L63=870,569.38. Aurisic_Final_TB_4-25-1.txt: 0010-6200 YTD = 435,284.69. Answer key #10 V63=870,569.38. Rubric: 'cumulative net debit balance of 870,569.38'.",
+    "confirmation": "Legal_Dump-1.xlsx L62 '=SUM(L3:L61)' re-adds the L60 subtotal (M62 likewise), so L63 = 870,569.38, exactly twice the TB 0010-6200 YTD of 435,284.69; the rubric item requires 870,569.38, rewarding the double count and penalizing the correct balance."
+  }
+]

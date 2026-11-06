@@ -1,0 +1,5 @@
+Convert the employee rotation roster into a color-coded rotation plan Gantt chart on Rotation chart. The Rotation Chart tab should display each employee’s assignments by month for 2001 so the schedule is easy to review at a glance. Each color-coded rotation should also be labeled with the corresponding group name. To distinguish between the power and gas groups, add the suffix “-power” or “-gas” to the group names.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 31_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

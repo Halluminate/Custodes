@@ -1,0 +1,58 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official chart checklist",
+      "function": "verify_spreadsheetbench2_chart_checklist",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "checklist": [
+          "The chart is a combo chart with both line series and bar series",
+          "The chart title reads 'Patrol Duration Overview'",
+          "The chart title is positioned at the top center of the chart",
+          "The legend is positioned at the bottom of the chart",
+          "The legend contains an entry labeled 'Count Above Average'",
+          "The legend contains an entry labeled 'Average Patrol Time'",
+          "The legend contains an entry labeled 'Ideal Average Time'",
+          "The legend contains an entry labeled 'Avg. Excess Duration'",
+          "The Average Patrol Time series is displayed as a line with markers",
+          "The Ideal Average Time series is displayed as a line with markers",
+          "The Avg. Excess Duration series is displayed as a line with markers",
+          "The Count Above Average series is displayed as bars",
+          "The Average Patrol Time line is blue in color",
+          "The Ideal Average Time line is orange in color",
+          "The Avg. Excess Duration line is green in color",
+          "The Count Above Average bars are gray in color",
+          "The X-axis displays dates",
+          "The chart has a primary Y-axis on the left side for durations",
+          "The chart has a secondary Y-axis on the right side for count",
+          "The X-axis displays 8 dates in order: 12-Jul, 13-Jul, 14-Jul, 15-Jul, 16-Jul, 17-Jul, 18-Jul, 19-Jul",
+          "The Ideal Average Time line is constant at 0:30 (30 minutes) across all dates",
+          "The Count Above Average bar for 12-Jul has a value of 4 on the secondary Y-axis",
+          "The Count Above Average bar for 13-Jul has a value of 4 on the secondary Y-axis",
+          "The Count Above Average bar for 14-Jul has a value of 3 on the secondary Y-axis",
+          "The Count Above Average bar for 15-Jul has a value of 4 on the secondary Y-axis",
+          "The Count Above Average bar for 16-Jul has a value of 6 on the secondary Y-axis",
+          "The Count Above Average bar for 17-Jul has a value of 7 on the secondary Y-axis",
+          "The Count Above Average bar for 18-Jul has a value of 8 on the secondary Y-axis",
+          "The Count Above Average bar for 19-Jul has a value of 7 on the secondary Y-axis",
+          "The Average Patrol Time line shows values between approximately 0:33 and 0:41 across all dates",
+          "The Average Patrol Time line is consistently above the Ideal Average Time line (0:30) for all dates",
+          "The Avg. Excess Duration line shows values between approximately 0:45 and 1:09 across all dates",
+          "The Avg. Excess Duration line is consistently above the Average Patrol Time line for all dates",
+          "The Avg. Excess Duration line peaks at approximately 1:09 on 14-Jul",
+          "The Average Patrol Time line shows a general declining trend from 13-Jul to 19-Jul",
+          "The Avg. Excess Duration line shows a declining trend from 14-Jul to 19-Jul",
+          "The Count Above Average bars show an increasing trend from 14-Jul (3) to 18-Jul (8)"
+        ]
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

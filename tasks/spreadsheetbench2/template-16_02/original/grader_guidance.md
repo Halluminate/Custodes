@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'RentRoll'!B2:Q21,'DirectCap'!B2:D47,'Assumptions'!B2:C38, after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

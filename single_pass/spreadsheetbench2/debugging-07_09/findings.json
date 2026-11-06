@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit, but the golden workbook leaves obvious formula errors uncorrected inside the graded ranges, so an agent that fixes them fails the strict all-cells match.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "unfixed-errors-in-golden",
+    "evidence": "'Equity Returns'!I57 '=I56*(1+$D$12)^$D$10-1' and H82/I82 '=H81*(1+$D$12)^$D$10-1' subtract 1 instead of the principal (compare D57 '=D56*(1+D12)^D10-D56'). Golden keeps I57=-660463.97, which flows into I58, I60, H68:I70, H83:I86.",
+    "confirmation": "Golden 'Equity Returns'!I57 and H82/I82 subtract 1 instead of the principal (D57 uses '-D56'), so I57 = -660,464 vs -210,963. The fix moves 19 graded regression cells, nearly all of the ~20-cell slack (10,061 cells at 0.998); in run <id> all three trials made it, and trial 2's regression fell to"
+  }
+]

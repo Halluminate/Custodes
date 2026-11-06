@@ -1,0 +1,5 @@
+Create a new 'by type_area' worksheet based on the Summary and the other tabs. It should present two separate tables summarized by Imbal Type; within each table, consolidate by area, include Volume, Value and Date, and calculate totals. Finally, confirm that the value and volume totals tie to the totals shown on the Summary.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 67_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

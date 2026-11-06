@@ -1,0 +1,5 @@
+Add two new entries to the peaker plant comps and then refresh the averages. Constellation (Illinois; Electric Power Daily, article 6/20/2000; operation 6/1/2001) with unspecified turbine type, 300 MW, total cost $130MM, and $433/kW; and TVA (Mississippi; Electric Power Daily, article 6/23/2000; operation 6/1/2002) using GE Gas Turbines, 340 MW, total cost $170MM, and $500/kW. After these are entered, update the overall average and the average excluding GE LM 6000 units.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 61_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

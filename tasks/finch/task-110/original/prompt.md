@@ -1,0 +1,5 @@
+Using the daily PGE/SCG spot midpoints, the TW base price, the fuel‑loss factor, the fixed commodity cost (0.0246), and the day’s delivered volumes to PGE and SCG, please calculate Adj TW Per, the net unit spreads at PGE and SCG, the theoretical profit (spread × volume), the daily total profit, and the Astra/TW 70%/30% profit split, and roll these up to a full‑month summary. Among these values, keep four decimal places for Adj TW Per, the net unit spreads at PGE and SCG, and keep two decimal places for all other figures.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 110_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

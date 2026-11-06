@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Verifier enforces unstated edit at P&L!A13 ('Esc. %') that is absent from input and task instructions",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In problem.py, the agent is instructed to complete five calculations across Ratio Analysis, Cash Budget, Revenue, Cash Flow, and Milestones, and is explicitly told: 'When completing spreadsheet tasks, strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.' The P&L sheet is never mentioned in the instructions. However, in gt_18_RoadAssets_golden.xlsx, cell P&L!A13 contains the static label 'Esc. %', whereas in both assets/18_05_RoadAssets_input.xlsx and untouched_input_18_05_RoadAssets_input.xlsx, P&L!A13 is None. Because spec.yaml includes 'P&L'!A2:Q35 in answer_position for verify_spreadsheetbench2_cells (weight: 1, 100% of the score), score_workbooks classifies P&L!A13 as a required modification cell and requires mod_ratio == 1.0 to pass. Any compliant solution that does not guess to write 'Esc. %' into P&L!A13 receives score 0.0.",
+    "confirmation": "Confirmed: the golden P&L!A13='Esc. %' while the input A13 is None. The prompt never mentions the P&L sheet and says to modify only required cells, yet this cell counts as a required modification.",
+    "fixed": true,
+    "fix": "Same GT edit (P&L!A13 'Esc. %' removed)."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth adds a label nobody asked for (P&L!A13 'Esc. %'), so the all-or-nothing check fails correct solutions",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "When the gold workbook is compared cell by cell with the untouched input, one changed cell has nothing to do with the five calculations the task asks for: P&L!A13 is None in the input and 'Esc. %' in the gold file. The cell sits inside the graded range 'P&L'!A2:Q35. The verifier (spreadsheetbench2.py) puts every input-vs-gold change into the 'modification' bucket, and the task passes only when every modification cell matches the gold (weight 1, the only verifier). The instruction never mentions P&L or a header label. An agent that correctly fills all 56 requested cells (Ratio Analysis N13:T13, Cash Budget R42:Z42, Revenue S18:AF18, Cash Flow N29:T29, Milestones E9:H9) and follows the 'avoid altering any cells... unless explicitly instructed' rule will leave A13 blank and score 0.",
+    "confirmation": "Same verified defect: an unrequested label 'Esc. %' at golden P&L!A13 (blank in the input) sits in the graded range, so the all-or-nothing check fails correct solutions.",
+    "fixed": true,
+    "fix": "Same GT edit (P&L!A13 'Esc. %' removed)."
+  },
+  {
+    "id": "F3",
+    "title": "Verifier requires an unrequested P&L header change",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The staged input and reference workbook leave 'P&L'!A13 blank, but the golden workbook requires the text 'Esc. %'. The task only requests calculations in Ratio Analysis, Cash Budget, Revenue, Cash Flow and Milestones, and says to modify only required cells. A13 is included in the graded range 'P&L'!A2:Q35 and is classified as one of 157 modification cells. The sole verifier, weighted 1, requires every modification cell to match; omitting this undisclosed header therefore causes the entire check to score 0.",
+    "confirmation": "Same verified defect: P&L!A13 differs between input (blank) and golden ('Esc. %') with no instruction to add it, and the sole weight-1 verifier requires it.",
+    "fixed": true,
+    "fix": "Same GT edit (P&L!A13 'Esc. %' removed)."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check returns false negative (score 0.0) on correct solutions in units 1 and 3 due to P&L!A13 discrepancy",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "SpreadsheetBench 2 official cell check (verify_spreadsheetbench2_cells, weight: 1) requires 100% of modification cells (mod_ratio == 1.0) and at least 99.8% of regression cells to match gt_18_RoadAssets_golden.xlsx, returning 0.0 otherwise. Across the ranges in answer_position, 156 modification cells correspond to the five instructed formulas and their downstream dependents, while the 157th modification cell is P&L!A13 (None in untouched_input_18_05_RoadAssets_input.xlsx vs. 'Esc. %' in gt_18_RoadAssets_golden.xlsx). From the trajectories, unit 1 (steps [27]-[45]) and unit 3 (steps [21]-[35]) both correctly populated all five required formula ranges (Ratio Analysis!N13:T13, Cash Budget!R42:Z42, Revenue!S18:AF18, Cash Flow!N29:T29, Milestones!E9:H9) and recalculated the workbook via LibreOffice, achieving regression 1.0000 and matching all 156 instructed modification cells (modification 0.9936 = 156/157). Both units were falsely failed with score=0 solely due to 'Modification error at P&L!A13: answer=Esc. %, output=None' (unit 2 additionally missed Revenue!AF18 and its downstream cells AF19 and AF22).",
+    "confirmation": "P&L!A13 is blank in both 18_05_RoadAssets_input.xlsx and the untouched reference but 'Esc. %' in gt_18_RoadAssets_golden.xlsx, inside the graded range 'P&L'!A2:Q35. The 100%-modification rule fails runs that correctly fill the five requested ranges.",
+    "fixed": true,
+    "fix": "gt_18_RoadAssets_golden.xlsx P&L!A13: removed the unrequested label 'Esc. %' (cell now empty, style kept; it is blank in the input), no other cell changed. A13 is now a regression cell, so runs that leave it blank pass. Local verifier grade: new GT 1.0/1.0, and the old GT (with the label) still passes as an output under the 99.8% regression allowance."
+  }
+]

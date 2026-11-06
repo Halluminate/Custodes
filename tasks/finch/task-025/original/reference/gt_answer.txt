@@ -1,0 +1,4 @@
+The monthly Net Receipt of 714,490 matches the sum of the daily Net Receipt figures in the Service Invoice.
+The monthly Deliveries of –681,155 also match the “Nominated Delivered Total” in the Service Invoice.
+This indicates that the two tables reconcile correctly for August 2001. However, the sign of the Current Month Imbalance is inconsistent.
+In addition, the calculated Cumulative Imbalance for August 2001 is –403.

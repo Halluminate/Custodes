@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden group totals in rows 40-49 leave out State 8 for 1QFY25-FY25 (AB:AF) but include it from 1QFY26 (AG) onward, so an agent that sums every state for every period will miss by more than 1%.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-inconsistency",
+    "evidence": "Work Sheet AB40 = AB59+AB76+AB93+AB110+AB127+AB144+AB161 = 4702, but AB178 = 300 State 8 beds exist and AG40 adds +AG178. AB47 = 6819.80 while AB7 = 6884.60 (the gap is AB185 = 64.8). AB49 = 1856.63 while the golden's own AB9 = 1859.87 includes AB187.",
+    "confirmation": "Golden 'Work Sheet'!AB40:AF49 sum States 1-7 only (AB47 '=AB66+...+AB168' = 6819.80) although State 8 already has 300 beds (AB178) and 64.8 revenue (AB185) included in AB7 = 6884.60. The golden's own AB9 adds AB187 and AG40 adds AG178, so an agent that consistently includes State 8 misses AB47/AB49 "
+  }
+]

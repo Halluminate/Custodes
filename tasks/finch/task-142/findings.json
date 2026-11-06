@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key's Scenario 1 grand-total P&L does not equal the sum of the per-point P&L rows",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In gt_142_ref_0.xlsx 'Summary Chart '!D46 ('Sum') is the hardcoded value -48,203,351.40. The 19 per-point P&L values in D27:D45 actually sum to -50,766,734.87, so the total is off by about US$2.56M (about 5%). The instruction asks the agent to 'aggregate to a grand total for P&L'. An agent that correctly sums its own (or the answer key's) per-point P&L will not match D46. The grader returns a single 0/1 score and requires the output to be 'logically equivalent to the reference', so a correct answer can be failed on this cell.",
+    "confirmation": "Confirmed: GT 'Summary Chart '!D46 is the hardcoded -48,203,351.395, but D27:D45 sum to -50,766,734.874, a 2,563,383 difference.",
+    "fixed": true,
+    "fix": "gt_142_ref_0.xlsx 'Summary Chart '!D46 (Sum) -48203351.395266816 -> -50992643.060617216, the sum of the corrected D27:D45."
+  },
+  {
+    "id": "F2",
+    "title": "Reference grand total does not equal its component P&Ls",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "In the reference workbook, 'Summary Chart '!D46 is -48,203,351.395266816, but the sum of its populated gas-point P&Ls in D27:D45 is -50,766,734.87378521—a discrepancy of US$2,563,383.4785183966. The task explicitly requires aggregating a grand total. The grader guidance uses binary correctness against the reference, so a correctly summed submission risks failing against this internally inconsistent answer key.",
+    "confirmation": "GT D46 (-48,203,351.40) does not equal the sum of D27:D45 (-50,766,734.87), so a correctly aggregated grand total disagrees with the reference.",
+    "fixed": true,
+    "fix": "Same D46 correction (grand total now equals D27:D45)."
+  },
+  {
+    "id": "F3",
+    "title": "Answer key's Station 2 P&L is half the value its own method gives",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Station 2 is a +1 stdev point under Scenario 1. The monthly sumproduct of Office Pos Summary AO8:AO18 and Stdev Table AJ8:AJ18 is 13.2756. Times 10,000, then halved to turn the '2 stdev (30d)' table value into 1 stdev, that gives 66,378, but GT D44 = 33,189 (exactly half). Every other +1 stdev point (AECO, Monchy, Kingsgate) matches the 66,378-style calculation exactly, so Station 2 alone looks double-halved.",
+    "confirmation": "Using the same month-matched position x '2 stdev' x 10,000 x 0.5 method that reproduces GT AECO (-4,749,632), Monchy (119,443) and Kingsgate exactly, Station 2 (AO vs AJ) gives 66,378, while GT D44 is 33,189 (exactly half).",
+    "fixed": true,
+    "fix": "gt_142_ref_0.xlsx 'Summary Chart '!D44 (Station 2 P&L) 33189 -> 66378 (sumproduct AO8:AO18 x AJ8:AJ18 x 10,000 x 0.5, +1 stdev)."
+  },
+  {
+    "id": "F4",
+    "title": "Answer key gives PG&E a P&L of 0 even though it has a nonzero position and a stdev",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "GT B43 (PG&E position) = -117.77 and C43 (avg stdev) = 0.11, but D43 P&L = 0. Every other point's GT P&L equals Σ_month Pos × (2-stdev value / 2) × multiplier × 10,000. Applying that method to PG&E (Office Pos Summary AL8 = -55.93 and AL9 = -61.84 against Stdev Table AH8:AH9 = 0.22, ×2 stdev) gives -259,097. Even the simple B×C×2×10,000 method gives -259,097. A correct agent will be marked as not matching the reference on this row.",
+    "confirmation": "Office Pos Summary AL8/AL9 (PG&E) = -55.93/-61.84 and Stdev Table AH8/AH9 = 0.22. The method that reproduces GT Sumas (-1,600,259) and Kingsgate (3,013,531) exactly gives -259,097 for PG&E, but GT D43 is 0.",
+    "fixed": true,
+    "fix": "gt_142_ref_0.xlsx 'Summary Chart '!D43 (PG&E P&L) 0 -> -259097.186832 (Office Pos Summary AL8:AL9 x Stdev Table AH8:AH9 x 10,000, +2 stdev)."
+  },
+  {
+    "id": "F5",
+    "title": "Reference P&Ls for PG&E and Station 2 contradict the scenario inputs",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The seed specifies 'Scenario 1: +1 Stdev for AECO, Monchy, Kingsgate and Station 2, +2 Stdev for others', and the volatility inputs are labeled '2 stdev (30d)'. PG&E has positions of -55.93403688 and -61.83741168 with corresponding two-standard-deviation inputs of 0.22; using the reference's 10,000 contract multiplier gives a P&L of -259,097.186832, but reference cell D43 is 0. For Station 2, summing the monthly position × two-standard-deviation inputs gives 13.2756; applying the specified one-standard-deviation shock and the same multiplier gives 66,378, but reference D44 is 33,189. These incorrect target values can reject substantively correct work under the binary reference-equivalence rubric.",
+    "confirmation": "Recomputed from the inputs with the method that matches the other 17 GT rows: PG&E = -259,097.19 (GT D43 = 0) and Station 2 = 66,378 (GT D44 = 33,189).",
+    "fixed": true,
+    "fix": "Same D43 and D44 corrections."
+  }
+]

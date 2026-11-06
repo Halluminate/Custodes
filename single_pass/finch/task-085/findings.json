@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "In the answer key, the Coated Grwd (No 4 50#) regression block has exactly the same statistics as the Coated No.3 block, so it was evidently computed on the wrong column. A correct regression on Coated Grwd changes would contradict the key.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key",
+    "evidence": "gt_85_ref_0.xlsx Regressions: the Coated Grwd block (AC82-AE89) has AE85=0.09992669886167616, AD86=0.08893199897714983, AD87=0.11214632241459559, AD88=27.78857772860637 and AD89=16071.843540138114. These match the Coated No.3 block AE74/AD75/AD76/AD77/AD78 to full precision. The simplecorr change-correlation for Coated Grwd is AJ7=0.0257, which implies R2≈0.0007. The 0.1121 value corresponds to the Coated No.3 correlation (AI7=0.3349).",
+    "confirmation": "In gt_85_ref_0.xlsx Regressions, the Coated Grwd block AD85 is '=LINEST(Q6:Q227,V6:V227,...)', the same column V as Coated No.3 (AD74), so its r2 0.1121 equals Coated No.3's; simplecorr AJ7=0.0257 implies r2 of about 0.0007 for Coated Grwd, so a correct regression contradicts the key."
+  }
+]

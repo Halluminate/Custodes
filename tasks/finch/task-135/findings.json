@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "Prompt instruction 'with the x-axis running through the week ending 9/23' contradicts Prod_Yr-Yr in the ground truth and stems from the 47-row truncation bug in the other three GT charts",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `problem.py:1`, the prompt instructs: \"Place them on Prod_Yr-Yr (Producing), East_Yr-Yr (East Consuming), West_Yr-Yr (West), and Total_Yr-Yr (Total), with the x-axis running through the week ending 9/23.\" This requirement was written by observing the rendered x-axis of `East_Yr-Yr`, `West_Yr-Yr`, and `Total_Yr-Yr` in `gt_135_ref_0.xlsx`, where the 47-point value ranges (`rows 121:167`, `10-Dec` to `28-Oct`) paired against 52 category dates (`rows 116:167`, `5-Nov` to `28-Oct`) caused the 47th point to land on row 162 (`23-Sep`). As a result:\n1. In `gt_135_ref_0.xlsx`, `Prod_Yr-Yr` (`xl/charts/chart5.xml`) has 52 category dates (`Data!$A$116:$A$167`) and 52 values (`Data!$G$116:$G$167`), so its x-axis runs through `28-Oct` (`10/28`), directly contradicting the prompt's `9/23` instruction.\n2. If an agent follows the prompt and plots the 47 weeks from `5-Nov` through `23-Sep` (`rows 116:162`), its `Prod_Yr-Yr` chart omits the last 5 weeks (`30-Sep` to `28-Oct`) present in GT `Prod_Yr-Yr`, and its `East_Yr-Yr`, `West_Yr-Yr`, and `Total_Yr-Yr` charts plot rows `116:162` (`5-Nov` to `23-Sep`, ending at `R162=-81`/`Q162=115`, `AC162=22`, `AN162=-83`) rather than the GT's shifted rows `121:167` (`10-Dec` to `28-Oct`, ending at `Q167=41`, `AC167=3`, `AN167=-55`). Conversely, if an agent plots all 52 weeks (`rows 116:167`), it violates the prompt's explicit `9/23` cutoff (`completeness` check).",
+    "confirmation": "The prompt says the x-axis runs through the week ending 9/23 (Data!AH162=1994-09-23, the 47th category), but GT chart5 plots A116:A167 through 1994-10-28. A correct agent cannot both follow the prompt and match the reference.",
+    "fixed": true,
+    "fix": "GT chart5 now ends at Data!A162/G162 (week ending 9/23), matching the prompt. Charts 6-8 also end at row 162."
+  },
+  {
+    "id": "F2",
+    "title": "GT East_Yr-Yr chart plots the wrong season (1997/98 vs 1996/97) while the other three charts plot 1998/99 vs 1997/98",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Data sheet header row 115: East block L='Week Ending:', P='1996/97', Q='1997/98', R='1998/99', S='1999/00'. The Producing block's equivalent of R is G ('1998/99'). GT chart5 (Prod_Yr-Yr) values = Data!$G$116:$G$167, which is the 1998/99 year-over-year difference. chart7 (West) uses AC (1998/99) and chart8 (Total) uses AN (1998/99). But chart6 (East_Yr-Yr) values = Data!$Q$121:$Q$167, i.e. the 1997/98 minus 1996/97 difference (Q116 '=Q6-P6'). The rendered East chart shows that 1997/98 shape (about -17 to 280 Bcf). An agent that correctly uses the same season (column R) for East as for the other regions will not match the reference. The grader judges 'logical equivalence to the reference', including chart data, with a binary score, so a correct answer fails.",
+    "confirmation": "GT chart6 (East_Yr-Yr) references Data!Q121:Q167, and Q115 is '1997/98' (Q116 '=Q6-P6'). chart5, chart7 and chart8 use G, AC and AN, all headed '1998/99', so East plots a different season from the other three.",
+    "fixed": true,
+    "fix": "GT chart6 values changed from Data!Q121:Q167 (1997/98) to R116:R162 (1998/99), the same season as the other three charts."
+  },
+  {
+    "id": "F3",
+    "title": "GT East/West/Total Yr-Yr charts are misaligned by 5 weeks: values start at row 121 but category dates start at row 116",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "chart6/7/8 categories = Data!$AH$116:$AH$167 (52 dates, 5-Nov to 28-Oct, ptCount 52), but values = Data!$Q$121:$Q$167, $AC$121:$AC$167, $AN$121:$AN$167 (47 points, ptCount 47). Row 121 is week ending 1993-12-10, yet it is plotted at the first category, 5-Nov. Every point is therefore shown five weeks early. For example, Total row 121 = 567 Bcf (10-Dec) appears at 5-Nov, where the real 5-Nov value is 287. The Producing chart (chart5) correctly pairs A116:A167 with G116:G167. An agent that builds a correctly aligned chart will not be 'logically equivalent' to the GT on 3 of 4 charts, and the binary score fails it.",
+    "confirmation": "chart6, chart7 and chart8 categories are AH116:AH167 (52 dates from 1993-11-05) but values start at row 121 (Q/AC/AN121:167, ptCount 47), so the 10-Dec values are plotted at 5-Nov. chart5 is correctly aligned at rows 116:167.",
+    "fixed": true,
+    "fix": "GT charts 6-8 now pair categories AH116:AH162 with values from rows 116:162, so there is no 5-week shift."
+  },
+  {
+    "id": "F4",
+    "title": "Corrupted ground truth (gt_135_ref_0.xlsx) plots the wrong year column (1997/98) on East_Yr-Yr and misaligned 47-row value ranges ($121:$167 against $116:$167 categories) on East_Yr-Yr, West_Yr-Yr, and Total_Yr-Yr",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `problems-metadata.json`, `grader_guidance` uses binary `single_score` grading (`\"score\": 0 or 1`) requiring that \"all values, formulas, charts, and text are logically equivalent to the reference answer\" (`gt_135_ref_0.xlsx`). However, inspecting `xl/charts/chart5.xml` through `chart8.xml` in `gt_135_ref_0.xlsx` reveals two major defects in the ground truth charts:\n1. Wrong year column on `East_Yr-Yr` (`xl/charts/chart6.xml`): While `Prod_Yr-Yr` (`Data!$G$116:$G$167`), `West_Yr-Yr` (`Data!$AC$121:$AC$167`), and `Total_Yr-Yr` (`Data!$AN$121:$AN$167`) plot the `1998/99` year-over-year difference column, `East_Yr-Yr` plots `Data!$Q$121:$Q$167`, which is Column Q (`1997/98`, `=Q-P`, staying positive up to +283 Bcf through October) instead of Column R (`1998/99`, `=R-Q`, which peaks at +250 Bcf in December and drops to -129 Bcf in August).\n2. Misaligned 47-row value ranges on `East_Yr-Yr`, `West_Yr-Yr`, and `Total_Yr-Yr` (`chart6.xml`, `chart7.xml`, `chart8.xml`): All three charts use the 52-week category range `Data!$AH$116:$AH$167` (`5-Nov` in row 116 through `28-Oct` in row 167, `ptCount=\"52\"`), but their value series start at row 121 (`10-Dec`) instead of row 116 (`5-Nov`): `Data!$Q$121:$Q$167`, `Data!$AC$121:$AC$167`, and `Data!$AN$121:$AN$167` (`ptCount=\"47\"`). Because spreadsheet chart engines pair the 47 values sequentially with the first 47 category dates (`idx=0..46`, i.e., `5-Nov` in row 116 through `23-Sep` in row 162), every data point on those three GT charts is shifted backward by 5 weeks (`10-Dec` values `Q121=41`, `AC121=107`, `AN121=567` are plotted at `5-Nov`, and `28-Oct` values `Q167=41`, `AC167=3`, `AN167=-55` are plotted at `23-Sep`).",
+    "confirmation": "Verified in gt_135_ref_0.xlsx. chart6 values are Data!$Q$121:$Q$167, where Q115='1997/98' (R115 is '1998/99'). chart6, chart7 and chart8 pair ptCount 47 values (rows 121:167) with ptCount 52 categories AH116:AH167, so the points are shifted 5 weeks.",
+    "fixed": true,
+    "fix": "gt_135_ref_0.xlsx chart XML only. chart5 (Prod_Yr-Yr) now plots Data!A116:A162 / G116:G162 (was through row 167, 10/28). chart6 (East_Yr-Yr) plots AH116:AH162 / R116:R162 (was Q121:Q167, the 1997/98 season and shifted 5 weeks). chart7 (West_Yr-Yr) plots AH116:AH162 / AC116:AC162 (was AC121:AC167). chart8 (Total_Yr-Yr) plots AH116:AH162 / AN116:AN162 (was AN121:AN167). All four now pair 47 dates with 47 values from 11/5 through 9/23, all in the 1998/99 column, and the numCaches are rebuilt from the Data values. A LibreOffice render of East_Yr-Yr shows 5-Nov to 23-Sep starting at 72 Bcf (R116). No cell, style or other part changed."
+  },
+  {
+    "id": "F5",
+    "title": "Reference charts pair weekly differences with the wrong dates",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The reference workbook's East, West and Total charts use dates from Data!$AH$116:$AH$167 (52 weeks), but values from Q121:Q167, AC121:AC167 and AN121:AN167 (47 weeks). Consequently, the first date, November 5, is paired with December 10 values five weeks later. For example, Total starts at 567 Bcf (AN121), although the same selected comparison season's November 5 value is 287 Bcf (AN116); West starts at 107 rather than 68 Bcf. East also selects 1997/98 while the other three charts select 1998/99. Producing includes all 52 weeks through October 28 despite the requested endpoint of September 23. The grader requires charts to be logically equivalent to this reference and assigns an overall binary score, so these reference defects can penalize correctly dated charts across the core deliverable.",
+    "confirmation": "Confirmed: East/West/Total GT charts pair AH116:AH167 dates with row 121:167 values (5-week shift), East uses 1997/98 column Q, and Producing runs through 10/28 against the 9/23 instruction.",
+    "fixed": true,
+    "fix": "gt_135_ref_0.xlsx chart XML only. chart5 (Prod_Yr-Yr) now plots Data!A116:A162 / G116:G162 (was through row 167, 10/28). chart6 (East_Yr-Yr) plots AH116:AH162 / R116:R162 (was Q121:Q167, the 1997/98 season and shifted 5 weeks). chart7 (West_Yr-Yr) plots AH116:AH162 / AC116:AC162 (was AC121:AC167). chart8 (Total_Yr-Yr) plots AH116:AH162 / AN116:AN162 (was AN121:AN167). All four now pair 47 dates with 47 values from 11/5 through 9/23, all in the 1998/99 column, and the numCaches are rebuilt from the Data values. A LibreOffice render of East_Yr-Yr shows 5-Nov to 23-Sep starting at 72 Bcf (R116). No cell, style or other part changed."
+  },
+  {
+    "id": "F6",
+    "title": "Prompt's 'x-axis running through the week ending 9/23' appears to come from the misaligned GT, contradicts the GT Producing chart, and does not say which season to compare",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Problem statement: 'with the x-axis running through the week ending 9/23'. In the GT, the 47-point shifted series on East/West/Total happen to end at category 47 = AH162 = 9/23. That is where the misaligned data runs out, not a real axis limit: no axis max is set and the category range runs to AH167 (10/28). The GT Producing chart plots all 52 weeks through 28-Oct (confirmed in the render). The data also has two candidate seasons: 1998/99 (full year) and 1999/00 (column H/S/AD/AO, only 9 weeks, through 12/31). The prompt names neither, so a competent agent cannot tell from the prompt whether to stop at 9/23, which year to use, or how to match the reference's inconsistent choices. No runs were available to confirm the effect.",
+    "confirmation": "The 9/23 endpoint matches AH162, the 47th category of the misaligned charts, while GT chart5 runs to 10/28. The prompt names no season even though Data has both 1998/99 (G/R/AC/AN) and partial 1999/00 columns, so the prompt is not consistent with the reference.",
+    "fixed": true,
+    "fix": "The GT now ends at 9/23 on all four charts. One sentence was added to the prompt after the 9/23 clause: 'Plot the 1998/99 differences (1998/99 versus 1997/98) from the year-over-year block on the Data sheet.'"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The reference Power Risk budget is 200000, ten times the actual sum of the Power Risk source sheet (20000), so a correct agent would be marked wrong.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key-value",
+    "evidence": "gt Master!M44=200000 (hardcoded). 'Power Risk East and West' E7=10000 and E13=10000; the reference itself computes E16=SUM(E3:E13)=20000.",
+    "confirmation": "gt Master!M44 (Power Risk) is a hardcoded 200000. The 'Power Risk East and West' sheet has only E7=10000 and E13=10000, and the reference's own E16=SUM(E3:E13) gives 20000."
+  },
+  {
+    "id": "S2",
+    "title": "The reference grand total includes the inflated Power Risk value and is overstated by 180000.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key-value",
+    "evidence": "gt Master!M69=SUM(M3:M68)=13261750; with M44=20000 the correct total is 13081750.",
+    "confirmation": "gt Master!M69=SUM(M3:M68) caches 13261750, which includes the inflated 200000. With 20000 the total is 13081750, so a correct total mismatches the key by 180000."
+  }
+]

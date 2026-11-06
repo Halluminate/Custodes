@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden fix inserts a whole new row ('Total Sales') at Model row 48, which shifts every row below it down by one. The position-dependent cell-by-cell check over Model!B2:AX335 will therefore fail any equally valid repair that does not insert a row at exactly that spot, such as rebuilding the broken #REF! references to point at Organic Sales plus Revenue Synergies.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "positional-fix-required",
+    "evidence": "Input Model!B48='Growth %' with formulas =(#REF!/#REF!)-1 and B49='(-) COGS'. Golden Model!B48='Total Sales' (=SUM(C45,C47)), B49='Growth %', B50='(-) COGS'. All later rows move by one, e.g. input R21 =$M111 becomes golden R21 =$M112, input R24 =-$M187 becomes golden =-$M188, and D18 =I111 becomes =I112.",
+    "confirmation": "Input Model B48 is 'Growth %' with =(#REF!/#REF!)-1 and B49 '(-) COGS', while the golden inserts B48 'Total Sales' (=SUM(C45,C47)) and pushes Growth % to 49 and COGS to 50. Every later row shifts, so the position-based check over Model!B2:AX335 fails any repair that rebuilds the references in place."
+  }
+]

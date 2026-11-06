@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "The ground truth adds borders the instruction does not ask for: header underlines and lines on empty cells",
+    "bucket": "Style",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Compared cell by cell, the source Summary sheet has no borders at all. The GT (gt_90_ref_0.xlsx) adds several kinds of border. Some sit above sum rows, which is what was asked. Others have nothing to do with 'values calculated as the sum of other rows': (1) a medium bottom border across the whole column-header row C7:Q7; (2) thin bottom borders under the '$ Equivalents / Share Equivalents / ...' header row E62:I62; (3) a thin bottom border on Q51, which is an empty cell between the footnote labels 'Equity payment before Enron cross assignment' (Q50) and 'Credit Capacity after Enron cross assignment' (Q54); (4) borders on empty cells G65:I65 and G70:I70, where row 66 and G72 have no values. The GT looks like the original Enron workbook with all its formatting, not a minimal answer to the instruction. The grader is told both to judge correctness by 'logically equivalent to the reference answer' and to check over-edits. So an agent that adds only the requested top borders differs from the GT on 20+ cells, and an agent that copies the GT's header borders would be over-editing against the instruction. A correct, minimal answer is open to being marked down.",
+    "confirmation": "Same confirmed defect: the source Summary has no borders on C7:Q7 or E62:I62, but the GT adds header underlines there plus borders on empty Q51 and G65:I65, so a minimal correct answer differs from the reference on 20+ cells.",
+    "fixed": true,
+    "fix": "Same GT patch: no header underlines or borders on empty cells remain, so a minimal correct answer matches the key."
+  },
+  {
+    "id": "F2",
+    "title": "Ground-truth workbook gt_90_ref_0.xlsx contradicts the prompt by bordering column headers, empty cells, and wrong rows above blank spacer rows",
+    "bucket": "Style",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The prompt in problem.py states: \"Add a top border to all values in the Summary tab that are calculated as the sum of other rows.\" However, the reference workbook gt_90_ref_0.xlsx (which the agentic grader compares against using generic boilerplate instructions with no task-specific overrides) differs from the input 90_src_0.xlsx on 51 cells in Summary, most of which violate the instruction:\n1. Column header borders (20 cells): gt_90_ref_0.xlsx adds border.bottom='medium' on C7:Q7 (column headers 'ENE Shares' through 'Current Credit Capacity') and border.bottom='thin' on E62:I62 (column headers '$ Equivalents' through 'Derivative Shares'). Neither the header rows (Rows 7 and 62) nor the rows immediately below them (Row 8 input data and Row 63 'Input ENE Stock Price') are calculated as the sum of other rows.\n2. Borders placed 1-2 rows above the actual sum rows across blank spacer rows (13 cells):\n   - Row 47 ('Total All Raptor Structures') has vertical sums in H47, I47, K47, L47, N47, O47, Q47 (= sum of Rows 13, 24, 33, 41), but gt_90_ref_0.xlsx places border.top='thin' on the empty cells H46, I46, K46, L46, N46, O46, Q46 (between blank Row 45 and blank Row 46) rather than at the top of Row 47.\n   - Q54 ('Credit Capacity after Enron cross assignment', -244,219,118.89 = Q47 + Q50) is a vertical sum, but gt_90_ref_0.xlsx places border.bottom='thin' on empty cell Q51 (two rows above Q54) rather than at the top of Q54.\n   - Row 72 ('Ending Balance') has vertical sums in E72, F72, H72, I72, separated from Row 70 by blank Row 71, but gt_90_ref_0.xlsx places border.bottom='thin' on E70:I70 (above blank Row 71) rather than at the top of Row 72.\n3. Borders above empty non-value cells (4 cells): gt_90_ref_0.xlsx adds border.bottom='thin' on G65:I65 and G70 even though G66:I66 and G72 are completely empty (None).",
+    "confirmation": "Confirmed by diffing Summary in 90_src_0.xlsx and gt_90_ref_0.xlsx: borders added on C7:Q7 and E62:I62 headers, top borders on empty row 46 (not on row 47), bottom border on empty Q51, and borders above empty G66:I66, so the key contradicts the instruction to border only sum values.",
+    "fixed": true,
+    "fix": "gt_90_ref_0.xlsx Summary: every border that differed from 90_src_0.xlsx reset to the source (removes the C7:Q7 medium and E62:I62 thin header underlines, H46:Q46 top borders on empty cells, Q51, G65:I65, E70:I70 and the bottom borders above sum rows; source A7:B7 header borders kept), then a thin top border added to the row-sum values F10 G10 F13 G13 C17 F21 G21 F24 G24 F30 G30 F33 G33 F41 G41 H47 I47 K47 L47 N47 O47 Q47 Q54 E66 F66 E72 F72 H72 I72. No values or other sheets changed."
+  }
+]

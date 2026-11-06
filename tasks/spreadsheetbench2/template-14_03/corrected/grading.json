@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_14_03_golden.xlsx",
+        "reference_path": "reference/untouched_input_14_03_input.xlsx",
+        "answer_position": "'NOI_Projection'!B2:G47,'NOI_Projection'!B48,'NOI_Projection'!D48:G48,'NOI_Projection'!B49:G49",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

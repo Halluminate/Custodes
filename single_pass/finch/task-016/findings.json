@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer key relies on many figures that appear in neither input file, yet the grader is told to check every value against the reference, so a faithful solution cannot match.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "unsourced-reference-values",
+    "evidence": "gt_16_ref_0.pdf states IDA-eligible debt stock +4.8% to US$1.1 trillion, short-term US$109.3 billion, PNG US$246.7 billion, World Bank debt US$170.8 billion, LMIC GNI US$18.6 trillion, low-income debt US$232.0 billion and GNI US$621.3 billion, export earnings US$5.5 trillion and US$597.5 billion, debt service US$971.1 billion, principal US$698.9 billion, interest US$272.3 billion, variable-rate shares of 57% and 40%, and Mexico/Brazil PPG interest of US$13.6 and US$9.7 billion. None of these are in 16_src_1.xlsx or 16_src_0.pdf, which ends at p.14.",
+    "confirmation": "gt_16_ref_0.pdf cites US$246.7B PNG, US$109.3B short-term, US$170.8B World Bank debt, US$971.1B debt service, US$698.9B principal, US$272.3B interest and others. None of these appear in 16_src_1.xlsx (Fig1.5 gives only PPG components summing to 780.3) or in the text of 16_src_0.pdf, yet the judge's "
+  }
+]

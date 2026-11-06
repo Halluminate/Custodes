@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden 2028 depreciation uses current-year beginning PP&E, while 2026 and 2027 use the prior column's PP&E, so a consistently built model cannot match G33.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "inconsistent-formula",
+    "evidence": "Golden E33=8.1305=E17*D15 (0.115*70.7) and F33=8.808=F17*E15 (0.12*73.4), but G33=9.29129=G17*G15 (0.12*77.427). The consistent prior-year value G17*F15=9.1375 differs by about 1.7%, which is beyond the 1% tolerance.",
+    "confirmation": "Golden FCF_Calculation E33=8.1305 (E17*D15) and F33=8.808 (F17*E15) use the prior column's PP&E, but G33 '=G17*G15'=9.291 uses its own column. The consistent G17*F15=9.1375 is 1.7% off, beyond the 1% tolerance, so no single depreciation rule matches E33, F33 and G33."
+  }
+]

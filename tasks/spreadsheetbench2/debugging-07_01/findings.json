@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Unconverged circular-reference cached values in gt_07_golden.xlsx and un-recalculated GT comparison make the task impossible to pass",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight 1.0) force-recalculates the submitted `output_path` in LibreOffice (`managed_recalculated_xlsx(Path(output_path), force_recalculation=True)`), but loads `gt_path` (`gt_07_golden.xlsx`) and `reference_path` (`untouched_input_Double Counting_input.xlsx`) directly from their raw cached values on disk without recalculating them. In `LBO & Lenders` columns S:X, rows 49–53 form an iterative circular debt-schedule loop (`T50 = T53 - T52`, `T51 = SUM(T49:T50)`, `T53 = T54 * AVERAGE(T49, T51)`). None of those formulas change between the input and golden workbooks (only row 44 `S44:X44` changes to remove double counting, which does not feed into rows 49–59). However, `gt_07_golden.xlsx` stores stale, unconverged cached values in `T49:X59` that violate its own formulas (e.g., `T53` is cached as `118.970238303129`, whereas `T54 * AVERAGE(T49, T51) = 0.1275 * AVERAGE(938.685564032242, 931.191189540738) = 119.204643040277`, and the true fixed-point converged value is `119.2206038435`). When `verify_spreadsheetbench2_cells` is run on `gt_07_golden.xlsx` itself as `output_path`, LibreOffice recalculates the circular loop toward the true fixed point and the golden workbook fails against itself with `score=0.0` (`regression 1.0000, modification 0.8922, 17 cell error(s)`, e.g. `LBO & Lenders!T50: answer=-7.49437449150413, output=-7.25996975435565`, `V53: answer=115.422659476154, output=116.933385709013`, `X51: answer=880.681980565791, output=889.808311440059`). Any workbook saved with live formulas in `LBO & Lenders!T49:X59` is force-recalculated by the verifier and therefore cannot match the unconverged cached values in `gt_07_golden.xlsx`.",
+    "confirmation": "Confirmed by local replay: the GT cached circular values (e.g. V53 115.42 vs recalculated 116.93) do not survive LibreOffice recalculation, so no live-formula workbook can match and the sole check is unpassable.",
+    "fixed": true,
+    "fix": "Replaced gt_07_golden.xlsx and the reference workbook with copies recalculated through the verifier's LibreOffice path repeatedly (8 passes) until the circular interest/debt block in LBO & Lenders converged; the converged values match the closed-form fixed point (e.g. T50 -7.244, X50 -12.072, formulas unchanged). The new golden scores 1.0 against itself, and so does a workbook whose caches are one LibreOffice pass from converged. Residual risk (infra): an output saved with no cached values (e.g. plain openpyxl) still does not converge in the verifier's single LibreOffice pass."
+  },
+  {
+    "id": "F2",
+    "title": "GT cached LBO interest/debt values in the circular block are not converged, so the golden workbook fails its own grader after LibreOffice recalculation and is internally inconsistent",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Same issue reported 2 times, differing only in the verifier/range/step cited:\n- The verifier (verify_spreadsheetbench2_cells, weight 1, the only check, all-or-nothing) recalculates the agent's output in LibreOffice and compares it with the golden file's cached values. I fed gt_07_golden.xlsx itself through the same path (managed_recalculated_xlsx + score_workbooks). Result: regression 1.0, modification 0.8922, 17 cell errors, so the verifier returns 0.0. Examples: 'LBO & Lenders'!T50 answer=-7.4944 vs recalculated -7.2600; V50 -11.0420 vs -9.5312; X50 -16.8264 vs -12.7811; W53 112.851 vs 115.458; X51 880.682 vs 889.808; X58 4.3735 vs 4.2179. These cells sit in a circular \n- With rate 12.75% (T54:X54 cached 0.1275) and mandatory repayment 126.4646 (row 52), the exact fixed point of interest = r*avg(begin, end) and end = begin + interest - repayment, rolled forward from cached S51=938.686, gives: T53 interest 119.221 vs cached 118.970; V53 117.113 vs 115.423; X53 114.393 vs 109.638. Ending debt X51 is 891.16 vs cached 880.68. The gap grows each year, so the golden file's interest, debt balance and coverage ratio (X58 4.37) are internally inconsistent: the interest is not rate × average debt. The golden values for these graded cells are wrong in finance terms as wel",
+    "confirmation": "Same confirmed defect: the golden workbook scores modification 0.8922 against itself after recalculation, and its cached interest values (e.g. X53) do not equal rate x average debt from its own cached inputs.",
+    "fixed": true,
+    "fix": "Replaced gt_07_golden.xlsx and the reference workbook with copies recalculated through the verifier's LibreOffice path repeatedly (8 passes) until the circular interest/debt block in LBO & Lenders converged; the converged values match the closed-form fixed point (e.g. T50 -7.244, X50 -12.072, formulas unchanged). The new golden scores 1.0 against itself, and so does a workbook whose caches are one LibreOffice pass from converged. Residual risk (infra): an output saved with no cached values (e.g. plain openpyxl) still does not converge in the verifier's single LibreOffice pass."
+  },
+  {
+    "id": "F3",
+    "title": "The golden workbook fails its own verifier after mandatory recalculation",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The LBO debt schedule contains circular calculations with internally inconsistent cached results. In gt_07_golden.xlsx, 'LBO & Lenders'!X53 is '=X54*AVERAGE(X49,X51)', but its cached value is 109.6382395757; the cached inputs produce 113.35963381484534. The verifier forcibly recalculates submissions but compares them against unrecalculated golden caches. Passing the golden workbook itself through that exact recalculation and scoring pipeline produced regression 1.0000 and modification 0.8922, with 17 cell mismatches, including X50 changing from -16.8263732189333 to -12.7810638582942. Consequently, the supplied correct-answer workbook receives zero on the sole verifier, which carries 100% of the score.",
+    "confirmation": "Duplicate of the confirmed unconverged-cache defect: replaying gt_07_golden.xlsx through the verifier gives 0.0 with 17 'LBO & Lenders' mismatches.",
+    "fixed": true,
+    "fix": "Replaced gt_07_golden.xlsx and the reference workbook with copies recalculated through the verifier's LibreOffice path repeatedly (8 passes) until the circular interest/debt block in LBO & Lenders converged; the converged values match the closed-form fixed point (e.g. T50 -7.244, X50 -12.072, formulas unchanged). The new golden scores 1.0 against itself, and so does a workbook whose caches are one LibreOffice pass from converged. Residual risk (infra): an output saved with no cached values (e.g. plain openpyxl) still does not converge in the verifier's single LibreOffice pass."
+  },
+  {
+    "id": "F4",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "Reproduced locally: verify_spreadsheetbench2_cells on gt_07_golden.xlsx itself returns 0.0 (regression 1.0, modification 0.8922, 17 errors in 'LBO & Lenders' T50:X59, e.g. T50 -7.494 vs -7.260).",
+    "fixed": true,
+    "fix": "Replaced gt_07_golden.xlsx and the reference workbook with copies recalculated through the verifier's LibreOffice path repeatedly (8 passes) until the circular interest/debt block in LBO & Lenders converged; the converged values match the closed-form fixed point (e.g. T50 -7.244, X50 -12.072, formulas unchanged). The new golden scores 1.0 against itself, and so does a workbook whose caches are one LibreOffice pass from converged. Residual risk (infra): an output saved with no cached values (e.g. plain openpyxl) still does not converge in the verifier's single LibreOffice pass."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails correct solutions (score 0.0 on units 1 and 2, and on the golden file itself) because it force-recalculates output_path but compares against unconverged cached values in gt_07_golden.xlsx",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across the workbook, there are exactly 16 double-counting formulas that differ between `untouched_input_Double Counting_input.xlsx` and `gt_07_golden.xlsx`: `'BS & CF'!F30:G30` (`=SUM(F24:F29)+F25` -> `=SUM(F24:F29)`), `'DCF Model'!G99:L99` (`=SUM(G93:G98)+G94` -> `=SUM(G93:G98)`), `'LBO & Lenders'!S44:X44` (`=SUM(S39:S43)+S40` -> `=SUM(S39:S43)`), and `'Equity Returns'!D60,I60` (`=SUM(D58:D59)+D58` -> `=SUM(D58:D59)`). Both Unit 1 (steps [26]-[51]) and Unit 2 (steps [40]-[57]) identified and fixed all 16 double-counting formulas identically to the golden workbook while leaving all other cells intact. However, both Unit 1 and Unit 2 scored `0.0` (`regression 1.0000, modification 0.8922. 17 cell error(s)`) with every single error in the circular debt schedule `'LBO & Lenders'!T50:X59` (e.g., Unit 1 `T50: answer=-7.49437449150413, output=-7.24400895115832`; Unit 2 `T50: answer=-7.49437449150413, output=-7.36171037305418`). Even passing `gt_07_golden.xlsx` itself to `verify_spreadsheetbench2_cells` yields `score=0.0` with the exact same 17 cell errors (`regression 1.0000, modification 0.8922`), because `verify_spreadsheetbench2_cells` runs `managed_recalculated_xlsx(Path(output_path), force_recalculation=True)` on the submission while reading raw, unconverged cached values from `gt_07_golden.xlsx`.",
+    "confirmation": "The verifier recalculates only the output, while the GT's circular debt block in 'LBO & Lenders' keeps unconverged caches. The golden file reproduces the same 17 errors and score 0, so correct double-counting fixes also fail.",
+    "fixed": true,
+    "fix": "Replaced gt_07_golden.xlsx and the reference workbook with copies recalculated through the verifier's LibreOffice path repeatedly (8 passes) until the circular interest/debt block in LBO & Lenders converged; the converged values match the closed-form fixed point (e.g. T50 -7.244, X50 -12.072, formulas unchanged). The new golden scores 1.0 against itself, and so does a workbook whose caches are one LibreOffice pass from converged. Residual risk (infra): an output saved with no cached values (e.g. plain openpyxl) still does not converge in the verifier's single LibreOffice pass."
+  }
+]

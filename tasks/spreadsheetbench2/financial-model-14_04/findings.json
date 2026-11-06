@@ -1,0 +1,79 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground-truth sensitivity table shows the same Equity Value in every WACC × terminal growth cell",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In gt_14_Refinery_golden.xlsx, 'DCF_Income Approach'!K27:O31 has the cached value 28810.1725164556 in all 25 cells. That is the base-case D29. The column headers are WACC 11.75%–13.75% (K26:O26) and the row headers are terminal growth 1.0%–3.0% (J27:J31). The cells hold LibreOffice MULTIPLE.OPERATIONS formulas ('=TABLE($J$26,$C$18,$J27,$C$21,K$26)'), and LibreOffice does not carry these through the cross-sheet DCF chain. I recalculated the GT in LibreOffice and got the same constant 28810.17 in every cell. Then I set C18=1% and C21=11.75% directly and recalculated: D29 = 28,145.76. That is the true value for cell K27, and it is 2.3% off the GT, outside the verifier's 1% tolerance. The corner cells further from the base case would be further off. These 25 cells are modification cells in the only verifier, 'SpreadsheetBench 2 official cell check' (weight 1, all-or-nothing). Any agent that builds a correct sensitivity table (for example by computing each scenario and writing values, or rebuilding the table so it works) gets 0. The only passing table is the broken constant one.",
+    "confirmation": "Golden 'DCF_Income Approach'!K27:O31 hold the same cached 28810.1725164556 (= D29) in every WACC x growth cell, so any working sensitivity table mismatches the key.",
+    "fixed": true,
+    "fix": "K27:O31 excluded from answer_position, so a working sensitivity table is no longer failed against the constant 28810.17 key."
+  },
+  {
+    "id": "F2",
+    "title": "The golden workbook fails the sole verifier after mandatory recalculation",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Passing the supplied golden workbook through the verifier's own recalculation and comparison pipeline produces regression 1.0000, modification 0.9666, and 97 modification errors, all in NCD. For example, AA137 is expected to equal -3.37507799486048e-13 but recalculates to -3.80140363631654e-13. The comparator applies relative tolerance to these negligible nonzero residuals without an absolute near-zero tolerance. Because the sole check has weight 1 and requires every modification cell to match, the golden workbook itself receives a failing score.",
+    "confirmation": "Reproduced locally: GT through the verifier gives regression 1.0, modification 0.9666, errors starting at NCD!AA137 (answer -3.375e-13, output -3.801e-13), score 0.0.",
+    "fixed": true,
+    "fix": "Same NCD cached-value correction; the golden no longer fails on NCD residuals."
+  },
+  {
+    "id": "F3",
+    "title": "The EBITDA-margin answer key uses the wrong period for Q4",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Profit & Loss!J4 is 'Q4 2019-20', but the golden formula in J37 is '=K18/K6', using the full-year 2019-20 column. The Q4 inputs give J18/J6 = 0.0871189359317501, whereas the key expects 0.078018196091557. This exceeds the verifier's 1% tolerance. A competent agent calculating each period's EBITDA margin from that period's revenue and EBITDA is penalized; one such modification mismatch fails the entire weight-1 check.",
+    "confirmation": "Profit & Loss J4 is 'Q4 2019-20' but golden J37 is '=K18/K6' (the full-year column, same as K37), giving 0.0780 instead of J18/J6 = 0.0871, an 11.7% gap beyond tolerance.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F4",
+    "title": "Invalid golden solution and broken value comparison on DCF Sensitivity Analysis table, NCD, and TL sheets make the task unpassable",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The single verifier `SpreadsheetBench 2 official cell check` (weight: 1) uses `verify_spreadsheetbench2_cells` in `values` mode, which requires 100% of modification cells (`mod_ratio == 1.0`) to match `gt_14_Refinery_golden.xlsx` after LibreOffice recalculation (`managed_recalculated_xlsx(..., force_recalculation=True)`). There are three compounding defects in the ground truth and value comparison:\n1. In `DCF_Income Approach!K27:O31` (25 modification cells), the input and golden workbooks store LibreOffice `=TABLE($J$26,$C$18,$J27,$C$21,K$26)` formulas, but the golden workbook cached the base-case Equity Value (`28810.1725164556`, equal to `D29`) identically across all 25 cells instead of the actual sensitivity values (which range from `28145.76` at `K27` to `30239.04` at `O31`). Furthermore, when openpyxl or LibreOffice saves a `.xlsx` file with `=TABLE(...)` formulas without an OOXML `<tableParts>` data-table definition, LibreOffice recalculates `=TABLE(...)` to `None`. Thus, whether an agent writes true two-way sensitivity formulas (yielding `28145.76` at `K27`, as all 3 units did) or preserves `=TABLE(...)` and sets `J26` to `=D29` (yielding `None` on recalculation), all 25 cells fail against the bogus constant `28810.1725164556` in the golden workbook.\n2. In `NCD!B3:BW181` (776 modification cells) and `TL!A1:BW376` (888 modification cells), neither sheet is part of the task instructions, and all 1,664 'modification' cells are near-zero floating-point noise (`~1e-16` to `~1e-13`, max abs `3.38e-13`) that differ in the last decimal digit between `untouched_input_14_04_Refinery_input.xlsx` and `gt_14_Refinery_golden.xlsx`. Because `_values_match` checks `isinstance(v1, (int, float))` BEFORE rounding via `_transform_value` (`spreadsheetbench2.py:92-95`), `_within_tolerance` computes relative difference `abs(v1 - v2) / max(abs(v1), abs(v2)) <= 0.01` on raw unrounded `1e-14` floats. Even when `gt_14_Refinery_golden.xlsx` is graded against itself, LibreOffice recalculation shifts 97 cells in `NCD` from `-3.37507799486048e-13` to `-3.80140363631654e-13` (a 12.6% relative difference on `1e-13`), causing the golden workbook to fail its own verifier (`mod_ratio = 0.9666`, score = `0.0`). On the input workbook, 648 cells across `NCD` (97) and `TL` (551) fail for the same reason.",
+    "confirmation": "Confirmed both defects: K27:O31 all cache 28810.1725 regardless of J27:J31 growth (1%-3%) and K26:O26 WACC, and NCD 1e-13 noise cells fail the 1% relative tolerance even for the GT (local score 0.0, mod 0.9666).",
+    "fixed": true,
+    "fix": "Same two changes (NCD cached values, K27:O31 excluded from answer_position)."
+  },
+  {
+    "id": "F5",
+    "title": "The sensitivity-analysis answer key incorrectly expects a constant equity value",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook contains 28810.1725164556 in every cell of DCF_Income Approach!K27:O31, despite different growth and WACC assumptions. Recalculating the supplied model at its own row-31 growth assumption of 3% gives equity value 35901.579202396 at K26's WACC of 11.7476192037865%, and 23049.3453059649 at O26's WACC of 13.7476192037865%. Both corresponding golden table cells instead expect 28810.1725164556. A correctly functioning sensitivity table therefore fails modification checks in the sole, all-or-nothing verifier.",
+    "confirmation": "Golden K31 and O31 both cache 28810.17 even though they correspond to 3% growth at 11.75% vs 13.75% WACC, which must give different equity values; the key expects a constant table.",
+    "fixed": true,
+    "fix": "Same K27:O31 exclusion."
+  },
+  {
+    "id": "F6",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "Local run of verify_spreadsheetbench2_cells with gt_14_Refinery_golden.xlsx as output returns 0.0 (modification 0.9666, 98 errors such as NCD!AA137 -3.375e-13 vs -3.801e-13), so the GT cannot earn full reward.",
+    "fixed": true,
+    "fix": "gt_14_Refinery_golden.xlsx: 306 cached values on NCD (float residuals of about 1e-13, e.g. AA137 -3.375e-13 -> LibreOffice value) set to the verifier's LibreOffice recalculation, formulas and every other byte unchanged. Local verifier on the original golden and on the patched golden: PASS, reg 1.0, mod 1.0."
+  },
+  {
+    "id": "F7",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (score 0.0) on all runs and even on the ground-truth workbook itself",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "All 3 units correctly implemented the required model formulas and achieved `regression 1.0000` and `modification 0.8056`–`0.8067` (with 674–677 cell errors out of 2,907 modification cells), yet received `score=0` (`weight: 1`). Reconstructing the outputs from the trajectories and inspecting the ground-truth files shows why no submission can ever pass:\n1. Out of 2,907 total modification cells, 1,664 cells are in unedited sheets `NCD` (776 cells) and `TL` (888 cells) where cached float values in `untouched_input_14_04_Refinery_input.xlsx` and `gt_14_Refinery_golden.xlsx` differ by `1e-16` in the 16th significant digit on values around `1e-14` (effectively zero). Because `_values_match` in `spreadsheetbench2.py` checks `_within_tolerance(v1, v2)` (1% relative tolerance) BEFORE rounding to 2 decimal places in `_transform_value`, LibreOffice recalculation causes 648 cells in `NCD` (97) and `TL` (551) to fail relative tolerance on `1e-14` noise. Even running `verify_spreadsheetbench2_cells` directly on `gt_14_Refinery_golden.xlsx` fails with `mod_ratio = 0.9666` (97 errors in `NCD!AA137:BW137`, where `-3.375e-13` recalculates to `-3.801e-13`).\n2. Another 25 errors in every unit (`648 + 25 = 673` base errors) occur at `DCF_Income Approach!K27:O31`. In `gt_14_Refinery_golden.xlsx`, `K27:O31` contains `=TABLE($J$26,$C$18,$J27,$C$21,K$26)` with an un-updated cached value of `28810.1725164556` (the base-case `D29` value) repeated in all 25 cells. All 3 units noticed that LibreOffice `=TABLE(...)` did not evaluate properly after saving and wrote explicit sensitivity formulas across `K27:O31` (producing the mathematically correct Equity Values `28145.7584`, `29800.8981`, `31625.8372`, `33648.1179`, `35901.5792` in column `K`), which the verifier rejected against the broken constant `28810.1725164556`.",
+    "confirmation": "Reproduced the GT failing its own check on near-zero NCD residuals, and golden DCF_Income Approach K27:O31 (=TABLE(...)) caches the base-case 28810.17 (=D29) in all 25 cells despite varying WACC/growth headers, so correct sensitivity values also fail.",
+    "fixed": true,
+    "fix": "NCD residual fix as above, plus answer_position 'DCF_Income Approach'!B1:O50 split into B1:O26, B27:J31 and B32:O50 so the 25 TABLE() cells K27:O31 (which LibreOffice reduces to the base-case 28810.17) are no longer compared."
+  }
+]

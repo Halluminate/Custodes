@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "The ground-truth chart leaves out the required Total Scheduled and Total Cancellation series",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The instruction says to 'include Total Scheduled and Total Cancellation (Total Cancellation represents total exposure)'. The GT chart1.xml has only 6 series: Committed, Tentative and Available Scheduled/Cancellation, pointing at 'Cost Cancel Details' rows 111/112, 115/116 and 119/120. No series points at the GRAND TOTALS rows 123/124, and the chart XML never contains the word 'Total'. The two horizontal reference lines in the render are free-floating drawing shapes, not plotted series. The grader compares output to this reference for 'logical equivalence'. An agent that correctly adds the two total series may be marked as differing, and the key itself fails the instruction it is meant to show.",
+    "confirmation": "chart1.xml has 6 data series, none pointing at rows 123/124, so the reference chart leaves out the Total Scheduled and Total Cancellation series the instruction asks for.",
+    "fixed": true,
+    "fix": "Same chart fix: the reference chart now includes the GRAND TOTALS rows 123/124."
+  },
+  {
+    "id": "F2",
+    "title": "Ground-truth workbook (gt_75_ref_0.xlsx) omits the required Total Scheduled and Total Cancellation chart series",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In problem.py:1, Requirement R2 states: 'Plot the cumulative series for Scheduled and Cancellation across Committed, Tentative, and Available, and include Total Scheduled and Total Cancellation (Total Cancellation represents total exposure).' In 'Cost Cancel Details', the 8 cumulative series correspond to rows 111-112 (SUM OF COMMITTED), rows 115-116 (SUM OF TENTATIVE), rows 119-120 (SUM OF AVAILABLE), and rows 123-124 (GRAND TOTALS: $ Scheduled Payments and $ Cancellation). However, because gt_75_ref_0.xlsx was round-tripped through Google Sheets (<ext uri=\"GoogleSheetsCustomDataVersion2\"> in xl/workbook.xml), xl/charts/chart1.xml in gt_75_ref_0.xlsx contains only 6 <c:ser> series (idx 0 through 5 referencing 'Cost Cancel Details'!$D$111:$BB$111, $D$112:$BB$112, $D$115:$BB$115, $D$116:$BB$116, $D$119:$BB$119, and $D$120:$BB$120) and completely omits Total Scheduled (Row 123, which is $391.62MM in Nov-01 and $503.42MM in Dec-02) and Total Cancellation (Row 124, which is $426.61MM in Nov-01 and $503.42MM in Dec-02). Meanwhile, the chart annotations in gt_75_ref_0.xlsx (xl/drawings/drawing2.xml: 'Cumulative Cancellation Cost to Date $427MM', 'Cumulative Payments to Date $392MM', and 'Incremental Cancellation Cost $35MM') and cell A65 ('* Total Cancellation Payments = Total Enron Exposure') reference the missing Row 123 and Row 124 totals, while the highest plotted curves in gt_75_ref_0.xlsx (Available, rows 119-120) only reach $377.11MM and $416.42MM in Nov-01 ($464.22MM in Dec-02). Under problems-metadata.json grader_guidance (single_score binary 0 or 1, Evaluation Criteria '2. Data Accuracy' and 'correctness'), the judge compares the agent's chart and series against the reference workbook gt_75_ref_0.xlsx, so the ground truth directly contradicts the prompt's explicit requirement.",
+    "confirmation": "Confirmed: the only chart in gt_75_ref_0.xlsx (xl/charts/chart1.xml) references 'Cost Cancel Details' rows 111, 112, 115, 116, 119 and 120 plus the date row 3, with no series for GRAND TOTALS rows 123/124, which the prompt explicitly requires.",
+    "fixed": true,
+    "fix": "gt_75_ref_0.xlsx xl/charts/chart1.xml: added series 7 'Total Scheduled Payments' ('Cost Cancel Details'!$D$123:$BB$123, solid black) and series 8 'Total Cancellation Payments' ('Cost Cancel Details'!$D$124:$BB$124, dashed black), same category range D3:BB3 as the existing six series. All other parts of the file are byte-identical."
+  }
+]

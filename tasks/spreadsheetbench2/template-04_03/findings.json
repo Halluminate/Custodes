@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Incorrect 2028 depreciation in the answer key causes consistent models to fail",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "In the golden workbook, G33 contains '=G17*G15', yielding 9.29129030856. This switches reference conventions: E33 is 0.115 × D15 = 8.1305 and F33 is 0.12 × E15 = 8.808, so the corresponding 2028 calculation is G17 × F15 = 9.13747086. The golden G39 value, 35.0675479735664, also uses that latter depreciation amount: summing the actual golden G32:G38 instead gives 35.2213674221264. Testing a golden-workbook copy with only G33 corrected produced modification ratio 0.9767 and 'Modification error at FCF_Calculation!G33: answer=9.29129030856, output=9.137470859999999'. Because the sole verifier has weight 1 and requires every modification cell to match, this internally consistent correction receives zero credit.",
+    "confirmation": "Golden G33 '=G17*G15'=9.2913, but golden G39=35.0675 only reconciles with 9.1375 (G17*F15). The sum of golden G32:G38 is 35.2214, so the answer key is internally inconsistent on a weight-1 all-or-nothing verifier.",
+    "fixed": true,
+    "fix": "Same GT patch; G33 and G39 now agree with each other and with the same-column convention."
+  },
+  {
+    "id": "F2",
+    "title": "Ground-truth depreciation formula is inconsistent across 2026–2028, and every consistent method fails the binary check",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The answer key does not use one depreciation method. E33 = 8.1305 = E17(0.115) × D15(70.7), which takes the previous column's PP&E. F33 = 8.808 = 0.12 × E15(73.4), also the previous column. G33 is the formula '=G17*G15' = 9.2913, which takes the same column's PP&E. The historical roll-forward in the GT uses the same-column method: D15 70.7 = 68 + 0.041224×245 − 0.108824×68(C15), and E15 73.4 = 70.7 + 10.50 − 0.110325×70.7(D15). Recomputed values under each consistent reading: (a) previous-column PP&E for all forecast years gives G33 = 0.12 × 76.1456 = 9.1375, 1.7% off the GT's 9.2913. (b) Same-column PP&E, matching history, gives E33 = 0.115 × 73.4 = 8.441 vs 8.1305 (3.8% off), plus knock-on differences in F15, G15, F33, G33 and E39:G39. verify_spreadsheetbench2_cells (weight 1, the only verifier) needs every modified cell within 1% relative tolerance. So an agent that applies either method consistently fails the whole task, and the only passing answer copies the GT's mixed method.",
+    "confirmation": "The golden depreciation method mixes conventions (E33=0.115*70.7, F33=0.12*73.4, G33=G17*G15). Any single consistent method misses at least one cell by more than 1% (e.g. 0.12*F15=9.1375 vs 9.2913), and the run grades show E33/F33 failures.",
+    "fixed": true,
+    "fix": "Same GT patch; a model built consistently with =E17*E15 style formulas now scores regression 1.0, modification 1.0 locally (old GT failed on E33/F33)."
+  },
+  {
+    "id": "F3",
+    "title": "Invalid golden solution and ambiguous 'Prior Year PP&E' definition cause 2026–2028 PP&E and Depreciation cells to contradict standard accounting and row labels",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `gt_04_03_golden.xlsx` (`FCF_Calculation`), Row 15 is labeled `PP&E (Beginning)` with 2024 `C15 = 68`, Row 16 is `Capex % of Revenue`, and Row 17 is `Depreciation % of Prior Year PP&E`. Note B43 states: `- Capex and depreciation percentages apply to Revenue and Prior Year PP&E respectively`. However, the golden workbook contains three internal inconsistencies and formula bugs that violate standard financial modeling and the sheet's own labels:\n1. In 2025 (`D15`) and 2026 (`E15`), `PP&E (Beginning)` is computed as `68 + (10.09988 - 7.400032) = 70.7` and `70.7 + 2.7 = 73.4` — applying the 2024 net PP&E change `(Capex_2024 - Depr_2024 = 2.70)` twice instead of using 2025 Capex (`256.3 * 0.040968 = 10.5001`) and 2025 Depreciation (`70.7 * 0.110325 = 7.8000`), which also leaves 2027 (`F15 = 76.1455905`) and 2028 (`G15 = 77.427419238`) off by ~0.00012.\n2. For 2026 and 2027 (`E33` and `F33`), the golden workbook multiplies the Depreciation % (`E17 = 0.115`, `F17 = 0.12`) by the *previous column's* Beginning PP&E (`D15 = 70.7` -> `E33 = 8.1305`, `E15 = 73.4` -> `F33 = 8.808`), i.e. 2-year-lagged Beginning PP&E, whereas in 2028 (`G33`, the only cell with an actual formula `=G17*G15`) it multiplies `G17` by the *same column's* Beginning PP&E (`G15 = 77.427419238` -> `G33 = 9.29129030856`), because Beginning PP&E of Year T is already Ending PP&E of Year T-1.\n3. In 2028 (`G39`), `Free Cash Flow` in the golden workbook is `35.0675479735664`, which sums `G32:G38` using `8.808` (or `0.12 * E15`) for depreciation rather than `G33` (`9.29129030856`), whereas the true sum of `G32:G38` in the golden sheet is `35.5508382821264`.\nBecause `verify_spreadsheetbench2_cells` (weight: 1) requires `mod_ratio == 1.0` (every single modification cell within 1% tolerance), all 3 attempts failed with `score=0` strictly because their consistent formula `=E17*E15` and `=F17*F15` produced `E33 = 8.4410` (vs golden `8.1305`, a 3.8% diff) and `F33 = 9.1002` (vs golden `8.808`, a 3.3% diff).",
+    "confirmation": "Confirmed GT inconsistency: E33/F33 use the prior column's PP&E, G33 uses '=G17*G15'=9.2913, and G39=35.0675 does not equal the sum of golden G32:G38 (35.2214). The all-or-nothing verifier therefore fails consistent models.",
+    "fixed": true,
+    "fix": "Same GT patch: one depreciation convention for 2026-2028 matching the 2024-2025 roll-forward, and G39 now equals the sum of G32:G38. D15/E15 kept (differences of about 0.0002 are far inside the 1% tolerance)."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails valid financial models due to buggy ground truth values in E33 and F33",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units (unit 1, unit 2, unit 3), the agents correctly constructed the 2026–2028 Free Cash Flow projection model in `/home/model/Desktop/output.xlsx`. In particular, units 1 and 3 achieved `regression 1.0000, modification 0.9535` (41/43 modification cells matched) and failed (`score=0`) solely on two cells: `Modification error at FCF_Calculation!E33: answer=8.1305, output=8.440998351981; Modification error at FCF_Calculation!F33: answer=8.808, output=9.10020933809028`. In the ground truth `gt_04_03_golden.xlsx`, cell `G33` has the formula `=G17*G15` (2028 Depreciation % * 2028 Beginning PP&E, which is 2027 Ending PP&E), but `E33` (`8.1305 = 0.115 * 70.7`) and `F33` (`8.808 = 0.12 * 73.4`) were erroneously hardcoded using `D15` and `E15` (2-year-lagged Beginning PP&E) instead of `E15` and `F15`. The agents' outputs (`8.4410` and `9.1002`) follow the exact formula `=E17*E15` and `=F17*F15` consistent with `G33` (`=G17*G15`) and standard accounting, so the verifier's `score=0` verdict on units 1 and 3 is a false negative caused by the defective golden workbook.",
+    "confirmation": "Golden E33=8.1305 (0.115*D15) and F33=8.808 (0.12*E15) are hardcoded on the lagged PP&E, while G33 is '=G17*G15' and the history rolls forward on same-column PP&E. Two trials' grade.json fail only on E33/F33 with outputs 8.441/9.100 from the consistent method.",
+    "fixed": true,
+    "fix": "gt_04_03_golden.xlsx FCF_Calculation: E33 8.1305 -> 8.441 (=E17*E15), F33 8.808 -> 9.10021 (=F17*F15), G33 cached 9.29129 -> 9.21897 (formula =G17*G15 kept); F15 76.14559 -> 75.83509 and G15 77.42742 -> 76.82471 rolled forward with the corrected depreciation; E39:G39 recomputed as SUM(32:38) = 33.42135, 34.61072, 35.14904."
+  }
+]

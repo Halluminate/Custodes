@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit of every kind of error, but the golden file fixes only the AVERAGE-range errors and leaves several other real errors unchanged, so an agent that correctly fixes them changes graded values and fails the all-cells-must-match check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "underspecified-open-audit",
+    "evidence": "Golden keeps 'DCF Model'!F22=501 hardcoded (should be =-E27=534; it feeds F29, F86, F88 and the projected NWC). It keeps 'Equity Returns'!I57 and H82/I82 as =...*(1+$D$12)^$D$10-1 (wrong '-1' instead of minus principal), which drives I58, I60, H68:I70 and H83:I86. It keeps 'Margin Analysis'!C22=5682000 while 'DCF Model'!D10=5862, a transposition that drives C25 and D26. All of these sit inside the graded ranges.",
+    "confirmation": "Golden gt_07_golden.xlsx changes only the AVERAGE ranges but keeps 'DCF Model'!F22=501 hardcoded (E22 is =-D27, so F22 should be =-E27=534), 'Equity Returns'!I57/H82 '...^$D$10-1', and 'Margin Analysis'!C22=5682000 vs 'DCF Model'!D10=5862, all inside graded ranges, so fixing them fails the all-cells"
+  }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Instruction asks for Accounts Payable (AP) as a percentage of Sales, contradicting the worksheet label and golden workbook which compute AP as a % of COGS using a mixed EOP/average formula",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The prompt (`problem.py`) instructs: \"In the BS Schedules sheet, calculate ... Accounts Receivable (AR) and Accounts Payable (AP) as percentages of Sales, and then Inventory as a % of COGS for all periods.\" However, in `BS schedules` row 27, the row header at B27 is `'AP as % of COGS'`, the downstream forecast formulas in `G25:J25` multiply row 27 by COGS (`=-G27*'IS,BS,CF'!H22`), and the golden workbook (`gt_02_PP_golden.xlsx`) computes row 27 relative to COGS, not Sales. Furthermore, the golden workbook uses end-of-period AP divided by COGS in FY19 (`D27 = ('IS,BS,CF'!E86/'IS,BS,CF'!E22)*-1 = 0.190855`), analogous to AR (`D10:F10`) and Inventory (`D18:F18`), but unexpectedly switches to 2-year average AP divided by COGS in FY20 and FY21 (`E27 = ((D25+E25)/2/'IS,BS,CF'!F22)*-1 = 0.175752` and `F27 = ((E25+F25)/2/'IS,BS,CF'!G22)*-1 = 0.155888`). Because `verify_spreadsheetbench2_cells` (weight 1.0) requires 100% modification-cell accuracy (`mod_ratio == 1.0`), using EOP AP / COGS for FY20–FY21 (which all 3 runs did) causes 57 cascading modification cell errors (`mod_ratio = 0.8087`) and a score of 0.0.",
+    "confirmation": "Prompt says AP as % of Sales while 'BS schedules'!B27 reads 'AP as % of COGS', and GT D27 uses ending AP/COGS but E27/F27 switch to average AP ((D25+E25)/2/COGS) with no disclosure. Ending-AP/COGS, the consistent reading, misses E27:F27 and their cascade under the all-or-nothing check.",
+    "fixed": true,
+    "fix": "Prompt sentence changed from 'Accounts Receivable (AR) and Accounts Payable (AP) as percentages of Sales, and then Inventory as a % of COGS for all periods.' to 'Accounts Receivable (AR) as a % of Sales, and then Inventory and Accounts Payable (AP) as a % of COGS for all periods, using end-of-period balances.'. gt_02_PP_golden.xlsx 'BS schedules'!E27 and F27 changed from the average-AP formulas to =('IS,BS,CF'!F86/'IS,BS,CF'!F22)*-1 and =('IS,BS,CF'!G86/'IS,BS,CF'!G22)*-1 (same pattern as D27). The file was recalculated with the verifier's LibreOffice pipeline, so G27:J27, G25:J25 and the downstream statements carry the new values. Checked: the corrected golden scores 1.0 against the new key both with cached values and saved by openpyxl without caches."
+  },
+  {
+    "id": "F2",
+    "title": "Graded AP calculation contradicts the task's requested denominator",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task explicitly requests 'Accounts Receivable (AR) and Accounts Payable (AP) as percentages of Sales', but the workbook labels B27 'AP as % of COGS' and the answer key grades COGS-based calculations. For FY19, AP/Sales is 2151.63/15718.69 = 0.1368835444, while golden D27 expects 0.1908554580, calculated using COGS of 11273.61. The numerator convention also changes without explanation: golden E27 and F27 use average opening and closing AP, rather than ending AP. Following the written instruction therefore fails the sole, weight-1 verifier, which requires every modification cell to match.",
+    "confirmation": "Verified: GT D27 = ending AP/COGS = 0.19086 versus AP/Sales 0.13688 as instructed, and GT E27/F27 use average opening/closing AP. Neither the written instruction nor the sheet's own pattern reproduces the key, so a reasonable answer fails the sole verifier.",
+    "fixed": true,
+    "fix": "Same: the prompt's denominator now matches the key, and the key uses one consistent end-of-period AP/COGS ratio."
+  },
+  {
+    "id": "F3",
+    "title": "Prompt says AP should be a % of Sales, but the sheet label and GT use % of COGS",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "naming_consistency",
+    "evidence": "Prompt: 'calculate ... Accounts Receivable (AR) and Accounts Payable (AP) as percentages of Sales'. Seed sheet label 'BS schedules'!B27: 'AP as % of COGS'. GT D27 \"=('IS,BS,CF'!E86/'IS,BS,CF'!E22)*-1\", where row 22 is Cost of goods sold. Forecast AP G25 '=-G27*'IS,BS,CF'!H22' multiplies by COGS. An agent that follows the instruction literally (AP/Revenue) fails all of row 27 and every cascaded cell under the all-or-nothing verifier.",
+    "confirmation": "The instruction literally asks for AP as a percentage of Sales, but B27 is labelled 'AP as % of COGS', G25 multiplies by COGS (H22) and GT D27 divides by COGS (E22). An agent that follows the prompt fails row 27 and its cascade, and even the COGS reading fails because GT E27:F27 use average AP.",
+    "fixed": true,
+    "fix": "Same prompt sentence fix (AP as a % of COGS) plus the E27/F27 key fix."
+  }
+]

@@ -1,0 +1,3 @@
+Compare the month-to-month movement direction of ERCOT peak power prices and NYMEX natural gas prices in 2002 (i.e., whether each month is higher or lower than the previous month). Based on the 12 monthly changes in 2002, determine how many months the two prices moved in the same direction and how many months they moved in opposite directions.
+
+Your input files are on your Desktop (/home/model/Desktop): 116_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

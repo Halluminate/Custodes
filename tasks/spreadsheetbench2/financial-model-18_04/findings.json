@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Undisclosed requirement to populate header label 'Esc. %' in cell P&L!A13 causes all otherwise-correct solutions to score 0.0",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The verifier 'SpreadsheetBench 2 official cell check' (weight: 1, function: verify_spreadsheetbench2_cells) compares all cells in answer_position (which includes 'P&L'!A2:Q35) between untouched_input_18_04_RoadAssets_input.xlsx and gt_18_RoadAssets_golden.xlsx, requiring 100% of modification cells (120 cells total) to match for a non-zero score. In the input workbook, cell P&L!A13 is None (and 'Esc. %' does not appear anywhere in the input workbook's sharedStrings.xml), whereas in gt_18_RoadAssets_golden.xlsx, P&L!A13 contains the text string 'Esc. %' above the escalation rates in P&L!A14:A18 (0.04). The task instructions in problem.py:34 never mention adding any label to P&L!A13 (nor touching the P&L sheet at all) and explicitly instruct: 'When completing spreadsheet tasks, strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.' Because of this undisclosed constraint, Units 2 and 3—which got all 119 other modification cells and 100% of regression cells right—failed solely on 'Modification error at P&L!A13: answer=Esc. %, output=None' and scored 0.0.",
+    "confirmation": "Confirmed P&L!A13 None in the input vs 'Esc. %' in the GT; the instruction covers ROCE, ISCR, CFO, Price Index Multiple, Cost to Concessionaire and calculation fixes, not a header label, and every modification cell must match.",
+    "fixed": true,
+    "fix": "gt_18_RoadAssets_golden.xlsx: cleared the unrequested label at P&L!A13 (was 'Esc. %', now empty with its original style, as in the input); XML-level edit, every other cell unchanged. New golden scores 1.0 against itself."
+  },
+  {
+    "id": "F2",
+    "title": "An unrequested text label is mandatory for receiving any credit",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "P&L!A13 is blank in the staged input, but the golden workbook requires the exact text \"Esc. %\". The instructions request financial calculations and correction of calculation errors, not restoration of this heading. Testing the golden fixture with only this label omitted produces regression 1.0000 and modification 0.9917, with \"Modification error at P&L!A13: answer=Esc. %, output=None\". Because the sole verifier, weighted 1, requires every modification cell to match, this otherwise matching fixture receives zero credit.",
+    "confirmation": "Same verified defect: an unrequested exact-text label P&L!A13='Esc. %' exists only in the GT, so a submission matching everything else fails the sole weight-1 verifier.",
+    "fixed": true,
+    "fix": "gt_18_RoadAssets_golden.xlsx: cleared the unrequested label at P&L!A13 (was 'Esc. %', now empty with its original style, as in the input); XML-level edit, every other cell unchanged. New golden scores 1.0 against itself."
+  },
+  {
+    "id": "F3",
+    "title": "Answer key requires an unrequested text label (P&L!A13 = 'Esc. %'), so a correct solution still scores 0",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "I diffed the staged input (assets/18_04_RoadAssets_input.xlsx) against gt_18_RoadAssets_golden.xlsx. The answer key changes 31 cells. 30 of them are the formulas the instruction asks for: COP!C11, Cash Flow!N13:T13, Revenue!S16:AF16, DSCR!C25 and Ratio Analysis!N17:T17. The 31st is P&L!A13, which is blank in the input and holds the text 'Esc. %' in the answer key. The instruction never asks for this label. It only mentions ROCE, Average ISCR, Net Cash from Operating Activities, Price Index Multiple, Cost to Concessionaire and 'fix any calculation errors', and adding a header label is not a calculation fix. P&L!A13 sits inside the graded range 'P&L'!A2:Q35. The input and answer key differ there, so verify_spreadsheetbench2_cells treats it as a 'modification' cell. The verifier is the only check (weight 1) and returns 1.0 only when mod_ratio == 1.0, meaning every modification cell must match. An agent that does every requested calculation correctly and leaves A13 blank therefore gets 0.0. The task also tells the agent to 'strictly avoid altering any cells... unless explicitly instructed', which pushes it away from adding labels.",
+    "confirmation": "The GT adds the text label 'Esc. %' at P&L!A13 (blank in data/18_04_RoadAssets_input.xlsx), which is not a calculation fix or any requested item, yet it is a graded modification cell under all-or-nothing scoring.",
+    "fixed": true,
+    "fix": "gt_18_RoadAssets_golden.xlsx: cleared the unrequested label at P&L!A13 (was 'Esc. %', now empty with its original style, as in the input); XML-level edit, every other cell unchanged. New golden scores 1.0 against itself."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check gives false negative (score 0.0) on Units 2 and 3 due to uninstructed golden cell P&L!A13 = 'Esc. %'",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across the 3 comparison units, Units 2 and 3 accurately completed every instructed task in the prompt (Ratio Analysis!N17:T17 ROCE, DSCR!C25 Average ISCR = 3.410063, Cash Flow!N13:T13 Net Cash from Operating Activities, Revenue!S16:AF16 Price Index Multiple, COP!C11 Cost to Concessionaire, and all cascading downstream cells), achieving regression=1.0000 and modification=0.9917 (119/120 modification cells). Both Units 2 and 3 received score=0 (weight: 1) solely because of 'Modification error at P&L!A13: answer=Esc. %, output=None'. Cell P&L!A13 is blank in untouched_input_18_04_RoadAssets_input.xlsx and holds the string 'Esc. %' in gt_18_RoadAssets_golden.xlsx, which is never mentioned in the instructions (and the prompt explicitly forbids altering cells not required by the instructions). The verifier therefore issues a false negative on completely correct submissions.",
+    "confirmation": "P&L!A13 is blank in untouched_input_18_04_RoadAssets_input.xlsx but holds 'Esc. %' in gt_18_RoadAssets_golden.xlsx, inside graded range 'P&L'!A2:Q35; the prompt never mentions it, so it is an unrequested modification cell that zeroes otherwise-correct outputs.",
+    "fixed": true,
+    "fix": "gt_18_RoadAssets_golden.xlsx: cleared the unrequested label at P&L!A13 (was 'Esc. %', now empty with its original style, as in the input); XML-level edit, every other cell unchanged. New golden scores 1.0 against itself."
+  }
+]

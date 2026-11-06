@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Golden workbook fails its own forced-recalculation grading",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The verifier forces LibreOffice recalculation of submissions but compares them with unrecalculated golden caches. Applying that same recalculation to gt_10_golden.xlsx and running the official score_workbooks function produced regression 1.0000, modification 0.3320, and 167 modification errors. For example, Model!I121 expects -3.00406239978358 but recalculates to -3.08777611992694. The golden debt schedule is itself arithmetically inconsistent: Model!J196 contains =SUM(J193:J195) cached as 26.0387421711607, although its three cached inputs sum to 25.866380877216567. Consequently, submitting the supplied reference solution with its formulas intact receives zero on the sole verifier, which carries weight 1.",
+    "confirmation": "Forced recalculation of the golden and scoring it against itself locally fails with modification 0.248 and 251 errors such as Model!I121, so the supplied reference solution scores zero on the sole verifier.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F2",
+    "title": "The ground-truth workbook fails its own verifier, so the task can't be passed",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "I copied gt_10_golden.xlsx to the output path and ran verify_spreadsheetbench2_cells on it with the spec's own parameters. Two separate runs both returned score 0.0: 'FAILED - regression 1.0000, modification 0.3320. 167 cell error(s): Modification error at Model!I121: answer=-3.00406239978358, output=-3.08777611992694; Model!I122: answer=-6.02436451745355, output=-6.1080782375969; Model!I123 ...'. The verifier passes only if 100% of modification cells match, so even the answer key scores 0. That is the only check, weight 1.\n\nCause: of the 250 'modification' cells (cells that differ between the input and the GT), well over 100 do not differ because of any fix. Their formulas are identical in input and GT, for example Model!I121 '=-SUM(-I183,I197,I199:I200,I207)', I181 '=I146+I194+I195+I205', I183 '=$H183*AVERAGE(I180,I182)', I195, I197, R24:T31, AL24:AN31 and AW20:AW41, and P&L Summary G32:K41 and R7:T8.\n\nThese cells sit in the circular interest/revolver loop (iterate=true, iterateCount=100, iterateDelta=0.0001). Their GT cached values are just one iteration state. LibreOffice recalculation, which the verifier forces on the output, converges to different numbers (I121 -3.0878 vs GT -3.0041, about 2.8% off, beyond the 1% tolerance). None of the seeded errors (D2 CHOOSE, Model C330:C335, P&L G22 and F46:F51, 4-Wall CS/CX/DD) feeds this loop, so no correct fix can reproduce these values.",
+    "confirmation": "Reproduced: grading gt_10_golden.xlsx as the output returns score 0.0 (Model!I121 answer -3.00406239978358 vs output -3.08777611992694, plus the rest of the iterative block), so the task cannot be passed.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F3",
+    "title": "Golden workbook (gt_10_golden.xlsx) contains unconverged circular-reference cached values in Model that fail the verifier's own single-pass LibreOffice recalculation",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1) grades in `mode: values` by running a single forced LibreOffice recalculation on the submitted workbook (`managed_recalculated_xlsx(..., force_recalculation=True)`) and comparing the recalculated values against the static cached `<v>` values stored in `gt_10_golden.xlsx`. However, across the entire workbook only 59 cells actually differ in formula or literal text between `untouched_input_Incorrect Index Match_input.xlsx` and `gt_10_golden.xlsx`: (1) `Model!C330:C335` (`INDEX/MATCH` swapped columns), (2) `Model!D2` (`CHOOSE(C2,B5,B4,B6,#REF!)` -> `CHOOSE(C2,B4,B5,B6,#REF!)`), (3) `P&L Summary!G22` (`Model!I88` -> `Model!I86`) and `P&L Summary!B48:B50, E48:E50, F46:F51` (`(-) ` prefixes and column `G` vs `H` in `INDEX/MATCH`), and (4) `4-Wall Analysis!CS5:CS17, CX5:CX17, DD5:DD17` (`INDEX/MATCH` column and match_type fixes). None of those 59 cells feed into the `Model` cash/ABL debt schedule (`Model!I121:M199`, `R24:T31`, `AL24:AN31`, `AW20:AW41`). Yet `gt_10_golden.xlsx` differs from `untouched_input_Incorrect Index Match_input.xlsx` on 166 additional cells in `Model` and 12 in `P&L Summary` (`G40:K41, R7:T8`) purely because the circular cash/debt loop (`I181 -> I182 -> I195 -> I181`, with `iterate=\"true\" iterateCount=\"100\" iterateDelta=\"0.0001\"`) does not converge in one LibreOffice recalculation pass—it oscillates between passes (`IN` cached has `Model!I181 = 1.873958`, 1-pass LO recalculation of `IN` gives `Model!I181 = -1.768152`, `gt_10_golden.xlsx` cached has `Model!I181 = -1.111997` from ~9 manual GUI recalculations during authoring, and 1-pass LO recalculation of `gt_10_golden.xlsx` itself jumps to `Model!I181 = 1.049212`). Consequently, when `gt_10_golden.xlsx` is graded against itself by `verify_spreadsheetbench2_cells`, it scores 0.0 (`FAILED - regression 1.0000, modification 0.3320. 167 cell error(s)`), and when a workbook with the exact 59 golden edits applied to the input is graded, it also scores 0.0 (`FAILED - regression 1.0000, modification 0.5600. 110 cell error(s)`).",
+    "confirmation": "Confirmed locally: cells in Model rows 121-199 with formulas identical in input and golden recalculate differently in LibreOffice (I121 -3.0878 vs cached -3.0041), producing 251 modification errors on the golden itself.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F4",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "Replaying the golden through verify_spreadsheetbench2_cells locally scores 0.0 (regression 1.0, modification 0.248), so the GT does not earn full reward, although the cause is stale circular caches rather than a missing file.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells is a trivial fail (0.0 on all units and 0.0 on the golden workbook itself) due to multi-pass circular-reference drift between gt_10_golden.xlsx and single-pass LibreOffice recalculation",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (weight: 1) returned score=0.0 with identical modification errors on the circular cash/debt schedule in `Model`: `Modification error at Model!I181: answer=-1.11199721465366, output=-1.7681515657081; Modification error at Model!I182: answer=-0.111997214653663, output=-0.768151565708104; Modification error at Model!I183: answer=0.00444000771177449, output=0.00115923475980811; Modification error at Model!I186: answer=24.3085989919352, output=23.6333830223111`. From the trajectories, Unit 1 identified and fixed all 59 actual buggy cells across `Model` (`D2`, `C330:C335`), `P&L Summary` (`G22`, `B48:B50`, `E48:E50`, `F46:F51`), and `4-Wall Analysis` (`CS5:CS17`, `CX5:CX17`, `DD5:DD17`) while preserving the input workbook's cached values on untouched `Model` cells. When `verify_spreadsheetbench2_cells` grades any submission, it runs a single forced LibreOffice recalculation (`managed_recalculated_xlsx(Path(output_path), force_recalculation=True)`). Because `Model` contains an oscillating circular reference (`I181 = I146+I194+I195+I205`, `I182 = SUM(I180:I181)`, `I195 = IF($H201=0,0,MIN(MAX((-I193+-I194),-(I146+I194+(I$182-$K$11))),0))`) that is completely independent of the 59 fixed cells, one forced LibreOffice recalculation starting from the input workbook's cached state always produces `Model!I181 = -1.7681515657081` (affecting 110 modification cells), whereas `gt_10_golden.xlsx` stores cached values from ~9 sequential recalculation passes (`Model!I181 = -1.11199721465366`), and running `verify_spreadsheetbench2_cells` on `gt_10_golden.xlsx` itself also fails with score=0.0 (167 cell errors, `output = 1.04921163134373` at `Model!I181`). Thus no valid solution can ever pass.",
+    "confirmation": "A local forced-recalculation grade of gt_10_golden.xlsx against itself gives modification 0.248 with 251 errors on the circular Model debt/cash block (for example Model!I121 -3.0041 vs -3.0878), so even the answer key cannot pass the all-or-nothing verifier.",
+    "fixed": true,
+    "fix": "Cleanup pass (rule 5): the cells on which the golden fails its own check are left out of answer_position (166 Model and 16 P&L Summary cells downstream of the unconverged circular block, 84 '4-Wall Analysis' label-formula cells whose cached line break does not survive the recalc). Real SB2 scorer: golden 1.0, openpyxl-saved golden 1.0, untouched input FAIL (mod 0.0)."
+  }
+]

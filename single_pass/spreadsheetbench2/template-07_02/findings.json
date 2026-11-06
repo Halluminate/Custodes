@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The answer key records the $6,000 investment in unlabeled row 22 instead of the 'Investment in affiliate' row 23, which contradicts the sheet instruction. A correct solution that posts the investment to row 23 would fail.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-row-answer-key",
+    "evidence": "Golden E22=6000 (=D10), F22=6000, H22=6000 with no label in C22. C3 says \"Record the investment at the full purchase price in the 'Investment in affiliate' account\" (row 23). Golden H23=0.",
+    "confirmation": "Golden EquityMethod E22=D10 (6000), F22=6000 and H22=6000 sit in unlabeled row 22. F23 is empty and H23=SUM(F23:G23)=0, although C3 says to record the investment in 'Investment in affiliate' (row 23). An output that books it in row 23 mismatches the modified cells E22, F22 and H22."
+  },
+  {
+    "id": "S2",
+    "title": "The answer key never increases the investment account by the $3,900 of equity income, so year-end Total Assets does not equal Total L&E. A correct equity-method solution would mismatch the key.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "unbalanced-balance-sheet",
+    "evidence": "Golden G23 is empty and H23=0. Golden H27=231500 but H33=235400, a $3,900 gap equal to D55. The correct H23 would be 6000+3900=9900, with Total Assets at 235400.",
+    "confirmation": "Golden G23 is blank and H23=0, so H27 Total Assets=231500 while H33 Total L&E=235400. The 3900 gap equals the D55 equity income that was never added to the investment, so a balanced equity-method solution mismatches H23 and H27."
+  }
+]

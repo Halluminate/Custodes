@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "The answer key requires about 140 historical assumption cells in IS_BS_CF that the instruction never asks for, and the check is all-or-nothing",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The instruction asks only for this in the IS_BS_CF assumptions block: \"in the assumptions section of the IS_BS_CF sheet, calculate the working capital cycle for all years.\" Comparing the input with the GT shows the GT also fills the historical columns (B–I, N, S, X) of these rows, which are blank in the input: 142 'Long-term Debt Opening' (C142 '=B145'), 144 'Repayment/(Taken)' ('=C145-C142'), 145 'Closing Debt' ('=B147'), 147 'Total debt' ('=B75+B79'), 148 '% of interest' ('=B33/B147'), 149 'Interest expense', 151/152 '% of long-term/short-term debt', 154/155/156 interest income and its base, 158/159 'Avg Depreciation %', 161 'Loans and advances days', 168 'Other current assets turns' and 169 'Other current liabilities turns'. That is about 11 cells per row on top of row 166 (WCC) and its inputs 163–165. Every one of these cells differs from the input, so verify_spreadsheetbench2_cells treats it as a modification cell. That verifier (weight 1, the only check) scores 0 unless 100% of modification cells match. Some GT formulas also could not be guessed from the pattern: B156–F156 '=B95+B104' but G156 onward '=G104'; B148–E148 '=B33/B147' but F148 onward '=+F149/F147'. An agent that does exactly what is asked (row 166, plus 163–165 if it derives the days) still scores 0. I ran score_workbooks with the GT as output and it passes (mod 1.0), so the failure comes from the scope, not a broken key.",
+    "confirmation": "Confirmed the GT populates unrequested historical assumption rows in IS_BS_CF (e.g. B147 =B75+B79, B148 =B33/B147, B156 =B95+B104 switching to =X104) that are blank in untouched_input_15_01_KIMS_input.xlsx, and the sole verifier requires every modified cell to match.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F2",
+    "title": "Golden workbook grades 18 unrequested assumption rows in IS_BS_CF (rows 142-169), cascading into ~1,200 cell errors and 0.0 score",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In problem.py, the instructions for the assumptions section of IS_BS_CF state only: 'Following this, in the assumptions section of the IS_BS_CF sheet, calculate the working capital cycle for all years.' (which corresponds to row 166, Working Capital Cycle, B166:AR166). However, in gt_15_KIMS_golden.xlsx, 18 additional rows in the IS_BS_CF assumptions section are populated for historical years 2013-2023 (columns B:X) that were blank in untouched_input_15_01_KIMS_input.xlsx: Row 142 (Long-term Debt Opening, C142:X142), Row 144 (Repayment/(Taken), C144:X144), Row 145 (Closing Debt, B145:X145), Row 147 (Total debt, B147:X147), Row 148 (% of interest, B148:X148), Row 149 (Interest expense, B149:X149), Row 151 (% of long-term debt, B151:X151), Row 152 (% of short-term debt, B152:X152), Row 154 (Interest Income, B154:X154), Row 155 (Interest income %, B155:X155), Row 156 (Investable Surplus, B156:X156), Row 158 (Depreciation, B158:X158), Row 159 (Avg Depreciation %, B159:X159), Row 161 (Loans and advances days, B161:X161), Row 163 (Inventory Days, B163:X163), Row 164 (Payables Days, B164:X164), Row 165 (Receivables Days, B165:X165), Row 168 (Other current assets turns, B168:X168), and Row 169 (Other current liabilities turns, B169:X169). Furthermore, the prompt explicitly warns: 'strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.' Because forecast Long-term Debt Opening in 2024 (AC142, formula =+X145) and forecast % of long-term/short-term debt (AC151 =X151, AC152 =X152) depend on the unrequested 2023 assumption cells X145, X151, and X152, leaving B142:X165 blank leaves X145=0 instead of 5332.16. This cascades into forecast Debt, Revolver, Cash, Interest Income (e.g. Work Sheet!AB6 answer=20.3344 vs output=2.25), EBITDA, Balance Sheet, Cash Flow, and Valuation cells across IS_BS_CF, Work Sheet, Consol_annual, Consol_quarterly, and Formats (~1,200 of the ~2,935 modification cells). Because verify_spreadsheetbench2_cells (weight: 1) requires 100% modification match (mod_ratio == 1.0) to return 1.0 and otherwise returns 0.0, all 3 units scored 0.0 (modification ratios 0.5891, 0.6065, 0.6031).",
+    "confirmation": "The instruction asks only for the working capital cycle in the IS_BS_CF assumptions, yet gt_15_KIMS_golden.xlsx fills historical B:X cells of rows 142-161 and 168-169 (e.g. X145 =X147 = 5332.16, X151 = 0.933) that are blank in the input, and forecast cells like AC142 =+X145 and AC151 =X151 cascade f",
+    "fixed": false,
+    "fix": null
+  }
+]

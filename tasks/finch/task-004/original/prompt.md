@@ -1,0 +1,3 @@
+Using the images and the current workbook, please complete the missing entries on the ‘Five Year Review’ sheet. Populate the ‘FIVE YEARS IN REVIEW – FINANCIAL DATA’ lines so the five-year figures and totals are filled in and consistent with the rest of the file. Leave blank if no reference is available for specific parts.
+
+Your input files are on your Desktop (/home/model/Desktop): 4_src_0.xlsx, 4_src_1.jpeg, 4_src_2.jpeg, 4_src_3.jpeg, 4_src_4.jpeg, 4_src_5.jpeg, 4_src_6.jpeg, 4_src_7.pdf, 4_src_8.pdf, 4_src_9.pdf, 4_src_10.pdf, 4_src_11.pdf, 4_src_12.pdf. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_03_03_golden.xlsx",
+        "reference_path": "reference/untouched_input_03_03_input.xlsx",
+        "answer_position": "'Consolidation'!B2:B59,'Consolidation'!C2:D15,'Consolidation'!C17:D27,'Consolidation'!C31:D59,'Consolidation'!E2:E59,'Consolidation'!F2:F33,'Consolidation'!F35:F59,'Consolidation'!G2:G59",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

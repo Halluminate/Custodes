@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The task requires sourcing currently active listings from live web platforms. Several rubric items require the grader to confirm Active/Available status, posted/updated dates on or after 2025-06-01, and listing details through public links, but listings expire, sell, or change and the grader runs in a fresh container that may not have web access, so these checks cannot be graded reliably or reproducibly.",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "live-data-dependency",
+    "evidence": "Prompt: 'using deal platforms open to the public like Crexi... or LoopNet... source a shortlist... of active listings from June 2025 to date'. Rubric: 'Public listing indicates the listing status is Active/Available... for each property listing', 'If a listing page shows a Posted or Updated date, that date is on or after 2025-06-01', 'verifiable public listing link... that allows confirmation'. Config: agenticGrader container 'fresh_with_policy_setup'. reference_note.txt: no reference deliverable.",
+    "confirmation": "The task depends on live Crexi/LoopNet listings (rubric items for Active status, post dates on or after 2025-06-01 and verifiable links) and has no reference deliverable; in run <id> all three trials hit 403/proxy errors on crexi.com and loopnet.com, and the grader noted that nothing could be ch"
+  }
+]

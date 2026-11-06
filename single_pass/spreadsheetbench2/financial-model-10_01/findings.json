@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a WACC × terminal-growth sensitivity table but gives no axis values, step sizes or placement, while the answer key checks one exact grid that cannot be derived from the inputs.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "underspecified-sensitivity-grid",
+    "evidence": "Golden Valuation G60:G64 = WACC ±1%/±2% steps (G62 hardcoded 0.0522662…). H59:L59 = 0.5%,1.0%,1.5%,2.0%,2.5%, centred on a hardcoded J59=0.015 rather than the model's E23=0.0165. Output cells H60:L64 are checked cell-by-cell against these specific axes.",
+    "confirmation": "The input Valuation sheet has only the 'Sensitivity Analysis' header (G56) and the axis labels 'WACC' (G58) / 'Terminal Growth Rate' (H58), with no axis values. The golden picks hardcoded J59=0.015 (not the model's E23=0.0165), 0.5% growth steps, 1% WACC steps and a hardcoded G62=0.05227, and H60:L6"
+  }
+]

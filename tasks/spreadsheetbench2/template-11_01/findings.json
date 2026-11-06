@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key requires an inconsistent Year 7 repayment percentage",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input's DebtSchedule!D22 specifies \"Annual repayment of 1/7 (14.29%) of beginning balance for Years 1-6; full remaining balance due in Year 7 (balloon payment)\". However, the golden workbook sets K8, labeled \"Scheduled repayment (%)\", to =1/$D$19 (14.2857%) while K7 and K9 both equal 475.883347924759, representing 100% repayment. Applying K8 to K7 instead produces only 67.983335417823, a discrepancy of 407.900012506936 million. A fixture-only test changing K8 to 100% while retaining all other golden values produces \"Modification error at DebtSchedule!K8: answer=0.142857142857143, output=1\". Because the sole verifier has weight 1 and requires every modification cell to match, this reasonable, internally consistent interpretation fails the entire check.",
+    "confirmation": "Duplicate of the K8 defect: golden K8 is 14.29% while K9 repays 100% of K7, so an internally consistent K8=100% fails the single all-or-nothing check.",
+    "fixed": true,
+    "fix": "gt_11_01_golden.xlsx: DebtSchedule!K8 (Year 7 scheduled repayment %) changed from =1/$D$19 (14.29%) to 1 (100%), matching the D22 balloon assumption and K9 = K7. No other cell value, formula or format changed (checked after LibreOffice recalculation)."
+  },
+  {
+    "id": "F2",
+    "title": "Answer key shows a 14.29% Year 7 repayment rate next to a 100% balloon repayment, so a consistent 100% entry fails the all-or-nothing check",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Seed note D22 says: 'Annual repayment of 1/7 (14.29%) of beginning balance for Years 1-6; full remaining balance due in Year 7 (balloon payment)'. Every Year 1-6 golden row computes Repayment = Beginning balance × Scheduled repayment (%) (E9 '=E7*E8' … J9). In Year 7 the golden file keeps K8 '=1/$D$19' (cached 0.142857, shown as 14.29%) but sets K9 '=K7' (475.88, i.e. 100% of the beginning balance). Row 8 and row 9 therefore disagree in Year 7: the stated 14.29% rate gives 68.0, not 475.9. A competent analyst would show K8 = 100% so the row reconciles, or keep K9 = K7*K8. K8 is a modification cell in 'DebtSchedule'!B2:K22. verify_spreadsheetbench2_cells passes only when 100% of modification cells match (tolerance 1%), and it is the only verifier (weight 1). So K8 = 100% scores 0 on the whole problem even when every dollar figure is correct.",
+    "confirmation": "Confirmed golden K8 '=1/$D$19' next to K9 = K7 (full balance), so Year 7 rate and amount disagree, and the only verifier requires every modification cell to match.",
+    "fixed": true,
+    "fix": "gt_11_01_golden.xlsx: DebtSchedule!K8 (Year 7 scheduled repayment %) changed from =1/$D$19 (14.29%) to 1 (100%), matching the D22 balloon assumption and K9 = K7. No other cell value, formula or format changed (checked after LibreOffice recalculation)."
+  },
+  {
+    "id": "F3",
+    "title": "Golden ground-truth workbook has an erroneous formula in DebtSchedule!K8 that contradicts the Year 7 balloon repayment assumption in D22",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `11_01_input.xlsx` (and `untouched_input_11_01_input.xlsx`), cell `DebtSchedule!D22` explicitly specifies the repayment schedule assumption: `\"Annual repayment of 1/7 (14.29%) of beginning balance for Years 1-6; full remaining balance due in Year 7 (balloon payment)\"`. In Years 1-6 (`E8:J8`), `'Scheduled repayment (%)'` is `=1/$D$19` (`0.142857142857143`) and `'Repayment amount'` (`E9:J9`) is `=Beginning balance * Scheduled repayment (%)` (`=E7*E8` through `=J7*J8`). For Year 7 (column K), full remaining balance is due (`K9 = 475.883347924759 = K7`), so the Year 7 `'Scheduled repayment (%)'` in `K8` should be `1` (`100.00%`). However, `gt_11_01_golden.xlsx` erroneously drags `=1/$D$19` (`0.142857142857143`) into `DebtSchedule!K8` while overriding `K9` with `=K7`, making `K8` contradict both `D22` ('for Years 1-6; full remaining balance due in Year 7') and the row relationship `Repayment amount = Beginning balance * Scheduled repayment (%)`. Because the sole verifier `SpreadsheetBench 2 official cell check` (`weight: 1`) requires 100% of modification cells (`mod_ratio == 1.0`) to pass, any agent that sets `K8 = 1` scores `0.0` (`modification 0.9792`, 48/49 cells).",
+    "confirmation": "Same defect: gt_11_01_golden.xlsx K8 '=1/$D$19' contradicts D22's Year 7 balloon and K9 '=K7', and the sole weight-1 verifier fails any output with K8=1.",
+    "fixed": true,
+    "fix": "gt_11_01_golden.xlsx: DebtSchedule!K8 (Year 7 scheduled repayment %) changed from =1/$D$19 (14.29%) to 1 (100%), matching the D22 balloon assumption and K9 = K7. No other cell value, formula or format changed (checked after LibreOffice recalculation)."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails all three valid attempts (score 0.0) due to defective ground truth at DebtSchedule!K8",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units (unit 1, unit 2, and unit 3), the agents accurately completed all 49 cells of the `DebtSchedule` model (`E7:K10` and `E13:K15`) in `/home/model/Desktop/output.xlsx` following the explicit assumption in `DebtSchedule!D22`: `'Annual repayment of 1/7 (14.29%) of beginning balance for Years 1-6; full remaining balance due in Year 7 (balloon payment)'`. All 3 units set `E8:J8` to `=1/$D$19` (`0.142857142857143`) for Years 1-6, set `K8` to `1` (`100.00%`) for the Year 7 full remaining balance repayment, and computed `K9` as `475.883347924759` (`Ending balance K10 = 0`). Every single other cell in `B2:K22` matched `gt_11_01_golden.xlsx` (`regression 1.0000, modification 0.9792`, 48/49 modification cells matched). Because `gt_11_01_golden.xlsx` contains `=1/$D$19` (`0.142857142857143`) in `DebtSchedule!K8` and `verify_spreadsheetbench2_cells` (`weight: 1`) requires `mod_ratio == 1.0` to award a non-zero score, all 3 units received `score=0 - FAILED - regression 1.0000, modification 0.9792. 1 cell error(s): Modification error at DebtSchedule!K8: answer=0.142857142857143, output=1`.",
+    "confirmation": "Golden DebtSchedule!K8 is '=1/$D$19' (14.29%) while K9 overrides the repayment to K7 (100% balloon per D22), so the row is internally inconsistent and a consistent K8=100% fails the all-or-nothing 100% modification-match check.",
+    "fixed": true,
+    "fix": "gt_11_01_golden.xlsx: DebtSchedule!K8 (Year 7 scheduled repayment %) changed from =1/$D$19 (14.29%) to 1 (100%), matching the D22 balloon assumption and K9 = K7. No other cell value, formula or format changed (checked after LibreOffice recalculation)."
+  }
+]

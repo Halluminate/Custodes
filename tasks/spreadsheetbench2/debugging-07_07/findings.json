@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "The non-converging circular reference in the LBO interest block recalculates differently each time. The ground truth fails its own verifier, and the iteration noise is graded as cells the agent must change.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Same issue reported 2 times, differing only in the verifier/range/step cited:\n- spec.yaml has one verifier (verify_spreadsheetbench2_cells, weight 1). It passes only if 100% of modification cells match. The verifier recalculates the output in LibreOffice first. The 'LBO & Lenders' debt schedule is circular: T50 '=T53-T52', T51 '=SUM(T49:T50)', T53 '=T54*AVERAGE(T49,T51)'. The workbook has iterate=\"true\" iterateCount=100 iterateDelta=0.0001, and the cached values never converged. GT T53 cached = 118.970, but 0.1275*AVERAGE(T49=938.686, T51=931.191) = 119.19. I copied gt_07_golden.xlsx to an output path and ran the verifier: score 0.0, 'FAILED - regression 1.0000, modificat\n- Cells count as 'modification' cells when the input and GT cached values differ. 'LBO & Lenders' T50, T53, T57, T58, U50, V50, W50, W53, W57, W58, X50, X53, X57 and X58 have the same formulas in input and GT, and none depends on the fixed S34 date. They differ only because the circular iteration stopped at different points: input T53=117.374 vs GT 118.970, both off from the converged ~119.1-119.2. These 14 of the 40 modification cells match no intended fix. Because the verifier is all-or-nothing, the task cannot pass even when the agent finds all three real errors.",
+    "confirmation": "The local verifier run on the GT fails with mod 0.725 and 17 errors in LBO & Lenders T50:X59, the circular interest block. Iteration noise is graded as required modifications, so the task cannot pass even with the right fixes.",
+    "fixed": true,
+    "fix": "Replaced gt_07_golden.xlsx and untouched_input_Incorrect Index Match_input.xlsx with copies recalculated in LibreOffice (verifier pipeline) until the circular 'LBO & Lenders' interest block converged (8-9 passes). Only cached values in LBO & Lenders T50:X59 and X46/X51 change (17 GT cells, 11 reference cells), formulas unchanged. The iteration-noise cells now hold the same converged value in both files, so they become regression cells instead of required modifications, and the real fixes (Football Field H6, LBO W28/S34, Equity Returns D5) stay modification cells. Local grade: original GT as output now passes (reg 1.0, mod 1.0), untouched input still fails (mod 0.0)."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth workbook contains unconverged circular-reference cached values, causing gt_07_golden.xlsx to fail its own verifier when recalculated",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1) passes the agent's workbook through `managed_recalculated_xlsx(..., force_recalculation=True)` (which runs LibreOffice Calc with `OOXMLRecalcMode=0`) and compares the recalculated values against the raw cached values stored in `gt_07_golden.xlsx` within a 1% tolerance (`TOLERANCE = 0.01`). However, `LBO & Lenders` contains an iterative circular debt schedule in columns S:X (`T49 = S51`, `T50 = T53 - T52`, `T51 = SUM(T49:T50)`, `T53 = T54 * AVERAGE(T49, T51)` with `calcPr iterate=\"true\" iterateCount=\"100\" iterateDelta=\"0.0001\"`). In `gt_07_golden.xlsx`, the cached values in `LBO & Lenders!T50:X59` were saved without converging this circular dependency (for example, at `X53`, the cached value is `109.6382395757`, whereas `X54 * AVERAGE(X49, X51)` using the golden file's own cached `X49=897.508354` and `X51=880.681981` is `113.359634`, a 3.72 discrepancy; the true analytical fixed point is `114.392871`, and LibreOffice's 100-iteration pass produces `113.683549`). When `gt_07_golden.xlsx` itself is recalculated by `managed_recalculated_xlsx(..., force_recalculation=True)` and scored against `gt_07_golden.xlsx`, it fails with `score=0 - FAILED - regression 1.0000, modification 0.7250` and 17 cell errors (`LBO & Lenders!T50, U50, V50, V53, V57, V58, W50, W53, W57, W58, X46, X50, X51, X53, X57, X58, X59`).",
+    "confirmation": "Reproduced: GT through managed_recalculated_xlsx plus score_workbooks gives reg 1.0/mod 0.725 with errors at LBO & Lenders!T50 (-7.494 vs -7.260), W53 and others. The unconverged circular caches make the GT fail its own check.",
+    "fixed": true,
+    "fix": "Replaced gt_07_golden.xlsx and untouched_input_Incorrect Index Match_input.xlsx with copies recalculated in LibreOffice (verifier pipeline) until the circular 'LBO & Lenders' interest block converged (8-9 passes). Only cached values in LBO & Lenders T50:X59 and X46/X51 change (17 GT cells, 11 reference cells), formulas unchanged. The iteration-noise cells now hold the same converged value in both files, so they become regression cells instead of required modifications, and the real fixes (Football Field H6, LBO W28/S34, Equity Returns D5) stay modification cells. Local grade: original GT as output now passes (reg 1.0, mod 1.0), untouched input still fails (mod 0.0)."
+  },
+  {
+    "id": "F3",
+    "title": "Golden workbook fails its own required recalculation and cell check",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The sole verifier, weighted 1, recalculates submissions but compares them with unrecalculated golden caches. Passing the golden workbook itself through that recalculation and comparison produced regression 1.0000, modification 0.7250, and 17 cell errors, resulting in a failing score. For example, 'LBO & Lenders'!X50 is cached as -16.8263732189333 in the answer key but recalculates to -12.7810638582942. The golden debt schedule is internally inconsistent: X53 is 109.6382395757, whereas its formula, X54*AVERAGE(X49,X51), evaluates to 113.359633814845. Circular interest/amortization dependencies have left nonconverged cached answers that the verifier treats as mandatory modifications.",
+    "confirmation": "Reproduced locally: the golden workbook recalculated and scored against itself gives regression 1.0000, modification 0.7250, 17 errors. It scores 0 on the only weight-1 verifier.",
+    "fixed": true,
+    "fix": "Replaced gt_07_golden.xlsx and untouched_input_Incorrect Index Match_input.xlsx with copies recalculated in LibreOffice (verifier pipeline) until the circular 'LBO & Lenders' interest block converged (8-9 passes). Only cached values in LBO & Lenders T50:X59 and X46/X51 change (17 GT cells, 11 reference cells), formulas unchanged. The iteration-noise cells now hold the same converged value in both files, so they become regression cells instead of required modifications, and the real fixes (Football Field H6, LBO W28/S34, Equity Returns D5) stay modification cells. Local grade: original GT as output now passes (reg 1.0, mod 1.0), untouched input still fails (mod 0.0)."
+  },
+  {
+    "id": "F4",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "Ran the verifier pipeline locally on gt_07_golden.xlsx: regression 1.0, modification 0.725, 17 errors (LBO & Lenders!T50, U50, V50, ...), so the GT scores 0. The cause is circular-reference recalc drift, not a misrouted file, but the GT does fail.",
+    "fixed": true,
+    "fix": "Replaced gt_07_golden.xlsx and untouched_input_Incorrect Index Match_input.xlsx with copies recalculated in LibreOffice (verifier pipeline) until the circular 'LBO & Lenders' interest block converged (8-9 passes). Only cached values in LBO & Lenders T50:X59 and X46/X51 change (17 GT cells, 11 reference cells), formulas unchanged. The iteration-noise cells now hold the same converged value in both files, so they become regression cells instead of required modifications, and the real fixes (Football Field H6, LBO W28/S34, Equity Returns D5) stay modification cells. Local grade: original GT as output now passes (reg 1.0, mod 1.0), untouched input still fails (mod 0.0)."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails correct solution in unit 3 (and cannot pass any recalculated workbook) due to unconverged circular references in gt_07_golden.xlsx",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "In unit 3 (steps [65]-[92]), the agent identified and fixed the exact 4 `INDEX/MATCH` formulas that differ between `untouched_input_Incorrect Index Match_input.xlsx` and `gt_07_golden.xlsx` (`Football Field!H6` to match `\"Median\"`, `LBO & Lenders!W28` match_type `0`, `LBO & Lenders!S34` to match `\"Projected\"`, and `Equity Returns!D5` to match `2024`), leaving all other formulas intact. However, `SpreadsheetBench 2 official cell check` (weight: 1) scored unit 3 as `0.0` (`FAILED - regression 1.0000, modification 0.7250. 17 cell error(s): Modification error at LBO & Lenders!T50: answer=-7.49437449150413, output=-7.25151241703119...`). Because `verify_spreadsheetbench2_cells` force-recalculates the agent's output in LibreOffice (`managed_recalculated_xlsx(Path(output_path), force_recalculation=True)`) while loading `gt_07_golden.xlsx` without recalculation (`load_xlsx(gt_path, data_only=True)`), and `gt_07_golden.xlsx` stores unconverged cached values in the circular `LBO & Lenders!T50:X59` debt schedule, even `gt_07_golden.xlsx` itself fails `verify_spreadsheetbench2_cells` with the exact same 17 cell errors (`regression 1.0000, modification 0.7250`, score 0.0).",
+    "confirmation": "Confirmed locally: gt_07_golden.xlsx fails verify_spreadsheetbench2_cells after the forced LibreOffice recalc (mod 0.725, 17 cell errors in the circular LBO & Lenders T50:X59 debt schedule). A correct fix of the 4 INDEX/MATCH formulas therefore cannot pass.",
+    "fixed": true,
+    "fix": "Replaced gt_07_golden.xlsx and untouched_input_Incorrect Index Match_input.xlsx with copies recalculated in LibreOffice (verifier pipeline) until the circular 'LBO & Lenders' interest block converged (8-9 passes). Only cached values in LBO & Lenders T50:X59 and X46/X51 change (17 GT cells, 11 reference cells), formulas unchanged. The iteration-noise cells now hold the same converged value in both files, so they become regression cells instead of required modifications, and the real fixes (Football Field H6, LBO W28/S34, Equity Returns D5) stay modification cells. Local grade: original GT as output now passes (reg 1.0, mod 1.0), untouched input still fails (mod 0.0)."
+  }
+]

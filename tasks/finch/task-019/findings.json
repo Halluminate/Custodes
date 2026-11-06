@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key has the wrong sign and size for Netflix's 2021 free cash flow, and the error flows into three other sheets",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In gt_19_ref_0.xlsx, RawData lists Netflix 2021 FCF as '1.59'. Netflix's FY2021 10-K reports net cash from operating activities of $393M and capital expenditures (purchases of property and equipment) of $525M. That gives free cash flow of about -$0.13B, and Netflix itself reported FY2021 FCF as -$132M. Every other Netflix year in the key matches this same operating-cash-flow-minus-capex method (2020 1.93, 2022 1.62, 2023 6.93, 2024 6.92). The wrong 1.59 then carries through: Sheet2 shows Netflix FCF YoY growth of -17.62% for 2021 and 1.89% for 2022; Sheet3 gives Netflix FCF Rank 4 in 2021 (it should be 4 only by chance, since Amazon is -9.07); Sheet4 shows Total FCF 5-Year of 18.99, which should be about 17.27. The grader compares runs cell by cell against this key on a pass/fail basis. An agent that correctly reports -0.13 will disagree with the key on about four cells, well outside the stated tolerance.",
+    "confirmation": "gt_19_ref_0.xlsx RawData lists Netflix 2021 FCF as 1.59, but Netflix's 2021 OCF (0.39B) minus capex (0.53B) is negative (about -0.13 to -0.16B). 1.59 looks like a misplaced -0.159, and it carries into Sheet2 G23:H24, the Sheet3 rank and the Sheet4 5-year total of 18.99.",
+    "fixed": true,
+    "fix": "gt_19_ref_0.xlsx: Netflix 2021 FCF corrected from 1.59 to -0.13 (10-K: operating cash flow 0.39B less purchases of property and equipment 0.52B) in RawData!F23 (kept the sheet's '–' text style), Sheet2_YoY_Growth!G23; dependent cells Sheet2!H23 -17.62 -> -106.74 and H24 1.89 -> -1346.15 (same signed-division convention the key uses for Amazon), Sheet3_Ranking_By_Year!G11 -> -0.13 (FCF rank 4 unchanged), Sheet4_Five_Year_Summary!E6 18.99 -> 17.27. Sheet5 (2024 only) unaffected."
+  },
+  {
+    "id": "F2",
+    "title": "Reference incorrectly records Netflix's 2021 free cash flow as positive 1.59 billion",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The reference's RawData!F23 contains \"1.59\" for Netflix's 2021 FCF. Netflix's 2021 Form 10-K, page 26, instead reports free cash flow of \"(158,894)\" in thousands: 392,610 - 524,585 - 26,919 = -158,894 thousand dollars, or -0.16 billion to two decimals. The reference has both the wrong sign and an approximately tenfold magnitude error. It propagates this value into Sheet2_YoY_Growth!G23:H24, Sheet3_Ranking_By_Year!G11, and the five-year FCF total of 18.99 in Sheet4_Five_Year_Summary!E6. Correcting this entry alone makes that total 17.24. These differences exceed the rubric's web-research tolerances of 1% relative error or 0.5 absolute units. Because correctness requires reference-equivalent values and the overall score is binary, a financially correct submission can fail.",
+    "confirmation": "Same GT error. RawData F23 = '1.59' for Netflix 2021 FCF, but the 10-K figures give about -0.16B, and the binary AI grader compares against this key.",
+    "fixed": true,
+    "fix": "Same edit (RawData!F23 and its dependents)."
+  }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Grading depends on putting deleted rows back at exact row numbers that nothing in the input reveals",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "planted_trick",
+    "evidence": "Scoring compares cells by position. The golden puts two rows back at LBO rows 4-5 (above the blank row and 'BWW - Control', which moves from row 5 to row 7). It puts one row back at LBO row 13 ('Transaction Fees', between 'Exit EBITDA Multiple' and 'Minimum Cash Balance (% of Revenue)'), and one at Ex 12 row 9. This shifts about 585 LBO cells, and every one is a modification cell that must match. The input shows nothing about where these rows were or how many there were. The broken references are bare '#REF!' (LBO!F17 '=+C17*C16/#REF!', LBO!F18 '=+#REF!', 'Valuation Bridge'!C4 '=-lbo!#ref!'). Every remaining reference already fits the shrunken layout. An agent that adds the transaction-fee input under 'Entry Date', or puts the unit converter in a spare cell without inserting rows, has fixed every error and built a correct model, yet gets 0.",
+    "confirmation": "Golden inserts rows at LBO 4-5 and 13 (BWW - Control moves from B5 to B7, Transaction Fees at B13), while the input only has bare '#REF!' (F17 '=+C17*C16/#REF!', F18 '=+#REF!'), so the exact restored positions that the positional cell check needs are not discoverable.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence after the reference data naming the deleted rows, where they go and their labels, all as in the golden: LBO rows 4-5 'Master Control' and 'Units Converter' (1,000,000), LBO row 13 'Transaction Fees' below 'Exit EBITDA Multiple', and 'Ex 12 - Debt Schedule' row 9 'Revolver (max $150 million)'. The positional, exact-string check now has a knowable target. The golden still grades 1.0 locally."
+  },
+  {
+    "id": "F2",
+    "title": "Grading requires undisclosed wording and placement for deleted controls",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions request restoration of structural elements but provide neither an original layout nor exact replacement labels. Nevertheless, the golden workbook requires LBO!B4='Master Control', B5='Units Converter', C5=1000000, and the corresponding row shifts. Neither label occurs anywhere in the supplied workbook XML. The deleted debt row similarly must be restored with the exact label 'Revolver (max $150 million)' at 'Ex 12 - Debt Schedule'!B9, although that wording is absent from the input and instructions. The verifier compares strings and fixed cell coordinates, requiring every modification cell to match. Thus a financially correct repair using equivalent labels or another sensible control location can fail the entire weight-1 check.",
+    "confirmation": "Confirmed golden LBO!B4/B5/C5 = 'Master Control'/'Units Converter'/1000000 and Ex 12!B9 'Revolver (max $150 million)', none of which appear in the input or prompt, and the single verifier requires every modification cell to match.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence after the reference data naming the deleted rows, where they go and their labels, all as in the golden: LBO rows 4-5 'Master Control' and 'Units Converter' (1,000,000), LBO row 13 'Transaction Fees' below 'Exit EBITDA Multiple', and 'Ex 12 - Debt Schedule' row 9 'Revolver (max $150 million)'. The positional, exact-string check now has a knowable target. The golden still grades 1.0 locally."
+  },
+  {
+    "id": "F3",
+    "title": "Rebuilt rows must contain exact label text the agent has no way to know, and the check is pass/fail on every changed cell",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "verify_spreadsheetbench2_cells (weight 1, the only verifier) scores 0 unless every 'modification' cell (input differs from golden) matches the golden exactly. Text is compared as an exact string. The golden adds rows whose labels appear nowhere the agent can see: LBO!B4 = 'Master Control', LBO!B5 = 'Units Converter' (C5 = 1000000), LBO!B13 = 'Transaction Fees' (C13 = 110), and 'Ex 12 - Debt Schedule'!B9 = 'Revolver (max $150 million)'. I searched every sheet of the input: no cell contains 'Master', 'Units Conv' or 'Converter'. The prompt only says 'missing control assumptions' and gives values ('Transaction fees are $110 million. The Revolver draw is $100 million with LIBOR at 0.018 and Spread at 0.035'). It never gives the labels. An agent can correctly work out that the #REF! divisor in LBO!F17/C18 is a 1,000,000 unit converter and rebuild a working model. It still scores 0 if it writes 'Units Conversion' or 'Revolver' or leaves B4 empty.",
+    "confirmation": "Golden requires LBO!B4 'Master Control', B5 'Units Converter', B13 'Transaction Fees' and Ex 12!B9 'Revolver (max $150 million)'; the input sharedStrings contain no 'Master'/'Converter' text and the prompt gives only values, so exact label matches cannot be inferred under the all-match string check.",
+    "fixed": true,
+    "fix": "Prompt: added one sentence after the reference data naming the deleted rows, where they go and their labels, all as in the golden: LBO rows 4-5 'Master Control' and 'Units Converter' (1,000,000), LBO row 13 'Transaction Fees' below 'Exit EBITDA Multiple', and 'Ex 12 - Debt Schedule' row 9 'Revolver (max $150 million)'. The positional, exact-string check now has a knowable target. The golden still grades 1.0 locally."
+  }
+]

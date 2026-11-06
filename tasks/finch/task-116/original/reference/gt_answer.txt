@@ -1,0 +1,3 @@
+Same direction: 8 months
+Opposite direction: 2 months
+Additionally, there are 2 months where one series is unchanged while the other moves, so they fall into neither category.

@@ -1,0 +1,47 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official chart checklist",
+      "function": "verify_spreadsheetbench2_chart_checklist",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "checklist": [
+          "For chart 'Number of Game Events': The chart is a pie chart",
+          "For chart 'Number of Game Events': The chart title reads 'Number of Game Events'",
+          "For chart 'Count of Player Activities': The chart is a pie chart",
+          "For chart 'Count of Player Activities': The chart title reads 'Count of Player Activities'",
+          "For chart 'Number of Game Events': A Team slicer is present and connected to the pie chart, with 'Opp' selected as the default filter",
+          "For chart 'Count of Player Activities': A Team slicer is present and connected to the pie chart, with both 'ETV' and 'Opp' selected as the default filter",
+          "For chart 'Number of Game Events': The legend contains the entries labeled 'A', 'AE', 'BE', 'DE', 'K', 'PE', 'SE'",
+          "For chart 'Count of Player Activities': The legend contains the entries labeled '6', '11', '13', '16', '18', '19', '20', 'O'",
+          "The charts are located on a sheet named 'Pie Charts'",
+          "For chart 'Number of Game Events': The data labels on the pie chart display count values (not percentages)",
+          "For chart 'Count of Player Activities': The data labels on the pie chart display percentage values",
+          "For chart 'Number of Game Events': The A slice value is 2",
+          "For chart 'Number of Game Events': The AE slice value is 5",
+          "For chart 'Number of Game Events': The BE slice value is 4",
+          "For chart 'Number of Game Events': The DE slice value is 3",
+          "For chart 'Number of Game Events': The K slice value is 4",
+          "For chart 'Number of Game Events': The PE slice value is 5",
+          "For chart 'Number of Game Events': The SE slice value is 2",
+          "For chart 'Count of Player Activities': The 6 slice value is 28%",
+          "For chart 'Count of Player Activities': The 11 slice value is 16%",
+          "For chart 'Count of Player Activities': The 13 slice value is 16%",
+          "For chart 'Count of Player Activities': The 16 slice value is 9%",
+          "For chart 'Count of Player Activities': The 20 slice value is 13%",
+          "For chart 'Count of Player Activities': The 6 slice is the largest slice in the pie chart, representing approximately 23% of the total",
+          "For chart 'Count of Player Activities': The pie chart contains 9 slices corresponding to players 6, 11, 13, 16, 18, 19, 20, O",
+          "For chart 'Number of Game Events': The pie chart contains 7 slices corresponding to events A, AE, BE, DE, K, PE, and SE"
+        ]
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

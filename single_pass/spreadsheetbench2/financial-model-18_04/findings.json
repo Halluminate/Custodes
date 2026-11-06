@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook contains a text label that is absent from the input and that nothing in the prompt asks for, inside a compared range, so a correct solution cannot match it.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-extraneous-value",
+    "evidence": "Golden 'P&L'!A13='Esc. %'; input 'P&L'!A13 is empty. 'P&L'!A2:Q35 is in answer_position, and the task passes only if every compared cell matches.",
+    "confirmation": "Golden 'P&L'!A13 = 'Esc. %' while the input A13 is empty, and nothing in the prompt asks for the column header. Since the cell differs from input to golden, it is a modification cell that must match exactly, so a solution doing every requested step fails it."
+  }
+]

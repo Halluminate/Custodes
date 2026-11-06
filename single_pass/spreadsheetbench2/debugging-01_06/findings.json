@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook's cached values contradict its own formulas, so any output that LibreOffice actually recalculates cannot match. The mismatches look like leftovers from the last Excel data-table iteration.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "stale-golden-values",
+    "evidence": "gt 'Ex 1 - LBO': C11=18.2034 (=+C20) but C20=14.2034; U41=0.137 (=+M17) but M17=0.092; U43=0.264 (=+M27) but M27=0.2215; AC17=1375.958 (=U23) but U23=1707.495; Y24:AC24=8101.82 (=$F$21) but F21=8987.82; 'Ex 5'!X75=17.81209 (=C11).",
+    "confirmation": "gt_01_golden.xlsx 'Ex 1 - LBO' caches contradict their formulas: C11 '=+C20' = 18.2034 vs C20 = 14.2034 (28% off), AC17 '=U23' = 1375.96 vs U23 = 1707.50, U41 '=+M17' = 0.137 vs M17 = 0.092. A LibreOffice-recalculated output cannot match these graded cells."
+  },
+  {
+    "id": "S2",
+    "title": "Golden 'fixed' values are computed from the stale caches. A correctly recalculated output would differ by far more than 1%.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden-depends-on-stale-cache",
+    "evidence": "gt 'Ex 2'!C5=8146.47 =(AC17-X17)*X18 uses stale AC17=1375.96; with AC17=U23=1707.5 it would be about 12,855. Downstream C8=20567.08 and all U-column LBO cash flows (U17=6467.79, U23, U29, U60) inherit the same problem.",
+    "confirmation": "The one intended fix, 'Ex 2 - Valuation Bridge'!C5 =(AC17-X17)*X18, is cached at 8146.47 from the stale AC17=1375.96; with AC17=U23=1707.50 it is (1707.50-802.4)*14.20 = 12,855, so the modification cell C5 and C8 cannot match a correct recalculated output."
+  }
+]

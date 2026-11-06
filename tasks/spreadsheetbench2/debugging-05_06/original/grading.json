@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_05_golden.xlsx",
+        "reference_path": "reference/untouched_input_Incorrect Cross Sheet References_input.xlsx",
+        "answer_position": "'Model'!B2:AA126,'Financial Overview'!B2:K21,'Financial Performance'!B2:V21,'Transaction Overview'!B3:R17,'SOFR'!B7:Q130,'1-month Term SOFR'!B7:P130,'3-month Term SOFR'!B7:P130,'Fed Projections'!B7:G27",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

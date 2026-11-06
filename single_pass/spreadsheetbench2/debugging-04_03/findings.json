@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt dates the reference charges to FY2018 and FY2019, but the golden file places each value one fiscal-year column later. An agent that follows the sheet's own year labels will put the values in the wrong columns and fail on many historical cells.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "prompt-answer-key-mismatch",
+    "evidence": "Prompt: Restructuring -5.7 'FY ending 2019', Merger -0.6 'FY ending 2018' and -1.36 'FY ending 2019'. Golden Income Statement: I29=-5.7 and I30=-1.36 (I12=2020), H30=-0.6 (H12=2019). Putting -5.7 in H29 instead gives H35≈93.3 vs golden 99.76, which then flows into H37/H39 and Line Item Metrics G14/G20/G23/G24.",
+    "confirmation": "prompt.md dates -5.7 and -1.36 to 'FY ending 2019' and -0.6 to 2018, but the golden puts them in Income Statement I29/I30 (I12 = 2020) and H30 (H12 = 2019). Following the sheet's year labels gives H35 = 93.3 vs golden 99.76 (6.5%), failing graded cells downstream."
+  }
+]

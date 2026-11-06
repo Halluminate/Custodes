@@ -1,0 +1,5 @@
+Add a NAV chart above the Strategy Performance table, plotting two series: Rotation NAV and Benchmark. Use a red line with red markers for Rotation NAV and a gray line with gray markers for the Benchmark; start both series at a base value of 1, and set the time axis to show annual ticks.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 11_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

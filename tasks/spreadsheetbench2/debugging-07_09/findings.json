@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "The golden workbook fails its own recalculated cell check",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The verifier forcibly recalculates submissions but compares them against unrecalculated golden caches. Running the golden workbook through that same recalculation and comparison produced regression 1.0000, modification 0.6207, and 17 cell errors, which yields zero on the sole weight-1 verifier. The circular debt schedule contains internally inconsistent caches: 'LBO & Lenders'!T53 is '=T54*AVERAGE(T49,T51)', but its cached value is 118.970238303129 while its cached inputs imply 119.20464304027749. Fourteen of the 29 modification cells are debt-schedule cache differences despite unchanged underlying formulas between the reference and golden workbooks. Consequently, the grading target includes arbitrary calculation-state differences rather than just the requested repairs.",
+    "confirmation": "Golden T53 caches 118.970 while the reference caches 117.374 for the same formula and inputs chain. The comparison includes arbitrary iteration-state differences that the verifier's recalc cannot reproduce.",
+    "fixed": true,
+    "fix": "Same GT converged-cache edit plus the T46:X59 exclusion."
+  },
+  {
+    "id": "F2",
+    "title": "The ground truth fails its own grading: circular LBO debt schedule recalculates to different values in LibreOffice",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The 'LBO & Lenders' debt schedule is circular. The workbook relies on iterative calculation (calcPr iterate=True, iterateCount=100). In the formulas, T53 '=T54*AVERAGE(T49,T51)' uses T51 '=SUM(T49:T50)', and T50 '=T53-T52' uses T53 again. The verifier (verify_spreadsheetbench2_cells, weight 1, the only check) recalculates the agent's output in LibreOffice and compares the result with the golden file's cached values, which came from a different engine or iteration state. I fed gt_07_golden.xlsx itself to the verifier through the same managed_recalculated_xlsx + score_workbooks path. It scored regression 1.0, modification 0.6207, with 17 cell errors, so the result is FAILED and the score is 0.0. Examples: LBO & Lenders!W50 answer=-13.6135 vs recalculated -11.0067 (19% apart); X50 -16.826 vs -12.781; X53 109.64 vs 113.68; X51 880.68 vs 889.81; X58 4.37 vs 4.22. The tolerance is 1%. The verifier needs 100% of modification cells to match, so even the perfect answer scores 0. The cause is that no fix the task asks for changes the LBO debt schedule. These cells differ only because the iterative solve did not converge the same way: the untouched input recalculates to yet other values (W50 -10.95). The problem cannot be passed by any agent.",
+    "confirmation": "The circular schedule (T53=T54*AVERAGE(T49,T51), T50=T53-T52) has nonconverged golden caches (W50 -13.61 GT vs -10.94 input, same formulas). A forced recalc then cannot match within 1%, and all trials failed on these cells.",
+    "fixed": true,
+    "fix": "Same GT converged-cache edit plus the T46:X59 exclusion."
+  },
+  {
+    "id": "F3",
+    "title": "Ground truth gt_07_golden.xlsx stores unconverged circular-reference values in LBO & Lenders!T49:X59 and fails its own verifier",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In 'LBO & Lenders'!S49:X54, each projected column forms an iterative circular reference: Row 50 Amortization (=T53-T52), Row 51 Ending Debt (=SUM(T49:T50)), and Row 53 Interest Expense (=T54*AVERAGE(T49,T51)), with <calcPr iterateCount=\"100\" refMode=\"A1\" iterate=\"true\" iterateDelta=\"0.0001\"/>. No formula or upstream dependency of 'LBO & Lenders'!S49:X59 changed between reference_path (untouched_input_Relative vs Absolute References_input.xlsx) and gt_path (gt_07_golden.xlsx). However, because a single LibreOffice conversion pass does not converge multi-column circular references across S..X, and reference_path and gt_path were saved on different single-pass conversions, both files store unconverged, mutually inconsistent cached values in 'LBO & Lenders'!T49:X59: e.g., T50 is -9.090303 in reference_path vs -7.494374 in gt_07_golden.xlsx vs -7.244009 at the true converged fixed point, and X53 in gt_07_golden.xlsx is 109.638240 even though its own formula =X54*AVERAGE(X49,X51) evaluated on gt_07_golden.xlsx's cached X49 (897.508354) and X51 (880.681981) equals 113.359634 (and 114.392871 when converged). Consequently, score_workbooks misclassifies 14 untouched cells on 'LBO & Lenders' (T50, T53, T57, T58, U50, V50, W50, W53, W57, W58, X50, X53, X57, X58) as Modification cells (inflating the modification set from 15 real cells to 29). Worse, verify_spreadsheetbench2_cells (weight: 1) runs managed_recalculated_xlsx(output_path, force_recalculation=True) on the submission—which advances the circular reference by another LibreOffice pass—and compares against the un-recalculated gt_07_golden.xlsx. Passing gt_07_golden.xlsx itself as output_path fails with score 0.0: 'FAILED - regression 1.0000, modification 0.6207. 17 cell error(s)' (failing 11 modification cells and 6 regression cells on 'LBO & Lenders').",
+    "confirmation": "Verified: unchanged formulas in LBO & Lenders T50/T53/W50/X50/X53 have different cached values in reference vs GT, and the golden X53 cache does not satisfy =X54*AVERAGE(X49,X51). These spurious modification cells cannot be reproduced.",
+    "fixed": true,
+    "fix": "Same GT converged-cache edit (X53 now satisfies =X54*AVERAGE(X49,X51)) plus the T46:X59 exclusion."
+  },
+  {
+    "id": "F4",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "The golden workbook's circular debt schedule caches are internally inconsistent (X53 cached 109.64 vs 113.36 from its formula), so after forced LibreOffice recalc the GT cannot score 1 on the all-or-nothing check. The finding's 'never reached grader' guess is wrong, but the shortfall is real.",
+    "fixed": true,
+    "fix": "Same GT converged-cache edit plus the T46:X59 exclusion; golden scores 1.0."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (scores 0.0 even on gt_07_golden.xlsx itself and on converged golden solutions)",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "verify_spreadsheetbench2_cells (weight: 1) scores 0.0 across all 3 units and cannot pass even when given the ground-truth file gt_07_golden.xlsx itself. When gt_07_golden.xlsx is evaluated by verify_spreadsheetbench2_cells, managed_recalculated_xlsx(output_path, force_recalculation=True, model_deliverable=True) runs a single LibreOffice recalculation pass on output_path, shifting the unconverged circular debt schedule in 'LBO & Lenders'!T49:X59, and score_workbooks then compares that recalculated output against the un-recalculated cached values in gt_07_golden.xlsx and untouched_input_Relative vs Absolute References_input.xlsx. On gt_07_golden.xlsx itself, the verifier returns score=0.0 ('FAILED - regression 1.0000, modification 0.6207. 17 cell error(s): Modification error at LBO & Lenders!T50: answer=-7.49437449150413, output=-7.25996975435565...'). Across the 3 agent attempts, all 3 units correctly identified and fixed all 4 golden relative-vs-absolute reference ranges ('Trading & Comparable Txns'!I7:I11, 'Frans Shares'!G5:G8, 'DCF Model'!G27:L27, 'Recapitalization'!F31:I31), matching all 15 genuine modification cells on 'Football Field'!E6:I6, 'Trading & Comparable Txns'!I7:I13, and 'Frans Shares'!G6:G8. Unit 2 even ran iterative LibreOffice recalculations (steps [71]-[78]) so that 'LBO & Lenders'!S49:X59 converged to its exact mathematical fixed point (T50=-7.24400895115832, U50=-8.2305095025844, V50=-9.35135325327012, V53=117.113259541363), yet the verifier rejected all 11 spurious modification cells and 6 regression cells on 'LBO & Lenders' because gt_07_golden.xlsx holds unconverged values (capping Unit 2's modification score at 18/29 = 0.6207).",
+    "confirmation": "'LBO & Lenders' T49:X59 formulas are identical in input and GT, but the cached values differ (T50 -9.09 vs -7.49, X50 -11.64 vs -16.83). Golden X53 caches 109.64 although its own formula on cached inputs gives 113.36, so recalculated submissions cannot match. Run trial 3 failed on exactly these cell",
+    "fixed": true,
+    "fix": "gt_07_golden.xlsx 'LBO & Lenders': cached values of the 38 formula cells in the circular debt schedule and its dependents (T50:X59 rows 49-51/53/57-59, X46, X47, R62, R63) replaced with the fully converged values (LibreOffice recalculated to a fixed point, matching the closed-form solution, e.g. X53 109.638 -> 114.393, X50 -16.826 -> -12.072); formulas and all other cells unchanged (XML <v> edit). Verifier parameter answer_position: \"'LBO & Lenders'!B2:Z65\" split into B2:S65, T2:X45, T60:X65, Y2:Z65, dropping only T46:X59, the circular interest/debt block whose formulas are identical in input and golden and whose values depend on where LibreOffice's iteration starts (an openpyxl-saved correct output recalculates to X50 -14.61 vs converged -12.07). Same range change in grader_guidance.md. Local grade: new golden, openpyxl-saved golden and the old golden all score reg 1.0 / mod 1.0 (openpyxl-saved scored mod 0.5769 with 30 errors before)."
+  }
+]

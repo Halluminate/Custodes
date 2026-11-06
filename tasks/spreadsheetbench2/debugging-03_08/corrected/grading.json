@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_03_golden.xlsx",
+        "reference_path": "reference/untouched_input_Incorrect Sign Conventions_input.xlsx",
+        "answer_position": "'Cover'!B2:E9,'LBO'!B1:V25,'LBO'!B26:I26,'LBO'!O26:V26,'LBO'!B27:V35,'LBO'!B36:I38,'LBO'!O36:V38,'LBO'!B39:V45,'LBO'!B46:I46,'LBO'!O46:V46,'LBO'!B47:V55,'LBO'!B56:I56,'LBO'!O56:V56,'LBO'!B57:V64,'LBO'!B65:I65,'LBO'!O65:V65,'LBO'!B66:V69,'LBO'!B70:I70,'LBO'!O70:V70,'Valuation Bridge'!B2:C8,'Ex 2 - Income Statement'!B2:H38,'Ex 3 - Balance Sheet'!B2:E45,'Ex 8 - Stock Performance'!B2:F40,'Ex 9 - Perf Metrics'!B2:J117,'Ex 10 - Forecast Assumptions '!B2:H43,'Ex 10 - Forecast Assumptions '!C44:H44,'Ex 10 - Forecast Assumptions '!B45:H50,'Ex 10 - Proj. Income Statement'!B2:H36,'Ex 11 - Multiples'!B2:J40,'Ex 12 - Debt Schedule'!B2:H23,'Ex 13 - Transaction Comps'!B2:G8,'Ex 13 - Transaction Comps'!B9:F28,'Ex 13 - Transaction Comps'!B29:G30",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

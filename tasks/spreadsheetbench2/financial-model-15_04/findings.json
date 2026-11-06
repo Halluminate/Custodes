@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Golden solution contains erroneous formulas for FCFEPS (using Net Change in Cash instead of FCFE) and inconsistent 2019 return ratio formulas",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The single verifier `SpreadsheetBench 2 official cell check` (weight: 1) requires `mod_ratio == 1.0` (100% match across all 1,352 modification cells) against `gt_15_KIMS_golden.xlsx`. However, the golden workbook contains multiple formula errors in `Consol_annual`: (1) Row 111 (`FCFEPS`, Free Cash Flow to Equity Per Share, N111:AB111) uses `=N84/N99` (where Row 84 is `Net Change in Cash and Cash Equivalents` = 0.91 in 2013, yielding N111 = 0.012216) instead of `=N89/N99` (where Row 89 is `FCFE` = -1732.91 in 2013, yielding -23.263660), directly contradicting Row 109 (`FCFPS`), which divides Row 88 (`FCFF`) by Row 99 (`Wt. Avg Shares`); (2) in column T (2019), `Core RoIC` (T117) and `RoIC` (T118) hardcode a tax shield multiplier of `0.74` (`=(T40+T30*0.74)/AVERAGE(S114,T114)` -> 0.154452 and `=(T40+T30*0.74)/AVERAGE(S115,T115)` -> 0.151020) whereas every other year from 2013-2027 uses `(1-{col}36)` (which gives 0.134578 and 0.131588 for 2019); and (3) in column T (2019), `RoE` (T120) uses single-year equity `=T40/AVERAGE(T60)` (0.072793) whereas every other year from 2013-2027 uses two-year average equity `={col}40/AVERAGE({prev}60,{col}60)` (0.205833 for 2019). These errors also cascade into `Consol_annual` Row 112 (`% growth` of FCFEPS) and `Formats!E22:E23` and `Formats!AL19:AL21` (30 modification cells in total). All 3 runs failed on `Consol_annual!N111` (producing the financially correct `-23.26366` instead of `0.012216`) and scored 0.",
+    "confirmation": "Confirmed: golden row 111 FCFEPS divides row 84 'Net Change in Cash' by shares while the sister row 109 FCFPS uses FCFF row 88. Column T alone hardcodes 0.74 in T117/T118 and uses single-year equity in T120.",
+    "fixed": true,
+    "fix": "gt_15_KIMS_golden.xlsx, Consol_annual: N111:AB111 FCFEPS changed from '=N84/N99' (net change in cash) to '=N89/N99' (FCFE / Wt. Avg Shares), matching FCFPS row 109; T117/T118 '*0.74' replaced by '*(1-T36)' and T120 '=T40/AVERAGE(T60)' by '=T40/AVERAGE(S60,T60)', matching every other year. Cached values recalculated for the 30 affected cells (rows 111-112, T117/T118/T120, Formats AL19:AL21, E22:E23); no other cell changed. The patched golden grades PASS (reg 1.0, mod 1.0) against itself through the verifier's forced recalc."
+  },
+  {
+    "id": "F2",
+    "title": "The answer key applies undisclosed FY2019 return-ratio exceptions",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook changes methodology only in FY2019: T117 and T118 use a hardcoded 0.74 after-tax interest factor instead of 1-T36, although T36 is 46.5906557%; T120 uses only ending equity, '=T40/AVERAGE(T60)', rather than the opening-and-ending equity average used in surrounding years. Applying the surrounding-year formulas gives Core RoIC 0.13457814, RoIC 0.13158772 and RoE 0.20583251, while the key requires 0.15445154, 0.15101952 and 0.07279251 respectively. Neither the task nor the workbook documents these exceptions. These differences exceed the verifier's 1% tolerance, and any one mismatch fails its weight-1, all-modification-cells check.",
+    "confirmation": "Golden T117/T118 are '=(T40+T30*0.74)/AVERAGE(...)' and T120 is '=T40/AVERAGE(T60)', while S and U use (1-col36) and a two-year average. These undocumented FY2019 exceptions give 0.1545/0.1510/0.0728, which the consistent formulas cannot reproduce.",
+    "fixed": true,
+    "fix": "gt_15_KIMS_golden.xlsx, Consol_annual: N111:AB111 FCFEPS changed from '=N84/N99' (net change in cash) to '=N89/N99' (FCFE / Wt. Avg Shares), matching FCFPS row 109; T117/T118 '*0.74' replaced by '*(1-T36)' and T120 '=T40/AVERAGE(T60)' by '=T40/AVERAGE(S60,T60)', matching every other year. Cached values recalculated for the 30 affected cells (rows 111-112, T117/T118/T120, Formats AL19:AL21, E22:E23); no other cell changed. The patched golden grades PASS (reg 1.0, mod 1.0) against itself through the verifier's forced recalc."
+  },
+  {
+    "id": "F3",
+    "title": "Ground-truth FCFEPS divides Net Change in Cash, not FCFE, so a correct formula fails the whole all-or-nothing check",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In the ground-truth file gt_15_KIMS_golden.xlsx, Consol_annual row 111 'FCFEPS' is '=N84/N99' … '=AB84/AB99'. Row 84 is 'Net Change in Cash and Cash Equivalents'. The FCFE line is row 89 ('FCFE', =N84+N46-(N60-M60-N49)). The sister row FCFPS (109) correctly uses FCFF (=N88/N99), so FCFEPS should use FCFE (row 89). For 2013–2023 the two give very different answers. Answer key FCFEPS: 0.012, 0.364, 0.618, -1.441, 0.678, 0.36, -0.389, 4.356, 1.497, -3.311, -15.144. FCFE ÷ weighted-average shares: -23.264, 0.599, -4.286, -1.211, 55.595, 0.081, -100.629, 12.642, -6.802, -27.164, -8.385. They only agree in the 2024–2027 forecast years, where FCFE happens to equal net change in cash. The only verifier is 'SpreadsheetBench 2 official cell check' (weight 1). It scores 1.0 only if every changed cell matches within 1%, otherwise 0. An agent that builds FCFEPS correctly from FCFE misses 11 cells (N111:X111) and scores 0 on the whole task.",
+    "confirmation": "Golden Consol_annual!N111:AB111 is '=N84/N99' (Net Change in Cash, e.g. T111 = -0.389) rather than FCFE row 89 / shares. A correctly built FCFEPS misses those modification cells and scores 0.",
+    "fixed": true,
+    "fix": "gt_15_KIMS_golden.xlsx, Consol_annual: N111:AB111 FCFEPS changed from '=N84/N99' (net change in cash) to '=N89/N99' (FCFE / Wt. Avg Shares), matching FCFPS row 109; T117/T118 '*0.74' replaced by '*(1-T36)' and T120 '=T40/AVERAGE(T60)' by '=T40/AVERAGE(S60,T60)', matching every other year. Cached values recalculated for the 30 affected cells (rows 111-112, T117/T118/T120, Formats AL19:AL21, E22:E23); no other cell changed. The patched golden grades PASS (reg 1.0, mod 1.0) against itself through the verifier's forced recalc."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: Verifier fails valid financial formulas due to defective ground truth in Consol_annual (FCFEPS and 2019 return ratios)",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, the agents computed `FCFEPS` (`Consol_annual!N111:AB111`) using the standard financial definition `FCFE / Wt. Avg Shares` (`=N89/N99`, yielding `-23.2636595516177` in `N111`) and applied consistent formulas across all years 2013-2027 for `Core RoIC`, `RoIC`, and `RoE`. However, `verify_spreadsheetbench2_cells` (weight: 1, binary pass requiring `mod_ratio == 1.0`) compares against `gt_15_KIMS_golden.xlsx`, where `FCFEPS` (`N111:AB111`) erroneously divides `Net Change in Cash` (Row 84) by shares (`=N84/N99` -> `0.0122164048865631`), and column T (2019) has one-off formula anomalies in `T117` (`0.74` instead of `1-T36`), `T118` (`0.74` instead of `1-T36`), and `T120` (`AVERAGE(T60)` instead of `AVERAGE(S60,T60)`). Even if an agent matches every other cell in the workbook, using the financially sound formulas for these cells causes 30 modification cell errors (`mod_ratio = 0.9778`) and a binary score of `0.0`.",
+    "confirmation": "In gt_15_KIMS_golden.xlsx, Consol_annual!N111 (FCFEPS) is '=N84/N99' (net change in cash) instead of FCFE row 89. T117/T118 use a hardcoded '*0.74' instead of (1-T36), and T120 is '=T40/AVERAGE(T60)', unlike every other year. Correct formulas therefore fail the all-or-nothing modification check.",
+    "fixed": true,
+    "fix": "gt_15_KIMS_golden.xlsx, Consol_annual: N111:AB111 FCFEPS changed from '=N84/N99' (net change in cash) to '=N89/N99' (FCFE / Wt. Avg Shares), matching FCFPS row 109; T117/T118 '*0.74' replaced by '*(1-T36)' and T120 '=T40/AVERAGE(T60)' by '=T40/AVERAGE(S60,T60)', matching every other year. Cached values recalculated for the 30 affected cells (rows 111-112, T117/T118/T120, Formats AL19:AL21, E22:E23); no other cell changed. The patched golden grades PASS (reg 1.0, mod 1.0) against itself through the verifier's forced recalc."
+  }
+]

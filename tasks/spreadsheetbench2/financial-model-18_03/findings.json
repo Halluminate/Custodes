@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Verifier requires an unrequested label restoration",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "P&L!A13 is blank in both the staged input and reference workbook, but the golden workbook contains \"Esc. %\". The instructions request financial calculations, not restoration of this label. The verifier classifies A13 as a modification cell and requires every modification cell to match. Leaving this unrelated label blank while matching all other expected changes yields 36/37 modification matches and fails the sole verifier, weighted 100%.",
+    "confirmation": "Confirmed: the golden adds the label 'Esc. %' at P&L!A13 (blank in the input and reference), and the instructions only request Debt/Equity, EBIT Margin, Average DSCR, Total Liabilities and Opening Cash. Leaving A13 blank misses one modification cell and scores 0.",
+    "fixed": true,
+    "fix": "Same GT edit (P&L!A13 'Esc. %' removed)."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth adds an unrequested label in P&L!A13 ('Esc. %'), and the all-or-nothing verifier fails any run that follows the instructions",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Comparing the input with the GT workbook gives 30 changed cells. 29 are the requested formulas. The 30th is P&L!A13: input None -> GT 'Esc. %'. P&L!A13 is inside answer_position 'P&L'!A2:Q35, and because it differs between input and GT it falls into the verifier's 'modification' bucket. verify_spreadsheetbench2_cells returns 1.0 only when mod_ratio == 1.0 and otherwise returns 0.0. _values_match('Esc. %', None) returns False, so mod_ratio can be at most 29/30. No instruction asks for this label, and the 'Important' section says to change only the cells the task needs. An agent that does the task perfectly scores 0 on the only verifier (weight 1).",
+    "confirmation": "P&L!A13 is None in untouched_input_18_03_RoadAssets_input.xlsx but 'Esc. %' in gt_18_RoadAssets_golden.xlsx, inside the graded 'P&L'!A2:Q35. That makes it a required modification cell no instruction mentions, and the all-or-nothing verifier fails any run that leaves it blank.",
+    "fixed": true,
+    "fix": "gt_18_RoadAssets_golden.xlsx P&L!A13: removed the unrequested label 'Esc. %' (cell now empty, style kept; it is blank in the input), no other cell changed. A13 is now a regression cell, so runs that leave it blank pass. Local verifier grade: new GT 1.0/1.0, and the old GT (with the label) still passes as an output under the 99.8% regression allowance."
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The rubric awards points only if the report states the vacant suite is 2,175 SF, but the prompt says the suite is 2,225 SF, so an agent that follows the prompt loses these points.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "prompt-rubric-contradiction",
+    "evidence": "Prompt: 'The center has a 2,225 SF suite become vacant.' Rubric: '[+2] ... vacant suite is 2,175 square feet'. GT PDF: 'Suite Size: 2,175 SF'.",
+    "confirmation": "prompt.md says 'The center has a 2,225 SF suite', while the rubric awards +2 only for a vacant suite of 2,175 SF and the GT PDF shows 'Suite Size: 2,175 SF'. The template docx leaves size as '[Insert SF]', so nothing supports 2,175."
+  }
+]

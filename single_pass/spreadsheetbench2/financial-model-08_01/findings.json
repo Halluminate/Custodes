@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The instruction only asks to 'link the Equity NPV and Equity IRR cells to their respective sensitivity tables', but those link cells already exist in the input. The golden instead fills the full two-way data-table result grids with static values that only a full scenario-by-scenario model recalculation can reproduce. The grader requires every one of these cells to match.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "underspecified-requirement",
+    "evidence": "Input 'DCF Valuation' already has C27=C23, C34=C24, C41=+C23, C49=C24, while D28:I31, D35:I38, D42:I46 and D50:I54 are empty. Golden fills them with hardcoded values, e.g. D28=47366611.50, D29=322128242.25, D35=0.1438, D42=158942111.78, D50=0.3253.",
+    "confirmation": "Input 'DCF Valuation' already has C27=C23, C34=C24, C41/C49 links, yet the golden requires hardcoded grids D28:I31, D35:I38, D42:I46, D50:I54; these do not even reproduce the golden's own base NPV (C23=184.77M vs F28:F31 and F42:F46 at the same 13%). All three trials in run <id> left the grids b"
+  }
+]

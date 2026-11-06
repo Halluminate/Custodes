@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The one-line instruction gives no method, layout, sign convention or cell targets, yet the grader requires an exact match on every cell in B2:N37 against one specific set of modeling choices.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "underspecified-prompt",
+    "evidence": "The prompt says only 'Complete the OID bond amortization and deferred tax analysis'. The golden file nevertheless fixes many arbitrary choices: the IRR goes in L8 (the label sits in L7); C16/C18 and C31/C33 are seeded with 9420; C22/C26/C37 are filled; J17 = J7+N10; J21 = -J20; J32 = -J31; J36 = J29-J32; C35 = C20.",
+    "confirmation": "The one-line prompt leaves conventions open that the exact-match check fixes: golden seeds C16/C18 and C31/C33 with 9420 and leaves C17/C29/C32 blank, and puts the IRR in L8 under the L7 label. All three runs booked the day-1 issuance as BOP 0 plus Change 9420 (and C29 cash 9420), which is economica"
+  }
+]

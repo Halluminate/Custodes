@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_13_Logistic_golden.xlsx",
+        "reference_path": "reference/untouched_input_13_03_Logistic_input.xlsx",
+        "answer_position": "'Cover Page'!B7:B22,'Summary Valuation'!B2:E24,'DCF'!B1:Q31,'Summary'!B2:H41,'IS'!B2:AB33,'BS'!B2:O42,'CF'!B2:O31,'Ratio Analysis'!B2:O34,'Input Sheet'!A2:M78,'Revenue Drivers'!B2:M44,'Cost Drivers'!B2:M48,'Working Capital'!B2:P28,'Assets Sch.'!B2:O52,'Debt Schedule'!B2:O29,'BG'!B2:AG29,'Trading Comps'!B2:GH43,'WACC'!B2:D21,'Projection Sheet(FY26 to FY28)'!A1:T53,'Segmental Breakdown'!A2:G54",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

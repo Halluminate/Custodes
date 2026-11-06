@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth reverses the Q2 restructuring tax-shield adjustment",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input states 'Q2 COGS includes $25 restructuring charge', reports Q2 tax expense of 23 in D12, and instructs normalization at the 21% statutory rate. Removing this deductible charge increases normalized tax expense by 25 × 21% = 5.25, giving 28.25. However, the golden workbook's D32 formula is '=D12-0.21*25', yielding 17.75. This also contradicts its treatment of the analogous Q3 impairment, where E32 adds the tax shield. The error propagates into historical net income, tax rate and EPS, and both quarters' forecast taxes and related metrics. The sole verifier has weight 1 and requires every modification cell to match, so a financially correct normalization receives a score of 0.",
+    "confirmation": "Duplicate of the confirmed reversed Q2 tax-shield adjustment in golden D32 '=D12-0.21*25' versus E32 adding the shield for the equivalent Q3 charge.",
+    "fixed": true,
+    "fix": "Same GT change as verifier-correctness-0 (D32 sign and dependents)."
+  },
+  {
+    "id": "F2",
+    "title": "Golden solution has inverted tax adjustment sign for Q2 2024 in cell D32",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The task instructions state: 'Adjust historical values for the nonrecurring items listed... Normalize tax expense by adjusting for the tax shield of each nonrecurring item at the 21% statutory rate.' In the input sheet, the three nonrecurring items are: (B18) 'Q2 COGS includes $25 restructuring charge', (B19) 'Q3 COGS includes $32 asset impairment', and (B20) 'Q4 S&A includes $20 legal settlement benefit'. Removing the nonrecurring expenses in Q2 ($25) and Q3 ($32) increases normalized EBT by $25 and $32 respectively, which removes their tax shields and increases normalized tax expense by +0.21 * 25 (+5.25) in Q2 and +0.21 * 32 (+6.72) in Q3. Removing the nonrecurring benefit in Q4 ($20) increases S&A and decreases normalized EBT by $20, decreasing normalized tax expense by -0.21 * 20 (-4.20). However, in `gt_13_03_golden.xlsx`, while E32 (`=E12+0.21*32` = 30.72) and F32 (`=F12-0.21*20` = 23.8) apply the correct sign, D32 has the formula `=D12-0.21*25` (17.75 instead of 28.25), subtracting the tax shield for an added-back expense in Q2 while adding it for an identical added-back COGS expense in Q3. This error in D32 cascades into 11 downstream cells in the golden workbook (D33, D41, D42, G32, G33, G41, G42, H32, H33, H41, H42), causing the single weight-1 verifier (`SpreadsheetBench 2 official cell check`) to score 0.0 on any mathematically consistent solution.",
+    "confirmation": "Confirmed in gt_13_03_golden.xlsx: D26 '=D9-25' raises EBT yet D32 '=D12-0.21*25' lowers tax, inconsistent with E32 '=E12+0.21*32'; the error cascades into D33/D41/D42 and G/H forecasts.",
+    "fixed": true,
+    "fix": "Same GT change as verifier-correctness-0 (D32 sign and dependents)."
+  },
+  {
+    "id": "F3",
+    "title": "Ground truth gets the sign of the Q2 restructuring tax shield wrong, so a correct answer fails the all-or-nothing check",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The task says: \"Normalize tax expense by adjusting for the tax shield of each nonrecurring item at the 21% statutory rate.\" Removing the Q2 $25 restructuring charge raises pre-tax income by 25, so normalized tax should rise by 0.21×25 = 5.25, giving 23 + 5.25 = 28.25. The GT does the opposite: D32 '=D12-0.21*25' = 17.75. Its handling of the other items is internally consistent, which shows the Q2 entry is a mistake: Q3 impairment (also a removed charge) uses E32 '=E12+0.21*32' (added), and the Q4 legal benefit uses F32 '=F12-0.21*20' (subtracted). The error makes the GT's own Q2 tax rate (D41) 13.25%, against 20.8% to 22.5% in the other quarters. It carries through to D33 Net Income (116.25 vs correct 105.75), D41, and D42 EPS (0.664 vs 0.604). Because the forecast tax rate is AVERAGE(D41:F41) and AVERAGE(E41:G41), it also changes G32/H32, G33/H33, G41/H41 and G42/H42. The only verifier, 'SpreadsheetBench 2 official cell check' (weight 1, binary: it returns 1.0 only when every cell in B2:H42 matches within tolerance), therefore marks a correctly normalized workbook as 0.",
+    "confirmation": "Same confirmed sign error in golden D32 (17.75 instead of 28.25), which flows into the forecast tax rate AVERAGE(D41:F41) and the all-or-nothing B2:H42 check.",
+    "fixed": true,
+    "fix": "Same GT change as verifier-correctness-0 (D32 sign and dependents)."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: False negative on unit 1 due to buggy golden workbook formula in FinancialNormalization!D32",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "In unit 1, the agent correctly implemented all historical normalizations, key metrics, and rolling 3-quarter forecasts (matching 71 of 83 modification cells, `modification 0.8554`, `regression 1.0000`). Specifically, in D32 (Q2 2024 Normalized Tax), removing the $25 COGS restructuring charge increases EBT by $25 and therefore increases tax expense by `0.21 * 25 = 5.25`, yielding `23 + 5.25 = 28.25` (`=D12+0.21*25`). However, `gt_13_03_golden.xlsx` erroneously uses `=D12-0.21*25` (`17.75`) in D32 while using `=E12+0.21*32` (`30.72`) for the analogous $32 COGS asset impairment in E32. All 12 modification errors in unit 1 (D32, D33, D41, D42, G32, G33, G41, G42, H32, H33, H41, H42) are the exact mathematical consequence of D32 being `=D12+0.21*25` instead of `=D12-0.21*25`. Because `verify_spreadsheetbench2_cells` (weight 1) requires 100% modification match (`mod_ratio == 1.0`), unit 1 received score=0 despite producing the financially and mathematically sound workbook.",
+    "confirmation": "Golden FinancialNormalization D32 is =D12-0.21*25 while the analogous removed Q3 charge uses E32 =E12+0.21*32 (both add back COGS in D26/E26), so the Q2 tax sign is wrong and a correct D32 (28.25) fails 12 downstream cells.",
+    "fixed": true,
+    "fix": "files/gt/gt_13_03_golden.xlsx: FinancialNormalization!D32 changed from =D12-0.21*25 to =D12+0.21*25 (removing the $25 Q2 COGS charge raises EBT, so tax goes up, as E32 does for Q3). Cached values recomputed in LibreOffice for D32 (28.25), D33, D41, D42, G32, G33, G41, G42, H32, H33, H41, H42. No other cell changed."
+  }
+]

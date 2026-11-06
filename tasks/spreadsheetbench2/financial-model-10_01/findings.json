@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Sensitivity axis values are unstated, so other reasonable grids are rejected (multiple_valid_answers_rejected)",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The input only has the labels G56 'Sensitivity Analysis', G58 'WACC' and H58 'Terminal Growth Rate'. Row 59 and column G are empty. The GT hard-codes the axes: growth J59 = 0.015 with ±0.5% steps (H59:L59 = 0.5%–2.5%), and WACC G62 = 0.0522662427 (a pasted constant) with ±1% steps (G60:G64 = 3.23%–7.23%). The model's own base terminal growth is E23 = 0.0165, so a grid centred on the base case (1.65%) is a natural choice. That grid, or any other step size (for example 0.25% or 0.5% on WACC), fails all 25 body cells plus the axis cells. Because of this, the GT grid's centre (173.16) does not even equal the base-case value per share (179.97). With all-or-nothing scoring, no agent can pass without guessing these exact axis values.",
+    "confirmation": "Confirmed: golden J59=0.015 is a constant and G62=0.0522662427 is pasted, with ±0.5%/±1% steps, while the model's base growth is E23=0.0165. Other reasonable grids fail the H60:L64 cells, and the grid centre 173.16 is not the base 179.97.",
+    "fixed": true,
+    "fix": "prompt.md: added \"Build the table in G59:L64 with value per share in G59, terminal growth rates from 0.5% to 2.5% in 0.5% steps across H59:L59, and WACC from 2% below to 2% above the model's WACC in 1% steps down G60:G64.\" (matches golden H59:L59 = 0.005..0.025 and G60:G64 = E67 -2%..+2% around 0.05227)"
+  },
+  {
+    "id": "F2",
+    "title": "Sensitivity table axis values, center points, and step increments in Valuation!G59:L64 are not specified in the task context",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "The prompt instructs: 'In the Valuation sheet, calculate Terminal Value, then construct a sensitivity table varying WACC and terminal growth rate against implied equity value.' In the input workbook (`10_01_McDonalds_input.xlsx`), the sensitivity table range `Valuation!G59:L64` is completely empty (only header labels `G58='WACC'` and `H58='Terminal Growth Rate'` exist). However, the ground truth (`gt_10_McDonalds_golden.xlsx`) requires specific unstated axis values and increments: (1) Terminal Growth Rate headers in `H59:L59` must be `[0.5%, 1.0%, 1.5%, 2.0%, 2.5%]` centered at hardcoded `J59=0.015` (1.5%) with a `0.005` (0.5%) step, even though the model's base Terminal Growth Rate in `Valuation!E23` is `0.0165` (1.65%); (2) WACC row headers in `G60:G64` must be centered at `G62=0.0522662427077951` (base WACC `E67`) with a `0.01` (1.0%) step (`[3.23%, 4.23%, 5.23%, 6.23%, 7.23%]`); and (3) the top-left corner cell `G59` must equal `+E48` (`179.967341596345`, Value Per Share) because Excel's `TABLE()` data table places the formula reference in the top-left cell, whereas an explicit formula-based sensitivity table leaves `G59` blank. Because `SpreadsheetBench 2 official cell check` (weight: 1) requires 100% of the 315 modification cells to match (`mod_ratio == 1.0`) to score 1.0 (otherwise 0.0), all 3 production attempts failed on `Valuation!G59:L64` despite getting every other requirement right (attempt 1: modification 0.8603, 53 errors; attempt 2: modification 0.8889, 35 errors; attempt 3: modification 0.8349, 63 errors).",
+    "confirmation": "Input Valuation!G59:L64 is blank apart from the 'WACC'/'Terminal Growth Rate' labels, yet golden H59:L59 hard-codes 0.5%-2.5% centred on J59=0.015 (base E23 is 0.0165) and G60:G64 uses ±1% around a pasted 0.05227. Nothing in the prompt fixes these axes, and the all-or-nothing values check grades eve",
+    "fixed": true,
+    "fix": "prompt.md: added \"Build the table in G59:L64 with value per share in G59, terminal growth rates from 0.5% to 2.5% in 0.5% steps across H59:L59, and WACC from 2% below to 2% above the model's WACC in 1% steps down G60:G64.\" (matches golden H59:L59 = 0.005..0.025 and G60:G64 = E67 -2%..+2% around 0.05227)"
+  },
+  {
+    "id": "F3",
+    "title": "Sensitivity-table assumptions are missing from the agent-facing task",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instruction only says to construct a sensitivity table 'varying WACC and terminal growth rate against implied equity value.' The input's Valuation!G59:L64 is entirely blank, with no comments specifying scenarios. However, the golden workbook requires growth rates of 0.5%, 1.0%, 1.5%, 2.0% and 2.5%, and WACC scenarios spaced by one percentage point. Its growth-rate center, J59=0.015, differs from the provided base assumption E23=0.0165. It also expects equity value per share rather than total equity value. These unstated conventions govern 36 modification cells. A competent agent using the provided 1.65% base growth rate can fail the sole weight-1 verifier, which requires every modification cell to match.",
+    "confirmation": "Same issue: the prompt and the blank input G59:L64 give no grid values or step sizes, but golden G59:L64 needs the specific 0.5%-2.5% growth axis, the 1-point WACC steps and per-share outputs to pass the values check.",
+    "fixed": true,
+    "fix": "prompt.md: added \"Build the table in G59:L64 with value per share in G59, terminal growth rates from 0.5% to 2.5% in 0.5% steps across H59:L59, and WACC from 2% below to 2% above the model's WACC in 1% steps down G60:G64.\" (matches golden H59:L59 = 0.005..0.025 and G60:G64 = E67 -2%..+2% around 0.05227)"
+  },
+  {
+    "id": "F4",
+    "title": "Sensitivity table output is per-share value, but the prompt asks for 'implied equity value'",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Prompt: \"construct a sensitivity table varying WACC and terminal growth rate against implied equity value.\" In the GT, the table's anchor cell is Valuation!G59 = '=+E48', which is 'Value Per Share' (USD, 179.97). It is not E45 'Present Value of Equity' (USD mn, 181,047.15). The 25 graded body cells H60:L64 therefore hold per-share values from 94.54 to 899.13. An agent that does what the prompt says and links the table to E45 gets every body cell wrong by about 1006x (the share count). The verifier (verify_spreadsheetbench2_cells, weight 1) is all-or-nothing: a single wrong modification cell sets the task score to 0.",
+    "confirmation": "The prompt asks for the table 'against implied equity value', but golden G59 is =+E48 'Value Per Share' (179.97), not E45 'Present Value of Equity' (181,047 USD mn). An agent anchoring on E45 misses all 25 body cells under the all-or-nothing check.",
+    "fixed": true,
+    "fix": "prompt.md: changed \"against implied equity value\" to \"against value per share\" (golden G59 = +E48 Value Per Share)"
+  }
+]

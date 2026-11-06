@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "The golden workbook fails its own grading because of a volatile date",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Formats!B9 contains '=TODAY()', but the golden workbook caches 2026-10-13. On the container date, 2026-11-05, the verifier's forced recalculation changes B14 from -18.4438356164384 to -19.2, B15 from -1.53698630136986 to -1.6, and B16 from 0.0443546795099943 to 0.04257117889875. Running the golden workbook through the verifier's recalculation and comparison produces regression 1.0, modification 0.9995, and a failing score of 0. The sole verifier has weight 1 and requires every modification cell to match, so an otherwise correct workbook retaining the supplied formulas fails the entire task.",
+    "confirmation": "Same verified defect: Formats!B9 =TODAY() with cached 2026-10-13 in the GT makes B14:B16 recalculate to different values on the grading date, failing the sole weight-1 verifier.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: 'Formats'!A1:BT76 split so it skips Formats!B9 (=TODAY()) and the cells computed from it, B14 (months to target), B15 (years to target) and B16 (ATR). Locally the golden now scores regression 1.0, modification 1.0 (before: modification 0.9995, 3 errors), and the input with the golden's changes copied in also scores 1.0."
+  },
+  {
+    "id": "F2",
+    "title": "The ground truth fails its own verifier: a TODAY()-based cell in the graded range makes the binary check impossible to pass",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "I copied gt_15_KIMS_golden.xlsx to /home/model/Desktop/output.xlsx and ran verify_spreadsheetbench2_cells with the spec parameters. Result: score=0.0, 'FAILED - regression 1.0000, modification 0.9995. 3 cell error(s): Regression error at Formats!B14: answer=-18.44, output=-19.2; Formats!B15: answer=-1.537, output=-1.6; Modification error at Formats!B16: answer=0.04435, output=0.04257'. Cause: Formats!B9 '=TODAY()' (cached 2026-10-13 in the GT). B14 '=((B8-B9)/365)*12', B15 '=B14/12' and B16 ATR '=+((B5+H17/2+I17/2)/B4)^(1/B15)-1' all depend on it. B16 is in the modification bucket because the task changes B5 (price target), so input and GT differ there. The verifier returns 1.0 only when mod_ratio == 1.0 (1% tolerance). After recalculation B16 drifts with the run date, so even a perfect answer scores 0 on almost any day other than the GT's save date. This is the only verifier (weight 1, 100% of the score).",
+    "confirmation": "Confirmed Formats!B9 =TODAY() feeds B14 =((B8-B9)/365)*12, B15 and the modification cell B16; at a Nov 2026 run date B14 is about -19.1 versus cached -18.44, beyond the 1% tolerance, so even a perfect answer fails.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: 'Formats'!A1:BT76 split so it skips Formats!B9 (=TODAY()) and the cells computed from it, B14 (months to target), B15 (years to target) and B16 (ATR). Locally the golden now scores regression 1.0, modification 1.0 (before: modification 0.9995, 3 errors), and the input with the golden's changes copied in also scores 1.0."
+  },
+  {
+    "id": "F3",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "The golden workbook's own Formats!B16 (via B9 =TODAY() cached 2026-10-13) drifts after forced recalculation on later dates, so the GT cannot score 1.0 on the all-or-nothing cell check.",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: 'Formats'!A1:BT76 split so it skips Formats!B9 (=TODAY()) and the cells computed from it, B14 (months to target), B15 (years to target) and B16 (ATR). Locally the golden now scores regression 1.0, modification 1.0 (before: modification 0.9995, 3 errors), and the input with the golden's changes copied in also scores 1.0."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: Golden workbook contains volatile =TODAY() in Formats!B9 causing verifier to fail when container clock differs from 2026-10-13",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "The sole verifier 'SpreadsheetBench 2 official cell check' (weight: 1) force-recalculates the submitted workbook in LibreOffice via managed_recalculated_xlsx(..., force_recalculation=True) and compares it against the static cached values in gt_15_KIMS_golden.xlsx across answer_position, which includes 'Formats'!A1:BT76. However, Formats!B9 contains the volatile formula '=TODAY()', whose cached value in both untouched_input_15_03_KIMS_input.xlsx and gt_15_KIMS_golden.xlsx is 2026-10-13. Dependent cells in Formats compute Months to Target in B14 ('=((B8-B9)/365)*12', GT cached -18.4438356164384), Years to Target in B15 ('=B14/12', GT cached -1.53698630136986), and ATR in B16 ('=+((B5+H17/2+I17/2)/B4)^(1/B15)-1', GT cached 0.0443546795099943, which is classified as a modification cell because B5 changes from 7168.17 in input to 2198.36 in GT). Because modification ratio must be 1.0000 to pass, whenever the grading container date is not 2026-10-13 (e.g., 2026-11-05), even gt_15_KIMS_golden.xlsx itself fails verification with score=0.0: 'FAILED - regression 1.0000, modification 0.9995. 3 cell error(s): Regression error at Formats!B14: answer=-18.4438356164384, output=-19.2; Regression error at Formats!B15: answer=-1.53698630136986, output=-1.6; Modification error at Formats!B16: answer=0.0443546795099943, output=0.04257117889875'. In Unit 1 (steps [56]-[64]), the agent built a nearly complete solution via LibreOffice UNO (0.9975 modification score, missing only the 4 cells in row 90); even if row 90 had been set to AC89:AR89, the verifier would still return 0.0 on any date outside the 1% tolerance window around 2026-10-13.",
+    "confirmation": "gt_15_KIMS_golden.xlsx Formats!B9 is =TODAY() cached 2026-10-13, and B14/B15/B16 depend on it; B16 changes between input (-0.516) and GT (0.0444) so it is a modification cell, and any recalculation date outside a narrow window moves it beyond 1% (run <id> trial 1 reported 8 errors, only 5 of the",
+    "fixed": true,
+    "fix": "verifications[0].parameters.answer_position: 'Formats'!A1:BT76 split so it skips Formats!B9 (=TODAY()) and the cells computed from it, B14 (months to target), B15 (years to target) and B16 (ATR). Locally the golden now scores regression 1.0, modification 1.0 (before: modification 0.9995, 3 errors), and the input with the golden's changes copied in also scores 1.0."
+  }
+]

@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Open-ended 'audit everything' instruction, but only 5 injected INDEX/MATCH fixes are graded and every other correct fix is penalized",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Comparing the input with the golden file shows only 5 changed formulas: OM+DCF!C108 (MATCH type 1→0), OM+DCF!C122 (B3:B12→B4:B12), Revenue Build!M17 ('FY 2023'→'FY 2024'), Comps + WACC!C29 (D17:D24→E17:E24) and Comps + WACC!C40 (B5:B11→B4:B11). The prompt also lists 'hardcoded values that should be formulas, data validation issues, inconsistent formatting or naming conventions, best practice violations'. Grading runs in values mode only, so formatting, naming and validation fixes are never credited. Real model errors that change values are left in the golden file, so fixing them breaks the all-or-nothing check. Example: the terminal value is discounted with ^5 (C111 '=C110/(1+$C$98)^5', also C125 and C138) although the projection runs 6 years (C97:H97 = 1..6). Changing it to ^6 gave 17 cell errors in my test run. Other examples left in place: hardcoded SG&A in D11:H11 next to C11 = 'IS Annual'!C11:H11, and single-cell array references such as I7 = 'IS Quarters 2'!D10:G10. The task context also says 'strictly avoid altering any cells that already contain values unless explicitly instructed', which conflicts with 'fix thoroughly'. A competent auditor cannot tell which errors are 'in scope'.",
+    "confirmation": "The open 'audit and fix thoroughly' prompt conflicts with a golden that leaves value-changing errors (C111 '^5' while H97 = 6, R84, C90), so fixing them breaks the 100% modification requirement.",
+    "fixed": true,
+    "fix": "Same answer-key correction: C111, C125 and C138 discount the terminal value ^6; R84 and C90 fixed. The SG&A D11:H11 and I7 items are array-formula ranges, not hardcodes or broken refs (see F4)."
+  },
+  {
+    "id": "F2",
+    "title": "Answer key preserves a broken working-capital reference and penalizes its correction",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instruction requests a thorough audit, explicitly including broken references and calculation errors, but both the input and gt_08_golden.xlsx retain 'Operating Model + DCF'!R84 = R847-M83. R847 is empty; the change in working capital should use R83-M83. The seeded balances are R83 = -84.2928522758825 and M83 = 29.6129999999999, so the change is -113.9058522758824, not the golden value -29.6129999999999. Correcting only this reference in a copy of the golden workbook and recalculating produces four modification-cell failures (C102, C107, C121 and C135), with modification ratio 0.9467. The unchanged golden passes. Because the sole verifier has weight 1 and requires every modification cell to match, this legitimate audit correction changes the overall score from 1 to 0.",
+    "confirmation": "Golden R84 is '=R847-M83' (blank row 847), giving -29.61 instead of R83-M83 = -113.91, and the correction changes graded modification cells, so a valid fix fails the all-or-nothing verifier.",
+    "fixed": true,
+    "fix": "Same answer-key correction: R84 =R83-M83 in the key."
+  },
+  {
+    "id": "F3",
+    "title": "Answer key keeps an obvious negative tax rate (C90 = -30%), so an agent that fixes it scores 0",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In gt_08_golden.xlsx, 'Operating Model + DCF'!C90 (Tax Rate, 2025) is still -0.3, while D90:H90 are all 0.3. With the negative rate, NOPAT (C91 = C89*(1-C90)) is -169.5 instead of -91.3. The task asks the agent to 'audit and fix this file thoroughly', listing 'potential calculation errors'. I changed only C90 to 0.3 in the golden file, recalculated it in LibreOffice and ran score_workbooks. Result: regression 1.0 but modification 0.9467, with Modification errors at C102/C107/C121/C135 (answer=2725.73, output=2797.07). The verifier is all-or-nothing (it passes only when modification = 1.0), so the single verifier (weight 1) returns 0.0. The unchanged golden file scores 1.0/1.0. So the correct fix of the clearest error in the DCF is penalized with the full score.",
+    "confirmation": "Golden C90 is -0.3 next to D90:H90 = 0.3, making C91 NOPAT -169.5; fixing it changes graded DCF sum cells (C102 etc.), so the obvious correction scores 0 on the single weight-1 check.",
+    "fixed": true,
+    "fix": "Same answer-key correction: C90 = 0.3 in the key."
+  },
+  {
+    "id": "F4",
+    "title": "Generic open-ended audit prompt contradicts narrow ground truth that only fixes 5 INDEX/MATCH formulas and leaves other genuine model bugs unfixed",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The task prompt in `problem.py` instructs: `Please audit and fix this file thoroughly. Errors may include but are not limited to: formula logic errors or inconsistencies, hardcoded values that should be formulas, broken cell references, data validation issues, potential calculation errors, inconsistent formatting or naming conventions, best practice violations, and any other issues that could affect accuracy or maintainability.` However, comparing `untouched_input_Incorrect Index Match_input.xlsx` against `gt_08_golden.xlsx` shows that the ground truth only modifies 5 `INDEX/MATCH` formulas (`'Operating Model + DCF'!C108`, `'Operating Model + DCF'!C122`, `'Revenue Build'!M17`, `'Comps + WACC'!C29`, and `'Comps + WACC'!C40`)—matching the input filename (`Incorrect Index Match_input.xlsx`)—while leaving multiple glaring formula/reference/input bugs in the graded ranges untouched:\n1. `'Operating Model + DCF'!R84` (2026 Change in NWC) has the typo formula `=R847-M83` (referencing empty row 847 instead of `=R83-M83`, whereas `D84:M84` and `S84:V84` all compute current NWC row 83 minus prior NWC row 83).\n2. `'Operating Model + DCF'!C90` (Year 1 DCF Tax Rate) is hardcoded as `-0.3` (`-30%`) instead of `0.3` (`30%` as in `D90:H90`).\n3. `'Operating Model + DCF'!C36:H36` (2019–2024 D&A) references `'IS Annual'!C75:H75` (empty cells, evaluating to `0` because `IS Annual` ends at row 45, whereas historical D&A is on `'CFS'!E4:J4`) and `'Operating Model + DCF'!I62:L62` (2025 Capex) links to `'IS Quarters'!E69:H69` (2024 Depreciation Expense) instead of `'Key Stats'!G46:J46` (2025 Capital Expenditures).\n4. `'Operating Model + DCF'!C98:H98` (DCF WACC) is hardcoded as `0.0965997` instead of referencing `'Comps + WACC'!$C$38`, and `'Comps + WACC'!C29` in `gt_08_golden.xlsx` is changed from `=INDEX(D17:D24,MATCH(\"TEAM US\",B17:B24,0))` (Unlevered Beta) to `=INDEX(E17:E24,MATCH(\"TEAM US\",B17:B24,0))` (Relevered Beta).\n\nBecause `verify_spreadsheetbench2_cells` (weight 1.0) requires `mod_ratio == 1.0` and `reg_ratio >= 0.998` to award a non-zero score, fixing `'Operating Model + DCF'!R84` (`=R83-M83`) and/or `C90` (`0.3`) changes the downstream DCF sum in `'Operating Model + DCF'!C102`, `C107`, `C121`, and `C135` (which are in the 75-cell modification set because `S84:V84` also flow into `C102`), reducing `modification` from `1.0000` to `0.9467` (or `0.9067` if `Comps + WACC!C29` is not changed) and causing all 3 agent attempts to score 0.0 despite finding and fixing all errors.",
+    "confirmation": "Golden only repairs the INDEX/MATCH cells and keeps R84 '=R847-M83', C90 -0.3, C36 ='IS Annual'!C75 and I62 ='IS Quarters'!E69, while the prompt asks for a thorough fix, so correct extra fixes fail the all-or-nothing verifier.",
+    "fixed": true,
+    "fix": "Same answer-key correction (R84, C90, C36:H36, I62:L62, C98:H98). Its other items are not errors: D11:H11 and I7:L7 are parts of multi-cell array formulas (C11:H11 {='IS Annual'!C11:H11}, I7:L7 {='IS Quarters 2'!D10:G10}), not hardcodes, and Comps + WACC!C29 using the relevered beta is the planted INDEX/MATCH fix itself."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all units (score 0.0) because fixing broken reference R84 (=R847-M83 -> =R83-M83) and negative tax rate C90 (-0.3 -> 0.3) alters modification cells C102/C107/C121/C135 against an incomplete golden file",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 comparison units, `SpreadsheetBench 2 official cell check` (weight 1) returned `score=0` (`unit 1`: `regression 1.0000, modification 0.9067`; `unit 2`: `regression 0.9950, modification 0.9467`; `unit 3`: `regression 0.9975, modification 0.9067`). Reconstructing the outputs from the trajectories:\n- Every unit identified and fixed the broken `INDEX/MATCH` formulas (`'Revenue Build'!M17`, `'Comps + WACC'!C40`, `'Operating Model + DCF'!C108`, `'Operating Model + DCF'!C122`; and `unit 2` also changed `'Comps + WACC'!C29` to column E `E17:E24`).\n- Every unit also followed the prompt's instruction (`broken cell references, potential calculation errors`) by fixing `'Operating Model + DCF'!R84` from the typo `=R847-M83` (referencing blank cell `R847`) to `=R83-M83`, and fixing `'Operating Model + DCF'!C90` from `-0.3` to `0.3`.\n- In `gt_08_golden.xlsx`, `R84` is left broken as `=R847-M83` (`-29.613`) and `C90` is left as `-0.3`. Because fixing `'Revenue Build'!M17` changes `S84:V84`, which flow into `E94:H94`, `E95:H95`, `E100:H100`, and the DCF sum `C102 = SUM(C100:H100)` (plus `C107`, `C121`, `C135`), those 4 DCF sum cells are classified as `Modification` cells by `score_workbooks`. When the agent fixes `R84` (which flows into `D94`, `D95`, `D100`, and `C102`) and `C90` (which flows into `C91`, `C95`, `C100`, and `C102`), `C102`, `C107`, `C121`, and `C135` evaluate to `2867.1684831191` instead of the golden's `2725.72883376226`, causing 4 Modification errors (`71/75 = 0.9467` in `unit 2`, and `68/75 = 0.9067` in `unit 1` and `unit 3`) and a final score of `0.0`.",
+    "confirmation": "gt_08_golden.xlsx keeps 'Operating Model + DCF'!R84 '=R847-M83' and C90 = -0.3 (D90 = 0.3); these feed C102/C107/C121/C135, which are modification cells, so agents that fix them as the 'audit thoroughly' prompt asks fail the 100% match.",
+    "fixed": true,
+    "fix": "gt_08_golden.xlsx ('Operating Model + DCF') now also fixes the errors QA named, values recomputed with the verifier's LibreOffice recalc (21 cells changed, nothing else): R84 =R847-M83 -> =R83-M83; C90 -0.3 -> 0.3; C111, C125, C138 terminal value discounted ^5 -> ^6 (year 6 = 2030, matching H97/H99); C36:H36 D&A ='IS Annual'!C75:H75 (empty) -> =CFS!E4:J4 (FY2019-FY2024 D&A); I62:L62 capex ='IS Quarters'!E69:H69 (depreciation) -> =-'Key Stats'!G46:J46 (FY2025 quarterly capex, same sign convention as C62:H62); C98:H98 hardcoded WACC 0.0965997 -> ='Comps + WACC'!. C102/C107/C121/C135 now 2762.55."
+  }
+]

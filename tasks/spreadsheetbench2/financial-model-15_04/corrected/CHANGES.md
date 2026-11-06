@@ -1,0 +1,25 @@
+# Changes: SpreadsheetBench 2 financial-model-15_04
+
+Fix summary (from the fix record):
+
+The answer key computed FCFEPS from net change in cash and used one-off FY2019 return-ratio formulas. I corrected those formulas in the golden workbook and refreshed the 30 dependent cached values. Full pass: one prompt sentence states the key's definitions for Total Invested Capital, Capital Employed, Core RoIC, RoIC and ROCE, the 2013 averaging and the zero first-year growth, none of which the blank ratio block shows.
+
+Changed files (in this folder):
+
+- prompt.md
+- reference/gt_15_KIMS_golden.xlsx
+
+## Fixed
+
+- [F4](../findings.json) (Verification): SpreadsheetBench 2 official cell check: Verifier fails valid financial formulas due to defective ground truth in Consol_annual (FCFEPS and 2019 return ratios)
+  - Change: gt_15_KIMS_golden.xlsx, Consol_annual: N111:AB111 FCFEPS changed from '=N84/N99' (net change in cash) to '=N89/N99' (FCFE / Wt. Avg Shares), matching FCFPS row 109; T117/T118 '*0.74' replaced by '*(1-T36)' and T120 '=T40/AVERAGE(T60)' by '=T40/AVERAGE(S60,T60)', matching every other year. Cached values recalculated for the 30 affected cells (rows 111-112, T117/T118/T120, Formats AL19:AL21, E22:E23); no other cell changed. The patched golden grades PASS (reg 1.0, mod 1.0) against itself through the verifier's forced recalc.
+- [F1](../findings.json) (Verification): Golden solution contains erroneous formulas for FCFEPS (using Net Change in Cash instead of FCFE) and inconsistent 2019 return ratio formulas
+  - Change: gt_15_KIMS_golden.xlsx, Consol_annual: N111:AB111 FCFEPS changed from '=N84/N99' (net change in cash) to '=N89/N99' (FCFE / Wt. Avg Shares), matching FCFPS row 109; T117/T118 '*0.74' replaced by '*(1-T36)' and T120 '=T40/AVERAGE(T60)' by '=T40/AVERAGE(S60,T60)', matching every other year. Cached values recalculated for the 30 affected cells (rows 111-112, T117/T118/T120, Formats AL19:AL21, E22:E23); no other cell changed. The patched golden grades PASS (reg 1.0, mod 1.0) against itself through the verifier's forced recalc.
+- [F3](../findings.json) (Verification): Ground-truth FCFEPS divides Net Change in Cash, not FCFE, so a correct formula fails the whole all-or-nothing check
+  - Change: gt_15_KIMS_golden.xlsx, Consol_annual: N111:AB111 FCFEPS changed from '=N84/N99' (net change in cash) to '=N89/N99' (FCFE / Wt. Avg Shares), matching FCFPS row 109; T117/T118 '*0.74' replaced by '*(1-T36)' and T120 '=T40/AVERAGE(T60)' by '=T40/AVERAGE(S60,T60)', matching every other year. Cached values recalculated for the 30 affected cells (rows 111-112, T117/T118/T120, Formats AL19:AL21, E22:E23); no other cell changed. The patched golden grades PASS (reg 1.0, mod 1.0) against itself through the verifier's forced recalc.
+- [F2](../findings.json) (Verification): The answer key applies undisclosed FY2019 return-ratio exceptions
+  - Change: gt_15_KIMS_golden.xlsx, Consol_annual: N111:AB111 FCFEPS changed from '=N84/N99' (net change in cash) to '=N89/N99' (FCFE / Wt. Avg Shares), matching FCFPS row 109; T117/T118 '*0.74' replaced by '*(1-T36)' and T120 '=T40/AVERAGE(T60)' by '=T40/AVERAGE(S60,T60)', matching every other year. Cached values recalculated for the 30 affected cells (rows 111-112, T117/T118/T120, Formats AL19:AL21, E22:E23); no other cell changed. The patched golden grades PASS (reg 1.0, mod 1.0) against itself through the verifier's forced recalc.
+- other finding, major, not in findings.json: Undisclosed definitions for Total Invested Capital, Capital Employed, Core RoIC, RoIC, and ROCE in Consol_annual
+  - Change: Prompt: added one sentence after the shares note stating the key's definitions: Total Invested Capital = Total Debt + Minority Interest + Total Equity - Cash, Capital Employed = Total Debt + Minority Interest + Total Equity, Core RoIC / RoIC = (Net Income Before Extraordinaries + Interest x (1 - Tax rate)) over average Invested Capital / Capital Employed, ROCE = EBIT over average Capital Employed (2013 uses the current year alone), growth 0 with no prior year. Key unchanged. The other ratio rows (FDEPS, CEPS, DPS, BVPS, FCFPS, RoE) use standard definitions and identical share counts per year, so they need no note.
+- other finding, major, not in findings.json: Ratio definitions are unstated, yet one formula convention is required across about 965 changed cells in an all-or-nothing check
+  - Change: Prompt: added one sentence after the shares note stating the key's definitions: Total Invested Capital = Total Debt + Minority Interest + Total Equity - Cash, Capital Employed = Total Debt + Minority Interest + Total Equity, Core RoIC / RoIC = (Net Income Before Extraordinaries + Interest x (1 - Tax rate)) over average Invested Capital / Capital Employed, ROCE = EBIT over average Capital Employed (2013 uses the current year alone), growth 0 with no prior year. Key unchanged. The other ratio rows (FDEPS, CEPS, DPS, BVPS, FCFPS, RoE) use standard definitions and identical share counts per year, so they need no note.

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth Debt Service Burden is Interest/Budget, not the stated Interest/Debt",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The prompt says 'Debt Service Burden = Interest / Debt × 100 (4 decimals)'. FY2015: 0.22/18.15×100 = 1.2121, but GT Sheet3_Fiscal_Indicators!F2 = 6.7692, which equals 0.22/3.25 (interest/budget). FY2024: 0.88/35.47×100 = 2.4810, but GT = 17.8862 (0.88/4.92). All 10 values are wrong by a factor of about 5–7. A correct agent will not match the reference, and under the all-or-nothing 0/1 score that fails the run.",
+    "confirmation": "GT F2 = 6.7692 = 0.22/3.25×100 (Interest/Budget), whereas the prompt's Interest/Debt gives 0.22/18.15×100 = 1.2121. FY2024 F11 = 17.8862 vs 2.4810, so all ten Debt Service Burden values in the key are wrong.",
+    "fixed": true,
+    "fix": "Debt Service Burden part of the same edit: Sheet3_Fiscal_Indicators F2:F11 = Interest/Debt x 100."
+  },
+  {
+    "id": "F2",
+    "title": "Reference answer contradicts both fiscal-indicator formulas",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The statement requires 'Spending Efficiency = Budget / Spending × 100' and 'Debt Service Burden = Interest / Debt × 100'. However, all 20 reference cells in Sheet3_Fiscal_Indicators!E2:F11 use different calculations. For FY2015, RawData gives Budget=3.25, Spending=3.69, Debt=18.15 and Interest=0.22: the required results are 88.08 and 1.2121, but the reference contains 100 and 6.7692. Across all ten years, column E instead matches Spending / (Budget + Deficit) × 100, and column F matches Interest / Budget × 100. The grading guidance requires every value to be logically equivalent to the reference and uses a binary overall score, putting a correctly calculated submission at risk of failing.",
+    "confirmation": "Both Sheet3 columns E and F in the reference use formulas other than the stated ones (E is about 100 throughout, F = Interest/Budget), as verified against the GT's RawData, so a correctly computed submission disagrees with the reference.",
+    "fixed": true,
+    "fix": "Same edit to Sheet3_Fiscal_Indicators E2:F11."
+  },
+  {
+    "id": "F3",
+    "title": "Ground truth reference workbook gt_88_ref_0.xlsx computes Spending Efficiency and Debt Service Burden on Sheet3_Fiscal_Indicators using wrong formulas that contradict problem.py",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In problem.py, Subtask 2 (Sheet3_Fiscal_Indicators) explicitly defines the formulas: 'Spending Efficiency = Budget / Spending × 100 (2 decimals). Debt Service Burden = Interest / Debt × 100 (4 decimals).' Using the RawData values in gt_88_ref_0.xlsx (e.g., FY2015 Budget=3.25, Spending=3.69, Deficit=0.44, Debt=18.15, Interest=0.22), the required formulas yield Spending Efficiency (E2:E11) = [88.08, 84.94, 83.42, 81.02, 77.75, 52.21, 59.38, 78.15, 72.31, 72.89] and Debt Service Burden (F2:F11) = [1.2121, 1.2264, 1.2846, 1.5335, 1.6725, 1.2987, 1.2311, 1.5519, 1.9897, 2.481]. However, gt_88_ref_0.xlsx instead stores Spending Efficiency (E2:E11) = [100, 99.74, 99.75, 100, 100.23, 100, 99.85, 99.84, 100.16, 100] (erroneously calculated as Spending / (Budget + Deficit) × 100) and Debt Service Burden (F2:F11) = [6.7692, 7.3394, 7.8313, 9.9099, 10.9827, 10.2339, 8.642, 9.7959, 14.8649, 17.8862] (erroneously calculated as Interest / Budget × 100, dividing by Federal Budget instead of National Debt). Under grader_guidance in problems-metadata.json ('# Evaluation Criteria -> 2. Data Accuracy' and '# Output Format'), scoring is binary ('score': 0 or 1, 'correctness': 1 if all values are logically equivalent to the reference answer) with a web-search tolerance of at most ±0.5 percentage points for ratios/percentages. Because the reference file deviates by 11.9 to 47.8 percentage points on E2:E11 and 5.5 to 15.4 percentage points on F2:F11, a submission that follows the prompt's explicit formulas contradicts the reference answer key.",
+    "confirmation": "gt_88_ref_0.xlsx Sheet3_Fiscal_Indicators!E2 = 100 and F2 = 6.7692, but from the GT's own RawData row 2 (Budget 3.25, Spending 3.69, Debt 18.15, Interest 0.22) the prompt's formulas give 88.08 and 1.2121. All 20 cells in E2:F11 contradict the stated definitions.",
+    "fixed": true,
+    "fix": "gt_88_ref_0.xlsx Sheet3_Fiscal_Indicators: E2:E11 recomputed as Budget/Spending x 100 (2 dp) and F2:F11 as Interest/Debt x 100 (4 dp) from the GT's own RawData, e.g. FY2015 E2 100 -> 88.08, F2 6.7692 -> 1.2121; FY2024 E11 100 -> 72.89, F11 17.8862 -> 2.481. No other cell changed."
+  },
+  {
+    "id": "F4",
+    "title": "Ground truth uses the wrong formula for Spending Efficiency",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The prompt defines 'Spending Efficiency = Budget / Spending × 100'. I recomputed it from the GT's own RawData. FY2015: 3.25/3.69×100 = 88.08, but GT Sheet3_Fiscal_Indicators!E2 = 100. FY2020: 3.42/6.55×100 = 52.21, but GT = 100. FY2024: 4.92/6.75×100 = 72.89, but GT = 100. The GT column E (100, 99.74, 99.75, 100, 100.23, 100, 99.85, 99.84, 100.16, 100) is about Spending/(Budget+Deficit)×100. That is a near-identity ratio, not the stated formula. All 10 GT values are wrong. The grader is told to check that 'all values ... are logically equivalent to the reference', so an agent that applies the formula as written fails 'correctness' and gets score 0.",
+    "confirmation": "Spending Efficiency is defined as Budget/Spending×100, yet GT E2:E11 are about 100 (for example FY2020 E7 = 100, where 3.42/6.55×100 = 52.21). The key is wrong for every year, so a correct agent mismatches the reference.",
+    "fixed": true,
+    "fix": "Spending Efficiency part of the same edit: Sheet3_Fiscal_Indicators E2:E11 = Budget/Spending x 100."
+  }
+]

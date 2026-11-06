@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Golden workbook (gt_01_golden.xlsx) contains corrupted LibreOffice Multiple Operations cached values and fails its own verifier",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In gt_01_golden.xlsx (as well as untouched_input_Incorrect Index Match_input.xlsx), 'Ex 1 - LBO'!AG18:AK22, AG27:AK31, AG36:AK40, and AG45:AK49 contain LibreOffice TABLE(...) formulas saved by LibreOffice Calc. When gt_01_golden.xlsx was saved in LibreOffice, Multiple Operations substituted the final corner grid headers into the live model input cells (setting C31 to AK22=0.34 instead of its authored 0.24, M17 to AK31=0.137 instead of its formula value 0.0920000000000001, M27 to AF31=0.264 instead of 0.221506960056454, and C20 to AF49=18.2034 instead of 14.2033949536391) and also wrote the base-case string '2.4x/19%' into all 100 sensitivity table cells. Meanwhile, verify_spreadsheetbench2_cells (weight: 1, 100% of total score) calls managed_recalculated_xlsx(..., force_recalculation=True), which calls freeze_datatable_formulas() BEFORE running LibreOffice recalculation on the agent's output. Because TABLE(...) formulas are stripped before recalculation on the output workbook, LibreOffice evaluates the output workbook using the true model values (C31=0.24, C20=14.2033949536391, M17=0.092, M27=0.2215), causing gt_01_golden.xlsx itself to fail verify_spreadsheetbench2_cells with score=0.0 (regression=0.9931 < 0.998, modification=0.9816 < 1.0, 65 cell errors including Ex 1 - LBO!C11: answer=18.2034, output=14.2033949536391; Ex 1 - LBO!C32: answer=109.5182, output=101.3452; Ex 1 - LBO!U41: answer=0.137, output=0.092).",
+    "confirmation": "Confirmed in gt_01_golden.xlsx: AG18:AK49 hold =TABLE(...) formulas cached as '2.4x/19%', and C32/C11/U41 caches disagree with their formulas (109.5182, 18.2034, 0.137). Run <id>'s grades show recalculated outputs failing on exactly these cells.",
+    "fixed": true,
+    "fix": "Corrupted Multiple Operations caches replaced by the recalculated golden, and the grid cells are no longer graded."
+  },
+  {
+    "id": "F2",
+    "title": "The ground-truth workbook fails its own verifier, so no output can pass",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "I copied gt_01_golden.xlsx in as the agent's output and ran the verifier's own code path on it: managed_recalculated_xlsx(force_recalculation=True) followed by score_workbooks with the spec's answer_position and mode=values. Result: regression 0.9931 (threshold REGRESSION_PASS_RATIO=0.998) and modification 0.9816 (must be 1.0), with 65 cell errors. This is the only verifier (weight 1) and it is all-or-nothing, so the problem cannot be solved. The cause is stale cached values in the GT that disagree with its own formulas. Examples: 'Ex 1 - LBO'!C32 '=+C30*(1+C31)' with C30=81.73 and C31=0.24 should be 101.3452, but the GT caches 109.5182, which is 81.73*1.34. 'Ex 1 - LBO'!C11 '=+C20' caches 18.2034 while C20 caches 14.2034. 'Ex 1 - LBO'!U41 '=+M17' caches 0.137 while M17 caches 0.092. The errors flow on into C34 Equity Value (11968.04 vs 11074.90 recalculated), C37 Implied EV, F20:F28, U17/U23/U29/U32/U38/U54, X23:AC26, 'Ex 2 - Valuation Bridge'!C3/C4/C8, and 'Ex 5 - M&A'!C75/J75/K79. The verifier recalculates the agent's file in LibreOffice but compares it against these stale GT values. So a fully correct fix, including the GT file itself, scores 0.",
+    "confirmation": "'Ex 1 - LBO'!C32 =+C30*(1+C31) with 81.73 and 0.24 is cached as 109.5182 (81.73*1.34), and U41 =+M17 caches 0.137 while M17 is 0.092. The all-or-nothing verifier compares recalculated output against these stale caches, so all 3 trials scored 0.",
+    "fixed": true,
+    "fix": "Same golden recalculation: C32, U41 and other stale caches now match their formulas."
+  },
+  {
+    "id": "F3",
+    "title": "Stale golden-workbook values cause the expected solution to fail grading",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The verifier recalculates the submitted workbook but compares it against unrecalculated golden caches. The golden workbook contradicts its own formulas: 'Ex 1 - LBO'!C32 contains '=+C30*(1+C31)' with inputs 81.73 and 0.24, which produce 101.3452, but its cached expected value is 109.5182. U41 contains '=+M17' but caches 0.137 while M17 is 0.092. Recalculating the golden workbook through the verifier's own helper and scoring it against the supplied reference and golden files produces 65 cell errors, regression 0.9931 and modification 0.9816. The sole verifier has weight 1 and returns zero unless both ratios pass, so even the supplied expected solution fails after the mandatory recalculation.",
+    "confirmation": "Same defect: the golden C32 and U41 caches contradict their own formulas, and every trial in run <id> failed on the C11/C32/C34/C37 regression cells even after fixing the 7 INDEX/MATCH bugs.",
+    "fixed": true,
+    "fix": "Same golden recalculation plus answer_position grid exclusion."
+  },
+  {
+    "id": "F4",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "The GT does fail the sole SpreadsheetBench 2 check. The cause is stale TABLE-polluted caches in gt_01_golden.xlsx (e.g. C32 cached 109.5182 vs 101.3452 recalculated), not a staging mix-up, but the reported failure is real.",
+    "fixed": true,
+    "fix": "Same: the golden now scores 1.0 on the cell check (was 0.0 with 65 errors)."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells fails all units (score=0) because freeze_datatable_formulas during grading diverges from the TABLE-polluted cached values in gt_01_golden.xlsx",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "The workbook has only 7 actual INDEX/MATCH formula bugs between the input and golden files: 'Ex 1 - LBO'!C17 (D40:K40 -> C40:K40), 'Ex 1 - LBO'!P17 (MATCH(P1-1,...) -> MATCH(P1,...)), and 'Ex 3 - PF P&L'!C25:G25 ($C38:$K38 -> $C40:$K40). All three units found and fixed these exact 7 INDEX/MATCH bugs (e.g., unit 1 in step [71]/[76], unit 2 in step [88]/[98]). However, SpreadsheetBench 2 official cell check (weight: 1) scored 0.0 on all 3 units with the exact same leading regression errors: 'Regression error at Ex 1 - LBO!C11: answer=18.2034, output=14.2033949536391; Regression error at Ex 1 - LBO!C32: answer=109.5182, output=101.3452; Regression error at Ex 1 - LBO!C34: answer=11968.0393778, output=11074.9021108; Regression error at Ex 1 - LBO!C37: answer=12289.9413778, output=11396.8041108; Regression error at Ex 1 - LBO!F20: answer=215.4247088004, output=199.3482379944'. Even passing gt_01_golden.xlsx itself into verify_spreadsheetbench2_cells yields score=0.0 (regression 0.9931, modification 0.9816, 65 cell errors) because recalculate_xlsx calls freeze_datatable_formulas() on the submitted file (evaluating C32=81.73*(1+0.24)=101.3452 and C11=C20=14.2034), whereas gt_01_golden.xlsx was saved with unfrozen LibreOffice TABLE() formulas that polluted C32=109.5182, C11=18.2034, U41=0.137, U43=0.264, and all 100 sensitivity grid cells ('2.4x/19%'). Furthermore, when units 1 and 2 properly computed the 100 sensitivity grid cells for AG18:AK49, those 100 cells were also penalized as modification errors because gt_01_golden.xlsx expects the broken constant '2.4x/19%' in every cell.",
+    "confirmation": "gt_01_golden.xlsx caches stale values ('Ex 1 - LBO'!C32 =+C30*(1+C31) with 81.73 and 0.24 cached as 109.5182, C11 =+C20 cached 18.2034 vs C20 14.2034, U41 0.137 vs M17 0.092). All 3 trials in run <id> scored 0 with exactly these C11/C32/C34/C37 regression errors after recalculation.",
+    "fixed": true,
+    "fix": "gt_01_golden.xlsx: the 65 stale cached values are rewritten at XML level to the verifier's LibreOffice recalculation (C11=14.2034, C32=101.3452 etc.); formulas, TABLE() grids and styles are unchanged. verifications[0].parameters.answer_position: 'Ex 1 - LBO'!B1:AK95 split to skip the TABLE() grid cells AG18:AK22, AG27:AK31, AG36:AK40, AG45:AK49 (100 cells, cached '2.4x/19%'). Checked locally: the input with only the 7 golden INDEX/MATCH formulas applied with openpyxl scores 1.0, the original golden (cached and openpyxl-saved) scores 1.0, the untouched input scores 0."
+  }
+]

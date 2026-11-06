@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden's Berkshire dividend-rate sensitivity values are internally inconsistent and mathematically wrong, so a correct solution cannot match them.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-expected-values",
+    "evidence": "Berk-Hath!G10:K14 golden: row F11 (7.5%) duplicates row F12 (8%) (G11=G12=11152.88); row F10 (7%) duplicates row F13 (8.5%) (11515.71); row F14 (9%) copies the term-table row G20:K20 (12241.37…). Base case I12 at 8%/7.3% = 10429.31, versus about 11470 implied by C44=11432.17 at 7.35%; PV is not monotonic in dividend rate.",
+    "confirmation": "Golden 'Berk-Hath Investment Package' G10:K14 are static values that are internally inconsistent: row 11 (7.5%) equals row 12 (8%), row 10 (7%) equals row 13 (8.5%), and row 14 (9%) copies row 20. These are modification cells (input cached 11432.17 everywhere), so a correctly recomputed sensitivity "
+  }
+]

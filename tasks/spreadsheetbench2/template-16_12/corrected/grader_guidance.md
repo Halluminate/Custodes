@@ -1,0 +1,1 @@
+Official grading (SpreadsheetBench 2): cell-by-cell comparison of output.xlsx against the golden workbook over 'RentRoll'!B2:L16,'Valuation'!B2:E29,'Valuation'!B30,'Valuation'!D30:E30,'Valuation'!B31:E42,'Valuation'!B43,'Valuation'!D43:E43, after LibreOffice recalculation; 1% numeric tolerance; the task passes only if every compared cell matches.

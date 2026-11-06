@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt defines Daily Trading Intensity as Average Daily Trading Value (2 decimals), but the answer key divides it by the number of listed companies, so an agent that follows the prompt is graded wrong on all 25 rows.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-contradicts-prompt",
+    "evidence": "Sheet2_KPIs!E2=37.55 while RawData!G2=123581 (123581/3291=37.55); likewise E7=57.15 = 124538.6/2179.",
+    "confirmation": "The prompt defines Daily Trading Intensity = Average Daily Trading Value, but reference Sheet2_KPIs!E2 = 37.55 against RawData!G2 = 123,581 (123,581/3,291 companies), and E7 = 57.15 = 124,538.6/2,179. So the key divides by listed companies, and a prompt-following agent mismatches every row."
+  }
+]

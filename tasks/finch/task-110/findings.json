@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth modifies original Sheet1 by stripping ROUND() formulas, contradicting the explicit instruction to preserve all original sheets and their contents",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `problem.py`, the prompt explicitly instructs: \"You may add new sheets if necessary, but you must preserve all original sheets and their contents.\" In the input workbook `assets/110_src_0.xlsx`, `Sheet1` is already fully populated with `ROUND(...)` formulas (e.g., `Sheet1!F10` is `=ROUND(E10/0.95,4)` with value `5.4632`, `Sheet1!M10` is `=ROUND(J10*H10,2)` with value `26543`, and `Sheet1!O41` is `1017404.7`), while `March'01 GDAs` is the target sheet with blank calculation columns (`F10:F40`, `H10:I40`, `M10:Q41`). However, in the ground-truth file `gt_110_ref_0.xlsx`, `Sheet1` has been modified across 224 cells (`F10:F40`, `H10:I40`, `M10:Q41`, `Q46`, `Q49`) by stripping `ROUND(...)` from its formulas (e.g., changing `Sheet1!F10` to `=E10/0.95` with value `5.463157894736843`, `Sheet1!M10` to `=J10*H10` with value `26543.42105263158`, and `Sheet1!O41` to `1017407.1535526316`). Under the single-score binary (`0` or `1`) `grader_guidance` (\"You need to check every value filled or modified by the model and determine whether there is corresponding data in the reference answer\" and \"correctness: 1 if all values, formulas, charts, and text are logically equivalent to the reference answer; 0 otherwise\"), an agent that obeys the prompt and preserves `Sheet1` unmodified will mismatch `gt_110_ref_0.xlsx` on `Sheet1`, whereas an agent that modifies `Sheet1` to match `gt_110_ref_0.xlsx` violates `over_edit_avoidance` (\"Model modifications should not exceed the scope defined by the instruction\").",
+    "confirmation": "Input Sheet1 F10 is '=ROUND(E10/0.95,4)' (5.4632) and O41 is 1017404.7, while the GT's Sheet1 F10 is '=E10/0.95' and O41 is 1017407.15. The GT therefore modifies an original sheet the prompt says to preserve, and an agent that obeys will mismatch the reference.",
+    "fixed": true,
+    "fix": "files/gt/gt_110_ref_0.xlsx 'Sheet1': restored every cell to the input workbook (ROUND formulas and cached values, e.g. F10 '=ROUND(E10/0.95,4)', O41 1017404.7, Q49 360406.05). Sheet1 is now identical to the input"
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth changes the original 'Sheet1', even though the prompt says to keep original sheets and their contents",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Source Sheet1 has F10 '=ROUND(E10/0.95,4)', M10 '=ROUND(J10*H10,2)', N10 '=ROUND(I10*K10,2)', P10/Q10 '=ROUND(O10*0.7/0.3,2)'. The GT Sheet1 has all ROUND wrappers stripped: F10 '=E10/0.95', M10 '=J10*H10', and so on. That changes cached values: Sheet1!O41 goes from 1,017,404.70 to 1,017,407.15, Q41 from 305,221.43 to 305,222.15, and Q49 from 360,406.05 to 360,406.77. The prompt says 'you must preserve all original sheets and their contents.' An agent that leaves Sheet1 alone, as told, will show differences from the reference on that sheet. If the grader compares against the GT, it could treat the agent as wrong, or treat a faithful copy of the GT as an over-edit.",
+    "confirmation": "Confirmed: the GT Sheet1 strips the ROUND wrappers (M10 '=J10*H10', P10 '=O10*0.7'), changing Q49 from 360406.05 to 360406.77, contrary to 'preserve all original sheets and their contents'.",
+    "fixed": true,
+    "fix": "files/gt/gt_110_ref_0.xlsx 'Sheet1': restored every cell to the input workbook (ROUND formulas and cached values, e.g. F10 '=ROUND(E10/0.95,4)', O41 1017404.7, Q49 360406.05). Sheet1 is now identical to the input"
+  }
+]

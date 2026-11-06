@@ -1,0 +1,101 @@
+[
+  {
+    "id": "F1",
+    "title": "Golden font colors contradict the task's explicit convention",
+    "bucket": "Style",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions require 'green for cross-sheet link formulas' and 'black for same-sheet formulas', but the answer key requires black for direct cross-sheet formulas. For example, 'Football Field'!E5 contains ='DCF Model'!Q98 and G5 contains ='DCF Model'!R98, yet both golden font colors are FF000000. 'Recapitalization'!E22:I22 likewise reference 'DCF Model' but are changed from blue to black in the golden workbook. The golden also preserves purple FF7030A0 on same-sheet formulas such as 'BS & CF'!F25 (=-F49). Correcting these cells according to the stated convention conflicts with the verifier. The sole verification has weight 1 and requires every modification cell to match, so these contradictory required colors can cause the entire task to receive zero.",
+    "confirmation": "Confirmed: Football Field!E5 ='DCF Model'!Q98 and G5 are black in the GT, Recapitalization!E22 (cross-sheet) went from blue to black, and 'BS & CF'!F25 =-F49 stays purple. These contradict the stated blue/green/black convention.",
+    "fixed": true,
+    "fix": "Same as F6 (golden cross-sheet links now green) and F3 (purple same-sheet formulas such as 'BS & CF'!F25 are now black in the key and graded)."
+  },
+  {
+    "id": "F2",
+    "title": "The answer key fails its own verifier: LBO circular-calculation cells cannot match after LibreOffice recalculation",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The only verifier (verify_spreadsheetbench2_cells, weight 1, all-or-nothing) recalculates the output in LibreOffice. It then needs every modification cell to match the golden file's cached values within 1%. I submitted gt_07_golden.xlsx itself as output.xlsx and ran score_workbooks. Result: regression 1.0, modification 0.7317, 17 cell errors, score 0. Examples: 'LBO & Lenders'!T50 answer=-7.494 vs recalculated -7.260; W50 answer=-13.614 vs -11.007; X50 -16.826 vs -12.781; X53 109.64 vs 113.68; X58 4.374 vs 4.218. These cells are part of an iterative circular calculation (T53 '=T54*AVERAGE(T49,T51)', with the workbook set to iterate=True, iterateCount=100). Their cached values in the golden file differ from the input's cached values even though the formulas are identical (T53 input 117.37 vs GT 118.97). So 'LBO & Lenders' T50/U50/V50/W50/X50, T53/W53/X53, T57/W57/X57 and T58/W58/X58 are graded as 'modification' cells purely because of convergence noise. LibreOffice converges to different numbers, so no output can ever pass. Submitting the untouched input also scores modification 0.0732.",
+    "confirmation": "Reproduced locally: the GT as output scores regression 1.0, modification 0.7317, 17 errors (e.g. LBO & Lenders!T50 -7.494 vs -7.260). The circular-calc cells are graded as modifications that no recalculated output can match.",
+    "fixed": true,
+    "fix": "answer_position no longer includes the 'LBO & Lenders' cells whose values differ by more than 0.2% across LibreOffice recalculations of the golden, the input, or openpyxl-saved copies (S49:X59 loop, R35, R51, R62:R63, S37:X37, S45:X47, W28:W29)."
+  },
+  {
+    "id": "F3",
+    "title": "Hundreds of cells in the answer key still break the stated colour rule, so a thorough correct fix fails the regression check",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "I classified every numeric or formula cell in gt_07_golden.xlsx. Same-sheet formulas in purple 7030A0: 189 (e.g. 'BS & CF'!F25 =-F49). Same-sheet formulas in blue: 161 (e.g. 'DCF Model'!G11 =AVERAGE(E11:F11), H11 =G11). Hardcoded inputs in black: 47 (e.g. 'DCF Model'!Q19 0.1, O29 2025). Cross-sheet formulas in black: 21. Cross-sheet formulas in purple: 6 (e.g. 'LBO & Lenders'!S37 ='DCF Model'!G62*(7/12)). Same-sheet formula in green: 1 ('DCF Model'!S7 =G127). The task says to 'Find cells where the font color doesn't match what the cell actually contains and correct them', and fixing these is exactly that. But they count as regression cells, which must stay unchanged at a 99.8% pass ratio. Correcting a few dozen of them fails the whole task. Only about 29 cells were actually seeded as errors, and nothing visible to the agent tells it which mismatches are 'intended'. This is multiple_valid_answers_rejected / contradictory_requirements.",
+    "confirmation": "Counting same-sheet formulas in gt_07_golden.xlsx: 187 are purple FF7030A0 and 161 are blue FF0000FF (e.g. 'BS & CF'!F25 =-F49 purple, 'DCF Model'!G11 blue), all left unchanged from the input. Fixing them as the prompt asks counts as regression errors beyond the 0.2% tolerance.",
+    "fixed": true,
+    "fix": "gt_07_golden.xlsx: the 402 graded cells whose golden font colour broke the stated rule are now recoloured to the rule at XML level (new font+xf entries, values and formulas untouched): 189 purple 7030A0 and 151 blue 0000FF same-sheet formulas -> black 000000 (e.g. 'BS & CF'!F25 =-F49, 'DCF Model'!G11), 47 black hardcoded inputs -> blue 0000FF (e.g. 'DCF Model'!Q19, O29), 8 black and 6 purple cross-sheet formulas -> green 00B050 (e.g. 'LBO & Lenders'!S37), 1 green same-sheet formula ('DCF Model'!S7 =G127) -> black. These cells are graded again (the earlier exclusion is removed). The 12 formulas made only of typed numbers (e.g. 'DCF Model'!D37 =1925-40) have no single correct colour (input vs formula) and stay out of answer_position."
+  },
+  {
+    "id": "F4",
+    "title": "Task prompt claims Pandas, openpyxl, and numpy are installed in the Python environment, but they are missing from the default python3",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In problem.py:11-18, the prompt states: 'You can complete the corresponding spreadsheet tasks using the following Python environment: `Pandas`, `openpyxl`, `numpy` and `LibreOffice`' and '1. Inspect: Inspect the data with Python (e.g. openpyxl) to understand the structure and contents of the spreadsheet'. However, in the runtime container, /usr/bin/python3 (the default python3 on PATH) does not have openpyxl, pandas, or numpy installed (they are only installed in <tool-server dir>/.venv/bin/python, which is not on PATH or mentioned to the agent). Across all 3 attempts (unit 1 steps [1]-[7], unit 2 steps [1]-[9], unit 3 steps [1]-[5]), the agent immediately encountered 'ModuleNotFoundError: No module named openpyxl' (and 'No module named pandas' in unit 3), failed to pip install due to no network access, and had to spend multiple steps writing custom zipfile/xml.etree parsers to inspect and edit the workbook.",
+    "confirmation": "prompt.md promises Pandas/openpyxl/numpy, but every trajectory of run <id> shows \"No module named 'openpyxl'\" and pip blocked by the proxy, so the advertised Python environment is missing.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F5",
+    "title": "Golden workbook fails its own mandatory recalculation and grading",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The circular debt schedule has inconsistent cached results, and the font-color verifier also compares cached numerical values. In the golden workbook, 'LBO & Lenders'!X53 is =X54*AVERAGE(X49,X51), with X54=0.1275, X49=897.508353784724 and X51=880.681980565791. Those inputs imply 113.359633814845, but the cached answer is 109.6382395757. Cached-value differences between reference and golden introduce 14 numerical modification cells unrelated to font repairs. Passing the golden workbook itself through the verifier's required force_recalculation=True path produced regression 1.0000 and modification 0.7317, with 11 modification failures. For example, X53 recalculated to 113.683548936339 instead of the expected 109.6382395757. Because the sole weight-1 check requires modification 1.0000, even the supplied golden solution receives zero through this grading path.",
+    "confirmation": "Local verifier run on gt_07_golden.xlsx: regression 1.0000, modification 0.7317, 17 cell errors (e.g. LBO & Lenders!X53 cached 109.64 vs recalculated ~113.68). The golden fails the only weight-1 check.",
+    "fixed": true,
+    "fix": "Same as F2: the circular debt-schedule cells (e.g. 'LBO & Lenders'!X53) are out of answer_position; patched golden through the forced-recalc path scores regression 1.0, modification 1.0."
+  },
+  {
+    "id": "F6",
+    "title": "The answer key gives cells colours that contradict the stated blue/green/black rule",
+    "bucket": "Style",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The prompt says: 'blue for hardcoded inputs, green for cross-sheet link formulas, and black for same-sheet formulas.' Yet the golden file recolours several cross-sheet link formulas to BLACK instead of green, and the verifier grades these as required modifications: Football Field!E5 =\"'DCF Model'!Q98\" and G5 =\"'DCF Model'!R98\" (blue to black); Recapitalization!E22:I22 =\"('DCF Model'!$F$106+...)\" (blue to black); 'LBO & Lenders'!T34:X34 =\"'DCF Model'!H8\" etc. (purple to black). That is 12 graded cells. An agent that follows the stated rule and colours them green fails the all-or-nothing check. Equity Returns!D5 (a cross-sheet INDEX/MATCH) also expects the green FF058005, while every other green cell in the GT uses FF00B050. An agent that reuses the model's own green (00B050) therefore fails that cell too.",
+    "confirmation": "GT recolors cross-sheet links to black (Football Field!E5/G5 FF0000FF to FF000000, Recapitalization!E22 to black, LBO & Lenders!T34 FF7030A0 to FF000000), which contradicts prompt line 34's green rule. Equity Returns!D5 is FF058005, a green no other cell uses.",
+    "fixed": true,
+    "fix": "gt_07_golden.xlsx: the 12 cross-sheet link cells ('Football Field'!E5,G5, 'Recapitalization'!E22:I22, 'LBO & Lenders'!S34:X34) recoloured from black to FF00B050, and 'Equity Returns'!D5 from FF058005 to FF00B050. Nothing else in the file changed (checked cell by cell)."
+  },
+  {
+    "id": "F7",
+    "title": "Golden workbook contradicts the stated font-color convention and fails its own verifier due to iterative calculation drift",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In problem.py:39-40, the prompt states: 'This model uses a font-color convention: blue for hardcoded inputs, green for cross-sheet link formulas, and black for same-sheet formulas. Find cells where the font color doesn't match what the cell actually contains and correct them.' The sole verifier 'SpreadsheetBench 2 official cell check' (verify_spreadsheetbench2_cells, weight: 1) compares the output against gt_07_golden.xlsx in mode='font_color'. However, gt_07_golden.xlsx directly contradicts the prompt's rule in multiple ways:\n1. Only 27 cells had their font colors altered between gt_07_golden.xlsx and untouched_input_Inconsistent Color Coding_input.xlsx. Of those 27 modification cells, 13 are cross-sheet link formulas ('Football Field'!E5 ='DCF Model'!Q98, 'Football Field'!G5 ='DCF Model'!R98, 'LBO & Lenders'!S34:X34 referencing 'DCF Model'!D8:L8, and 'Recapitalization'!E22:I22 =('DCF Model'!$F$106+'DCF Model'!$F$115+'DCF Model'!$F$124)), yet gt_07_golden.xlsx requires their font color to be black (FF000000) rather than green (FF00B050).\n2. For 'Equity Returns'!D5 (=INDEX('Margin Analysis'!$C$7:$E$7, MATCH(2024, 'Margin Analysis'!$C$2:$E$2, 0))), gt_07_golden.xlsx uses a unique green RGB FF058005 (Calibri), whereas all other 61 green cross-sheet link cells in the workbook use FF00B050 (Times New Roman). Because _cells_match in spreadsheetbench2.py:165-167 checks exact 6-hex RGB equality, coloring D5 with the workbook's standard green FF00B050 fails.\n3. Across the remaining ~3,310 regression cells in answer_position (which must match gt_07_golden.xlsx at >=99.8% ratio), gt_07_golden.xlsx leaves hundreds of convention violations unfixed: 161 same-sheet formulas colored blue (0000FF), 189 same-sheet formulas and 6 cross-sheet formulas ('LBO & Lenders'!S37:X37) colored purple (7030A0, a color never mentioned in problem.py), 8 cross-sheet formulas ('Football Field'!E6:E7, G6:G7, H6:I7) colored black (000000), and 75 numeric constants colored black (000000). An agent that follows the prompt and fixes all convention mismatches fails both the regression check and the modification check.\n4. Furthermore, 'LBO & Lenders' rows 49-59 contain an iterative circular reference (Ending Debt S51:X51 <-> Average Debt Interest S53:X53) with iterate='true', iterateCount='100', iterateDelta='0.0001'. When untouched_input was saved from gt_07_golden.xlsx, LibreOffice ran another iterative pass on the unconverged cached values, causing 14 cells ('LBO & Lenders'!T50:X50, T53, W53, X53, T57, W57, X57, T58, W58, X58) to differ in value by >1% (up to 31% at X50: -16.8264 in golden vs -11.6396 in input) despite identical formulas and colors, and causing gt_07_golden.xlsx itself to score 0.0 when passed through verify_spreadsheetbench2_cells.",
+    "confirmation": "Verified: only 27 font colors change from input to gt_07_golden.xlsx. Cross-sheet links (Football Field E5/G5, Recapitalization E22, LBO & Lenders T34) are set to black, D5 uses FF058005, and the GT keeps 187 purple and 161 blue same-sheet formulas. It also fails its own verifier after recalc (mod 0",
+    "fixed": true,
+    "fix": "gt_07_golden.xlsx: 'Football Field'!E5,G5, 'LBO & Lenders'!S34:X34, 'Recapitalization'!E22:I22 font FF000000 -> FF00B050, 'Equity Returns'!D5 FF058005 -> FF00B050, and the remaining 402 rule-breaking cells recoloured to the rule (see F3); the circular LBO cells stay out of answer_position."
+  },
+  {
+    "id": "F8",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "Local run of the verifier on gt_07_golden.xlsx gives regression 1.0, modification 0.7317, 17 errors in LBO & Lenders (T50, U50, ...), so the GT scores 0. The cause is circular-recalc drift, not a misrouted file.",
+    "fixed": true,
+    "fix": "gt_07_golden.xlsx recoloured (14 cells, see F6) and answer_position narrowed (see F3, F2). Local grade of the patched golden: regression 1.0, modification 1.0."
+  },
+  {
+    "id": "F9",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails all runs (and fails the golden workbook itself) due to forced recalculation on unconverged circular references and contradictory golden font colors",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "The sole verifier 'SpreadsheetBench 2 official cell check' (verify_spreadsheetbench2_cells, weight: 1) scores 0.0 on all 3 units (unit 1: regression 1.0000, modification 0.3902, 31 cell errors; unit 2: regression 0.9607, modification 0.3659, 421 cell errors; unit 3: regression 0.9617, modification 0.3659, 411 cell errors). Even when gt_07_golden.xlsx itself is passed as output_path to verify_spreadsheetbench2_cells, it scores 0.0 ('FAILED - regression 1.0000, modification 0.7317. 17 cell error(s): Modification error at LBO & Lenders!T50: answer=-7.49437449150413, output=-7.25996975435565...').\n\nTwo compounding issues make it impossible for any legitimate solution to pass:\n1. Unconverged iterative circularity in gt_07_golden.xlsx vs. forced recalculation: verify_spreadsheetbench2_cells (spreadsheetbench2.py:362-368) runs managed_recalculated_xlsx(Path(output_path), force_recalculation=True) on the agent's output, which invokes LibreOffice with OOXMLRecalcMode=0, and then compares the recalculated output against the raw cached values of gt_07_golden.xlsx. In 'LBO & Lenders'!S49:X59, Ending Debt (row 51) and Interest Expense (row 53 = rate * AVERAGE(beg, end)) form a circular loop. The cached values stored in gt_07_golden.xlsx (e.g. T50=-7.4944, U50=-9.0274, V50=-11.0420, W50=-13.6135, X50=-16.8264) were saved before the iterative calculation settled, whereas untouched_input_Inconsistent Color Coding_input.xlsx was saved one iterative pass later (T50=-9.0903, U50=-9.6698, V50=-10.2863, W50=-10.9420, X50=-11.6396), and a forced LibreOffice recalculation produces T50=-7.3617 (from input) or -7.2600 (from golden), both outside the 1% tolerance of golden's -7.4944 (and up to 26% away at X50). Thus 14 cells in 'LBO & Lenders' are falsely classified as modification cells and always fail after forced recalculation.\n2. Contradictory golden font colors: In unit 2 (steps [59]-[68]) and unit 3 (steps [40]-[44]), the agents faithfully implemented the prompt's font-color rules across the workbook, which caused ~400 regression errors on cells where gt_07_golden.xlsx itself violates the prompt's convention, plus modification errors on the 13 cross-sheet link formulas where gt_07_golden.xlsx expects black (FF000000) instead of green (FF00B050) and on 'Equity Returns'!D5 where gt_07_golden.xlsx expects FF058005 instead of FF00B050. In unit 1 (steps [59]-[64]), the agent tried to preserve unchanged style twins and still failed on 31 modification cells (the 14 circular-reference value cells plus 17 color cells where golden contradicts the convention).",
+    "confirmation": "Reproduced the GT self-fail (mod 0.7317, 17 errors), and the GT colors contradict the prompt's rule: Football Field!E5 ='DCF Model'!Q98 goes to black FF000000 instead of green, and Equity Returns!D5 expects FF058005 instead of the workbook's FF00B050.",
+    "fixed": true,
+    "fix": "Golden recoloured (14 cells per F6, 402 per F3). verifications[0].parameters.answer_position drops only the 38 'LBO & Lenders' cells whose values do not settle under LibreOffice recalculation and the 12 typed-number formulas (was: also the 402 rule-breaking cells)."
+  }
+]

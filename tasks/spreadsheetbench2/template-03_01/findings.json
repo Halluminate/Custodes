@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Undisclosed cell-filling scope and unlabelled tax rate assumption (C9) cause valid consolidation tables to fail both regression and modification checks",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The prompt instructs: 'Complete the M&A consolidation analysis by filling all blank cells in the financial statements.' However, `verify_spreadsheetbench2_cells` (weight: 1.0, `REGRESSION_PASS_RATIO = 0.998`) partitions `'M&A_Consolidation'!B2:G53` into 269 regression cells (unchanged between input and golden) and 43 modification cells. In `gt_03_01_golden.xlsx`, several blank cells inside the financial statement tables are left blank (`None`) rather than filled, even while adjacent rows/columns in the exact same table are filled: (1) In the Pro Forma Balance Sheet (`B10:F18`), Acquirer and Target 'Shareholders' equity' (`C17=1900`, `D17=200`) and Adjustments/Acquirer PF 'Total assets' (`E14=-130`, `F14=3600`) are filled, whereas Acquirer and Target 'Total assets' (`C14`, `D14`) and 'Balance' (`C18`, `D18`) are left `None`. (2) In the Income Statement (`B21:F31`), Acquirer and Target 'Consolidated net income' (`C28=390`, `D28=156`) are filled, whereas 'Net income to common' (`C30`, `D30`) is left `None`. Because `REGRESSION_PASS_RATIO = 0.998` permits at most 0 regression errors out of 269 cells (`268/269 = 0.9963 < 0.998`), filling `C14`, `D14`, or `C30` automatically fails the regression check (as occurred in all 3 units: unit 1 and unit 3 scored `regression 0.9777`, unit 2 scored `regression 0.9554`, with `Regression error at M&A_Consolidation!C14: answer=None, output=3400` and `Regression error at M&A_Consolidation!C30: answer=None, output=600`/`360`). Furthermore, in the input workbook, cell `B9` is blank (`None`) while `C9` contains `0.35` (formatted `0.00%`, black font), immediately below `B7='% Ownership acquired'` (`C7=0.65`), `B8='Payment method'`, and `C8='100% cash'`. In standard M&A templates, `1 - 65% = 35%` represents the non-controlling interest (NCI) percentage, and nothing in the workbook or prompt labels `C9` as a tax rate or states a 35% tax rate. Yet `gt_03_01_golden.xlsx` uses `0.35` as the income tax rate (`C27 = '=C26*0.35' = 210`, `D27 = '=D26*0.35' = 84`, `F27 = '=F26*0.35' = 294`), causing all 3 units to fail `C27`, `D27`, `F27`, and all downstream net income, NCI, cash flow, and 2017 balance sheet cells.",
+    "confirmation": "The prompt says to fill all blank cells, but gt_03_01_golden.xlsx leaves C14/D14, C18/D18 and C30/D30 blank, and REGRESSION_PASS_RATIO 0.998 fails any fill (run <id>: 'Regression error at C14: answer=None, output=3400'). Input C9 = 0.35 has no label in B9, but the GT uses it as the tax rate (C27",
+    "fixed": true,
+    "fix": "gt_03_01_golden.xlsx M&A_Consolidation!C14 =SUM(C12:C13) (3400) and D14 =SUM(D12:D13) (330) added. One sentence appended to the prompt's Instruction line: 'For Net income to common, Dividends and the cash flow statement, fill only the Consolidated column and leave the other columns of those lines blank.' (The remaining blank Balance and NCI cells are zero, and the verifier already treats a blank as equal to 0.) B9 = 'Tax rate' (B8's style) added to 03_01_input.xlsx, untouched_input_03_01_input.xlsx and gt_03_01_golden.xlsx. The patched GT scores reg 1.0 / mod 1.0 locally."
+  },
+  {
+    "id": "F2",
+    "title": "The tax-rate assumption has no label",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input contains C9 = 0.35, displayed as 35.00%, but B9 is blank and no instruction, comment, or supporting source identifies this value as a tax rate. It also equals the unacquired ownership share, 1 − C7 = 35%, making its meaning ambiguous in this consolidation exercise. Nevertheless, the golden workbook hardcodes 35% in C27, D27, and F27, expecting taxes of 210, 84, and 294. This unstated interpretation propagates into net income, NCI expense, cash flow, and ending balances; a different interpretation fails the all-or-nothing verifier. The supplied trajectories also show repeated uncertainty about the tax assumption.",
+    "confirmation": "C9 = 0.35 has no label (B9 blank) and matches the 35% NCI share, but GT C27/D27/F27 apply it as a tax rate (=C26*0.35). Trials guessing differently failed C27 (output 240 or 0 against 210).",
+    "fixed": true,
+    "fix": "B9 = 'Tax rate' added in the input, the untouched reference input and the GT."
+  },
+  {
+    "id": "F3",
+    "title": "Completing blank total-assets cells is penalized by the verifier",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instruction requires \"filling all blank cells in the financial statements,\" but the golden workbook leaves M&A_Consolidation!C14 and D14 blank on the \"Total assets\" row. The seeded figures imply C14 = 1,850 + 1,550 = 3,400 and D14 = 180 + 150 = 330. Testing a golden-equivalent fixture with only these two totals added produces regression errors because the expected values are None: the regression ratio falls to 0.9926, below the required 0.998, while all modification cells still match. Consequently, this reasonable completion fails the sole verifier, which carries 100% of the score.",
+    "confirmation": "GT M&A_Consolidation!C14/D14 (Total assets) stay None even though the inputs imply 3400 and 330. A filled total fails regression ('Regression error at C14: answer=None, output=3400' in run <id>).",
+    "fixed": true,
+    "fix": "GT M&A_Consolidation!C14 =SUM(C12:C13) = 3400 and D14 =SUM(D12:D13) = 330, so filled total assets now match."
+  },
+  {
+    "id": "F4",
+    "title": "The instruction says to fill ALL blank cells, but the answer key leaves many cells blank and the grader rejects any extra values",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The problem statement says: \"Complete the M&A consolidation analysis by filling all blank cells in the financial statements.\" The golden file leaves many labeled cells blank inside the graded range 'M&A_Consolidation'!B2:G53: C14/D14 (Total assets for Acquirer and Target, even though E14 and F14 are filled), C18/D18/E18 (Balance), C29/D29, C30/D30/E30 (Net income to common), D31/E31/F31 (Dividends), and the whole Acquirer/Target/NCI block C35:E40 of the cash flow statement. The input already has these cells blank, so verify_spreadsheetbench2_cells counts them as 'regression' cells. The threshold is REGRESSION_PASS_RATIO = 0.998, and the range has 6×52 = 312 cells, so a single wrong regression cell gives 311/312 = 0.9968 and the score drops to 0.0. A careful agent that takes the instruction literally will fill C14 = 3,400 and D14 = 330 (sums of the components), C30 = 390, F31 = 150 or C18 = 0. Those are all correct finance, and the single all-or-nothing verifier (weight 1) fails the whole task.",
+    "confirmation": "GT leaves the labelled blanks C14, D14, C18, C30 and C35:E40 empty despite 'filling all blank cells'. These count as regression cells, so one sensible fill such as C14 = 3400 drops regression below 0.998 and scores 0, as happened in all 3 trials.",
+    "fixed": true,
+    "fix": "Same as above: GT C14/D14 filled, and the prompt sentence names the lines that are filled only in the Consolidated column (rows 30, 31 and 35-40)."
+  },
+  {
+    "id": "F5",
+    "title": "The tax rate the answer key needs has no label; the only candidate (C9 = 35%) also equals the NCI share",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Input row 9 has no label in B9. C9 holds 0.35 formatted as '0.00%', directly under 'Payment method / 100% cash' and next to '% Ownership acquired' = 65%. The GT computes taxes as C27 '=C26*0.35', D27 '=D26*0.35' and F27 '=F26*0.35', giving taxes of 210 / 84 / 294 and NI of 390 / 156 / 546. Nowhere does the workbook or the prompt say a 35% tax rate exists. Because 0.35 = 1 − 65%, an agent can reasonably read C9 as the NCI percentage (and use it in E29). It then has no tax rate at all and may set taxes to 0 or use another rate, which changes every downstream graded cell (rows 27–30, 35–40, D44, D47, D50, D51). The verifier is all-or-nothing, so a wrong reading costs the full score. This is prompt_ambiguity / incomplete_task_materials: the tax-rate input lost its label.",
+    "confirmation": "Input B9 is blank next to C9 = 0.35, which equals 1 - C7 (65% acquired). The GT hardcodes taxes as C26*0.35, a 35% tax rate stated nowhere, and the trials guessed other rates (C27 output 240 or 0 against 210) and failed.",
+    "fixed": true,
+    "fix": "B9 label 'Tax rate' added next to C9 = 0.35 in the agent input (03_01_input.xlsx), the reference input (untouched_input_03_01_input.xlsx) and the GT. No other cell changed."
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "S1",
+    "title": "The rubric scores a sixth school the prompt never names (New Hyde Park Road School) instead of the prompt's fifth school (Garden City Park School). An agent that follows the prompt cannot earn those points.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "rubric-prompt-mismatch",
+    "evidence": "The prompt lists 'Garden City Park School' as the fifth school. Every per-school rubric block (Overall grade, Academics, Diversity, Teacher, ratio, enrollment, website, reading, math, ranking) uses 'New Hyde Park Road School', and the answer-key PDF row is 'New Hyde Park Road School'.",
+    "confirmation": "The prompt lists Garden City Park School as the fifth school, but every per-school rubric item in grader_guidance.md and the GT PDF row name New Hyde Park Road School instead."
+  },
+  {
+    "id": "S2",
+    "title": "The rubric rewards a 1-page deliverable, but the prompt asks for a separate report for each school of up to 10 pages. A compliant per-school set of reports would lose points.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "length-contradiction",
+    "evidence": "Rubric: '[+2] The deliverable file is no more than 1 page in length'. Prompt: 'For each school, create a PDF report (no more than 10 pages)'.",
+    "confirmation": "The prompt asks for a PDF report for each school (up to 10 pages), but the rubric awards +2 for a deliverable of no more than 1 page and the GT is a single one-page comparison table, so a prompt-compliant set of reports loses points."
+  },
+  {
+    "id": "S3",
+    "title": "The prompt requires each report to list nearby homes under $1.25M, but neither the rubric nor the answer key covers home listings. A submission that omits the homes entirely would not be penalized.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "missing-required-component",
+    "evidence": "Prompt: 'A list of nearby homes within close proximity to that school that meet the buyer's criteria.' The rubric has no item about homes, and gt_School Reports.pdf contains only a school comparison table.",
+    "confirmation": "The prompt requires a list of nearby homes under $1.25M, but gt_School Reports.pdf contains only a school table and no rubric item mentions homes, so this required component is never graded."
+  }
+]

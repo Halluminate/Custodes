@@ -1,0 +1,79 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key puts 'NM' in Total Debt/EBITDA for FY37–FY39 even though EBITDA is positive, so following the instruction fails the task",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "The instruction says: \"calculate Total Debt to EBITDA for FY33–FY39 displaying \"NM\" where EBITDA is zero or negative.\" In the GT, 'Ratio Analysis'!N19:Q19 use =IF(N10<=0,\"NM\",N6/N10). R19, S19 and T19 are instead the hardcoded text 'NM'. EBITDA in those years is positive: R10=72.47, S10=41.39, T10=38.47. Bank loan is R6=0.0033, S6=0, T6=0. The instructed formula therefore gives about 0.00005, 0 and 0. In verify_spreadsheetbench2_cells, _values_match('NM', 0) returns False: only one side is a not-meaningful string, and the types differ. These are modification cells, and the verifier (the only check, weight 1) passes only if every modification cell matches. An agent that applies the stated rule correctly scores 0. The GT copied the hardcoded 'NM' in R7:T7 (Debt/Equity), which the instruction never asks for.",
+    "confirmation": "Confirmed in the GT: R19:T19 hardcoded 'NM' with positive EBITDA (72.47/41.39/38.47) and bank loan 0.0033/0/0, and the verifier's _values_match('NM', 0) is False. Following the stated NM-only-when-EBITDA<=0 rule therefore fails the sole check.",
+    "fixed": true,
+    "fix": "Same GT edit as F5: Ratio Analysis!R19:T19 formulas replace hardcoded 'NM'."
+  },
+  {
+    "id": "F2",
+    "title": "Verifier requires an unrequested P&L label",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "'P&L'!A13 is blank in both the staged input and untouched reference, but contains the exact string \"Esc. %\" in the golden workbook. The task specifies calculations in Depreciation, Revenue, Ratio Analysis, COP and Milestones; it never requests this P&L label. Nevertheless, the answer range includes 'P&L'!A2:Q35, making A13 a mandatory modification check. Leaving this unrelated blank unchanged causes the weight-1, all-or-nothing verifier to fail even when the requested work matches.",
+    "confirmation": "Duplicate of the P&L!A13 defect: blank in input/untouched reference, 'Esc. %' in GT, graded as a modification cell although never requested, so leaving it blank fails the task.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F3",
+    "title": "Verifier enforces an undisclosed modification at P&L!A13 ('Esc. %') that is never mentioned in the instructions",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In `problem.py`, the instructions state: 'When completing spreadsheet tasks, strictly avoid altering any cells that already contain values unless explicitly instructed. Modify only the cells that are required for the task.' The task instructions only ask for edits to five sheets: `Depreciation`, `Revenue`, `Ratio Analysis`, `COP`, and `Milestones`, and never mention editing the `P&L` sheet or adding a header to `P&L!A13`. However, `P&L!A13` is `None` in both `assets/18_02_RoadAssets_input.xlsx` and `untouched_input_18_02_RoadAssets_input.xlsx`, whereas `gt_18_RoadAssets_golden.xlsx` has the literal string `'Esc. %'` in `P&L!A13`. Because `spec.yaml` includes `'P&L'!A2:Q35` in `answer_position`, `verify_spreadsheetbench2_cells` (weight: 1) classifies `P&L!A13` as a required modification cell and requires `mod_ratio == 1.0` (100% of modification cells matching) to award a non-zero score. Consequently, any compliant agent that leaves `P&L!A13` untouched fails with `Modification error at P&L!A13: answer=Esc. %, output=None` and receives a score of 0.0 (as seen in units 2 and 3).",
+    "confirmation": "P&L!A13 is blank in the input and 'Esc. %' in gt_18_RoadAssets_golden.xlsx, inside the graded 'P&L'!A2:Q35 range, while the instruction only covers Depreciation, Revenue, Ratio Analysis, COP and Milestones. The all-or-nothing check fails any agent that leaves it blank, as the run's grades show.",
+    "fixed": true,
+    "fix": "gt_18_RoadAssets_golden.xlsx: P&L!A13 cleared to match the input."
+  },
+  {
+    "id": "F4",
+    "title": "Golden debt-to-EBITDA answers contradict the required NM rule",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions require \"NM\" where EBITDA is zero or negative. However, the golden workbook hardcodes \"NM\" in 'Ratio Analysis'!R19:T19 even though R10:T10 contain positive EBITDA of 72.4710444631627, 41.3947547472355 and 38.4687998382243. Debt in R6:T6 is 0.00328857534274718, 0 and 0, so the instructed calculations produce approximately 0.00004538, 0 and 0—not \"NM\". The verifier rejects these numeric answers against the golden strings. Because its sole check has weight 1 and requires every modification cell to match, following the stated rule can lose the entire score.",
+    "confirmation": "Duplicate of the R19:T19 defect: GT hardcodes 'NM' where EBITDA is positive, so the instructed calculation (about 0.0000454, 0, 0) is marked wrong by the all-or-nothing verifier.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F5",
+    "title": "Golden workbook hardcodes 'NM' in Ratio Analysis!R19:T19 despite positive EBITDA, contradicting the prompt and existing formula pattern",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `problem.py`, the instruction for `Ratio Analysis` states: 'In the Ratio Analysis sheet, calculate Total Debt to EBITDA for FY33–FY39 displaying \"NM\" where EBITDA is zero or negative.' In the input workbook, `Ratio Analysis!F19:M19` (FY25–FY32) contain the formula `=IF(F10<=0,\"NM\",F6/F10)` through `=IF(M10<=0,\"NM\",M6/M10)`, where row 6 is `Bank Loan` and row 10 is `EBITDA`. For FY33–FY39 (`N19:T19`), `EBITDA` (`N10:T10`) is strictly positive in every year (`R10 = 72.471044`, `S10 = 41.394755`, `T10 = 38.468800`), and in FY37 (`R6`) `Bank Loan` is also positive (`0.00328858`, while `S6 = 0` and `T6 = 0`). Extending the prompt's rule and the existing formula `=IF(N10<=0,\"NM\",N6/N10)` across `N19:T19` yields `R19 = 4.53777831837207e-05`, `S19 = 0`, and `T19 = 0`. However, `gt_18_RoadAssets_golden.xlsx` only uses `=IF(N10<=0,\"NM\",N6/N10)` in `N19:Q19` and hardcodes the literal string `'NM'` in `R19`, `S19`, and `T19`. Because `SpreadsheetBench 2 official cell check` (weight: 1) requires 100% of modification cells to match `gt_18_RoadAssets_golden.xlsx`, following the prompt instruction causes `R19:T19` to fail and drops the total score from 1.0 to 0.0.",
+    "confirmation": "GT 'Ratio Analysis'!R19:T19 are literal 'NM' while N19:Q19 use =IF(N10<=0,\"NM\",N6/N10); EBITDA R10:T10 is positive, so the instructed rule gives 4.5e-5, 0, 0, which the verifier rejects against 'NM' (seen in the run's grade messages).",
+    "fixed": true,
+    "fix": "gt_18_RoadAssets_golden.xlsx: Ratio Analysis!R19:T19 now =IF(x10<=0,\"NM\",x6/x10) like N19:Q19."
+  },
+  {
+    "id": "F6",
+    "title": "Answer key requires a label in P&L!A13 ('Esc. %') that the instruction never asks for",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Comparing the input with the GT shows P&L!A13 changing from None to the text 'Esc. %'. That cell sits inside the graded range 'P&L'!A2:Q35, so the verifier treats it as a modification cell. A blank output fails _values_match('Esc. %', None). The instruction lists only Depreciation, Revenue, Ratio Analysis, COP and Milestones edits, and never mentions the P&L sheet or an escalation label. The task also tells the agent to \"strictly avoid altering any cells ... Modify only the cells that are required.\" Because every modification cell must match, an agent that does exactly what is asked scores 0.",
+    "confirmation": "P&L!A13 changes from None (input) to 'Esc. %' (GT) inside the graded range, with no instruction to touch the P&L sheet; two trials failed on exactly this cell plus R19:T19.",
+    "fixed": true,
+    "fix": "Same GT edit as F3: P&L!A13 cleared."
+  },
+  {
+    "id": "F7",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check gives false-negative 0.0 scores to units 2 and 3 due to defective ground-truth cells P&L!A13 and Ratio Analysis!R19:T19",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across the 3 units, units 2 and 3 correctly completed every instructed calculation in `problem.py`: straight-line depreciation and closing balances in `Depreciation!C16:D22` (and all cascading cells in `P&L`, `BS`, and `Cash Flow`), semi-annual interest on opening annuity balance in `Revenue!S11:AF11` (and cascading rows 13 and 22), proportions in `COP!F10:F11` (`0.25` and `0.75`), milestone days and amounts in `Milestones!C18:D19, C24:D24, C27:D27`, and `Total Debt/EBITDA` in `Ratio Analysis!N19:T19` using `=IF(N10<=0,\"NM\",N6/N10)` through `=IF(T10<=0,\"NM\",T6/T10)`. Both units 2 and 3 achieved `regression 1.0000` and matched 165 of 169 modification cells (`modification 0.9763`), failing only on the 4 defective ground-truth cells (`Modification error at P&L!A13: answer=Esc. %, output=None; Modification error at Ratio Analysis!R19: answer=NM, output=4.53777831837207e-05; Modification error at Ratio Analysis!S19: answer=NM, output=0; Modification error at Ratio Analysis!T19: answer=NM, output=0`). Because `verify_spreadsheetbench2_cells` (weight: 1) requires `mod_ratio == 1.0` to return `1.0`, it awarded `score=0` to both correct solutions.",
+    "confirmation": "Two trials of run 23260465 scored 0 with regression 1.0 and modification 0.9763, failing only P&L!A13 (GT 'Esc. %', never requested) and 'Ratio Analysis'!R19:T19 (GT hardcoded 'NM' though R10:T10 EBITDA are 72.47/41.39/38.47). Those GT cells are defective, so correct completions are false negatives.",
+    "fixed": true,
+    "fix": "gt_18_RoadAssets_golden.xlsx: P&L!A13 cleared (was 'Esc. %'), Ratio Analysis!R19:T19 set to =IF(R10<=0,\"NM\",R6/R10) etc. (values 4.54e-05, 0, 0), recalculated in LibreOffice. No other cell changed."
+  }
+]

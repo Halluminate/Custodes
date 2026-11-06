@@ -1,0 +1,5 @@
+Use publicly available market/financial data to populate Sheet1 columns F, G, and H—namely the 12‑month dividend yield, last quarter YoY profit growth, and current quarter YoY profit growth—for each constituent security. No other changes are required to the workbook.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 98_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for an open-ended audit to fix errors that are \"not limited to\" a list, yet grading requires every cell across almost the whole workbook to match a golden file that leaves several genuine errors unfixed. A competent auditor who corrects them will fail.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "open-ended-vs-exact-match",
+    "evidence": "Golden 'Model'!H43=0.1 is hardcoded, while the parallel cells P43/X43/AF43 use =SUM($F43,O43). The FY26E total should be YTD 0.097 + 2H 0.1 ≈ 0.197. Golden 'Model'!K57:M57 are hardcoded (0.112, 0.11, 0.108), while J57 uses =CHOOSE($C$2,R57,Z57,AH57) and Base-case S57:U57 are 0.113, 0.11, 0.107. Golden D2 keeps =CHOOSE(C2,B4,B5,B6,#REF!), and AV43=0 is hardcoded while AW43/AX43 are formulas. Fixing H43 or K57 changes H43, I43 onward and K56/K106 by more than 1%.",
+    "confirmation": "Golden 'Model'!H43 (FY26E) is hardcoded 0.1 while H41 and P43 use =SUM($F,G/O) (correct total about 0.197), and K57:M57 are hardcoded 0.112/0.11/0.108 while J57 uses =CHOOSE($C$2,...); fixing these real errors changes compared cells by more than 1% and fails the all-cells check."
+  }
+]

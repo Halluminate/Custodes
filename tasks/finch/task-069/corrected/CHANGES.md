@@ -1,0 +1,22 @@
+# Changes: FINCH task-069
+
+Fix summary (from the fix record):
+
+Grader guidance gains a task note naming the twelve FB-to-PB row corrections and accepting any blue row fill, so the generic FINCH judge text no longer fails the reference on its pale tint, the S30 gap or the =NOW() date.
+
+Changed files (in this folder):
+
+- grader_guidance.md
+
+## Fixed
+
+- other finding, major, not in findings.json: The ground truth gets different grades from the guidance test (a stand-in for the production AI grader)
+  - Change: graderGuidance: appended a task note to the opening paragraph: "Task note: the expected change is that the twelve CENT rows marked X in the PHY column (rows 30-35 and 42-47 of Sheet1) have the FB prefix replaced by PB in both Short Name and Long Name (for example FB-CENT1 becomes PB-CENT1 and FB-CENT1-CAD becomes PB-CENT1-CAD), and those rows, and no others, get a blue background; nothing else changes. Accept any blue shade filled across the row's used columns (the reference's pale theme blue and its unfilled S30 are not required), and do not count the date shown by the =NOW() cell Q15 as a difference." Not re-graded locally (no AI-grader stand-in run here).
+- other finding, major, not in findings.json: The ground truth grades low under the guidance test (a stand-in for the production AI grader)
+  - Change: graderGuidance: appended a task note to the opening paragraph: "Task note: the expected change is that the twelve CENT rows marked X in the PHY column (rows 30-35 and 42-47 of Sheet1) have the FB prefix replaced by PB in both Short Name and Long Name (for example FB-CENT1 becomes PB-CENT1 and FB-CENT1-CAD becomes PB-CENT1-CAD), and those rows, and no others, get a blue background; nothing else changes. Accept any blue shade filled across the row's used columns (the reference's pale theme blue and its unfilled S30 are not required), and do not count the date shown by the =NOW() cell Q15 as a difference." Not re-graded locally (no AI-grader stand-in run here).
+- other finding, minor, not in findings.json: Ground-truth row 30 is missing the blue fill in column S, unlike every other corrected row
+  - Change: graderGuidance: appended a task note to the opening paragraph: "Task note: the expected change is that the twelve CENT rows marked X in the PHY column (rows 30-35 and 42-47 of Sheet1) have the FB prefix replaced by PB in both Short Name and Long Name (for example FB-CENT1 becomes PB-CENT1 and FB-CENT1-CAD becomes PB-CENT1-CAD), and those rows, and no others, get a blue background; nothing else changes. Accept any blue shade filled across the row's used columns (the reference's pale theme blue and its unfilled S30 are not required), and do not count the date shown by the =NOW() cell Q15 as a difference." Not re-graded locally (no AI-grader stand-in run here).
+- other finding, minor, not in findings.json: The task asks for a 'blue' row fill without naming a shade, but the GT uses one specific light theme tint and grading is pass/fail
+  - Change: graderGuidance: appended a task note to the opening paragraph: "Task note: the expected change is that the twelve CENT rows marked X in the PHY column (rows 30-35 and 42-47 of Sheet1) have the FB prefix replaced by PB in both Short Name and Long Name (for example FB-CENT1 becomes PB-CENT1 and FB-CENT1-CAD becomes PB-CENT1-CAD), and those rows, and no others, get a blue background; nothing else changes. Accept any blue shade filled across the row's used columns (the reference's pale theme blue and its unfilled S30 are not required), and do not count the date shown by the =NOW() cell Q15 as a difference." Not re-graded locally (no AI-grader stand-in run here).
+- other finding, minor, not in findings.json: A volatile =NOW() date cell changes every time the workbook is recalculated
+  - Change: graderGuidance: appended a task note to the opening paragraph: "Task note: the expected change is that the twelve CENT rows marked X in the PHY column (rows 30-35 and 42-47 of Sheet1) have the FB prefix replaced by PB in both Short Name and Long Name (for example FB-CENT1 becomes PB-CENT1 and FB-CENT1-CAD becomes PB-CENT1-CAD), and those rows, and no others, get a blue background; nothing else changes. Accept any blue shade filled across the row's used columns (the reference's pale theme blue and its unfilled S30 are not required), and do not count the date shown by the =NOW() cell Q15 as a difference." Not re-graded locally (no AI-grader stand-in run here).

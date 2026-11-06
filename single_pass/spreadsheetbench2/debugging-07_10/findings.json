@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook multiplies Total Revenues by 1000, which creates a unit mismatch. The input formulas are already correct and consistent with rows 22-24 and C11:E11, so an agent that leaves them alone or keeps them consistent fails the cell check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-introduces-error",
+    "evidence": "Golden 'Margin Analysis'!C25=(SUM(C22:C24))*1000 → 6,140,000,000 (likewise D25, E25 → 6,394,000,000). Input C25=(SUM(C22:C24)) → 6,140,000, matching C11=6,320,000 in the same $ units.",
+    "confirmation": "Input 'Margin Analysis'!C25:E25 = SUM(C22:C24) gives 6,140,000, matching the dollar scale of C11 Revenue 6,320,000 and C3:C6. The golden changes these to SUM(...)*1000 (6.14 billion), creating a unit mismatch. Since these are modification cells, an agent that correctly leaves them alone fails."
+  }
+]

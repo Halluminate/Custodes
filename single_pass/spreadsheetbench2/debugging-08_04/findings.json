@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit of formula logic, broken references, hardcodes and calculation errors, but the golden workbook only fixes font colors and keeps several obvious errors unchanged, so a solver who does what the prompt asks will diverge from the key.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "prompt-golden-scope-mismatch",
+    "evidence": "Golden 'Operating Model + DCF' keeps these errors: R84 '=R847-M83' (broken reference), M27 '=M26/M7' and R27 '=R26/R7' (divide by COGS instead of revenue), K9/L9 '=K41'/'=L41' (empty cells, giving 0% margin), Q66 '=O66+0', N30:V30 hardcoded taxes, C90=-0.3. 'Revenue Build'!J17 still totals 1050.11 vs 'IS Quarters'!D3 1060.11, and L21=24.",
+    "confirmation": "Golden differs from input only in font colours, while it keeps real errors the prompt asks to fix: 'Operating Model + DCF'!R84 =R847-M83 (feeds D94), M27 =M26/M7 vs L27 =L26/L4, K9 =K41 (blank), C90 = -0.3 tax rate feeding C91, and 'Revenue Build'!L21 = 24 beside 2024s; fixing these changes compared"
+  }
+]

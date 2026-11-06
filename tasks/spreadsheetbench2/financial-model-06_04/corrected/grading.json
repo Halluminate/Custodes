@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_06_DigiMark_golden.xlsx",
+        "reference_path": "reference/untouched_input_06_04_DigiMark_input.xlsx",
+        "answer_position": "'Cover'!B8:C20,'DCF'!B2:L58,'DCF'!M2:M16,'DCF'!M18:M58,'DCF'!N2:R58,'Historical Data'!B2:BT38,'Income Statement'!B2:BT68,'Balance Sheet'!B2:BT33,'Cashflow'!B2:BR27,'Ratio Analysis'!B2:BS22,'Assumption sheet'!A2:BR171,'Revenue Driver'!B2:BS65,'Cost Drivers'!B2:BR50,'Employees Expenses'!B2:BR105,'Balancesheet Schedules'!B2:BS60",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

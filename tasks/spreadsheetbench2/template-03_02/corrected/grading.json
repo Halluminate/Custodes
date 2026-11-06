@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_03_02_golden.xlsx",
+        "reference_path": "reference/untouched_input_03_02_input.xlsx",
+        "answer_position": "'M&A_Consolidation'!B2:F13,'M&A_Consolidation'!B15:F27,'M&A_Consolidation'!B30:F30,'M&A_Consolidation'!B32:F54,'M&A_Consolidation'!B31:C31,'M&A_Consolidation'!B28:B29,'M&A_Consolidation'!F29:F29,'M&A_Consolidation'!B14:B14,'M&A_Consolidation'!E14:F14",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

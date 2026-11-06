@@ -1,0 +1,5 @@
+On the simplecorr sheet, create a table that mirrors the header from the table to the left to list the various paper grades. Set the left-side header to 1–6 months Lag and Lead, and then, using the NBSK pulp price from the left table together with the monthly price tables for each paper grade, calculate and populate the 1–6‑month Lag and 1-7 month Lead relationships between NBSK and each paper price.
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 83_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

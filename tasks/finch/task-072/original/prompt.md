@@ -1,0 +1,3 @@
+Transcribe the content from the pdf/image into the Excel file (including the chart) and complete any missing formulas so the workbook is fully populated and the calculations are in place.
+
+Your input files are on your Desktop (/home/model/Desktop): 72_src_0.pdf, 72_src_1.jpeg. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

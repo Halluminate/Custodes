@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The visible answer key keeps the source formulas unchanged, including the obvious formula errors the task asks to fix. An agent that genuinely corrects them would differ from the reference and could be failed.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-unfixed-errors",
+    "evidence": "Mar01/Apr01/May 01/June 01/July 01 helper row 34 skips a row: Y34=+B36, Z34=+C36, AA34=+F36, while AB34=+F35 and AC34=+H35. Feb01 Q34=+B36. May 01 Y35=+B37 and July 01 Y35=+B37 point at the VOLUME ADJ. row. Column AA, headed 'HUGO'/'TOTAL', uses =+F6 (PVR), duplicating AB instead of using D. All of these appear identically in gt_158_ref_0.xlsx.",
+    "confirmation": "gt_158_ref_0.xlsx differs from 158_src_0.xlsx only in OCT 01 (T39, T38, V30), but keeps real formula errors such as Mar01!Y34 '=+B36' for date X34 = 3/30 (B35 is 3/30, Y33 = B34 for 3/29) and AA5 '=+F6' under 'HUGO/TOTAL', duplicating AB. An agent that corrects these, as 'correct the formula errors'"
+  }
+]

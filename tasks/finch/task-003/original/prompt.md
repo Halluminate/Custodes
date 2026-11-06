@@ -1,0 +1,3 @@
+Complete the missing data in the 'Five Year Review' worksheet of the first given xlsx file, ensuring the five-year figures across fund balances, operating revenues, and operating expenditures are fully populated and consistent with the rest of the financial statements. Leave blank if no reference is available for specific parts.
+
+Your input files are on your Desktop (/home/model/Desktop): 3_src_0.xlsx, 3_src_1.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

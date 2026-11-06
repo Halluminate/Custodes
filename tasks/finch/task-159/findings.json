@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Prompt instructs agent to fill missing columns and add summary formulas on 'Benchmark Returns' sheet, but 'Benchmark Return' is already complete in source and unchanged in ground truth",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In problem.py, the prompt states: \"Complete the orange-highlighted cells on the Timing Tracking sheet so they consistently point to the Benchmark Returns sheet. On Benchmark Returns, fill in the previously missing columns using the same logic as the existing columns, validate that the annual breakdown is behaving normally, and add formulas to summarize performance across the full sample period with results flowing back to the tracking view.\" However, comparing the input file (assets/159_src_0.xlsx) against the ground truth (gt_159_ref_0.xlsx) shows zero cell value or formula differences on the 'Benchmark Return' sheet (xl/worksheets/sheet2.xml)—all 13 annual columns (B:N) and trailing columns (O:P, which contain #REF! in O4:P4 and O6:P6) are already populated in 159_src_0.xlsx. All 37 cell differences between source and ground truth occur exclusively on the 'Timing_Strategy' sheet (filling the 24 orange-highlighted cells X23:AH23 and AE27:AE39, which cascades to AG27:AG39). Meanwhile, grader_guidance in problems-metadata.json instructs the judge under Data Completeness (\"Please use the instruction to judge data completeness, not the answer\") and Reasonableness of Changes (\"The model should not make modifications not mentioned in the instruction\") with binary 0/1 scoring. An agent that modifies 'Benchmark Return' as instructed risks failing correctness/over_edit_avoidance against the ground truth, while an agent that leaves 'Benchmark Return' untouched risks failing completeness against the instruction.",
+    "confirmation": "Cell diff of 159_src_0.xlsx vs gt_159_ref_0.xlsx: 0 differences on 'Benchmark Return' (B:P already has formulas in A1:P5223), with all 24 changes on Timing_Strategy X23:AH23 / AE27:AE39. In run <id>, agents that edited Benchmark Return O:P to satisfy the instruction were failed for over-editing.",
+    "fixed": true,
+    "fix": "prompt.md: replaced the sentence 'On Benchmark Returns, fill in the previously missing columns using the same logic as the existing columns, validate ... tracking view.' with 'The Benchmark Returns sheet is already complete and should be left unchanged, so validate that its annual breakdown is behaving normally and add formulas to summarize performance across the full sample period with results flowing back to the tracking view.' The source 'Benchmark Return' sheet is fully populated and identical in the GT, whose only changes are the orange Timing_Strategy cells X23:AH23 and AE27:AE39."
+  },
+  {
+    "id": "F2",
+    "title": "Prompt asks for 'previously missing columns' on Benchmark Returns to be filled, but nothing is missing there and the GT leaves that sheet unchanged",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "problem.py says: 'On Benchmark Returns, fill in the previously missing columns using the same logic as the existing columns'. A cell-by-cell diff of assets/159_src_0.xlsx against gt_159_ref_0.xlsx finds zero differences on 'Benchmark Return' (every column B:P is already filled in rows 1-5223 of the source, and the sheet has no highlighted cells). All GT changes are on Timing_Strategy: X23:AH23 (11 cells) and AE27:AE39 (13 cells), which are exactly the 24 orange (FFC000) cells. An agent that follows the prompt may change or add Benchmark Return columns that do not exist in the GT. The grader guidance penalizes 'extra modifications... not included in the instruction' (over_edit_avoidance), but the instruction does ask for them, so the grade on this point is unpredictable. This is an output_scope_mismatch / impossible_problem in part.",
+    "confirmation": "Verified: no cells are missing on 'Benchmark Return' and the GT changes nothing there, yet the prompt asks to fill 'previously missing columns'. The production grader penalized trials that changed O:P or added columns (all 3 trials scored 0, citing those edits).",
+    "fixed": true,
+    "fix": "Same prompt sentence change."
+  },
+  {
+    "id": "F3",
+    "title": "The requested missing Benchmark Return columns are already populated",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The statement instructs the agent to 'fill in the previously missing columns using the same logic as the existing columns' on Benchmark Returns. However, the supplied 'Benchmark Return' sheet has no missing cells anywhere in A6:P5223, and every column B:P already has formulas in rows 1–4. The reference makes zero value or formula changes to this sheet; its only 24 changed cells are the orange blanks on Timing_Strategy. Thus the fixture does not identify any columns corresponding to this explicit requirement. An agent following that clause must guess additional work, risking the rubric's prohibition on modifications beyond the task scope.",
+    "confirmation": "'Benchmark Return' is fully populated in the input and identical in the GT, so the instructed fill has no target. Agents guessed extra work (deleting or re-extending O:P, adding Q:R summaries) and were failed for edits beyond scope.",
+    "fixed": true,
+    "fix": "Same prompt sentence change."
+  }
+]

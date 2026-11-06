@@ -1,0 +1,8 @@
+ExtractID,ValuationDate,InvestmentID,SecurityDescription,Exchange,VenueMIC,ContractCode,SettlementPrice,Currency,QuoteBasis,ContractMultiplier,SourceTimeET,PriceStatus
+OES-20260630-001,2026-06-30,CV-1015,MSCI Emerging Markets Sep-26 Future,ICE Futures U.S.,IFUS,MMEU6,1245.300,USD,Index points,50,2026-06-30 16:15,Official final settlement
+OES-20260630-002,2026-06-30,CV-1027,Brent Sep-26 80 Call,ICE Futures Europe,IFEU,BRN Sep26 80C,4.180,USD,USD per barrel,1000,2026-06-30 14:35,Official final settlement
+OES-20260630-003,2026-06-30,CV-1038,U.S. 10-Year Treasury Sep-26 Future,CBOT,XCBT,ZNU6,110.141,USD,Price points,1000,2026-06-30 15:05,Official final settlement
+OES-20260630-004,2026-06-30,CV-1069,FTSE China A50 Jul-26 Future,SGX,XSES,CNN6,13585.000,USD,Index points,1,2026-06-30 04:45,Official final settlement
+OES-20260630-005,2026-06-30,CV-1090,MSCI Emerging Markets Sep-26 1200 Put,ICE Futures U.S.,IFUS,MMEU6 1200P,34.750,USD,Index points,50,2026-06-30 16:15,Official final settlement
+OES-20260630-006,2026-06-30,CV-1103,Brent Crude Sep-26 Future,ICE Futures Europe,IFEU,BRN Sep26,76.840,USD,USD per barrel,1000,2026-06-30 14:35,Official final settlement
+OES-20260630-007,2026-06-30,CV-1121,U.S. 10-Year Treasury Sep-26 109 Put,CBOT,XCBT,ZNU6 109P,0.406,USD,Price points,1000,2026-06-30 15:05,Official final settlement

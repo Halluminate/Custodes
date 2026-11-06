@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Three unchanged INDEX/MATCH formulas are stored as array formulas in the answer key, so the agent must convert them to CSE array formulas to pass",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "DCF!G9, WACC!C7 and WACC!C19 have the same formula text in the input and the answer key, e.g. =INDEX('Exhibit 1'!B:B,MATCH(\"Total revenue, net\",'Exhibit 1'!A:A,0)). The input stores them as plain strings; the answer key stores them as openpyxl ArrayFormula objects (ref G9:G9 and so on). In formula mode, _formulas_match only compares .text when both cells are ArrayFormula objects. Otherwise it falls through to _values_match(ArrayFormula, str), which returns False. These cells are therefore 'modification' cells, and every output that keeps them as they are fails. The verifier logs this for the untouched input, for a LibreOffice round-trip and for the openpyxl fix: 'Modification error at WACC!C7: answer==INDEX(...), output==INDEX(...)', where both formulas are identical. Nothing visible to the agent suggests these cells need changing.",
+    "confirmation": "In the input, DCF!G9, WACC!C7 and WACC!C19 are plain formula strings, while gt_02_golden.xlsx stores the same text as openpyxl ArrayFormula objects. In formula mode they become modification cells that fail on identical text, as every run's grade message shows.",
+    "fixed": true,
+    "fix": "gt_02_golden.xlsx: DCF!G9, WACC!C7, WACC!C19 changed from <f t=\"array\" ref=...> to plain <f> with identical text and cached value (XML edit, nothing else touched; WACC!D14, an array formula in both input and GT, left as is). These cells are now regression cells that match the input formulas."
+  },
+  {
+    "id": "F2",
+    "title": "Correct unchanged formulas fail grading solely because of array-formula serialization",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input and golden workbook contain identical formula text at DCF!G9, WACC!C7 and WACC!C19, but the input stores ordinary formulas and the golden stores single-cell ArrayFormula objects. For example, both DCF!G9 formulas are =INDEX('Exhibit 1'!B:B,MATCH(\"Total revenue, net\",'Exhibit 1'!A:A,0)). The verifier's _formulas_match handles array formulas only when both cells are array objects, so preserving these correct input formulas produces errors showing identical answer and output text. A golden-workbook fixture with only these three formulas serialized normally receives regression 1.0000 and modification 0.9737 after the required recalculation. The sole verifier has weight 1 and requires modification 1.0000, so this representation-only difference forfeits the entire score.",
+    "confirmation": "The ArrayFormula vs str serialization difference at DCF!G9, WACC!C7 and WACC!C19 makes _formulas_match return False although the text is identical. Grade.json shows these 3 errors in all trials, and they alone block mod_ratio=1.0 on the sole verifier.",
+    "fixed": true,
+    "fix": "Same GT edit (array-formula wrapper removed from DCF!G9, WACC!C7, WACC!C19)."
+  },
+  {
+    "id": "F3",
+    "title": "Golden Berkshire dividend-sensitivity matrix contains 20 incorrect graded values",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook's 'Berk-Hath Investment Package'!G11:K14 does not reconcile with its own dividend-rate headers and valuation model. At I12, the headers specify an 8% annual dividend, 7.3% discount rate and ten-year redemption term, but the golden value is 10429.3142071995. Recomputing the workbook's preferred-stock PV plus warrant value gives 11468.3953341322, which also appears at I20 for the same assumptions. I11 and I12 incorrectly contain the same value despite dividend rates of 7.5% and 8%. Independent calculation identifies 20 incorrect cells; correcting only those golden-fixture values yields modification 0.8246 against the supplied key. Because the sole weight-1 verifier requires every modification cell to match, financially correct sensitivity results receive zero overall credit.",
+    "confirmation": "In gt_02_golden.xlsx 'Berk-Hath Investment Package'!G10:K13 doesn't follow its own model. Rows 11 and 12 are identical, as are rows 10 and 13 (e.g. I11=I12=10429.31), while F7 step=0 and F12 '=C12' (C12=0.10, cached 0.08) mean every row should equal row 14 (I14=11468.40=I20). These 20 graded cells a",
+    "fixed": true,
+    "fix": "Verifier parameter answer_position: \"'Berk-Hath Investment Package'!B2:K44\" split into B2:F44, G2:K9 and G15:K44, dropping only the dividend-rate data-table grid G10:K14 whose golden values contradict the sheet's own model (rows 10/13 and 11/12 identical, I12 10429.31 vs base case 11468.40) and cannot be produced because the grader freezes data-table caches. Same range change applied to the range list in grader_guidance.md."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (scores 0.0 on all units and even on a perfect fix of the input workbook) due to ArrayFormula comparison bug and frozen data-table mismatch",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (weight: 1) scored 0.0 (`unit 1`: modification 0.7807, 33 errors; `unit 2`: modification 0.7719, 33 errors; `unit 3`: modification 0.7982, 32 errors). In every unit's verifier message, the first three errors are identical false negatives where `answer` and `output` are the exact same formula:\n`Modification error at DCF!G9: answer==INDEX('Exhibit 1'!B:B,MATCH(\"Total revenue, net\",'Exhibit 1'!A:A,0)), output==INDEX('Exhibit 1'!B:B,MATCH(\"Total revenue, net\",'Exhibit 1'!A:A,0)); Modification error at WACC!C7: answer==INDEX('Exhibit 6'!D:D,MATCH(\"MV Leverage (%)\",'Exhibit 6'!B:B,0)), output==INDEX('Exhibit 6'!D:D,MATCH(\"MV Leverage (%)\",'Exhibit 6'!B:B,0)); Modification error at WACC!C19: answer==INDEX('Exhibit 5'!B:B,MATCH(\"  10 Years\",'Exhibit 5'!A:A,0)), output==INDEX('Exhibit 5'!B:B,MATCH(\"  10 Years\",'Exhibit 5'!A:A,0))`.\nIn `spreadsheetbench2.py`, `_formulas_match` checks `if hasattr(f1, 'text') and hasattr(f2, 'text')` and `if isinstance(f1, str) and isinstance(f2, str)`. Because `gt_02_golden.xlsx` stores `DCF!G9`, `WACC!C7`, and `WACC!C19` as `openpyxl.worksheet.formula.ArrayFormula` while `untouched_input` (and any LibreOffice-recalculated output) stores them as `str`, `_formulas_match` always returns `False`.\nAdditionally, 100 what-if data-table cells (`DCF!V10:Z14` and `Berk-Hath Investment Package!G10:K14, G18:K22, G26:K30`) have `=TABLE(...)` formulas in `untouched_input` (which carry stale cached values in `Berk-Hath!G10:K14`, all equal to `11432.1670414077`) but literal floats in `gt_02_golden.xlsx`. Because `recalculate_xlsx` calls `freeze_datatable_formulas` before running LibreOffice, LibreOffice never recalculates the data tables, leaving at least 22 cells in `Berk-Hath!G10:K14` with stale cached values (or `None` if saved via `openpyxl`) that cannot match `gt_02_golden.xlsx`. From the trajectories, units 1 and 3 correctly identified and fixed all 11 actual embedded hardcode cells (`DCF!J15:R15`, `Synergies!D11`, `Merger Model!C42`), yet no submission can ever achieve `mod_ratio == 1.0`.",
+    "confirmation": "All 3 grade.json files (run <id>) list 'Modification error at DCF!G9 / WACC!C7 / WACC!C19' where answer and output formulas are identical. The GT stores them as ArrayFormula objects and _formulas_match only compares .text when both sides are arrays, so no output that keeps the input formulas can",
+    "fixed": true,
+    "fix": "Both edits above together (array-formula GT fix + G10:K14 excluded). Local grade with the real verifier: input plus the 11 intended hardcode fixes (DCF!J15:R15, Synergies!D11, Merger Model!C42) scores reg 1.0 / mod 1.0 (was mod 0.7807, 25 errors); golden scores 1.0/1.0."
+  }
+]

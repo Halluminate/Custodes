@@ -1,0 +1,5 @@
+On the Summary by Status sheet, add a cumulative curve chart ($MM) for “Scheduled vs Cancellation Payments” using monthly data from Dec-98 through Dec-02. Plot the cumulative series for Scheduled and Cancellation across Committed, Tentative, and Available, and include Total Scheduled and Total Cancellation (Total Cancellation represents total exposure). Add a blue vertical line at Nov-2001 and annotate that month’s cumulative cancellation cost and cumulative paid amounts in blue, with the difference shown in red as “Incremental Cancellation Cost” (e.g., $35MM).
+
+You will be given an Excel file as input. Please perform all required operations by modifying the existing workbook. You may add new sheets if necessary, but you must preserve all original sheets and their contents. Do not replace the workbook with a new file that contains only the results. Return the full updated workbook, including all original sheets plus any newly added sheets.
+
+Your input files are on your Desktop (/home/model/Desktop): 75_src_0.xlsx. Save every deliverable in /home/model/Desktop/. If part of the answer is text rather than a file, write it to /home/model/Desktop/answer.txt.

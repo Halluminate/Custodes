@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Answer key penalizes repairing two CAGR formula errors",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The golden workbook retains '#NAME?' at 'Revenue Build'!AC41 and AC43, with formulas '=rri(5,W41,AA41)' and '=rri(5,W43,AA43)'. These errors persist after LibreOffice recalculation. The verifier falls back to formula-text comparison whenever the golden cell contains an Excel error, so valid repairs are rejected. A diagnostic copy of the golden workbook changing only these formulas to equivalent CAGR calculations produced 0.379729661461215 and 0.718771927587479, but scored modification 0.9982 with two modification errors. Because the sole verifier has weight 1 and requires every modification cell to match, fixing these errors changes an otherwise passing workbook to a zero score, contrary to the instruction to audit and fix the file thoroughly.",
+    "confirmation": "Same golden cells AC41/AC43 cache '#NAME?', triggering the verifier's formula-text fallback, so repairing them with an equivalent CAGR calculation is counted as two modification errors on a verifier that needs 100%.",
+    "fixed": true,
+    "fix": "gt_06_golden.xlsx 'Revenue Build'!AC41 and AC43: formula 'rri(...)' (unknown function, cached #NAME?) changed to '_xlfn.RRI(5,W41,AA41)' / '_xlfn.RRI(5,W43,AA43)', the stored form of Excel's RRI, and caches recalculated to 0.3797 and 0.7188. With a numeric golden value the verifier compares values, so any correct CAGR formula passes. No other cell changed."
+  },
+  {
+    "id": "F2",
+    "title": "The answer key expects three deleted rows rebuilt with exact labels at exact row positions, and the prompt says nothing about deleted rows",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The real errors are three deleted rows: 'Revenue Build' row 33 ('Total Revenue' = F9+F25), 'Operating Model' row 23 ('EBIT' = SUM(F21,F10)) and 'Supporting Schedules' row 52 ('Depreciation', D52 '[$M]', F52 ='CFS Ann'!B19 / J52 =SUM(J60:J70)). Because every row below shifts, about 1,230 cells become modification cells, and all of them must match. A competent auditor could fix the #REF! errors just as correctly in other ways: compute EBIT inline in the tax and NOPAT formulas, put Total Revenue in a free row, or label the row 'D&A' or 'Total Depreciation' rather than 'Depreciation'. Any of these scores 0, even when the model's values are all correct. The prompt only says 'audit and fix this file thoroughly' and never mentions deleted rows or where to put them.",
+    "confirmation": "The golden reinserts rows (Revenue Build row 33 'Total Revenue' '=F9+F25', Supporting Schedules row 52 'Depreciation' \"='CFS Ann'!B19\"), shifting all cells below into the modification set, so only that exact row layout and label passes; equally valid repairs of the #REF! errors score 0 and the promp",
+    "fixed": true,
+    "fix": "Prompt: added one sentence after the error list: 'Where a deleted row has left broken references, restore that row at its original position.' answer_position also excludes the restored rows' label/unit cells ('Revenue Build'!B33, 'Operating Model'!B23, 'Supporting Schedules'!B52 and D52) so 'D&A' vs 'Depreciation' wording does not decide the grade."
+  },
+  {
+    "id": "F3",
+    "title": "The answer key leaves #NAME? cached in the RRI CAGR cells, so only the exact formula text passes",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "GT 'Revenue Build'!AC41 has formula '=rri(5,W41,AA41)' with cached value '#NAME?'. AC43 is the same ('=rri(5,W43,AA43)' → '#NAME?'). The input had '=_xludf.rri(...)'. When either cell holds an error, the verifier compares formula text instead of values. An agent that writes a correct equivalent such as =(AA41/W41)^(1/5)-1 (value 38.0%) fails. So does one that keeps the _xludf prefix after inserting the row. The answer key itself was never recalculated to a clean value, which is odd for a 'fixed' file.",
+    "confirmation": "Golden 'Revenue Build'!AC41/AC43 are '=rri(5,W41,AA41)' with cached '#NAME?', and _match falls back to formula-text comparison when either cell is an error, so an equivalent CAGR formula like =(AA41/W41)^(1/5)-1 fails these modification cells.",
+    "fixed": true,
+    "fix": "gt_06_golden.xlsx 'Revenue Build'!AC41 and AC43: formula 'rri(...)' (unknown function, cached #NAME?) changed to '_xlfn.RRI(5,W41,AA41)' / '_xlfn.RRI(5,W43,AA43)', the stored form of Excel's RRI, and caches recalculated to 0.3797 and 0.7188. With a numeric golden value the verifier compares values, so any correct CAGR formula passes. No other cell changed."
+  },
+  {
+    "id": "F4",
+    "title": "The grader cannot be passed: the answer key needs free-text notes that appear nowhere in the input",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The verifier puts every cell that differs between input and ground truth into the 'modification' set. It returns 1.0 only when 100% of those cells match ('The task passes only when every modification cell matches the golden'). The answer key includes two to-do notes that were removed along with the deleted rows. I searched every sheet of the input file and neither string exists anywhere in it: (1) 'Revenue Build'!W33 = 'Given time tmr: go to bloomberg' (input W32 is None, input W33 is 'WOLF '); (2) 'Supporting Schedules'!U52 = 'do Q capex assumptions for next two years' (input U51, U52 and U53 are all None). The verifier matches strings exactly, with no tolerance. No agent can recover these notes, so the modification ratio is always below 1.0 and the single weight-1 verifier always scores 0.",
+    "confirmation": "gt_06_golden.xlsx has 'Revenue Build'!W33 'Given time tmr: go to bloomberg' and 'Supporting Schedules'!U52 'do Q capex assumptions for next two years', and a search of the untouched input finds neither string, so these modification cells can never be matched and the all-or-nothing verifier always fa",
+    "fixed": true,
+    "fix": "answer_position: excluded the two golden to-do notes absent from the input, 'Revenue Build'!W33 and 'Supporting Schedules'!U52 (no formula references them)."
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden GAAP balance sheet is shifted one column early: it books the 2018 amortization in the 'BOP 2018' column and puts each year's ending balance under the previous year-end date, so a correct schedule fails.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "wrong-answer-key-period-shift",
+    "evidence": "C33=12480, C34=-113.20, C35=12366.80 under C32='BOP 2018'. D35 (12/31/2018)=12249.18 should be 12366.80. F35 (12/31/2020)=12000 should be 12126.97. F34=-126.97 is the 2021 amortization but sits in the 12/31/2020 column. G34=-12000 alone in 2021.",
+    "confirmation": "Under headers C32 'BOP 2018' through G32 '12/31/2021', the golden books the 2018 amortization in the BOP column (C33=12480, C34=-113.20, C35=12366.80) and shows F35 (12/31/2020) = 12000 after the 2021 amortization F34=-126.97, with G34=-12000 alone. Each year-end balance therefore sits one column ea"
+  }
+]

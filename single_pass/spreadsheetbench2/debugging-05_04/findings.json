@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The verifier checks only font colors, cell by cell, across every sheet, but the prompt is a generic 'audit and fix thoroughly' instruction that never mentions color coding or which convention to apply, so the agent cannot know that font color is the graded deliverable.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "hidden-requirement",
+    "evidence": "Verifier mode is \"font_color\" over 'Model'!B2:AA126 … 'Fed Projections'!B7:G27. The prompt lists formula logic, hardcodes, references, validation, etc. The only hint is the input filename 'Inconsistent Color Coding_input.xlsx'.",
+    "confirmation": "The verifier runs in font_color mode and golden differs from input only in 7 font colors (e.g. Model V3/E4 to blue, AA3 and Transaction Overview E4 to green, F4 to black), while the prompt is the generic audit text with no color convention. The golden even turns same-sheet Model!L4 '=V10' green, so "
+  }
+]

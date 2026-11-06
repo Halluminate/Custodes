@@ -1,0 +1,24 @@
+[
+  {
+    "id": "F1",
+    "title": "The ground-truth workbook deletes original columns I–P, which breaks the task's own instruction to change nothing else",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Source 98_src_0.xlsx Sheet1 is A1:AB5061. Columns I–O hold content for all 5,060 rows: I 'Sequential Growth Rate' (=H2-G2), J 'One-Year Sharpe Ratio' (hardcoded data such as 0.3032), K/L/M rank formulas, N 'Composite Score' (=AVERAGE(K2:M2)) and O 'Stock Selection Weight' (=IF(RANK(N2,N:N,1)<=50,0.02,0)). Column P is a blank spacer. The ground truth gt_98_ref_0.xlsx Sheet1 is only A1:T5061. Its header row jumps from H 'YoY Profit Growth (Current Quarter)' straight to I 'High Dividend + High Quality (or Value) + Momentum', which was column Q in the source. So the eight columns I–P are gone, including the only copy of the Sharpe ratio data. The prompt says 'No other changes are required to the workbook… you must preserve all original sheets and their contents.' The grader is told to judge whether the output is 'logically equivalent to the reference answer.xlsx' and to check 'over-edit avoidance'. That leaves it two conflicting signals: a correct agent that keeps columns I–O does not match the reference layout, and an agent that copies the reference's deletion breaks the instruction.",
+    "confirmation": "Same verified defect: the reference drops source columns I:P (including the J Sharpe ratio data) and shifts Q:AB to I:T, so a correct output that preserves the workbook will not match the reference.",
+    "fixed": true,
+    "fix": "Same rebuild: the reference no longer deletes source columns I:P or shifts Q:AB."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth workbook (gt_98_ref_0.xlsx) deletes Columns I through P of Sheet1 (35,427 cells), contradicting the task instruction to preserve all original contents",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `problem.py`, the prompt instructs: \"Use publicly available market/financial data to populate Sheet1 columns F, G, and H—namely the 12‑month dividend yield, last quarter YoY profit growth, and current quarter YoY profit growth—for each constituent security. No other changes are required to the workbook. ... you must preserve all original sheets and their contents.\" In the input workbook `/home/model/Desktop/98_src_0.xlsx`, `Sheet1` has 5,061 rows and 28 columns (`A`–`AB`), where Columns `I`–`O` contain 7 factor-ranking columns across all 5,060 securities (`I2:I5061` = `=H2-G2`, `J2:J5061` = One-Year Sharpe Ratio values, `K2:K5061` = `=RANK(F2,F:F,0)`, `L2:L5061` = `=RANK(I2,I:I,0)`, `M2:M5061` = `=RANK(J2,J:J,0)`, `N2:N5061` = `=AVERAGE(K2:M2)`, `O2:O5061` = `=IF(RANK(N2,N:N,1)<=50,0.02,0)`), Column `P` is a blank separator, and `Q1:AB1` contains metadata headers (`High Dividend + High Quality (or Value) + Momentum`, `000985.CSI`, `Date`, `20251111`, `Reporting Period`, `20250930`, `Previous Reporting Period`, `20250630`). However, in the ground-truth reference `gt_98_ref_0.xlsx`, Columns `I`–`P` are completely deleted (`Sheet1` has only 20 columns `A`–`T`, shifting `Q1:AB1` left to `I1:T1` and leaving `I2:T5061` blank). Under `grader_guidance` (`2. Data Accuracy` and `3. Reasonableness of Changes`, binary `score: 0 or 1`), the judge checks that every modified/present column matches `gt_98_ref_0.xlsx` and that no columns are deleted or added outside the instruction scope—creating a direct contradiction between `98_src_0.xlsx` + `problem.py` and `gt_98_ref_0.xlsx`.",
+    "confirmation": "Confirmed: 98_src_0.xlsx Sheet1 is 28 columns with I:O formulas and the Sharpe data. In gt_98_ref_0.xlsx Sheet1 is 20 columns and row 1 jumps from H to 'High Dividend + High Quality...' in I, so columns I:P were deleted, which contradicts the prompt.",
+    "fixed": true,
+    "fix": "gt_98_ref_0.xlsx is now 98_src_0.xlsx with Sheet1!F2:H5061 filled from the old reference (same values). Columns I:P (formulas and the Sharpe data) and Q:AB are back in their original positions; cached values recalculated in LibreOffice. Every other cell matches the source (checked cell by cell), Sheet2 unchanged."
+  }
+]

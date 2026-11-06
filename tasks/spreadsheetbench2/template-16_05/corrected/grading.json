@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_16_05_golden.xlsx",
+        "reference_path": "reference/untouched_input_16_05_input.xlsx",
+        "answer_position": "'DirectCap'!B2:G49,'DirectCap'!H2:H10,'DirectCap'!H28:H44,'DirectCap'!H46:H49,'DirectCap'!I2:P49,'RentRoll'!A1:P12",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

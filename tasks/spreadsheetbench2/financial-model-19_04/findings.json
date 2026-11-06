@@ -1,0 +1,57 @@
+[
+  {
+    "id": "F1",
+    "title": "Task instruction for Trading Comps EV/EBITDA and P/E specifies 'Summary Valuation' while ground truth uses 'Trading Comps' values",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The prompt in problem.py explicitly instructs: 'In the Trading Comps sheet, calculate EV/EBITDA for FY24–FY26 using fixed Enterprise Value from Summary Valuation, then calculate P/E for FY24–FY26 using fixed Equity Value from Summary Valuation.' On the 'Summary Valuation' sheet, fixed Enterprise Value is at D5/D6 (= 397.5782) and fixed Equity Value is at E5/E6 (= 374.1643). However, in the ground truth workbook (gt_19_Transformer_golden.xlsx), the six cells 'Trading Comps'!E50:G51 instead reference the Trading Comps sheet's own Enterprise Value ($E$44 = 302.1632, matching 'Trading Comps'!E49:G49) and Equity Value ($E$46 = 278.7493): E50='=$E$44/IS!G35' (39.9981), F50='=$E$44/IS!H35' (20.9362), G50='=$E$44/IS!I35' (9.7879), E51='=$E$46/IS!G32' (104.8193), F51='=$E$46/IS!H32' (39.6644), and G51='=$E$46/IS!I32' (15.1823). Because the single verifier 'SpreadsheetBench 2 official cell check' (weight: 1) requires 100% modification ratio (mod_ratio == 1.0) to award any points, following the prompt instruction verbatim produces output values [52.6285, 27.5472, 12.8786] and [140.6986, 53.2414, 20.3792], resulting in a modification score of 0.9780 (267/273 cells) and a total score of 0.0 across all runs.",
+    "confirmation": "Verified in gt_19_Transformer_golden.xlsx: E50='=$E$44/IS!G35' and E51='=$E$46/IS!G32' reference Trading Comps values, not the Summary Valuation D6/E6 the prompt names, so the six cells are off by about 25-35%.",
+    "fixed": true,
+    "fix": "Answer key aligned with the instruction: gt_19_Transformer_golden.xlsx 'Trading Comps'!E50:G50 changed from =$E$44/IS!G35..I35 to ='Summary Valuation'!$D$6/IS!G35..I35 and E51:G51 from =$E$46/IS!G32..I32 to ='Summary Valuation'!$E$6/IS!G32..I32, with cached values updated (E50 52.628, F50 27.547, G50 12.879, E51 140.699, F51 53.241, G51 20.379). No other cell changed and nothing references these cells. Local grade: new GT passes, the old Trading-Comps-based answer fails on the 6 cells."
+  },
+  {
+    "id": "F2",
+    "title": "Trading Comps answer key contradicts the required valuation source",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions require EV/EBITDA using 'fixed Enterprise Value from Summary Valuation' and P/E using 'fixed Equity Value from Summary Valuation'. However, golden cells E50:G50 use Trading Comps!$E$44, and E51:G51 use Trading Comps!$E$46. These are different valuations. For example, golden E50 is 39.9981339189851, whereas Summary Valuation!D6 divided by FY24 EBITDA gives 52.62846710963166. Golden E51 is 104.819262129263, versus 140.69856188465903 using Summary Valuation!E6. The sole verifier has weight 1 and requires every modification cell to match, so following the explicit instruction fails the entire check.",
+    "confirmation": "Golden E50=39.998 and E51=104.82 versus 52.63 and 140.70 from Summary Valuation!D6/E6 as instructed, so following the explicit instruction fails the sole weight-1 verifier.",
+    "fixed": true,
+    "fix": "Answer key aligned with the instruction: gt_19_Transformer_golden.xlsx 'Trading Comps'!E50:G50 changed from =$E$44/IS!G35..I35 to ='Summary Valuation'!$D$6/IS!G35..I35 and E51:G51 from =$E$46/IS!G32..I32 to ='Summary Valuation'!$E$6/IS!G32..I32, with cached values updated (E50 52.628, F50 27.547, G50 12.879, E51 140.699, F51 53.241, G51 20.379). No other cell changed and nothing references these cells. Local grade: new GT passes, the old Trading-Comps-based answer fails on the 6 cells."
+  },
+  {
+    "id": "F3",
+    "title": "Trading Comps instruction says to use EV and Equity Value from Summary Valuation, but the answer key uses different Trading Comps cells",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "world_consistency",
+    "evidence": "The instruction says: \"In the Trading Comps sheet, calculate EV/EBITDA for FY24–FY26 using fixed Enterprise Value from Summary Valuation, then calculate P/E for FY24–FY26 using fixed Equity Value from Summary Valuation.\" On the Summary Valuation sheet, Enterprise Value is D6 = 397.578 (=SUMPRODUCT of DCF EV) and Equity Value is E6 = 374.164. The GT formulas point elsewhere. Trading Comps E50:G50 = '=$E$44/IS!G35' etc., where Trading Comps E44 = 302.163 (=E42*E39, the comps-implied EV). E51:G51 = '=$E$46/IS!G32', where Trading Comps E46 = 278.749. An agent that follows the instruction literally gets FY24 EV/EBITDA = 397.58/7.554 = 52.63, while the GT has 39.998. Its FY24 P/E = 374.16/2.659 = 140.7, while the GT has 104.82. All six cells are off by about 25–35%, far beyond the verifier's tolerance. The single verifier (weight 1) is all-or-nothing: it returns 1.0 only if regression and modification ratios are both 1.0. So any agent that faithfully follows the written instruction scores 0 on the whole task.",
+    "confirmation": "Same confirmed prompt-vs-key contradiction: Summary Valuation!D6=397.578 and E6=374.164, while golden E50:G51 divide Trading Comps E44=302.163 and E46=278.749.",
+    "fixed": true,
+    "fix": "Answer key aligned with the instruction: gt_19_Transformer_golden.xlsx 'Trading Comps'!E50:G50 changed from =$E$44/IS!G35..I35 to ='Summary Valuation'!$D$6/IS!G35..I35 and E51:G51 from =$E$46/IS!G32..I32 to ='Summary Valuation'!$E$6/IS!G32..I32, with cached values updated (E50 52.628, F50 27.547, G50 12.879, E51 140.699, F51 53.241, G51 20.379). No other cell changed and nothing references these cells. Local grade: new GT passes, the old Trading-Comps-based answer fails on the 6 cells."
+  },
+  {
+    "id": "F4",
+    "title": "The GT P/E uses the equity value implied by EV/EBITDA, not the one implied by P/E, which the model itself feeds into the football field",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "Trading Comps has two equity values. E46 = 278.749 comes from the EV/EBITDA multiple (E44 less net debt). F46 = 227.297 comes from the P/E multiple (=F39*F42). The model's own Summary Valuation!D23 ('Trading Comps P/E' base) = 227.297, which is F46. Even so, the GT P/E row uses E46 ('=$E$46/IS!G32' → FY24 104.82). Using F46 gives 85.47. Neither choice is the Summary Valuation equity value (374.16) the prompt names. So a competent analyst has at least three defensible inputs, and the all-or-nothing grader accepts only one.",
+    "confirmation": "Confirmed: golden P/E row uses E46 (278.75, the EV/EBITDA-implied equity value), while Summary Valuation!D23 'Trading Comps P/E' links F46 (227.30) and the prompt names Summary Valuation E6 (374.16). The key matches none of the obvious readings of the instruction.",
+    "fixed": true,
+    "fix": "Answer key aligned with the instruction: gt_19_Transformer_golden.xlsx 'Trading Comps'!E50:G50 changed from =$E$44/IS!G35..I35 to ='Summary Valuation'!$D$6/IS!G35..I35 and E51:G51 from =$E$46/IS!G32..I32 to ='Summary Valuation'!$E$6/IS!G32..I32, with cached values updated (E50 52.628, F50 27.547, G50 12.879, E51 140.699, F51 53.241, G51 20.379). No other cell changed and nothing references these cells. Local grade: new GT passes, the old Trading-Comps-based answer fails on the 6 cells."
+  },
+  {
+    "id": "F5",
+    "title": "SpreadsheetBench 2 official cell check: Verifier fails all three units due to contradiction between prompt instruction and ground truth on 'Trading Comps'!E50:G51",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, 'SpreadsheetBench 2 official cell check' (weight: 1) returned score=0 with the identical message: 'FAILED - regression 1.0000, modification 0.9780. 6 cell error(s): Modification error at Trading Comps!E50: answer=39.9981339189851, output=52.6284671096316; Modification error at Trading Comps!E51: answer=104.819262129263, output=140.698561884659; Modification error at Trading Comps!F50: answer=20.93616, output=27.5472353333714; Modification error at Trading Comps!F51: answer=39.6643742356674, output=53.2413632728226; Modification error at Trading Comps!G50: answer=9.78787646339264, output=12.8786241770718' (plus G51: answer=15.1823117010928, output=20.3791686664814). Trajectory inspection confirms all 3 attempts accurately completed every task instruction, matching 100% of the 12,609 regression cells and 267 of the 273 modification cells, and specifically followed the prompt's explicit instruction to 'calculate EV/EBITDA for FY24–FY26 using fixed Enterprise Value from Summary Valuation, then calculate P/E for FY24–FY26 using fixed Equity Value from Summary Valuation' (using Summary Valuation!D6 = 397.5782 and E6 = 374.1643 divided by IS!G35:I35 and IS!G32:I32). Because the ground truth file gt_19_Transformer_golden.xlsx instead uses 'Trading Comps'!$E$44 (302.1632) and 'Trading Comps'!$E$46 (278.7493) in E50:G51, the verifier falsely fails every compliant solution.",
+    "confirmation": "The prompt says to use 'fixed Enterprise Value from Summary Valuation' (D6=397.58) and 'fixed Equity Value from Summary Valuation' (E6=374.16), but golden 'Trading Comps'!E50:G51 use $E$44 (302.16) and $E$46 (278.75), giving E50 39.998 vs 52.63. Compliant outputs therefore fail the all-or-nothing ch",
+    "fixed": true,
+    "fix": "Answer key aligned with the instruction: gt_19_Transformer_golden.xlsx 'Trading Comps'!E50:G50 changed from =$E$44/IS!G35..I35 to ='Summary Valuation'!$D$6/IS!G35..I35 and E51:G51 from =$E$46/IS!G32..I32 to ='Summary Valuation'!$E$6/IS!G32..I32, with cached values updated (E50 52.628, F50 27.547, G50 12.879, E51 140.699, F51 53.241, G51 20.379). No other cell changed and nothing references these cells. Local grade: new GT passes, the old Trading-Comps-based answer fails on the 6 cells."
+  }
+]

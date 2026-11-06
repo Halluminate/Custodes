@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Stale golden-workbook values cause the correct workbook to fail grading",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The verifier forcibly recalculates the submitted workbook but compares it against unrecalculated cached values in gt_01_golden.xlsx. Those caches contradict the workbook's formulas and inputs. For example, 'Ex 1 - LBO'!C32 is =+C30*(1+C31), with C30=81.73 and C31=0.24, so its correct value is 101.3452, but the golden cache expects 109.5182. The seed also displays Total Sources of 11510.772151908 against Total Uses of 12412.840791578, a discrepancy of 902.06863967 caused by inconsistent caches. Recalculating the golden workbook itself and applying the configured cell comparison produces 65 regression errors, regression ratio 0.9925 and modification ratio 1.0. Because the sole verifier, weighted 1, requires regression of at least 0.998 and all modifications correct, the recalculated ground truth receives zero credit. A competent agent preserving the correct formulas is therefore penalized for normal recalculation.",
+    "confirmation": "Same stale-cache defect in gt_01_golden.xlsx (C32 cached 109.5182 vs 101.3452 from its own formula). Because the verifier recalculates the output, every trial failed regression at 0.9925.",
+    "fixed": true,
+    "fix": "gt_01_golden.xlsx and the grader's reference copy untouched_input_Incorrect Average_input.xlsx: replaced the 65 stale cached values left by the last data-table pass (e.g. 'Ex 1 - LBO'!C11 18.2034 -> 14.2034, C32 109.5182 -> 101.3452, plus dependants in Ex 1, Ex 2 and Ex 5) with the values the grader's own LibreOffice recalculation (data tables frozen) produces. Only <v> elements were edited, no formulas or formats. Locally, the recalculated key now scores regression 1.0 / modification 1.0 against itself (was 0.9925), and the untouched input still fails."
+  },
+  {
+    "id": "F2",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "The GT does fail the sole SpreadsheetBench 2 check, because gt_01_golden.xlsx has stale caches ('Ex 1 - LBO'!C32 cached 109.5182 vs 81.73*1.24=101.3452, C11 18.2034 vs C20 14.2034), not because of a staging mix-up. All 3 trials scored 0 with regression 0.9925.",
+    "fixed": true,
+    "fix": "gt_01_golden.xlsx and the grader's reference copy untouched_input_Incorrect Average_input.xlsx: replaced the 65 stale cached values left by the last data-table pass (e.g. 'Ex 1 - LBO'!C11 18.2034 -> 14.2034, C32 109.5182 -> 101.3452, plus dependants in Ex 1, Ex 2 and Ex 5) with the values the grader's own LibreOffice recalculation (data tables frozen) produces. Only <v> elements were edited, no formulas or formats. Locally, the recalculated key now scores regression 1.0 / modification 1.0 against itself (was 0.9925), and the untouched input still fails."
+  },
+  {
+    "id": "F3",
+    "title": "SpreadsheetBench 2 official cell check: Verifier recalculates only output_path in LibreOffice while reading stale Excel Data Table cached values from gt_path, causing guaranteed 65-cell regression failure",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": null,
+    "evidence": "`verify_spreadsheetbench2_cells` (weight 1.0) runs `managed_recalculated_xlsx(Path(output_path), force_recalculation=True)` on the agent's workbook, which invokes LibreOffice to recalculate all formulas, but loads `gt_path` (`gt_01_golden.xlsx`) and `reference_path` (`untouched_input_Incorrect Average_input.xlsx`) directly without recalculation. Both `gt_01_golden.xlsx` and `untouched_input_Incorrect Average_input.xlsx` contain 100 two-variable Excel Data Table cells (`=TABLE(...)` in `'Ex 1 - LBO'!AG18:AK22, AG27:AK31, AG36:AK40, AG45:AK49`) and were saved with stale cached values left over from the final Data Table evaluation pass (where Data Table inputs were temporarily substituted with their final grid coordinates: `C31=0.34` instead of cell value `0.24`, `C11=18.2034` instead of `=C20=14.203395`, `M17=0.137` instead of `0.092`, `M27=0.264` instead of `0.221507`). For example, in `gt_01_golden.xlsx`, `'Ex 1 - LBO'!C30=81.73` and `C31=0.24`, yet the cached value of `C32` (`=+C30*(1+C31)`) is `109.5182` (`81.73 * 1.34`) rather than `101.3452` (`81.73 * 1.24`). When LibreOffice recalculates `output_path` during verification, it evaluates the true formulas (`C32=101.3452`, `C11=14.203395`, `U41=0.092`, `U43=0.221507`), which causes 65 unchanged regression cells across `'Ex 1 - LBO'`, `'Ex 2 - Valuation Bridge'`, and `'Ex 5 - M&A'` to differ from the stale cached values in `gt_01_golden.xlsx`. This drops the regression ratio to `0.9925` (below `REGRESSION_PASS_RATIO = 0.998`), so even `gt_01_golden.xlsx` itself fails verification with `regression 0.9925, modification 1.0000 (65 cell errors)`. Across all 3 units (unit 1 step [29], unit 2 step [35], unit 3 step [38]/[53]), every agent suffered these exact 65 false regression errors (`regression 0.9925`).",
+    "confirmation": "Confirmed: golden C32 =+C30*(1+C31) caches 109.5182 and U41 =+M17 caches 0.137 vs M17 0.092. All three grade.json files in run <id> fail with regression 0.9925, led by the C11/C32 errors.",
+    "fixed": true,
+    "fix": "gt_01_golden.xlsx and the grader's reference copy untouched_input_Incorrect Average_input.xlsx: replaced the 65 stale cached values left by the last data-table pass (e.g. 'Ex 1 - LBO'!C11 18.2034 -> 14.2034, C32 109.5182 -> 101.3452, plus dependants in Ex 1, Ex 2 and Ex 5) with the values the grader's own LibreOffice recalculation (data tables frozen) produces. Only <v> elements were edited, no formulas or formats. Locally, the recalculated key now scores regression 1.0 / modification 1.0 against itself (was 0.9925), and the untouched input still fails."
+  }
+]

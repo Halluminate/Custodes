@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Prompt states reference files are on Desktop, but the reference PDF is only available via external URL",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `problem.py`, the prompt states: 'Any reference files mentioned above are in your Desktop folder (/home/model/Desktop).' However, `initialize.py` does not copy `132-Things-REALTORS-Do-For-Buyers.pdf` (or any file) to `/home/model/Desktop`, leaving `/home/model/Desktop` completely empty at runtime (`Seeded grading baseline: 0 files`). While the external URL is reachable via curl/browser, telling the agent that reference files are in `/home/model/Desktop` when the directory is empty is misleading.",
+    "confirmation": "The prompt says 'Any reference files mentioned above are in your Desktop folder' but tasks/.../data is empty, and with the agent internet block the URL is not reachable in runs (403 in the trajectories), so the required source is unavailable.",
+    "fixed": true,
+    "fix": "Added the reference PDF as a data file: files/data/132-Things-REALTORS-Do-For-Buyers.pdf (4 pages, the 132-item list, downloaded 2026-11-05 from the URL in the prompt, HTTP 200, application/pdf). It is staged on the Desktop under the same name, so the prompt's 'Any reference files mentioned above are in your Desktop folder' becomes true and agents no longer need the blocked URL. NOTE: data/ was empty, so this is a NEW data file, not a replacement. Applying it needs the dataFiles editor patch (an upload alone does not reach runs). No prompt change."
+  },
+  {
+    "id": "F2",
+    "title": "Required reference PDF is not staged on the Desktop",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "data_presence",
+    "evidence": "The task requires using “132 Things Realtors do for Buyers” and states, “Any reference files mentioned above are in your Desktop folder (/home/model/Desktop).” After both initialization phases completed successfully, that folder remained empty. The initialization script contains no PDF download or copy operation; assets contains only .gitkeep, desktop_plan.json is [], and no copy of the reference exists in the supplied task data. All three trajectories encountered the empty Desktop and then HTTP 403 errors when attempting the supplied URL. The URL returns HTTP 200 in this inspection, but that does not fix the missing promised local input or provide reliable access during runs. This affects the five separately scored reference-attribution requirements and the substantive actions agents must extract from the document.",
+    "confirmation": "Confirmed data/ is empty, so the '132 Things Realtors do for Buyers' PDF is not staged, and run trajectories show 403s for the URL, leaving the reference-attribution and item-specific rubric points dependent on memory.",
+    "fixed": true,
+    "fix": "Same new data file: the 132 Things PDF is staged on the Desktop."
+  },
+  {
+    "id": "F3",
+    "title": "The reference PDF is not on the Desktop, but the statement says reference files are there",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "problem.py ends with: \"Any reference files mentioned above are in your Desktop folder (/home/model/Desktop).\" But desktop_plan.json is \"[]\", the assets folder only holds .gitkeep, and /home/model/Desktop is empty after running initialize.py. The only reference is the external URL https://www.bubbleinfo.com/.../132-Things-REALTORS-Do-For-Buyers.pdf. The rubric needs that document: about 45 of the ~60 points describe specific '132 Things' items (e.g. 'explains how neighborhood characteristics (ordinances, historic district rules, tax assessments)...', 'verifies condominium association requirements'). Five more points require citing the reference 'by document title or item number'. If the agent has no web access, those points depend on recalling the PDF from memory.",
+    "confirmation": "data/ holds no PDF though the prompt promises reference files on the Desktop, and the rubric devotes most points to specific '132 Things' items plus 'by document title or item number' citations, which depend on that unavailable document.",
+    "fixed": true,
+    "fix": "Same new data file: the 132 Things PDF is staged on the Desktop."
+  }
+]

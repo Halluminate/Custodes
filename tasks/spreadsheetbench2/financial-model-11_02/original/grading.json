@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_11_Switchgear_golden.xlsx",
+        "reference_path": "reference/untouched_input_11_02_Switchgear_input.xlsx",
+        "answer_position": "'Summary Valuation'!B2:E24,'DCF'!B1:Q29,'Comps'!B2:IR42,'Txn Comparison'!B2:N29,'Summary'!B2:M27,'IS'!B2:AH31,'CF'!B2:AH33,'BS'!B2:AH40,'Ratio Analysis'!B2:L36,'Input Sheet'!B3:AH100,'Revenue Drivers'!B2:AH108,'Cost Drivers'!B1:AJ372,'Working Capital'!B2:AH32,'Assets Sch.'!B2:AG54,'Debt Schedule'!B2:AG29,'BG'!B2:AL35,'WACC'!B2:D21",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

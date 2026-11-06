@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_08_golden.xlsx",
+        "reference_path": "reference/untouched_input_Inconsistent Color Coding_input.xlsx",
+        "answer_position": "'Cover'!C5:D14,'Operating Model + DCF'!A2:X35,'Operating Model + DCF'!A36:B36,'Operating Model + DCF'!I36:X36,'Operating Model + DCF'!A37:X61,'Operating Model + DCF'!A62:B62,'Operating Model + DCF'!M62:X62,'Operating Model + DCF'!A63:X145,'Revenue Build'!A2:AA44,'Comps + WACC'!B2:L41,'ADDTL -'!A1:L40,'IS Annual'!A1:R45,'IS Quarters'!A1:L70,'IS Quarters 2'!A2:G93,'Key Stats'!A1:L47,'BS'!A1:Y96,'CFS'!A1:L65,'Employees'!A2:L9,'Graphs'!B2:G266",
+        "mode": "font_color"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

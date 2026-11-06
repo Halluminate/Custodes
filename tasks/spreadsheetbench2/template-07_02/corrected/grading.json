@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_07_02_golden.xlsx",
+        "reference_path": "reference/untouched_input_07_02_input.xlsx",
+        "answer_position": "'EquityMethod'!C2:K26,'EquityMethod'!C27:D27,'EquityMethod'!F27,'EquityMethod'!H27:K27,'EquityMethod'!C28:K32,'EquityMethod'!C33:D33,'EquityMethod'!F33,'EquityMethod'!H33:K33,'EquityMethod'!C34:K60",
+        "mode": "values"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

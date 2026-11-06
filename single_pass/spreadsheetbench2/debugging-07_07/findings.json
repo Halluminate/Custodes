@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit (logic errors, inconsistencies, hardcodes), but the golden fixes only the INDEX/MATCH errors and keeps other obvious errors whose correction changes compared cells, so a more thorough correct solution fails the all-cells check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "underspecified-scope-enforced",
+    "evidence": "Equity Returns I57 '=I56*(1+$D$12)^$D$10-1' is inconsistent with D57 '=D56*(1+D12)^D10-D56'. H82/I82 '=H81*(1+$D$12)^$D$10-1' are inconsistent with C82 '-C81'. All are left unchanged in gt (I57=-660463.97), and fixing them changes I58, I60, H68:I70 and H83:I86, which are all in A2:I122.",
+    "confirmation": "Golden 'Equity Returns'!I57 '=I56*(1+$D$12)^$D$10-1' and H82/I82 '...-1' keep a clear logic error: the sibling D57/C82 subtract the principal, and the '-1' gives a 660k preference on 449.5k principal. The prompt asks for formula logic errors and inconsistencies to be fixed. Fixing them changes I58 ("
+  }
+]

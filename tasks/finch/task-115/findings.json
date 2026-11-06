@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "The grader accepts data from any publication date but only tolerates 1% difference from one reference, so valid answers are rejected",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The prompt says: 'data from different publication dates is acceptable as long as sourced from official government websites. For data from February 2024 onwards, rounded values … are acceptable.' The grader guidance gives a single pass/fail ('score': 0 or 1) against the reference values with '≤1% relative error'. Revisions to the HPI often exceed 1%, and derived figures (category thresholds, max/min month, MoM in percentage points) are very sensitive to which vintage is used. The prompt says several answers are valid, but the rubric accepts only the one close to the reference. This is multiple_valid_answers_rejected.",
+    "confirmation": "The prompt explicitly accepts HPI 'data from different publication dates', but grader_guidance scores 0/1 against the single reference with a 1% / 0.5pp tolerance. The GT itself shows vintage shifts of about 5% (2024/12 break), so permitted vintages fail.",
+    "fixed": true,
+    "fix": "grader_guidance.md: added one note after the web-search tolerance note: accept RawData values matching any official HM Land Registry/ONS publication for that month, and judge Sheet2-Sheet5 by correct computation from the model's own RawData rather than closeness to the reference."
+  },
+  {
+    "id": "F2",
+    "title": "The reference RawData joins pre-revision and post-revision UK HPI data, and the grader compares to it within 1%",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "GT RawData uses exact Land Registry values up to 2024/01 (England '298,575'), then rounded ONS bulletin values ('298,000'…). England falls from '306,000' (2024/11) to '291,000' (2024/12). Wales falls from 219,000 to 208,000 and Northern Ireland from 191,000 to 183,000 in the same month. A move of this size across all regions at once looks like a series revision between publication dates, not a real price change. It produces the GT's England MoM of -4.90% (Dec 2024), England Peak-to-Current of -9.51% and England 'Low' in 2025/04. The problem says 'HPI data is periodically revised; data from different publication dates is acceptable'. But the grader guidance makes the score a binary 0/1 on whether the output is 'logically equivalent to the reference answer.xlsx', allowing only '≤1% relative error … ±0.5 percentage points'. An agent that downloads one internally consistent current UK HPI series from GOV.UK is following the instruction exactly. Its 2022–2024 levels, its Dec-2024 MoM, its max/min months, its Peak-to-Current and its categories would then differ from the joined reference by more than the tolerance, and the whole task would be marked 0.",
+    "confirmation": "GT RawData switches from exact figures (2024/01 England '298,575') to rounded ones ('298,000' from 2024/02). All four regions then drop at once from 2024/11 to 2024/12 (England 306,000 to 291,000, Wales 219,000 to 208,000, NI 191,000 to 183,000), a vintage splice. Its derived MoM, max/min and catego",
+    "fixed": true,
+    "fix": "Same added guidance note; the reference's spliced pre/post-revision RawData and its derived MoM, max/min and category values are no longer the pass/fail target, so a single consistent official series is graded on its own correctness."
+  },
+  {
+    "id": "F3",
+    "title": "Grading tolerance conflicts with explicitly permitted HPI publication vintages",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task explicitly allows 'data from different publication dates', but the authoritative grader guidance compares every value with the reference, allows only a small numeric tolerance ('≤1% relative error'), and requires discrepancies not to change conclusions. Official HM Land Registry data already exceeds this tolerance: Average-prices-2025-04.csv reports England January 2022 as £270,231, versus £291,560 in reference RawData!B2 (7.32% difference), and England August 2024 as £288,241, versus £310,000 in RawData!B33 (7.02%). Applying the task's classification rules correctly produces 'Low' for both official values, whereas the reference expects 'Medium' and 'Very High'. Thus a permitted, consistently sourced official publication can disagree across raw prices, classifications and derived statistics and fail the rubric's binary overall score despite following the task.",
+    "confirmation": "Same conflict: the reference RawData (e.g. B2=291,560 for England 2022/01, B33=310,000 for 2024/08) mixes pre- and post-revision values. A consistently sourced later vintage differs by more than 1% and changes Sheet4 categories, yet the prompt permits it, so a correct answer fails the binary grade.",
+    "fixed": true,
+    "fix": "Same added guidance note; a consistently sourced later vintage is no longer failed by the 1% band against the reference."
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The vacant-unit counts in row 16 do not equal Total Units minus Occupied Units, yet the answer key computes Vacancy Loss from row 16, so a solver who derives vacancy from C7-C14 fails.",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "inconsistent-input-data",
+    "evidence": "RentRoll row 16 = 4,3,8,1 (total 16), but C7-C14 gives 4,4,7,2 (G7-G14 = 17). Golden D19 = -D10*D16*12 = -88200, whereas (D7-D14)*D10*12 = -117600. E and F also differ by far more than 1%.",
+    "confirmation": "RentRoll C16:F16 hold 4,3,8,1 under the label 'FN: Express deductions as negative values', while Total minus Occupied (C7-C14 etc.) is 4,4,7,2. The golden D19 = -D10*D16*12 = -88,200 versus -117,600 from the unit counts, so a solver deriving vacancy from the labeled rows fails the D-F modification c"
+  }
+]

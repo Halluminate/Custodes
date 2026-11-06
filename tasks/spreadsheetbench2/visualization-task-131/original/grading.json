@@ -1,0 +1,45 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official chart checklist",
+      "function": "verify_spreadsheetbench2_chart_checklist",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "checklist": [
+          "The chart is a waterfall (bridge) chart",
+          "The chart title reads 'EBITDA Waterfall ($M)'",
+          "The categories appear left to right in this order: FY22 EBITDA, FX Tailwind, Gross Profit, Employee Costs, Direct Marketing, Other Opex, FY23 EBITDA",
+          "The FY22 EBITDA bar is displayed in dark blue color",
+          "The FY23 EBITDA bar is displayed in dark blue color",
+          "The FX Tailwind bar is displayed in yellow color",
+          "The Gross Profit bar is displayed in yellow color",
+          "The Employee Costs bar is displayed in grey color",
+          "The Direct Marketing bar is displayed in grey color",
+          "The Other Opex bar is displayed in grey color",
+          "The FY22 EBITDA bar value is 4.3 or 4 and starts at 0 and ends at 4.3 or 4 on the Y-axis",
+          "The data label on the FY22 EBITDA bar reads '$4m'",
+          "The FX Tailwind bar value is 2 and starts at 4.3 or 4 and ends at 6.3 or 6 on the Y-axis",
+          "The data label on the FX Tailwind bar reads '$2m'",
+          "The Gross Profit bar value is 13 and starts at 6.3 or 6 and ends at 19.3 or 19 on the Y-axis",
+          "The data label on the Gross Profit bar reads '$13m'",
+          "The Employee Costs bar value is -5.1 and starts at 19.3 or 19 and ends at 14.2 or 14 on the Y-axis",
+          "The data label on the Employee Costs bar reads '$(5)m'",
+          "The Direct Marketing bar value is -0.9 and starts at 14.2 or 14  and ends at 13.3 or 13 on the Y-axis",
+          "The data label on the Direct Marketing bar reads '$(1)m'",
+          "The Other Opex bar value is -2.3 and starts at 13.3 or 13 and ends at 11 on the Y-axis",
+          "The data label on the Other Opex bar reads '$(2)m'",
+          "The FY23 EBITDA bar value is 11 and starts at 0 and ends at 11 on the Y-axis",
+          "The data label on the FY23 EBITDA bar reads '$11m'"
+        ]
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

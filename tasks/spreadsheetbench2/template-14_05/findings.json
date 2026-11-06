@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth contradicts the workbook’s required sign convention",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The supplied workbook states at NOI_Projection!B41: \"FN: Express deductions as negative numbers\". However, the golden workbook expects positive operating-expense deductions throughout J35:N39: for example, J35=785000, K35=920000, L35=145000, M35=194185.2 and N35=2044185.2. Its NOI formula is =I35-N35 rather than adding negative expenses. Following the explicit footnote would therefore disagree with 25 of the 65 modification cells, even with identical, correctly calculated NOI. The sole verifier has weight 1 and requires every modification cell to match, so following the supplied sign instruction causes the entire check to fail.",
+    "confirmation": "The input's own sign instruction (NOI_Projection!B41) conflicts with GT positive opex in J35:N39. Runs that followed it computed the correct NOI in O35:O39 and still scored 0.",
+    "fixed": true,
+    "fix": "Same GT patch."
+  },
+  {
+    "id": "F2",
+    "title": "The footnote says to show deductions as negative numbers, but the answer key shows operating expenses as positive, and grading is pass/fail",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The input sheet says in B41: 'FN: Express deductions as negative numbers'. The ground truth (gt_14_05_golden.xlsx) follows this only for Vacancy (H35 '=-G35*C17' = -309,870). Every operating-expense column is positive: J35 785,000, K35 920,000, L35 145,000, M35 '=I35*C18' = 194,185.2, N35 '=SUM(J35:M35)' = 2,044,185.2. NOI is then O35 '=I35-N35'. Operating expenses are deducted from EGI to reach NOI, so they are 'deductions' in the ordinary sense. An agent that applies the footnote to them would enter J35:N39 as negatives (25 cells). Those cells would all fail the 1% value comparison. In spreadsheetbench2.py, verify_spreadsheetbench2_cells returns 1.0 only when every modification cell matches (mod_ratio == 1.0), so that agent scores 0 on the problem's only verifier (weight 1). Nothing in the task statement settles which items count as 'deductions'. No run output was available to see how agents handled this.",
+    "confirmation": "Verified B41 footnote vs GT J35=785000, K35=920000, N35 '=SUM(J35:M35)' positive. Applying the footnote to operating expenses fails 25 modification cells, which is exactly what all 3 runs did.",
+    "fixed": true,
+    "fix": "Same GT patch; the three runs that negated J35:N39 (regression 1.0, modification 0.6154 failing only on sign) would now match."
+  },
+  {
+    "id": "F3",
+    "title": "Undisclosed and ambiguous sign convention between Vacancy & Credit Loss (H35:H39) and Operating Expenses (J35:N39)",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `problem.py`, the instruction states only: \"Complete the financial model based on the provided assumptions. Ensure that all formulas, references, and calculations are correct.\" In the input workbook `/home/model/Desktop/14_05_input.xlsx` (`NOI_Projection`), the entire 5-year projection table `C35:O39` is blank and cell `B41` contains the footnote `\"FN: Express deductions as negative numbers\"` (plural). However, in the ground-truth workbook `gt_14_05_golden.xlsx`, only `Vacancy & Credit Loss` (`H35:H39`) is stored as negative numbers (`H35=-309870` via `=-G35*C17`, `H36=-318297.075`, `H37=-326953.7716875`, `H38=-335846.356894219`, `H39=-344981.268715042`, with `I35=G35+H35=4854630`), whereas all five operating expense columns (`J35:N39`: `Controllable Expenses`, `Property Taxes`, `Insurance`, `Property Management`, and `Total Operating Expenses`) are stored as positive numbers (`J35=785000`, `K35=920000`, `L35=145000`, `M35=194185.2`, `N35=2044185.2`, `J36=808550`, `J37=832806.5`, `J38=857790.695`, `J39=883524.41585`, etc., with `O35=I35-N35=2810444.8`). Because no source states that `B41` applies only to Column H and not to the operating expense deductions in Columns J–N, and `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1) requires 100% of modification cells (`mod_ratio == 1.0`) to match signed values, expressing `J35:N39` as negative numbers causes 25 of 65 modification cells to fail (`modification 0.6154`) and reduces the total score from 1.0 to 0.0 across all 3 runs.",
+    "confirmation": "GT negates only H35:H39 (=-G35*C17) and keeps J35:N39 positive with O35 '=I35-N35', yet nothing in the prompt or the B41 footnote limits 'deductions' to vacancy. The all-or-nothing verifier punishes the other reading.",
+    "fixed": true,
+    "fix": "Same GT patch: every deduction (vacancy and all operating-expense columns) now follows the B41 footnote."
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: SpreadsheetBench 2 official cell check fails valid solutions (score 0.0 on all 3 units) due to ambiguous sign convention on J35:N39",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": null,
+    "evidence": "Across all 3 units, `SpreadsheetBench 2 official cell check` (weight: 1) returned `score=0 - FAILED - regression 1.0000, modification 0.6154. 25 cell error(s): Modification error at NOI_Projection!J35: answer=785000, output=-785000; Modification error at NOI_Projection!J36: answer=808550, output=-808550; Modification error at NOI_Projection!J37: answer=832806.5, output=-832806.5; Modification error at NOI_Projection!J38: answer=857790.695, output=-857790.695; Modification error at NOI_Projection!J39: answer=883524.41585, output=-883524.41585`. Trajectory inspection (unit 1 steps `[10]`, `[12]`, `[21]`; unit 2 steps `[13]`, `[15]`, `[16]`; unit 3 steps `[17]`, `[20]`) confirms that every unit preserved all untouched cells (`regression 1.0000`), computed the exact magnitudes for all 65 projection cells in `C35:O39`, matched all 40 modification cells in `C35:I39` and `O35:O39` (including exact Net Operating Income `O35:O39`), and formatted `J35:N39` as negative values strictly in accordance with footnote `B41` (`\"FN: Express deductions as negative numbers\"`). Because `verify_spreadsheetbench2_cells` enforces signed equality against `gt_14_05_golden.xlsx` (where `H35:H39` is negative but `J35:N39` is positive) and requires `mod_ratio == 1.0` for a passing score, all 3 valid completions received 0.0.",
+    "confirmation": "All 3 trials in rollout <id> scored 0 with regression 1.0 and modification 0.6154, failing only on sign in J35:N39 (answer 785000, output -785000). Input B41 reads 'FN: Express deductions as negative numbers' while GT keeps opex positive.",
+    "fixed": true,
+    "fix": "gt_14_05_golden.xlsx NOI_Projection: J35 =-C28, K35 =-C29, L35 =-C30, M35:M39 =-I*C18, O35:O39 =I+N (was I-N); recalculated so J35:N39 cached values are the negatives of the old ones (e.g. J35 -785000, N35 -2044185.2) and O35:O39 NOI is unchanged. All other cells identical."
+  }
+]

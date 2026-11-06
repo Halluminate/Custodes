@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The instruction asks the agent to project each segment using its historical Year 1 to Year 3 CAGR, but the workbook has no segments and the golden answer applies no CAGR anywhere. It is a store and square-footage build: comparable sales = prior sqft × prior sales/sqft × (1+SSS), plus new-store sales.",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "prompt-answer-mismatch",
+    "evidence": "Prompt: 'Project each segment using its historical CAGR from Year 1 to Year 3.' The golden F20=170.334 equals E33/E16 (9325792.5/54750), not any CAGR extrapolation. A CAGR on C20:E20 gives 164.9×(164.9/142.5)^0.5≈177.4.",
+    "confirmation": "The prompt says to project each segment with its FY22-FY24 CAGR, but 'RevenueBuild' has no segments and the golden uses a square-footage/same-store build (F20 = prior sales per sqft 170.33 from E33/E16, F26 comparable sales, F31 new-store sales), with no CAGR anywhere; with 294 cells and no regressi"
+  }
+]

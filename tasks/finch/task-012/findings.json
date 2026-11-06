@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Method 1 instructions give identical conditions for holding opposite indices",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "Timing_Strategy!H8 says both 'Go Long Index 1' and 'Go Long Index 2' when the moving average is 'either rising or flat' and the deviation rate is within the specified interval. These conditions cannot distinguish the two signals. The bundled reference's T15 instead assigns -1 when E14>=E15 and 1 when E14<=E15, subject to F15<$B$10. The task explicitly makes H8 authoritative, so a competent agent cannot derive the expected Method 1 logic unambiguously from the supplied instructions.",
+    "confirmation": "Same verified defect: H8's two Method 1 conditions are word-for-word identical, so the expected signal logic in GT T15 (=IF(AND(E14>=E15,F15<$B$10),-1,...)) cannot be derived from the cited guidance alone.",
+    "fixed": true,
+    "fix": "Same H8 edit as 71224100."
+  },
+  {
+    "id": "F2",
+    "title": "Method 1 guidance in cell H8 duplicates 'rising or flat' for both Index 1 and Index 2 signals, contradicting ground-truth formulas in column T",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "The problem statement (`problem.py:1`) instructs the agent: 'Per the red parameters and the Method 1/Method 2 guidance noted in H8 and H9, complete the formulas in columns T and U (starting from1)... In the formulas for columns T and U, 1 represents the signal to hold Index 1, -1 represents the signal to hold Index 2, and 0 represents the signal to make no change.' However, in `12_src_0.xlsx` (and `gt_12_ref_0.xlsx`), cell `Timing_Strategy!H8` contains a copy-paste/translation defect that gives the exact same condition for both Index 1 and Index 2: 'Method 1: Go Long Index 1: When the  Moving Average(MA) is either rising or flat, AND the Deviation Rate falls within the specified open interval. Go Long Index 2: When the Moving Average(MA) is either rising or flat, AND the Deviation Rate falls within the specified open interval. Otherwise: Maintain the most recent selection...'. Meanwhile, the ground-truth reference workbook (`gt_12_ref_0.xlsx`) implements `T15:T5075` as `=IF(AND(E14>=E15,F15<$B$10),-1,IF(AND(E14<=E15,F15<$B$10),1,0))`, where `-1` (Go Long Index 2) requires the Moving Average to be falling or flat (`E14>=E15`, occurring in 2,401 of the 5,061 rows) and `1` (Go Long Index 1) requires the Moving Average to be rising or flat (`E14<=E15`, occurring in 2,485 rows). Because the AI grader evaluates `correctness` (0 or 1) under `Evaluation Criteria -> 2. Data Accuracy` against `gt_12_ref_0.xlsx` with no note about the corrupted rule in `H8`, an agent following `H8` or resolving the contradiction differently risks failing the single-score binary rubric.",
+    "confirmation": "Timing_Strategy!H8 in 12_src_0.xlsx gives the identical condition ('MA either rising or flat' and deviation within interval) for both Index 1 and Index 2, while GT T15 uses E14>=E15 for -1 and E14<=E15 for 1, so the rule the prompt makes authoritative for graded column T is self-contradictory.",
+    "fixed": true,
+    "fix": "data/12_src_0.xlsx (and the same cell in ground_truth/gt_12_ref_0.xlsx for consistency): Timing_Strategy!H8 text 'Go Long Index 2: When the Moving Average(MA) is either rising or flat' changed to '... either falling or flat', matching GT T15 =IF(AND(E14>=E15,F15<$B$10),-1,...). Shared-string XML edit only, charts and every other cell untouched. The 'open interval' wording was left: the bias ratio is never below -0.1, so F<B10 and |F|<B10 give the same signals."
+  },
+  {
+    "id": "F3",
+    "title": "Method 1 rule in H8 gives the same condition for Index 1 and Index 2",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "world_consistency",
+    "evidence": "Timing_Strategy!H8 in the source file (the task says to follow it: \"the Method 1/Method 2 guidance noted in H8 and H9\") reads: \"Go Long Index 1: When the Moving Average(MA) is either rising or flat, AND the Deviation Rate falls within the specified open interval. Go Long Index 2: When the Moving Average(MA) is either rising or flat, AND the Deviation Rate falls within the specified open interval.\" Both conditions are identical, so the rule for Index 2 cannot be followed as written. It also mentions a \"specified open interval\", but the sheet only gives one value, Deviation Limit B10 = 0.1. The ground truth reads Index 2 as 'MA falling or flat' and checks it first: T15 = IF(AND(E14>=E15,F15<$B$10),-1,IF(AND(E14<=E15,F15<$B$10),1,0)). So a flat MA gives Index 2, while H8 says a flat MA gives Index 1. Column T, and column I whenever Method 1 is selected, is half of the graded formula work. The agent has to guess what was meant. Some readings look reasonable but give different signals, for example 'Index 2 when the MA is rising and the deviation is outside the limit'. Any of these would fail the grader's 'logically equivalent to the reference' test. The tie between flat and falling doesn't change any value here: no row has E(t-1)=E(t).",
+    "confirmation": "Confirmed H8 duplicates the Index 1 condition for Index 2 and refers to an 'open interval' while only B10=0.1 exists. The agent has to guess the Method 1 logic that the binary LLM grader compares to GT T15:T5075.",
+    "fixed": true,
+    "fix": "Same H8 edit as 71224100."
+  }
+]

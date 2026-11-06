@@ -1,0 +1,112 @@
+[
+  {
+    "id": "F1",
+    "title": "The entity and metric names in the prompt don't exist in the data, and the rubric grades one fixed reading of them",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The prompt names 'CB Cash Italy', 'IB Debt Markets Luxembourg', 'CB Trade Finance Brazil', 'PB EMEA UAE', 'metrics A1 and C1' and 'Trade Finance' businesses. The Population file has only the divisions {Corporate Bank, Markets, Retail Bank, AM}, sub-divisions such as Corporate Loans, Marine Finance and Trading, and metric names such as 'Total clients' and 'HR Clients'. There is no 'Cash', 'Trade Finance', 'IB', 'PB', 'A1' or 'C1' anywhere. The rubric still awards a fixed mapping: Cash Italy → Corporate Loans/Italy, Debt Markets Lux → Markets/Trading, Trade Finance Brazil → Marine Finance/Brazil, PB → Retail Bank/EMEA/UAE, A1 → Total Clients, C1 → HR Clients, Trade Finance → Marine Finance. These are 7×2 + 1 = 15 points. No source gives this mapping, and other readings are equally reasonable (for example A1/C1 as row codes, or Cash → Fund Services).",
+    "confirmation": "None of the prompt's names ('CB Cash Italy', 'IB Debt Markets Luxembourg', 'CB Trade Finance Brazil', 'PB EMEA UAE', metrics A1/C1) occur in Population v2.xlsx, yet 15 rubric points grade one fixed crosswalk to Corporate Loans/Trading/Marine Finance/Retail Bank and Total Clients/HR Clients.",
+    "fixed": true,
+    "fix": "Same crosswalk sentence in prompt.md discloses the exact mapping the rubric grades."
+  },
+  {
+    "id": "F2",
+    "title": "Required entity and metric mappings are missing from agent-facing materials",
+    "bucket": "Environment & Infra",
+    "severity": "critical",
+    "category": "data_presence",
+    "evidence": "The task requires 'CB Cash Italy', 'IB Debt Markets Luxembourg', 'CB Trade Finance Brazil', 'PB EMEA UAE', and metrics 'A1 and C1'. None of Cash, Debt Markets, Trade Finance, PB, IB, A1, or C1 occurs in the staged workbook, and initialization provides no crosswalk or accompanying reference. The grader instead expects Corporate Loans/Italy, Trading/Luxembourg, Marine Finance/Brazil, Retail Bank/EMEA/UAE, and Total clients/HR Clients. Those substitutions are not disclosed to the agent. In addition, two +2 entity criteria demand the division 'Corporate Banking', while the fixture uses 'Corporate Bank'. These omissions make literal completion of required coverage impossible and leave several scored mappings to guesswork.",
+    "confirmation": "The workbook contains none of Cash, Debt Markets, Trade Finance, PB, IB, A1 or C1 and no crosswalk is provided; also three rubric items require division 'Corporate Banking' while the data uses 'Corporate Bank'.",
+    "fixed": true,
+    "fix": "Same crosswalk sentence in prompt.md; rubric 'Corporate Banking' changed to 'Corporate Bank' in the three entity items and 'Total Clients' to 'Total clients' to match the data."
+  },
+  {
+    "id": "F3",
+    "title": "Ground-truth workbook (gt_Sample v2.xlsx) fails multiple rubric checks and corrupts 95 cells from Population v2.xlsx",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "The grader guidance instructs the judge to grade via GDPval pairwise comparison against the ground-truth deliverable (gt_Sample v2.xlsx), scoring 0.0 if the agent is worse, 0.5 if about as good, and 1.0 if better. However, gt_Sample v2.xlsx fails 13 out of 53 rubric points and contradicts Population v2.xlsx: (1) its second worksheet is named 'Sample Size' instead of 'Sample Size Calculation' (failing problem.py:8 and the [+2] tab-name check); (2) the 'Sample Size' tab contains only hardcoded values (C1=1516, C5=65) with no formulas, z-score, p, or finite population correction steps (failing [+2] and [+1]); (3) in 'Sample' columns A–H, 95 cells differ from Population v2.xlsx — 68 rows (rows 313–380) overwrite Sub-Division 'Europe' with 'EMEA' and 27 rows overwrite KRI 'Transactions Prohibited countries - value' with 'Wires - value' — failing '[+2] For every row included on the first worksheet, the values in columns A–H exactly match the corresponding row in the Population reference' and leaving Sub-Division 'Europe' with 0 sampled rows (failing '[+2] For each distinct Sub Division value present in the Population reference, at least one row with that Sub Division is flagged as sampled'); (4) it has 0 sampled rows for Corporate Bank / Corporate Loans / Italy (only sampling row 720 under Markets / Equity Markets / Italy, failing [+2]); and (5) it uses '=IF(H2=0,0,(G2-H2)/H2*100)' which outputs numeric 0 on all 83 rows where Q2 = 0 and Q3 != 0 (failing [+1] requiring a non-numeric convention like 'NA' or blank), lacks any sample count total S on the first sheet (failing [+2]), and has no flag, note, or conditional formatting for |variance| >= 100% (failing [+1]).",
+    "confirmation": "gt_Sample v2.xlsx names tab 2 'Sample Size' with only hardcoded 1516/65, overwrites 68 'Europe' sub-divisions with 'EMEA' and 27 KRIs with 'Wires - value' versus Population v2.xlsx, samples no Corporate Loans/Italy or Europe row, and returns 0 on all 83 Q2=0/Q3≠0 rows.",
+    "fixed": true,
+    "fix": "ground_truth/gt_Sample v2.xlsx, mechanical edits only: Sample!A:H restored cell-for-cell from Population v2.xlsx (95 corrupted cells: 68 Europe sub-divisions and 27 'Transactions Prohibited countries - value' KRIs back); the expert's own variance column moved I -> J and flag column J -> K unchanged (same formulas, same 65 picks), autofilter widened to A1:K1517; tab 2 renamed 'Sample Size' -> 'Sample Size Calculation' with its content unchanged. Recomputed with the verifier's LibreOffice recalc. The other rubric gaps of the expert workbook (no sample-size workings, no sample total, no Corporate Loans/Italy pick, no large-change highlight, *100 variance with 0 for Q2=0) are left as the expert made them: filling them would mean writing new answer content."
+  },
+  {
+    "id": "F4",
+    "title": "Column letters and Q2/Q3 column order in grader_guidance contradict problem.py, Population v2.xlsx, and themselves",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "over_specification",
+    "evidence": "In problem.py:10-14 and 28, the prompt states that Q2 and Q3 data are in 'columns H and I', instructs the agent to capture quarter-on-quarter variance 'in column J', and asks to 'indicate sampled rows in column K by entering \"1\"'. However, Population v2.xlsx has only 8 columns (A–H), with 'Q3 2024 KRI' in column G and 'Q2 2024 KRI' in column H. The rubric in grader_guidance (17 out of 53 points) contradicts both problem.py and Population v2.xlsx, as well as itself across consecutive bullets: (1) '[+2] Columns G and H on the first worksheet correspond to Q2 2024 and Q3 2024 values respectively, consistent with the Population reference column positions' reverses Q3 (col G) and Q2 (col H); (2) four bullets totaling 5 points require quarter-on-quarter variance in column I ('[+2] Column I exists on the first worksheet and computes quarter-on-quarter variance...') and two bullets totaling 3 points require sample flags ('1') in column J ('[+2] Column J exists on the first worksheet and sampled rows are flagged by the numeric value 1'), directly contradicting problem.py's instructions to use column J for variance and column K for sample flags; and (3) five subsequent bullets totaling 7 points switch back to the problem.py column letters or conflate columns J and K in the same sentence ('[+2] The sum of 1s in column K on the first worksheet (sample count S) is shown...', '[+2] At least one row with absolute variance |J| >= 20% is flagged as sampled in column J...', '[+1] If any rows have absolute variance |J| >= 100%, at least one such row is flagged as sampled in column J', '[+1] The header for column J clearly indicates it represents quarter-on-quarter variance...', '[+1] Metrics with exceptionally large percentage changes (e.g., |J| >= 100%)...'). No submission can simultaneously satisfy having variance in column I, sample flags in column J, a variance header in column J, and the sum of 1s in column K.",
+    "confirmation": "grader_guidance awards +2 for 'Columns G and H ... correspond to Q2 2024 and Q3 2024' though the file has G1='Q3 2024 KRI', H1='Q2 2024 KRI', puts variance in I and flags in J against the prompt's J/K, then also grades 'sum of 1s in column K' and '|J| >= 20% flagged in column J', so no layout satisf",
+    "fixed": true,
+    "fix": "Same rubric column-letter and quarter-order fixes (variance = J, flags = K, G = Q3, H = Q2) so one layout satisfies every item."
+  },
+  {
+    "id": "F5",
+    "title": "The expert GT fails many of its own rubric checks, so a pairwise comparison against it is unreliable",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "Checked in gt_Sample v2.xlsx:\n- Tab 2 is named 'Sample Size', not 'Sample Size Calculation' (fails a +2 check).\n- Tab 2 holds only the hardcoded values 1516, '90% confidence level', '10% error rate' and 65. There are no z, p, e or FPC workings (fails the +2 formula check and the +1 'arithmetic steps' check).\n- No total of the sampled count is shown (fails a +2 check).\n- No Corporate Bank/Corporate Loans/Italy row is sampled; the only Italy pick is row 719, Markets/Equity Markets (fails a +2 check).\n- No 'Europe' sub-division row is sampled, although Europe has 68 rows (fails the +2 all-sub-divisions check).\n- All 83 rows with Q2 = 0 and Q3 ≠ 0 show 0, from the formula =IF(H2=0,0,...). The rubric wants NA or blank (fails a +1 check).\n- Nothing flags exceptionally large changes (fails a +1 check).\n- The first sheet is unformatted.\nGrading asks for 1.0/0.5/0.0 against this expert file \"using the rubric below as the expert's checklist\". A rubric-compliant agent would beat the GT on many points, and the comparison becomes confused.",
+    "confirmation": "Verified the expert file fails several rubric items: tab named 'Sample Size', no z/p/e/FPC workings, no sample total, the only Italy pick is Markets/Equity Markets, zero Europe rows (all relabelled EMEA), and =IF(H2=0,0,...) gives 0 for 83 Q2=0/Q3≠0 rows. That makes the pairwise reference unreliable",
+    "fixed": true,
+    "fix": "Partly fixed by the mechanical edits under F3 (tab name, column layout, restored A:H). The missing workings, sample total, Corporate Loans/Italy pick and highlight are not added: cannot-fix-safely: would invent content."
+  },
+  {
+    "id": "F6",
+    "title": "Task points to the wrong input columns for quarterly data",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The task instructs the agent to analyze 'Q2 and Q3 data (columns H and I)'. The staged Population workbook has only eight populated columns: G1 is 'Q3 2024 KRI', H1 is 'Q2 2024 KRI', and column I contains no input data. Following the stated positions therefore compares Q2 against an empty column rather than Q3. This affects the required variance analysis and variance-based sample selection.",
+    "confirmation": "Prompt step 2 says Q2 and Q3 are in 'columns H and I', but Population v2.xlsx is A1:H1517 with G1='Q3 2024 KRI', H1='Q2 2024 KRI' and no column I data.",
+    "fixed": true,
+    "fix": "prompt.md: '(columns H and I)' changed to '(columns H and G)' (Q2 is column H, Q3 is column G in Population v2.xlsx)."
+  },
+  {
+    "id": "F7",
+    "title": "Grader reverses the quarters and contradicts the required output columns",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The rubric awards +2 for treating column G as Q2 and H as Q3, but the fixture headers identify G as Q3 and H as Q2. It also awards +2 for variance in column I and +2 for selection flags in column J, whereas the task explicitly requires variance in J and selection flags in K. The rubric is internally inconsistent as well: it requires selection flags in J, counts selections in K, and awards +1 for a J header describing variance. A competent agent following the task and actual input headers can consequently lose substantive variance and sampling credit.",
+    "confirmation": "Rubric '+2 Columns G and H ... Q2 2024 and Q3 2024 respectively' reverses the file's G=Q3/H=Q2, and rubric variance in I / flags in J contradicts the prompt's J/K while other items check K for the count and J for variance.",
+    "fixed": true,
+    "fix": "Same rubric fixes: quarter order matches the file headers and variance/flag columns match the prompt's J/K."
+  },
+  {
+    "id": "F8",
+    "title": "Task statement references v1 entity, business, and metric names absent from Population v2.xlsx, while grader guidance checks v2 names",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In problem.py:16-24, Requirement 3 instructs the agent to sample: (a) entities 'CB Cash Italy', 'CB Correspondent Banking Greece', 'IB Debt Markets Luxembourg', 'CB Trade Finance Brazil', and 'PB EMEA UAE'; (b) 'metrics A1 and C1, which carry higher risk weightings'; and (c) 'entries from Trade Finance and Correspondent Banking businesses'. However, the staged input file /home/model/Desktop/Population v2.xlsx uses different v2 names where none of 'CB', 'Cash', 'IB', 'Debt Markets', 'Trade Finance', 'PB', 'A1', or 'C1' exist: Divisions (col B) are {'AM', 'Corporate Bank', 'Markets', 'Retail Bank'}, Sub-Divisions (col C) are {'Asset Management', 'Corporate Loans', 'Sales', 'M&A', 'Trading', 'Marine Finance', 'Fund Services', 'Syndicated Lending', 'APAC', 'Europe', 'Correspondent Banking', 'Equity Markets', 'EMEA'}, and KRIs (col F) are 17 descriptive names with no metric codes. Meanwhile, grader_guidance in problems-metadata.json grades 15 out of 53 rubric points against undisclosed v2 mappings ('Corporate Banking' [sic: 'Corporate Bank' in data] / 'Corporate Loans' / 'Italy' [+2], 'Corporate Banking' / 'Correspondent Banking' / 'Greece' [+2], 'Markets' / 'Trading' / 'Luxembourg' [+2], 'Corporate Banking' / 'Marine Finance' / 'Brazil' [+2], 'Retail Bank' / 'EMEA' / 'UAE' [+2], metric 'Total Clients' [+2], metric 'HR Clients' [+2], and Sub-Division 'Marine Finance' [+1]). For instance, Italy under 'Corporate Bank' has three Sub-Divisions in Population v2.xlsx ('Corporate Loans', 'Fund Services', 'Marine Finance'), and there is no way for the agent to know from the prompt or workbook that 'CB Cash Italy' maps to 'Corporate Loans' or that 'A1' and 'C1' map to 'Total clients' and 'HR Clients'.",
+    "confirmation": "Population v2.xlsx has Divisions {AM, Corporate Bank, Markets, Retail Bank} and no 'Cash', 'Trade Finance', 'IB', 'PB', 'A1' or 'C1' anywhere, yet the rubric awards 15 points for one specific mapping (e.g. Corporate Loans/Italy, Total Clients, HR Clients) that nothing in the prompt or file discloses",
+    "fixed": true,
+    "fix": "prompt.md: added one sentence after the criteria list mapping CB Cash Italy, CB Correspondent Banking Greece, IB Debt Markets Luxembourg, CB Trade Finance Brazil, PB EMEA UAE, Trade Finance and metrics A1/C1 to the Division / Sub-Division / Country and KRI names in Population v2.xlsx (the mapping the rubric grades)."
+  },
+  {
+    "id": "F9",
+    "title": "The rubric contradicts itself on column letters and on which column holds Q2 and Q3",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The rubric uses three different layouts. (1) \"Column I ... computes variance\" and \"Column J ... sampled rows are flagged\". (2) \"The sum of 1s in column K ... (sample count S)\" [+2], and \"absolute variance |J| ≥ 20% is flagged as sampled in column J\" [+2] and \"|J| ≥ 100%\" [+1], which treat J as the variance column. (3) \"Columns G and H on the first worksheet correspond to Q2 2024 and Q3 2024 values respectively\" [+2], but the Population file has G = Q3 2024 and H = Q2 2024. Another check [+2] requires columns A–H to be preserved in the same order. So an agent that copies the data faithfully fails the G/H check, and one that swaps the columns fails the preserve-order check. No layout satisfies every check.",
+    "confirmation": "The rubric requires columns A-H kept in Population order (G=Q3, H=Q2) and also +2 for G=Q2/H=Q3, and it uses I/J for variance/flags in some items but K for the sample count and J for variance in others, so the items are mutually contradictory.",
+    "fixed": true,
+    "fix": "grader guidance: 'Columns G and H ... Q2 2024 and Q3 2024 respectively' changed to 'Q3 2024 and Q2 2024 respectively'; all variance items now use column J and all flag items use column K (consistent with the existing 'sum of 1s in column K' and 'header for column J' items)."
+  },
+  {
+    "id": "F10",
+    "title": "The column letters in the prompt don't match the Population file or the rubric",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "The prompt says: \"Perform a variance analysis on Q2 and Q3 data (columns H and I)... capture the result in column J\" and \"indicate sampled rows in column K\". In 'Population v2.xlsx' (Sheet1, A1:H1517) the data ends at column H: G = 'Q3 2024 KRI' and H = 'Q2 2024 KRI', and column I is empty. The GT puts the variance in column I ('Variance') and the sample flag in column J ('Sample Selected'). The rubric grades \"Column I ... computes quarter-on-quarter variance\" [+2, +1, +1, +1] and \"Column J ... sampled rows are flagged by the numeric value 1\" [+2, +1]. An agent that follows the prompt (variance in J, flags in K) is graded against the rubric's I/J layout and can lose about 8 points of variance and flag checks.",
+    "confirmation": "The prompt says Q2/Q3 are 'columns H and I' with variance in J and flags in K, but Population v2.xlsx ends at H (G=Q3, H=Q2, I empty) and the GT/rubric use I='Variance' and J='Sample Selected'.",
+    "fixed": true,
+    "fix": "Kept the prompt's layout (variance in J, sample flags in K); rubric items that checked variance in column I and flags in column J now check J and K; prompt Q2/Q3 column reference corrected; the expert workbook's own variance and flag columns moved to J and K (contents unchanged)."
+  }
+]

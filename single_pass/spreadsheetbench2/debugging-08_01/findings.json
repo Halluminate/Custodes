@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The prompt asks for a thorough audit of all errors, but the golden workbook only fixes the injected double-counting errors and leaves many genuine errors in place. Because every cell in nearly every sheet must match within 1%, any additional legitimate fix fails the task.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "overbroad-prompt-vs-narrow-key",
+    "evidence": "Golden still has 'Operating Model + DCF'!R84 = R847-M83 (a broken reference to an empty cell, value -29.613), M27 = M26/M7 and R27 = R26/R7 (labelled '% of revenue' but dividing by COGS), and C36:H36 = 'IS Annual'!C75:H75 (an empty row past the sheet's end at row 45). The answer_position spans every sheet.",
+    "confirmation": "The golden differs from the input only in the double-counting formulas (rows 28, 83, 95, Revenue Build row 17) and keeps R84 '=R847-M83', M27 '=M26/M7' (M7 = COGS under '% of revenue') and C36:H36 ='IS Annual'!C75 (blank). The 'audit thoroughly' prompt invites these fixes, which move graded DCF cell"
+  },
+  {
+    "id": "S2",
+    "title": "An agent that repairs the obviously broken R84 formula to =R83-M83 changes R84, D94, D95, and every downstream DCF value, so it fails even though that is the correct fix.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "unfixed-broken-reference-enforced",
+    "evidence": "Input and golden both have R84 = '=R847-M83' with value -29.6129999999999. Golden C102 = 2725.73, which depends on D94 = R84.",
+    "confirmation": "Golden R84 '=R847-M83' caches -29.61, while R83-M83 = -84.29-29.61 = -113.9; D94 =R84 feeds D95 and C102 (2725.73), so the correct fix moves graded DCF cells far beyond 1%."
+  }
+]

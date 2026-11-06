@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth workbook gt_09_golden.xlsx contains unconverged, internally inconsistent cached values that fail its own verifier",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In spec.yaml, the sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight: 1) force-recalculates `output_path` in LibreOffice (`managed_recalculated_xlsx(Path(output_path), force_recalculation=True)`) and compares the resulting values against the un-recalculated cached values stored in `gt_09_golden.xlsx` across `'LBO'!A2:X218,'Financials'!A2:Q29,'Operating Cases'!A2:Q47`. Because the LBO sheet has a circular reference loop through the Revolver (`LBO!G136:N136` interest -> `G67` interest expense -> `G77` net income -> `G123` cash flow -> `G133` revolver draw -> `G135` ending revolver balance) with iterative calculation enabled (`calcPr iterate=\"true\" iterateCount=\"100\" iterateDelta=\"0.0001\"`), and `gt_09_golden.xlsx` was saved without converging its iterative calculation after editing the three target formula ranges (`Financials!J12:N12`, `LBO!G136:N136`, `LBO!G184:N184`), the cached values inside `gt_09_golden.xlsx` violate basic formula identities on the same sheet:\n- `LBO!L103` has formula `=+L135`, yet its cached value in `gt_09_golden.xlsx` is `1367.2540` while `LBO!L135` is `1373.2406` (and when recalculated in LibreOffice, `L103` is `1383.3791`, differing from `gt_09_golden.xlsx` by 1.18% > 1% tolerance).\n- `LBO!J124:N124` have formulas `=+J133` .. `=+N133`, yet their cached values in `gt_09_golden.xlsx` (`205.70, 191.21, 177.76, 168.07, 156.04`) differ from `J133:N133` (`208.67, 195.54, 183.75, 174.48, 162.85`) by 1.4% to 4.2%.\n- `LBO!I138:K138` (Remaining Capacity) have formulas `=IF($F138-I135<0,0,$F138-I135)` with `$F138 = 1800`, yet in `gt_09_golden.xlsx`, `I135 = 794.35` while `I138 = 1034.97` (`1800 - I135 = 1005.65`, off by 2.9%); `J135 = 1001.24` while `J138 = 856.35` (`1800 - J135 = 798.76`, off by 7.2%); and `K135 = 1193.82` while `K138 = 698.75` (`1800 - K135 = 606.18`, off by 15.3%).\n- Because `L103` is stale in `gt_09_golden.xlsx`, downstream returns cells (`L199:N201`) and the sensitivity table corner formulas `LBO!D213` and `LBO!L213` (`=TEXT($L$204,\"0%;(0%);'-'\")&\" / \"&TEXT($L$205,\"0.0x;(0.0x);'-'\")`) have cached value `'6% / 1.4x'` in `gt_09_golden.xlsx`, whereas recalculating `gt_09_golden.xlsx` produces `'6% / 1.3x'` (matching the base-case cell `G216 = '6% / 1.3x'` in the sensitivity table).\nConsequently, running `verify_spreadsheetbench2_cells` on `gt_09_golden.xlsx` itself fails with `score=0.0` (`FAILED - regression 1.0000, modification 0.9045. 34 cell error(s)`).",
+    "confirmation": "Verified that golden L103 '=+L135' caches 1367.25 vs L135 1373.24, K138 caches 698.75 vs 1800-1193.82=606.18, and D213 caches '6% / 1.4x'. The unconverged circular revolver caches make the verifier unpassable.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F2",
+    "title": "Golden workbook contains inconsistent cached values and fails its own grading",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The answer key is internally inconsistent: LBO!N124 contains '=+N133' but caches 156.035599779452, while N133 caches 162.849337071351. These values differ by more than the verifier's 1% tolerance. Similar inconsistencies occur in 14 direct-reference formulas. Recalculating the unmodified golden workbook through the verifier's managed_recalculated_xlsx routine and comparing it with the original key produces regression=1.0000, modification=0.9045 and 34 cell errors, including D213 ('6% / 1.4x' versus '6% / 1.3x'). Because the sole verifier has weight 1 and requires every modification cell to match, the golden workbook itself receives zero after the mandated recalculation.",
+    "confirmation": "Golden LBO!N124 '=+N133' caches 156.04 while N133 caches 162.85 (more than 1% apart), confirming that the answer key's cached values are inconsistent and fail the recalc comparison.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F3",
+    "title": "Golden gate: the ground-truth deliverable does not score full reward",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "golden_gate_underscore",
+    "evidence": "The ground-truth deliverable, staged at the verifiers' own output paths and graded by the problem's real grader, scored 0.00 (need >= 1.00). A correct answer that does not earn full reward means a verifier false-negatives the mandated work. With the ground truth staged, every one of the 1 checks on /home/model/Desktop/output.xlsx scored 0 (summed weight 1.000), which is the whole shortfall of the GT grade. A correct deliverable does not fail every check at once; the ground truth for this file most likely never reached the grader (paired with a file of another type or name), so these are not 1 separate verifier defects. Checks: SpreadsheetBench 2 official cell check.",
+    "confirmation": "Because the golden LBO caches are internally inconsistent (N124 '=+N133' 156.04 vs 162.85, D213 '6% / 1.4x' vs base G216 '6% / 1.3x'), the GT itself cannot pass the forced-recalc all-or-nothing check. The 'never reached grader' guess is wrong, but the shortfall is real.",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F4",
+    "title": "SpreadsheetBench 2 official cell check: verify_spreadsheetbench2_cells trivially fails (score 0.0) on all formula-driven workbooks including gt_09_golden.xlsx itself",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": null,
+    "evidence": "`verify_spreadsheetbench2_cells` (weight: 1) runs `managed_recalculated_xlsx(Path(output_path), force_recalculation=True)` on the submitted workbook and compares its recalculated values against the un-recalculated cached values in `gt_09_golden.xlsx`, requiring 100% of modification cells (`mod_ratio == 1.0`) to match within 1% tolerance. Because `gt_09_golden.xlsx` was saved with unconverged iterative cached values that contradict its own formulas (e.g., `K138` has formula `=IF($F138-K135<0,0,$F138-K135)` with `$F138=1800` and `K135=1193.82`, yet `K138`'s cached value in `gt_09_golden.xlsx` is `698.75` instead of `606.18`, a 15.3% discrepancy; `L103` has formula `=+L135` with cached value `1367.25` vs recalculated `1383.38`; and `D213`/`L213` have cached value `'6% / 1.4x'` vs recalculated `'6% / 1.3x'`), no workbook whose formulas are recalculated by LibreOffice can ever satisfy both `K135` and `K138` or match `D213`/`L213`. Passing `gt_09_golden.xlsx` itself to `verify_spreadsheetbench2_cells` returns `score=0.0` (`FAILED - regression 1.0000, modification 0.9045. 34 cell error(s): Modification error at LBO!D213: answer=6% / 1.4x, output=6% / 1.3x; ...`). Across all 3 units, 34 of the reported modification errors (including `LBO!D213`, `LBO!I138:L138`, `LBO!J124:N124`, `LBO!L103`, `LBO!L199:N201`, `LBO!L213`) are false modification errors caused by comparing LibreOffice-recalculated outputs against the unconverged `gt_09_golden.xlsx`.",
+    "confirmation": "gt_09_golden.xlsx caches contradict their own formulas: LBO!K138 =1800-K135 should be 606.18 but caches 698.75, and L103 '=+L135' caches 1367.25 vs L135 1373.24. A forced LibreOffice recalc of any correct output cannot match these modification cells.",
+    "fixed": false,
+    "fix": null
+  }
+]

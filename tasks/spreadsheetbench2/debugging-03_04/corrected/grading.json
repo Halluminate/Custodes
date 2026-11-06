@@ -1,0 +1,23 @@
+{
+  "graderMode": "standard",
+  "verifications": [
+    {
+      "name": "SpreadsheetBench 2 official cell check",
+      "function": "verify_spreadsheetbench2_cells",
+      "weight": 1,
+      "groundTruthIndex": 1,
+      "parameters": {
+        "output_path": "/home/model/Desktop/output.xlsx",
+        "gt_path": "reference/gt_03_golden.xlsx",
+        "reference_path": "reference/untouched_input_Inconsistent Color Coding_input.xlsx",
+        "answer_position": "'Cover'!B2:E9,'LBO'!B1:V9,'LBO'!B10:B10,'LBO'!D10:V10,'LBO'!B11:V13,'LBO'!B14:E14,'LBO'!G14:U14,'LBO'!B15:V20,'LBO'!B21:E21,'LBO'!G21:V21,'LBO'!B22:B23,'LBO'!D22:V23,'LBO'!B24:I24,'LBO'!O24:V24,'LBO'!B25:V25,'LBO'!B26:I26,'LBO'!O26:V26,'LBO'!B27:V34,'LBO'!B35:B35,'LBO'!D35:V35,'LBO'!B36:V38,'LBO'!B39:B39,'LBO'!D39:V39,'LBO'!B40:V70,'Valuation Bridge'!B2:C4,'Valuation Bridge'!B5:B7,'Valuation Bridge'!B8:C8,'Ex 2 - Income Statement'!B2:H9,'Ex 2 - Income Statement'!B10:B15,'Ex 2 - Income Statement'!D10:H10,'Ex 2 - Income Statement'!D12:H12,'Ex 2 - Income Statement'!D14:H14,'Ex 2 - Income Statement'!H15:H15,'Ex 2 - Income Statement'!B16:H17,'Ex 2 - Income Statement'!B18:C18,'Ex 2 - Income Statement'!B19:H19,'Ex 2 - Income Statement'!B20:B20,'Ex 2 - Income Statement'!B21:H21,'Ex 2 - Income Statement'!B22:B22,'Ex 2 - Income Statement'!B23:H23,'Ex 2 - Income Statement'!B24:B24,'Ex 2 - Income Statement'!B25:H28,'Ex 2 - Income Statement'!B29:B29,'Ex 2 - Income Statement'!B30:H30,'Ex 2 - Income Statement'!B31:B32,'Ex 2 - Income Statement'!B33:H38,'Ex 3 - Balance Sheet'!B2:E45,'Ex 8 - Stock Performance'!B2:F31,'Ex 8 - Stock Performance'!B32:B34,'Ex 8 - Stock Performance'!B35:F40,'Ex 9 - Perf Metrics'!B2:J6,'Ex 9 - Perf Metrics'!B7:B7,'Ex 9 - Perf Metrics'!D7:J7,'Ex 9 - Perf Metrics'!B8:J8,'Ex 9 - Perf Metrics'!B9:B11,'Ex 9 - Perf Metrics'!I9:J11,'Ex 9 - Perf Metrics'!B12:J13,'Ex 9 - Perf Metrics'!B14:B15,'Ex 9 - Perf Metrics'!I14:J15,'Ex 9 - Perf Metrics'!B16:J17,'Ex 9 - Perf Metrics'!B18:B19,'Ex 9 - Perf Metrics'!I18:J19,'Ex 9 - Perf Metrics'!B20:J21,'Ex 9 - Perf Metrics'!B22:B25,'Ex 9 - Perf Metrics'!I22:J22,'Ex 9 - Perf Metrics'!D23:J23,'Ex 9 - Perf Metrics'!I24:J24,'Ex 9 - Perf Metrics'!D25:J25,'Ex 9 - Perf Metrics'!B26:J26,'Ex 9 - Perf Metrics'!B27:B27,'Ex 9 - Perf Metrics'!D27:J27,'Ex 9 - Perf Metrics'!B28:J31,'Ex 9 - Perf Metrics'!B32:B33,'Ex 9 - Perf Metrics'!I32:J33,'Ex 9 - Perf Metrics'!B34:J34,'Ex 9 - Perf Metrics'!B35:B36,'Ex 9 - Perf Metrics'!I35:J36,'Ex 9 - Perf Metrics'!B37:J116,'Ex 9 - Perf Metrics'!B117:E117,'Ex 9 - Perf Metrics'!G117:I117,'Ex 10 - Forecast Assumptions '!B2:H28,'Ex 10 - Forecast Assumptions '!B29:B33,'Ex 10 - Forecast Assumptions '!D29:H31,'Ex 10 - Forecast Assumptions '!D32:G32,'Ex 10 - Forecast Assumptions '!D33:H33,'Ex 10 - Forecast Assumptions '!B34:H38,'Ex 10 - Forecast Assumptions '!B39:D39,'Ex 10 - Forecast Assumptions '!F39:F39,'Ex 10 - Forecast Assumptions '!B40:H50,'Ex 10 - Proj. Income Statement'!B2:H10,'Ex 10 - Proj. Income Statement'!B11:C12,'Ex 10 - Proj. Income Statement'!B13:B13,'Ex 10 - Proj. Income Statement'!D13:H13,'Ex 10 - Proj. Income Statement'!B14:H14,'Ex 10 - Proj. Income Statement'!B15:C16,'Ex 10 - Proj. Income Statement'!B17:H17,'Ex 10 - Proj. Income Statement'!B18:B19,'Ex 10 - Proj. Income Statement'!D19:H19,'Ex 10 - Proj. Income Statement'!B20:H21,'Ex 10 - Proj. Income Statement'!B22:C25,'Ex 10 - Proj. Income Statement'!B26:H27,'Ex 10 - Proj. Income Statement'!B28:C28,'Ex 10 - Proj. Income Statement'!B29:B29,'Ex 10 - Proj. Income Statement'!D29:H29,'Ex 10 - Proj. Income Statement'!B30:H31,'Ex 10 - Proj. Income Statement'!B32:C32,'Ex 10 - Proj. Income Statement'!B33:B33,'Ex 10 - Proj. Income Statement'!D33:H33,'Ex 10 - Proj. Income Statement'!B34:H36,'Ex 11 - Multiples'!B2:J40,'Ex 12 - Debt Schedule'!B2:H8,'Ex 12 - Debt Schedule'!B9:D11,'Ex 12 - Debt Schedule'!H9:H10,'Ex 12 - Debt Schedule'!F11:G11,'Ex 12 - Debt Schedule'!B12:H23,'Ex 13 - Transaction Comps'!B2:G8,'Ex 13 - Transaction Comps'!C9:E12,'Ex 13 - Transaction Comps'!G9:G12,'Ex 13 - Transaction Comps'!C13:G13,'Ex 13 - Transaction Comps'!C14:E15,'Ex 13 - Transaction Comps'!G15:G28,'Ex 13 - Transaction Comps'!B16:E28,'Ex 13 - Transaction Comps'!B29:G30",
+        "mode": "font_color"
+      }
+    }
+  ],
+  "aiGrader": {
+    "scoringMode": "single_score",
+    "includeTaskPrompt": true,
+    "includeInputFiles": true
+  }
+}

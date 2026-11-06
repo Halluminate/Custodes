@@ -1,0 +1,35 @@
+[
+  {
+    "id": "F1",
+    "title": "Ground truth puts Power Risk at 200,000, but the department's sheet sums to 20,000",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "gt_finance_error",
+    "evidence": "In gt_29_ref_0.xlsx, Master!M44 (Power Risk) is a typed-in constant of 200000. Every other department with a sheet is linked by formula to its sheet total. The GT's own 'Power Risk East and West'!E16 = SUM(E3:E13) = 20000, which is E7 10000 (Samantha Law) + E13 10000 (Heather Dunton). The extra zero overstates Power Risk by 180,000, so the GT grand total Master!M69 = SUM(M3:M68) = 13,261,750 should be 13,081,750. The grader is binary and checks each value against the reference. An agent that correctly enters 20,000 and 13,081,750 will look 'not equivalent' and may score 0, while an agent copying the GT's error would match.",
+    "confirmation": "Confirmed: GT Master!M44 is the constant 200000 against a source sheet total of 20,000 (E7+E13), so a correct answer of 20,000 and 13,081,750 would not match the binary-graded reference.",
+    "fixed": true,
+    "fix": "Answer key: Master!M44 (Power Risk) is now ='Power Risk East and West'!$E$16 (20,000, linked like the other departments) instead of the typed 200000. The cached grand total Master!M69 =SUM(M3:M68) is now 13,081,750. No other cell changed."
+  },
+  {
+    "id": "F2",
+    "title": "Ground truth contains a 10x typo on Power Risk budget (200,000 instead of 20,000), inflating the Master total by 180,000",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "weak_coverage",
+    "evidence": "In `gt_29_ref_0.xlsx`, the `'Power Risk East and West'` sheet correctly calculates the departmental budget in cell E16 as `=SUM(E3:E13)` which evaluates to `20000` (from E7 = 10,000 for Samantha Law and E13 = 10,000 for Heather Dunton). However, on the `Master` sheet at row 44 (`C44 = 'Power Risk'`), instead of referencing `'Power Risk East and West'!$E$16` or entering `20000`, the ground truth hardcodes `M44 = 200000` (off by a factor of 10). This cascades into the total budget in `Master!M69` (`=SUM(M3:M68)`), producing `13,261,750` in the ground truth instead of the true sum of departmental budgets (`13,081,750`). Because the `grader_guidance` (under '2. Data Accuracy' and 'correctness') requires all values in the model output to be logically equivalent to the reference answer (`gt_29_ref_0.xlsx`) for `score = 1`, an agent that accurately compiles the `20,000` Power Risk budget and `13,081,750` total will fail against the reference answer.",
+    "confirmation": "In 29_src_0.xlsx, 'Power Risk East and West' has budgets only in E7=10000 and E13=10000 (20,000 total), yet GT Master!M44 is a hardcoded 200000 while other departments link to their sheet totals. That inflates Master!M69 to 13,261,750.",
+    "fixed": true,
+    "fix": "Answer key: Master!M44 (Power Risk) is now ='Power Risk East and West'!$E$16 (20,000, linked like the other departments) instead of the typed 200000. The cached grand total Master!M69 =SUM(M3:M68) is now 13,081,750. No other cell changed."
+  },
+  {
+    "id": "F3",
+    "title": "Reference answer overstates Power Risk budget by 180,000",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The input sheet 'Power Risk East and West' contains only two budget amounts: E7 = 10,000 and E13 = 10,000, totaling 20,000. However, the bundled reference workbook has Master!M44 = 200,000. Its grand total, Master!M69 = 13,261,750, consequently exceeds the recomputed source-budget total of 13,081,750 by 180,000. The authoritative rubric requires every modified value to be logically equivalent to the reference and uses binary overall scoring, so this incorrect reference can cause a correct department summary and grand total to fail.",
+    "confirmation": "Same verified defect: the source Power Risk sheet sums to 20,000, but GT Master!M44=200000 and M69=13,261,750.",
+    "fixed": true,
+    "fix": "Answer key: Master!M44 (Power Risk) is now ='Power Risk East and West'!$E$16 (20,000, linked like the other departments) instead of the typed 200000. The cached grand total Master!M69 =SUM(M3:M68) is now 13,081,750. No other cell changed."
+  }
+]

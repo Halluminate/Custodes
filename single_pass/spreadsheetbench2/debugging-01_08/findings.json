@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook's cached values contradict its own formulas, so an output recalculated in LibreOffice cannot match them even if its formulas are identical to the golden's.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "stale-answer-key-values",
+    "evidence": "Golden 'Ex 1 - LBO': X24=8987.8 and Y24:AC24=8101.8, yet all are =$F$21 (F21=8987.8). AC17=1375.96 is =U23, but U23=1707.5. U41=0.137 is =+M17, but M17=0.092. U43=0.264 is =+M27, but M27=0.2215. C11=18.2034 is =+C20, but C20=14.2. 'Ex 5 - M&A' J75/Q75=18.2034 and X75=17.81209 are all =+'Ex 1 - LBO'!$C$11. Recalculation changes U17, U23 and K79:N80 by far more than 1%.",
+    "confirmation": "Golden 'Ex 1 - LBO' caches X24 = 8987.8 but Y24 = 8101.8 though both are =$F$21, AC17 (=U23) 1375.96 vs U23 1707.50, U41 (=+M17) 0.137 vs 0.092, C11 (=+C20) 18.2034 vs 14.2034, and 'Ex 5 - M&A' J75 18.2034 vs X75 17.81209 for the same formula; values-mode grading against these cannot be met by a rec"
+  }
+]

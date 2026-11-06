@@ -1,0 +1,13 @@
+[
+  {
+    "id": "F1",
+    "title": "Image-only grader shrinks the whole sheet to a 741x264 px image, so the value checks can't be read, even on the ground truth",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "best_practices",
+    "evidence": "verify_spreadsheetbench2_chart_checklist (weight 1, the only verifier) fits the chart sheet to one page and renders it at 110 DPI. I ran its own _render_chart_pages on gt_Task 1431124_golden.xlsx and got one 741x264 px image. Each chart is about 100x60 px. The axis tick labels, the £ formats and the Qtr labels can't be read, and the lines are about 1 px thick. 24 of the 35 checklist items ask the vision judge to read series values to within about £10k (e.g. 'The Blue series value at Qtr 1 is approximately £430,000', 'Original ... Qtr 4 is approximately £13,710,000'). Passing needs more than 70% of items (at least 25 of 35). So it needs at least 14 of the 24 value checks plus nearly all the format and axis checks, and none of these can be judged from the thumbnail. The reward is binary, so even a correct answer, including the ground truth, will likely score 0. The result depends on judge noise, not on the work.",
+    "confirmation": "I ran the verifier's own _render_chart_pages on the GT. It produces a single 746x322 px image with both charts as thumbnails whose £ axis ticks and Qtr labels cannot be read. Most of the 35 checklist items need values read to about £10k, so even the GT cannot reliably clear the >0.7 pass threshold.",
+    "fixed": false,
+    "fix": null
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "S1",
+    "title": "The LBO debt schedule is circular, and the answer key stores unconverged iteration values for it, so a LibreOffice recalculation of a correct output gives either Err:522 (iteration off) or converged numbers more than 1% away from the key.",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "circular-reference-nondeterministic-key",
+    "evidence": "'LBO & Lenders' S50=S53-S52, S51=SUM(S49:S50), S53=S54*AVERAGE(S49,S51)*(7/12) (same pattern T:X). The golden S50 is -3.81443597 vs input -3.81443845 with identical formulas. Golden T53=118.97 and T50=-7.494, but the closed-form solution gives T53≈119.22 and T50≈-7.24 (about 3% off). Affected: rows 49-59, R47:X47, R62, R63.",
+    "confirmation": "Golden 'LBO & Lenders' T53=118.97 is not converged (T54*AVERAGE(T49,T51) with its own cached T51 gives 119.2), and with iterate=true all three run outputs in <id> recalc to T50=-7.244 vs the key's -7.494 (3.3%), a modification-cell miss for any correct file."
+  },
+  {
+    "id": "S2",
+    "title": "The golden workbook leaves an obvious cross-sheet reference error unfixed, even though cross-sheet references are the task's own theme, so a thorough fix would fail the cell check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "answer-key-retains-errors",
+    "evidence": "'DCF Model' D85:F85 'Inventory' ='BS & CF'!E10/F10/G10 (Property and Equipment, Net = 120/120/152) instead of row 9 Inventory (480/534/568). This is unchanged in gt_07_golden.xlsx, and fixing it changes D86:L89, G90:L90, G98:L99, the DCF EV, Football Field and LBO.",
+    "confirmation": "Golden 'DCF Model'!D85:F85 (label 'Inventory') = 'BS & CF'!E10:G10, which is 'Property and Equipment, Net' (120/120/152) not row 9 Inventory (480/534/568). All three trials in run <id> fixed it and were graded 'Regression error at DCF Model!D85: answer=120, output=480'."
+  }
+]

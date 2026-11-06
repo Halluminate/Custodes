@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden workbook holds stale, internally inconsistent cached values from data-table iterations, so a correct output that LibreOffice recalculates will differ by far more than 1% in many checked cells.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "stale-golden-values",
+    "evidence": "Golden 'Ex 1 - LBO'!U41=0.137 although its formula =+M17 gives 0.092. U17=6467.79 (=T17*1.137); a recalc gives 6211.81. U43=0.264 while M27=0.2215. U23=1707.50 while AC17 (=U23) is cached at 1375.96. U18 shows 0.092, which contradicts U17/T17. C11=18.2034 while =+C20 is 14.2034. Y24:AC24=8101.82 while =$F$21 is 8987.82. 'Ex 5 - M&A'!X75=17.81209 while it links to C11. Knock-on cells U26, U29, U32, U34, U36-U38, U54-U60, U70-U95 and 'Ex 3' G30 are affected too.",
+    "confirmation": "Golden 'Ex 1 - LBO' cached values contradict their formulas: U41 (=+M17) caches 0.137 vs M17 0.092, U43 (=+M27) 0.264 vs 0.2215, C11 (=+C20) 18.2034 vs 14.2034, AC17 (=U23) 1375.96 vs U23 1707.50, Y24 (=$F$21) 8101.82 vs F21 8987.82; graded in values mode against a LibreOffice-recalculated output, t"
+  }
+]

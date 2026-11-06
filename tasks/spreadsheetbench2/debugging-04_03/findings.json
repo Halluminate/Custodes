@@ -1,0 +1,46 @@
+[
+  {
+    "id": "F1",
+    "title": "Historical charge dates contradict the graded answer",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The instructions specify restructuring charges of -$5.7M for FY ending 2019 and merger-related charges of -$0.6M for 2018 and -$1.36M for 2019. However, the golden workbook places these amounts in I29, H30 and I30, whose fiscal-year headers are 2020, 2019 and 2020 respectively. Following the explicit reference data therefore produces different graded cells, including modification cells that must all match. This contradiction can cause failure of the sole verifier, weighted 100%.",
+    "confirmation": "Duplicate of the confirmed year shift between the prompt's reference data and GT Income Statement I29/H30/I30 under fiscal-year headers 2020/2019/2020.",
+    "fixed": true,
+    "fix": "Same prompt reference-data year-label change."
+  },
+  {
+    "id": "F2",
+    "title": "Prompt reference data specifies wrong fiscal years (FY 2018 and FY 2019 instead of FY 2019 and FY 2020) for missing Income Statement line items, contradicting ground truth",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "mapping_ambiguity",
+    "evidence": "In `problem.py:36`, the task instructions state: \"Reference data: Historical Restructuring Charges are -$5.7M (FY ending 2019). Historical Merger & Related Restructuring Charges are -$0.6M (FY ending 2018) and -$1.36M (FY ending 2019).\" On the `Income Statement` tab of both `Errors_input.xlsx` and `gt_04_golden.xlsx`, row 12 (`Fiscal Year`) defines the historical columns as `C12=2014`, `D12=2015`, `E12=2016`, `F12=2017`, `G12=2018`, `H12=2019`, and `I12=2020`. However, in `gt_04_golden.xlsx`, `Restructuring Charges` (`Row 29`) has `G29=0` (FY 2018), `H29=0` (FY 2019), and `I29=-5.7` (FY 2020), while `Merger & Related Restructuring Charges` (`Row 30`) has `G30=0` (FY 2018), `H30=-0.6` (FY 2019), and `I30=-1.36` (FY 2020). Because the sole verifier `SpreadsheetBench 2 official cell check` (`verify_spreadsheetbench2_cells`, weight `1`) requires `mod_ratio == 1.0` to return `1.0` (otherwise returning `0.0`), an agent that places those values in the FY 2018 (`G`) and FY 2019 (`H`) columns as instructed by the prompt will fail `Income Statement!H29`, `I29`, `G30`, `H30`, `I30` as well as downstream historical cells `Income Statement!G35:I35`, `G37:I37`, `G39:I39` and `Line Item Metrics!G14:H14`, `G20:H20`, `G23:H24`, guaranteeing a score of `0.0`.",
+    "confirmation": "Income Statement row 12 gives H=2019 and I=2020, but gt_04_golden.xlsx puts Restructuring -5.7 in I29 and Merger -0.6/-1.36 in H30/I30, one year later than the prompt's 'FY ending 2019' and '2018/2019', and the all-or-nothing cell check penalises following the prompt.",
+    "fixed": true,
+    "fix": "prompt.md reference-data line: year labels changed to the model's 'Fiscal Year' row 12 headers that the GT uses: '-$5.7M (FY ending 2019)' -> '(Fiscal Year 2020)', '-$0.6M (FY ending 2018)' -> '(Fiscal Year 2019)', '-$1.36M (FY ending 2019)' -> '(Fiscal Year 2020)'. GT Income Statement I29=-5.7, H30=-0.6, I30=-1.36 under headers H12=2019, I12=2020; no amounts changed."
+  },
+  {
+    "id": "F3",
+    "title": "Verifier awards full credit with the broken defined name and hundreds of calculation errors",
+    "bucket": "Reward",
+    "severity": "critical",
+    "category": "environment_integrity",
+    "evidence": "The verifier's _match function falls back to formula comparison whenever either compared cell contains an Excel error, even when the golden cell has a valid numeric result. A controlled test retained the golden formulas and restored the input's broken Mil definition, 'control!#ref!'. After LibreOffice recalculation, the workbook contained 437 Excel errors, including Summary!H12 and Income Statement!J26, yet score_workbooks returned regression=1.0, modification=1.0 and no errors. The sole 100%-weighted verifier therefore accepts precisely the broken defined name and cascading calculation failures the task requires fixing.",
+    "confirmation": "spreadsheetbench2.py _match switches to formula comparison whenever either cell is an Excel error, so an output that keeps the input's broken name Mil = control!#ref! (GT: Control!$E$5) but has GT formulas yields #NAME? cells that still match, and the verifier passes the exact defect the task asks t",
+    "fixed": false,
+    "fix": null
+  },
+  {
+    "id": "F4",
+    "title": "The prompt's fiscal years for the restored line items are one year earlier than where the ground truth puts them",
+    "bucket": "Task Spec",
+    "severity": "critical",
+    "category": "world_consistency",
+    "evidence": "The prompt gives the reference data as: 'Historical Restructuring Charges are -$5.7M (FY ending 2019). Historical Merger & Related Restructuring Charges are -$0.6M (FY ending 2018) and -$1.36M (FY ending 2019).' In the workbook, Income Statement row 12 labels column D=2015, E=2016, F=2017, G=2018, H=2019 and I=2020. The ground truth puts Restructuring Charges -5.7 in I29 (FY2020). It puts Merger & Related -0.6 in H30 (FY2019) and -1.36 in I30 (FY2020). So each GT value sits one year later than the prompt says. I built a copy of the GT with the values placed where the prompt says (H29=-5.7, G30=-0.6, H30=-1.36, I29=I30=0), recalculated it in LibreOffice and ran it through the real score_workbooks function. It scored modification 0.9636 with 19 cell errors, including H35, I35, H39 and I37. Because of verify_spreadsheetbench2_cells' all-or-nothing rule (every modification cell must match), that is a score of 0.0. This single verifier carries the whole grade (weight 1). An agent that follows the stated fiscal years exactly, or matches the model's own year headers, is guaranteed to fail. Only an agent that ignores the prompt's year labels can pass.",
+    "confirmation": "Same confirmed mismatch: the GT values sit in I29 (2020), H30 (2019) and I30 (2020), while the prompt dates them FY2019, FY2018 and FY2019, so placing them by the stated year misses modification cells.",
+    "fixed": true,
+    "fix": "Same prompt reference-data year-label change."
+  }
+]

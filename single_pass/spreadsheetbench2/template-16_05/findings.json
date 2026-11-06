@@ -1,0 +1,11 @@
+[
+  {
+    "id": "S1",
+    "title": "The golden H45 holds an NOI margin (NOI / EGR = 0.5909), not a per-SF or per-unit figure, even though B6 says column H shows per-unit or per-SF metrics, so any agent following the stated convention fails this all-or-nothing check.",
+    "bucket": "Verification",
+    "severity": "critical",
+    "category": "hidden-convention",
+    "evidence": "Golden DirectCap!H45 = 0.590942626 = I45/I27 (5,243,159.39 / 8,872,535.45). Per the stated convention the value would be about 1.76 $/SF/month (I45/(320*775*12)) or 16,384.87 $/unit (I45/320). The H30 '$/Unit' header covers the rows below it.",
+    "confirmation": "Input DirectCap!B6 says column H shows per-unit or per-SF metrics (H8 '$/SF', H30 '$/Unit'), but golden H45 = 0.5909 = NOI/EGR (I45/I27), a margin nothing in the file asks for. H45 is a modification cell, so a per-SF or per-unit value fails."
+  }
+]
