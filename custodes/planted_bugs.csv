@@ -1,4 +1,4 @@
-task,bucket,tier,variant,general_strategy,description,in_single_bug_set,in_all_bugs_set
+task,bucket,tier,variant,qa_issue_type,description,in_single_bug_set,in_all_bugs_set
 1,Verification,Obvious,A,A GT assumption uses a stale value.,"The equity risk premium in the answer key was changed from 6.1 percent to 61 percent, so a correct model fails the inputs check.",0,1
 1,Verification,Obvious,B,A GT formula uses a different method from the one the task requires.,"A formula for the minimum comps multiple in the answer key was switched to the maximum, so the low and high rows match.",0,1
 1,Verification,Obvious,C,A verifier checks cells that the starter template handed to the agent already satisfies.,"The grading check for the chart's high values was pointed at slide 2, although the task and answer key have only one slide.",1,1

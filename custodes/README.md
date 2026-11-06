@@ -17,7 +17,7 @@ bugs, which gives 40 tasks x 5 buckets x 3 tiers x 3 bugs = 1,800 single-bug cop
 | `bucket` | Task Spec, Reward, Environment & Infra, Verification, or Style |
 | `tier` | Obvious, Subtle, or Near-impossible |
 | `variant` | A, B, or C (three bugs per task, bucket, and tier) |
-| `general_strategy` | one of the 28 general strategies (Figure 3 of the post) |
+| `qa_issue_type` | one of the 28 QA issue types (Figure 3 of the post) |
 | `description` | one line on how the bug was planted in that task |
 | `in_single_bug_set` | 1 if the bug is one of the 200 single-bug copies |
 | `in_all_bugs_set` | 1 if the bug is part of its task's all-bugs copy |
