@@ -1,7 +1,30 @@
-# QA of public RL tasks: External Benchmarks
+# Custodes
 
-This repository holds 536 public benchmark tasks that we ran through our QA pipeline. For each task it has
-the task as we QA'd it, the corrected files where we changed something, and the confirmed QA findings.
+This repository accompanies the blog post
+[Custodes: Who annotates the annotators?](https://halluminate.ai/blog/qa-benchmark). It has two main parts.
+
+1. [`custodes/`](custodes/): Custodes, the QA benchmark.
+2. The external-benchmark audit (`tasks/`, `findings/`, `scores/`, `single_pass/`, `MISSING.md`): the public tasks
+   of SpreadsheetBench 2, FINCH, GDPval and DAYJOB before and after the fixes from our QA system.
+
+## Custodes: the QA benchmark
+
+Custodes plants bugs in 40 internal long-horizon finance RL tasks. `custodes/planted_bugs.csv` lists all 1,800
+planted bugs with a one-line description of each. 200 single-bug copies form the single-bug set, and the 40
+all-bugs copies carry 1,416 bugs in total. The tasks themselves are internal and not released. See
+[`custodes/README.md`](custodes/README.md) for the columns and how the bugs were built.
+
+## External-benchmark audit
+
+This part holds 536 public benchmark tasks that we ran through our QA pipeline. For each task it has the task as
+we QA'd it (`original/`), the corrected files where we changed something (`corrected/`), and the confirmed QA
+findings (`findings.json`).
+
+- `tasks/<benchmark>/<task>/`: original task, corrected files and confirmed pipeline findings.
+- `findings/summary.csv`: one row per confirmed pipeline finding.
+- `single_pass/`: confirmed findings from a single-pass LLM review baseline, per task, plus `summary.csv`.
+- `scores/before_after.csv`: DeepSeek V4.1 Flash mean score per corrected task, before and after the fixes.
+- `MISSING.md`: files that are not in this repository.
 
 | Benchmark | Official source | Tasks | Tasks with corrected files | Confirmed findings (pipeline) | Findings fixed | Single-pass findings |
 |---|---|---:|---:|---:|---:|---:|
@@ -11,7 +34,7 @@ the task as we QA'd it, the corrected files where we changed something, and the 
 | DAYJOB (finance) | [surgeai/DAYJOB-finance](https://huggingface.co/datasets/surgeai/DAYJOB-finance) | 3 | 3 | 0 | 0 | 0 |
 | Total | | 536 | 425 | 898 (223 tasks) | 819 | 175 |
 
-## What "original" means
+### What "original" means
 
 `original/` is the task exactly as our QA pipeline saw it: the public task ported to our agent harness, with
 prompt, grading and reference files set up to follow each benchmark's official run and grading setup. It is not
@@ -31,7 +54,7 @@ a byte copy of the public release. Known differences from the public release:
 
 For the raw public files, use the official sources above.
 
-## The 5 buckets
+### The 5 buckets
 
 Each confirmed finding has exactly one bucket, the one that best describes what is broken in the task:
 
@@ -55,7 +78,7 @@ Confirmed pipeline findings per bucket:
 | Environment & Infra | 24 | 15 | 18 | 57 |
 | Style | 11 | 4 | 0 | 15 |
 
-## Layout
+### Layout
 
 ```
 tasks/<benchmark>/<task>/
@@ -65,7 +88,7 @@ tasks/<benchmark>/<task>/
     grading.json         grader mode, verifier functions and parameters, AI-grader settings
     inputs/              files given to the agent
     reference/           answer key / golden / expert deliverable, as used by the grader
-  corrected/             only present if we changed the task; only the changed files
+  corrected/             only present if we changed the task, holds only the changed files
     CHANGES.md           what was changed and why, linked to findings.json
   findings.json          confirmed findings (pipeline): id, title, bucket, severity, category,
                          evidence, confirmation (why the finding was confirmed), fixed, fix
@@ -80,7 +103,7 @@ Task names: SpreadsheetBench 2 tasks use the public task id (for example `financ
 `debugging-03_04`, `template-06_11`, `visualization-task-126`), FINCH tasks the public task number
 (`task-011`), GDPval tasks the public task id, DAYJOB tasks the public task id.
 
-## Findings
+### Findings
 
 Findings come from our multi-check QA pipeline, run on one 3-attempt DeepSeek V4.1 Flash rollout per task.
 Only critical findings that a separate checker confirmed as real are listed (898), each with the finding text,
@@ -88,7 +111,7 @@ the evidence and the checker's confirmation. Not listed: 90 confirmed findings f
 checks, which are about our harness and tools, and 10 other confirmed findings that were left out of the bucket
 classification.
 `fixed` is true when the applied correction lists that finding as fixed. Some corrections also fixed major or
-minor findings that are not listed here; `CHANGES.md` marks those as "another finding (not listed)".
+minor findings that are not listed here. `CHANGES.md` marks those as "another finding (not listed)".
 
 Identifiers internal to our platform (problem ids, run ids, internal paths) are replaced by `<id>` or removed in the
 finding and change texts. References to other findings in the same task are rewritten to their `F<n>` id.
@@ -96,7 +119,7 @@ finding and change texts. References to other findings in the same task are rewr
 `single_pass/` holds the 175 confirmed critical findings of a single-pass LLM review baseline over the same tasks.
 These were not used to choose the corrections, so they have no `fixed` field.
 
-## Scores
+### Scores
 
 `scores/before_after.csv` gives, for the 425 corrected tasks, the mean score of DeepSeek V4.1 Flash over 3 attempts
 before the fixes and over a new 3-attempt run after the fixes. One GDPval after-run failed and has no score.
@@ -108,7 +131,7 @@ before the fixes and over a new 3-attempt run after the fixes. One GDPval after-
 | GDPval | 35 (34 with an after score) | 0.717 | 0.742 |
 | DAYJOB | 3 | 0.551 | 0.576 |
 
-## Omitted files
+### Omitted files
 
-Files over 20 MB are not included (see `MISSING.md`): the input `<n>_src_5.csv` (23.6 MB) of FINCH tasks
+Files over 20 MB are not included (see [`MISSING.md`](MISSING.md)): the input `<n>_src_5.csv` (23.6 MB) of FINCH tasks
 `task-017`, `task-018` and `task-073`.
