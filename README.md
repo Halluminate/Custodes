@@ -131,7 +131,3 @@ before the fixes and over a new 3-attempt run after the fixes. One GDPval after-
 | GDPval | 35 (34 with an after score) | 0.717 | 0.742 |
 | DAYJOB | 3 | 0.551 | 0.576 |
 
-### Omitted files
-
-Files over 20 MB are not included (see [`MISSING.md`](MISSING.md)): the input `<n>_src_5.csv` (23.6 MB) of FINCH tasks
-`task-017`, `task-018` and `task-073`.
