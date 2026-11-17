@@ -1,0 +1,46 @@
+LICENSE
+
+This repository holds two kinds of material under different terms.
+
+1. Halluminate's own work
+
+   Covers: custodes/, findings/, scores/, single_pass/, every tasks/<benchmark>/<task>/findings.json and
+   tasks/<benchmark>/<task>/corrected/CHANGES.md, and the README and documentation files.
+
+   Copyright (c) 2026 Halluminate. Author: Victoria Knapp-Pérez.
+
+   Licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
+   (CC BY-NC-ND 4.0), https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode. You may share this material with
+   credit, for non-commercial purposes only, and you may not distribute modified versions of it.
+
+2. Third-party benchmark tasks
+
+   Covers: tasks/<benchmark>/<task>/original/ and the task files in tasks/<benchmark>/<task>/corrected/ (other than
+   CHANGES.md). These files come from public releases and stay under their original licenses. Halluminate claims no
+   rights in them. The README links to each official source. Where we changed a file, corrected/CHANGES.md says what
+   we changed and why.
+
+   - SpreadsheetBench 2 (tasks/spreadsheetbench2/): MIT License, copyright the SpreadsheetBench 2 authors.
+     Source: https://huggingface.co/datasets/KAKA22/SpreadsheetBench-v2
+   - DAYJOB finance (tasks/dayjob/): MIT License, copyright Surge AI.
+     Source: https://huggingface.co/datasets/surgeai/DAYJOB-finance
+   - FINCH (tasks/finch/): Creative Commons Attribution 3.0 (CC BY 3.0), copyright the FINCH authors.
+     Source: https://huggingface.co/datasets/FinWorkBench/Finch
+   - GDPval (tasks/gdpval/): no license is stated on the dataset card, so all rights remain with OpenAI.
+     Source: https://huggingface.co/datasets/openai/gdpval
+
+   MIT License text (applies to the SpreadsheetBench 2 and DAYJOB files):
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+   documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+   the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all copies or substantial portions of
+   the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+   THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
