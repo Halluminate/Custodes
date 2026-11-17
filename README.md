@@ -133,3 +133,9 @@ before the fixes and over a new 3-attempt run after the fixes. One GDPval after-
 | GDPval | 35 (34 with an after score) | 0.717 | 0.742 |
 | DAYJOB | 3 | 0.551 | 0.576 |
 
+
+## License
+
+Halluminate's own work (the Custodes bug list, findings, scores and documentation) is under CC BY-NC-ND 4.0. The
+benchmark task files stay under their original licenses: MIT for SpreadsheetBench 2 and DAYJOB, CC BY 3.0 for FINCH,
+and no stated license for GDPval. See [LICENSE](LICENSE).
