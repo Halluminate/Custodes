@@ -1,6 +1,6 @@
 # Custodes
 
-Author: Victoria Knapp-Pérez
+Author: Victoria Knapp-Pérez ([@victoria-kp](https://github.com/victoria-kp))
 
 This repository accompanies the blog post
 [Custodes: Who annotates the annotators?](https://halluminate.ai/blog/qa-benchmark). It has two main parts.
