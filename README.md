@@ -2,8 +2,6 @@
 
 Author: Victoria Knapp-Pérez
 
-Blog post: [Custodes: Who annotates the annotators?](https://halluminate.ai/blog/qa-benchmark)
-
 This repository accompanies the blog post
 [Custodes: Who annotates the annotators?](https://halluminate.ai/blog/qa-benchmark). It has two main parts.
 
